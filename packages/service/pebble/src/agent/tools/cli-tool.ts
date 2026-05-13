@@ -2,7 +2,7 @@
 
 import type { z } from 'zod/v4';
 import { DataSerializer } from '../../serializer';
-import { Cell, type CellContent, type DataCells } from '../../thread';
+import { Cell, type DataCells } from '../../thread';
 import { ToolResponse, type ToolResponseResult } from '../hooks/tool-response';
 import { AgentTool } from './agent-tool';
 import cliToolRegistrationText from './cli-tool-registration.md?raw';

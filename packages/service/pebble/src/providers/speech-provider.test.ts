@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import {
-  nonRetryableSpeechResult,
-  retryableSpeechResult,
-  speechInput,
-} from './speech-provider.test-results';
 import { RetryTestSpeechProvider } from './retry-test-speech-provider';
+import { nonRetryableSpeechResult, retryableSpeechResult, speechInput } from './speech-provider.test-results';
 
 describe('feature: speech provider retry', () => {
   it('happy: retries retryable results with exponential backoff', async () => {

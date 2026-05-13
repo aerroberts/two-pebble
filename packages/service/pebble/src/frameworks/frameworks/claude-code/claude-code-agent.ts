@@ -11,8 +11,8 @@ import { ThirdPartyAgentFramework } from '../../third-party-agent-framework';
 import type { AgentFrameworkSubmitMessageInput } from '../../types';
 import { ClaudeCodeEventConverter } from './claude-code-event-converter';
 import {
-  type ClaudeCodeAgentOptions,
   type ActiveClaudeCodeQuery,
+  type ClaudeCodeAgentOptions,
   type InputStreamResolver,
   mapApiProvider,
   type QueryHooks,

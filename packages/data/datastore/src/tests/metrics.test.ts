@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { useDatastoreForTesting } from '../testing/datastore-test-env';
 import {
+  expectDistinctBucketsInOrder,
   listMetricNamesWithSamples,
   listMetricVariantsWithSamples,
   METRICS_BUCKET_MS,
@@ -36,8 +37,11 @@ describe('feature: operation metrics.query-aggregated', () => {
   test('happy: groups samples across distinct time buckets', async () => {
     const { datastore, result } = await queryDistinctBucketMetrics();
     await datastore.close();
-    expect(result.buckets).toMatchObject([{ sampleCount: 2, sum: 3 }, { sampleCount: 2, sum: 30 }]);
-    expect(result.buckets[1]?.bucketStart).toBeGreaterThan(result.buckets[0]!.bucketStart);
+    expect(result.buckets).toMatchObject([
+      { sampleCount: 2, sum: 3 },
+      { sampleCount: 2, sum: 30 },
+    ]);
+    expectDistinctBucketsInOrder(result.buckets);
   });
 
   test('happy: filters by partial dimension match', async () => {

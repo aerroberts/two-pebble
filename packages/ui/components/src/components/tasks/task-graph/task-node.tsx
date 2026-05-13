@@ -44,7 +44,7 @@ export function TaskNode(props: NodeProps<TaskFlowNode>) {
   const wrapperClass =
     `relative flex h-9 w-9 items-center justify-center rounded-full transition-colors ${config.bg} ${config.ring} ${config.opacity ?? ''}`.trim();
   return (
-    <div aria-label={props.data.name} className={wrapperClass}>
+    <div aria-label={props.data.name} className={wrapperClass} role="img">
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} isConnectable={false} />
       {config.spin ? (
         <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-accent border-t-transparent animate-spin" />

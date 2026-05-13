@@ -1,4 +1,4 @@
-import type { CellContent, DataCells } from '../../cells/index';
+import type { DataCells } from '../../cells/index';
 import { Cell } from '../../cells/index';
 
 export interface AgentMessageInput {

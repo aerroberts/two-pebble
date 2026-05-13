@@ -1,10 +1,5 @@
-import {
-  ensureSubAgent,
-  recordSubAgentTrace,
-  recordSubAgentUsage,
-  stopSubAgent,
-} from './agent-registry-sub-agents';
 import { persistAgentMetadata } from './agent-registry-status';
+import { ensureSubAgent, recordSubAgentTrace, recordSubAgentUsage, stopSubAgent } from './agent-registry-sub-agents';
 import type { AgentListenerInstallInput } from './agent-registry-types';
 
 export function installAgentPersistenceListeners(install: AgentListenerInstallInput): void {

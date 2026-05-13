@@ -2,12 +2,12 @@ import type { AgentCapability } from '../../capabilities/agent-capability';
 import { getCapabilityRunners } from '../../capabilities/runners';
 import type { ModelProvider } from '../../providers/index';
 import type { ProviderOutputBlock, ProviderResult } from '../../providers/types';
-import { Cell, ConversationThread, type DataCells, Event } from '../../thread/index';
+import { Cell, ConversationThread, Event } from '../../thread/index';
 import type { PebbleJsonValue } from '../../types';
 import { Agent } from '../agent';
+import type { ToolResponseResult } from '../hooks/tool-response';
 import type { AgentSignal } from '../signal-runner';
 import type { AgentTool } from '../tools/agent-tool';
-import type { ToolResponseResult } from '../hooks/tool-response';
 import type { ToolInput, ToolInputRecord } from '../tools/tool-input';
 import type {
   AgentToolRegistration,

@@ -195,10 +195,7 @@ export function useTaskBoardPageState() {
   };
 }
 
-function collectOwnerAgent(
-  selectedTask: SelectedTaskRecord,
-  agents: AgentLike[],
-): OwnerAgentResult {
+function collectOwnerAgent(selectedTask: SelectedTaskRecord, agents: AgentLike[]): OwnerAgentResult {
   if (selectedTask === null || selectedTask.ownerId === null) return null;
   return agents.find((entry) => entry.id === selectedTask.ownerId) ?? null;
 }

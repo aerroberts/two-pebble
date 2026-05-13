@@ -23,7 +23,7 @@ export function ProgressiveTaskListEditor(props: CapabilityEditorProps<Progressi
         <Surface>No tasks configured. The agent will run with an empty list until tasks are added.</Surface>
       ) : null}
       {tasks.map((task, index) => (
-        <Surface key={`${index}-${task.id}`}>
+        <Surface key={task.id}>
           <Input
             label="ID"
             onChange={(event) => updateTask(props, tasks, index, { id: event.target.value })}

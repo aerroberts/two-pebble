@@ -1,6 +1,6 @@
 import type {
-  Datastore,
   AgentRegistryRecord,
+  Datastore,
   InferenceProfileRecord,
   IntegrationRecord,
   ThirdPartyAgentInstallRecord,

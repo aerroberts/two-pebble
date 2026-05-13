@@ -2,8 +2,8 @@ import type { Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
 import type { ProtocolTaskRecord } from '@two-pebble/protocol';
 import { TaskBoard } from '@two-pebble/tasks';
-import { toProtocolTask } from './task-board-protocol-task';
 import { rowToProtocolEvent } from './task-board-event-mapping';
+import { toProtocolTask } from './task-board-protocol-task';
 import { hydrateTaskBoard } from './task-board-service-hydration';
 import type {
   BoardSnapshot,
@@ -12,7 +12,6 @@ import type {
   CreateDependencyInput,
   CreatePoolInput,
   CreateTaskInput,
-  DatastoreTaskRow,
   DeleteDependencyInput,
   DependencyMutationOutcome,
   MutationContextInput,
@@ -387,5 +386,4 @@ export class TaskBoardService {
     if (engine === undefined) throw new Error(`task board "${boardId}" not loaded`);
     return engine;
   }
-
 }

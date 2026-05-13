@@ -1,5 +1,5 @@
 import type { z } from 'zod/v4';
-import type { CellContent, DataCells } from '../../thread';
+import type { DataCells } from '../../thread';
 import type { Agent } from '../agent';
 import type { ToolResponseResult } from '../hooks/tool-response';
 import type { ToolInput } from './tool-input';

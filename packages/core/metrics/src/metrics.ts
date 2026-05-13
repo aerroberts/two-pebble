@@ -1,5 +1,5 @@
-import { assertValidMetricName } from './metric-name';
 import { DEFAULT_PERIODIC_INTERVAL_MS } from './constants';
+import { assertValidMetricName } from './metric-name';
 import type {
   MetricArguments,
   MetricDimensions,

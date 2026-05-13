@@ -1,6 +1,6 @@
 /// <reference path="../../../text-imports.d.ts" />
 
-import type { CellContent, DataCells } from '../../cells/index';
+import type { DataCells } from '../../cells/index';
 import { Cell } from '../../cells/index';
 import agentNamingInstructionRaw from './agent-naming-instruction.md?raw';
 

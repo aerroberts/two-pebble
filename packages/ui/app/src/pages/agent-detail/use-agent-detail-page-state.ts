@@ -13,7 +13,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { threadSnapshotPath } from '../../shared/routing/thread-pointer';
-import { type AgentDetailViewMode, parseAgentDetailViewMode } from './agent-detail.types';
+import { parseAgentDetailViewMode } from './agent-detail.types';
 import { readAgentPriceLineItems } from './agent-detail-price-data';
 import { buildWaterfallItems } from './agent-detail-waterfall-data';
 import type { WaterfallScope } from './agent-detail-waterfall-view';

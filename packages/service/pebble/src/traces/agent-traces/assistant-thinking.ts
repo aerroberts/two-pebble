@@ -1,4 +1,4 @@
-import type { CellContent, DataCells } from '../../thread';
+import type { DataCells } from '../../thread';
 
 export interface PebbleAgentAssistantThinkingTrace {
   type: 'assistant-thinking';

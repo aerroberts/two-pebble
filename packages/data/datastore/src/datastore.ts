@@ -6,9 +6,6 @@ import { logger } from '@two-pebble/logger';
 import { metrics } from '@two-pebble/metrics';
 import { drizzle } from 'drizzle-orm/libsql';
 import type { DatastoreOperationBinder } from './datastore-operation-binder';
-import { datastoreCloseOperation } from './operations/datastore.close';
-import { datastoreMigrateOperation } from './operations/datastore.migrate';
-import { datastoreStatusOperation } from './operations/datastore.status';
 import { bindAgentOperationGroup } from './operation-groups/agent-operation-group';
 import {
   bindAgentRegistryOperationGroup,
@@ -25,6 +22,9 @@ import {
   bindWorktreeOperationGroup,
 } from './operation-groups/storage-operation-group';
 import { bindTaskBoardOperationGroup } from './operation-groups/task-board-operation-group';
+import { datastoreCloseOperation } from './operations/datastore.close';
+import { datastoreMigrateOperation } from './operations/datastore.migrate';
+import { datastoreStatusOperation } from './operations/datastore.status';
 import * as schema from './schema';
 import type {
   DatabaseColumnNames,

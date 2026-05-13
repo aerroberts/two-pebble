@@ -3,7 +3,7 @@ import { APP_SETTINGS_SINGLETON_ID } from '../schema/app-settings.table';
 import type { AppSettingsRecord, DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
-  // The settings row is a singleton; no input is required.
+  readonly __noInput?: never;
 };
 
 export function appSettingsReadOperation(ctx: DatastoreContext) {

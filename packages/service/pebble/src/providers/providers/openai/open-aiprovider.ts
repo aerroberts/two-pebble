@@ -1,8 +1,8 @@
+import type { ToolInputRecord } from '../../../agent/tools/tool-input';
 import type { CellContent, DataCells } from '../../../thread/cells/index';
 import type { ConversationThread, ConversationTurn } from '../../../thread/index';
-import type { ToolInputRecord } from '../../../agent/tools/tool-input';
-import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
 import { ModelProvider } from '../../model-provider';
+import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
 import { collectNativeToolDefinitions } from '../../native-tools';
 import type { ProviderOutputBlock, ProviderResult } from '../../types';
 import { isRetryableProviderStatus } from '../../utils/retry';

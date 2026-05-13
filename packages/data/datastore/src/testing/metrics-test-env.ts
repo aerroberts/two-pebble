@@ -1,4 +1,6 @@
+import { expect } from 'bun:test';
 import type { Datastore } from '../datastore';
+import type { MetricAggregateBucket } from '../types';
 import { useDatastoreForTesting } from './datastore-test-env';
 
 export const METRICS_BUCKET_MS = 60_000;
@@ -65,6 +67,15 @@ export async function queryDistinctBucketMetrics() {
     bucketSizeMs: METRICS_BUCKET_MS,
   });
   return { datastore, result };
+}
+
+export function expectDistinctBucketsInOrder(buckets: MetricAggregateBucket[]) {
+  const firstBucket = buckets[0];
+  const secondBucket = buckets[1];
+  expect(firstBucket).toBeDefined();
+  expect(secondBucket).toBeDefined();
+  if (firstBucket === undefined || secondBucket === undefined) throw new Error('expected two metric buckets');
+  expect(secondBucket.bucketStart).toBeGreaterThan(firstBucket.bucketStart);
 }
 
 export async function queryDimensionFilteredMetrics() {

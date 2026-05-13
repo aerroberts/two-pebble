@@ -1,7 +1,7 @@
 import {
-  Header,
   AppBox,
   AppButton,
+  Header,
   LineChart,
   type LineChartPoint,
   PageLayout,
@@ -30,12 +30,13 @@ const RANGE_OPTIONS: RangeOption[] = [
   { id: '24h', label: '24h', windowMs: 24 * 60 * 60_000, bucketSizeMs: 5 * 60_000 },
   { id: '7d', label: '7d', windowMs: 7 * 24 * 60 * 60_000, bucketSizeMs: 60 * 60_000 },
 ];
+const DEFAULT_RANGE_OPTION: RangeOption = { id: '1h', label: '1h', windowMs: 60 * 60_000, bucketSizeMs: 60_000 };
 
 export function MetricDetailPage() {
   const { metricName } = useParams<{ metricName: string }>();
   const datastore = useRealtimeDatastore();
   const decodedName = metricName !== undefined ? decodeURIComponent(metricName) : '';
-  const [rangeId, setRangeId] = useState<string>(RANGE_OPTIONS[1]!.id);
+  const [rangeId, setRangeId] = useState<string>(DEFAULT_RANGE_OPTION.id);
   const [buckets, setBuckets] = useState<MetricAggregateBucket[]>([]);
   const [status, setStatus] = useState<LoadStatus>('idle');
   const [domain, setDomain] = useState<{ min: number; max: number }>({ min: 0, max: 1 });
@@ -43,7 +44,7 @@ export function MetricDetailPage() {
   const [variantsStatus, setVariantsStatus] = useState<LoadStatus>('idle');
   const [activeVariantKey, setActiveVariantKey] = useState<string | null>(null);
 
-  const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? RANGE_OPTIONS[1]!;
+  const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? DEFAULT_RANGE_OPTION;
   const activeFilter = useMemo(() => {
     if (activeVariantKey === null) return undefined;
     return variants.find((variant) => variantKey(variant) === activeVariantKey)?.dimensions;
@@ -145,7 +146,9 @@ export function MetricDetailPage() {
         <Surface>
           <AppBox variant="chart-body">
             {status === 'error' ? (
-              <AppBox as="p" variant="muted-xs">Failed to load metric data.</AppBox>
+              <AppBox as="p" variant="muted-xs">
+                Failed to load metric data.
+              </AppBox>
             ) : (
               <LineChart
                 points={aggregatedPoints}
@@ -197,7 +200,12 @@ function VariantsTable(props: VariantsTableProps) {
     const dimensionColumns: TableColumn<MetricVariant>[] = props.dimensionKeys.map((key) => ({
       id: `dim-${key}`,
       header: key,
-      cell: (row) => row.dimensions[key] ?? <AppBox as="span" variant="faint-text">—</AppBox>,
+      cell: (row) =>
+        row.dimensions[key] ?? (
+          <AppBox as="span" variant="faint-text">
+            —
+          </AppBox>
+        ),
     }));
     return [
       {

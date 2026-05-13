@@ -1,5 +1,9 @@
 import type { TaskBoardEventRecord, TaskBoardPoolNode, TaskBoardTaskNode, TaskStatus } from '@two-pebble/pebble';
-import type { DaemonTaskBoardRunnerEvent, TaskBoardPoolRecord, TaskBoardTaskRecord } from './daemon-task-board-runner-types';
+import type {
+  DaemonTaskBoardRunnerEvent,
+  TaskBoardPoolRecord,
+  TaskBoardTaskRecord,
+} from './daemon-task-board-runner-types';
 
 export function toPool(record: TaskBoardPoolRecord): TaskBoardPoolNode {
   return { id: record.id, name: record.name, parentPoolId: record.parentPoolId };

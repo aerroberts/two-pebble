@@ -66,7 +66,10 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     }).onInvoke(async (input) => {
       const runner = this.requireRunner();
       const childAgentId = await runner.spawn(input);
-      this.childrenSlot.set([...this.childrenSlot.value, { agentId: childAgentId, referenceName: input.referenceName }]);
+      this.childrenSlot.set([
+        ...this.childrenSlot.value,
+        { agentId: childAgentId, referenceName: input.referenceName },
+      ]);
       await this.sendParentSignal({
         childAgentId,
         data: { message: input.message, type: 'parent-message' },
@@ -142,7 +145,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       description: 'Read queued child messages without waiting.',
       name: 'read-sub-agent-messages',
       schema: childAgentSchema,
-    }).onInvoke(() => ToolResponse.success([Cell.text('No queued child messages. Signal responses resume the agent.')]));
+    }).onInvoke(() =>
+      ToolResponse.success([Cell.text('No queued child messages. Signal responses resume the agent.')]),
+    );
   }
 
   private respondTool() {

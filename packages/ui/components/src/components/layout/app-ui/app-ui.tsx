@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
+import { type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode, useEffect, useRef } from 'react';
 import { Icon } from '../../content/icon/icon';
 import { IconButton, type IconButtonProps } from '../../input/icon-button/icon-button';
 
@@ -173,7 +173,9 @@ export function AppRevealIconButton(props: AppRevealIconButtonProps) {
   const { reveal, ...rest } = props;
   return (
     <IconButton
-      className={reveal === true ? 'opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100' : ''}
+      className={
+        reveal === true ? 'opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100' : ''
+      }
       {...rest}
     />
   );
@@ -269,7 +271,10 @@ function calculateBarHeight(dataArray: Uint8Array, bucket: SpeechBucket): number
   const normalized = samples > 0 ? sum / samples / 255 : 0;
   const boosted = Math.min(1, normalized * bucket.gain);
   if (boosted <= 0.02) return IDLE_BAR_HEIGHT_PERCENT;
-  return Math.min(MAX_HEIGHT_PERCENT, MIN_ACTIVE_HEIGHT_PERCENT + boosted * (MAX_HEIGHT_PERCENT - MIN_ACTIVE_HEIGHT_PERCENT));
+  return Math.min(
+    MAX_HEIGHT_PERCENT,
+    MIN_ACTIVE_HEIGHT_PERCENT + boosted * (MAX_HEIGHT_PERCENT - MIN_ACTIVE_HEIGHT_PERCENT),
+  );
 }
 
 function buildSpeechBuckets(binCount: number, barCount: number, sampleRate: number, fftSize: number): SpeechBucket[] {

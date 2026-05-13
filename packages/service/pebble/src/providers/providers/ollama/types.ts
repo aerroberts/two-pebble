@@ -52,5 +52,5 @@ export interface OllamaToolCall {
 
 export interface OllamaToolFunction {
   name?: string;
-    arguments?: ToolInputRecord;
+  arguments?: ToolInputRecord;
 }

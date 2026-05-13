@@ -1,3 +1,4 @@
+import type { DatastoreOperationBinder } from '../datastore-operation-binder';
 import { agentCallsListOperation } from '../operations/agent.calls.list';
 import { agentCallsReadOperation } from '../operations/agent.calls.read';
 import { agentCallsRecordOperation } from '../operations/agent.calls.record';
@@ -20,10 +21,9 @@ import { agentSignalsMarkResolvedOperation } from '../operations/agent.signals.m
 import { agentSignalsRegisterOperation } from '../operations/agent.signals.register';
 import { agentSignalsResolveOperation } from '../operations/agent.signals.resolve';
 import { agentSignalsSendPushOperation } from '../operations/agent.signals.send-push';
-import { agentTracesListByTypeOperation } from '../operations/agent.traces.list-by-type';
 import { agentTracesListOperation } from '../operations/agent.traces.list';
+import { agentTracesListByTypeOperation } from '../operations/agent.traces.list-by-type';
 import { agentTracesRecordOperation } from '../operations/agent.traces.record';
-import type { DatastoreOperationBinder } from '../datastore-operation-binder';
 
 /**
  * Binds agent-scoped datastore operations.

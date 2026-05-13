@@ -1,8 +1,8 @@
 import type {
   DatastoreContext,
   MetricDimensionJsonRecord,
-  MetricDimensionsRecord,
   MetricDimensionSource,
+  MetricDimensionsRecord,
   MetricVariant,
 } from '../types';
 

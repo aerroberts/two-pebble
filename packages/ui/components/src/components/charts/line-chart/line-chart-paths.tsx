@@ -15,6 +15,7 @@ export function LineChartPaths(props: LineChartPathsProps) {
   const { chartState, width, height } = props;
   return (
     <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block h-full w-full">
+      <title>Line chart</title>
       {props.tickItems.map((tick) => {
         const y = (tick.topPercent / 100) * height;
         return (
@@ -63,12 +64,12 @@ export function LineChartPaths(props: LineChartPathsProps) {
             ) : null}
             <path d={linePath} fill="none" stroke={color} strokeWidth={1.5} />
             {props.showDots
-              ? points.map((point, index) => {
+              ? points.map((point, _index) => {
                   const xRange = Math.max(1, chartState.chartEndMs - chartState.chartStartMs);
                   const yRange = Math.max(Number.MIN_VALUE, chartState.yAxisMax - chartState.yAxisMin);
                   const cx = ((point.x - chartState.chartStartMs) / xRange) * width;
                   const cy = (1 - (point.y - chartState.yAxisMin) / yRange) * height;
-                  return <circle key={`${series.id}-${index}`} cx={cx} cy={cy} r={2} fill={color} />;
+                  return <circle key={`${series.id}-${point.x}-${point.y}`} cx={cx} cy={cy} r={2} fill={color} />;
                 })
               : null}
           </g>

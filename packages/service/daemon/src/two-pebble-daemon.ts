@@ -6,8 +6,8 @@ import { WsBridgeServer } from '@two-pebble/ws-bridge';
 import { registerDaemonHandlers } from './register-daemon-handlers';
 import { AgentRegistryService } from './services/agent-registry-service';
 import { LivenessReconciler } from './services/liveness-reconciler';
-import { asDaemonBridge } from './services/multicast-bridge-cast';
 import { MulticastBridge } from './services/multicast-bridge';
+import { asDaemonBridge } from './services/multicast-bridge-cast';
 import { TaskBoardService } from './services/task-board-service';
 import type {
   AgentLivenessPayload,

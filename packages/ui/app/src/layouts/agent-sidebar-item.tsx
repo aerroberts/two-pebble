@@ -79,7 +79,9 @@ export function AgentSidebarItem(props: AgentSidebarItemProps) {
         type="button"
       />
     ) : (
-      <AppBox as="span" variant="icon-static">{config.defaultIcon}</AppBox>
+      <AppBox as="span" variant="icon-static">
+        {config.defaultIcon}
+      </AppBox>
     );
 
   return (

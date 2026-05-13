@@ -1,5 +1,5 @@
-import type { ModelUsage, PricingLineItem, StaticPricing } from './types';
 import { isEmptyUsage } from './model-usage-guards';
+import type { ModelUsage, PricingLineItem, StaticPricing } from './types';
 
 /**
  * Static price calculator for registered model pricing.

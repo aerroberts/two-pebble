@@ -7,7 +7,7 @@ import type {
 } from '@anthropic-ai/claude-agent-sdk';
 import type { ToolResultBlockParam } from '@anthropic-ai/sdk/resources';
 import type { UsageReport } from '../../../pricing';
-import type { CellContent, DataCells } from '../../../thread/cells';
+import type { DataCells } from '../../../thread/cells';
 import { Cell, text } from '../../../thread/cells';
 import type { PebbleAgentTrace, TaskListUpdateChange, TaskListUpdateStatus, TaskListUpdateTask } from '../../../traces';
 import type { PebbleJsonRecord, PebbleJsonValue } from '../../../types';

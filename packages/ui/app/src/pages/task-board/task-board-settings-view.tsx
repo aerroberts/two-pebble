@@ -33,9 +33,7 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
           <AppBox variant="delete-row">
             <div>
               <AppBox variant="delete-title">Delete board</AppBox>
-              <AppBox variant="delete-description">
-                Permanently removes the board and every task it contains.
-              </AppBox>
+              <AppBox variant="delete-description">Permanently removes the board and every task it contains.</AppBox>
             </div>
             <Button leftIcon="trash" onClick={props.onDeleteBoard}>
               Delete board
@@ -45,11 +43,6 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
       </Section>
     </>
   );
-}
-
-interface PoolItemInput {
-  pool: TaskPoolRecord;
-  onDelete: PoolDeleteHandler;
 }
 
 type PoolDeleteHandler = (poolId: string) => void;

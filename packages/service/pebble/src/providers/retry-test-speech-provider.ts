@@ -1,6 +1,6 @@
 import { SpeechProvider } from './speech-provider';
-import type { SpeechInput, SpeechResult } from './types';
 import type { SpeechScriptStep } from './speech-provider.test-types';
+import type { SpeechInput, SpeechResult } from './types';
 
 /**
  * Deterministic speech provider used by retry tests.

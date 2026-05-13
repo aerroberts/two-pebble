@@ -1,4 +1,4 @@
-import type { CellContent, DataCells } from '@two-pebble/pebble';
+import type { CellContent } from '@two-pebble/pebble';
 import type { TraceBodyCellBlock } from '../trace-body-cell';
 
 type ToolResultInput = CellContent | readonly CellContent[];

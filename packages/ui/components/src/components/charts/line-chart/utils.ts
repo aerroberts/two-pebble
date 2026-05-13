@@ -37,7 +37,7 @@ export function resolveSeriesColor(color: OptionalColor, index: number): string 
   // Lines use the chart palette at full opacity — alpha would wash out a 1.5px
   // stroke. Filled areas under the line apply opacity through fillOpacity
   // instead of pre-mixing it into the stroke color.
-  if (!color) return CHART_PALETTE[index % CHART_PALETTE.length]!;
+  if (!color) return CHART_PALETTE[index % CHART_PALETTE.length] ?? 'currentColor';
   if (color in CHART_COLORS) return CHART_COLORS[color as ChartColorName];
   return color;
 }
@@ -198,8 +198,9 @@ export function buildAreaPath(
   if (points.length === 0) return '';
   const line = buildSvgPath(points, startMs, endMs, yMin, yMax, width, height);
   const xRange = Math.max(1, endMs - startMs);
-  const last = points[points.length - 1]!;
-  const first = points[0]!;
+  const last = points.at(-1);
+  const first = points.at(0);
+  if (last === undefined || first === undefined) return '';
   const lastX = ((last.x - startMs) / xRange) * width;
   const firstX = ((first.x - startMs) / xRange) * width;
   return `${line} L${lastX.toFixed(2)},${height.toFixed(2)} L${firstX.toFixed(2)},${height.toFixed(2)} Z`;

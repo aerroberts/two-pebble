@@ -2,7 +2,7 @@ import type { AgentSignal } from '../../agent';
 import { AgentExitHook, NativeTool, ToolResponse } from '../../agent';
 import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
-import { parentMessageSchema, notifyParentSchema, readParentMessagesSchema } from './parent-link-schemas';
+import { notifyParentSchema, parentMessageSchema, readParentMessagesSchema } from './parent-link-schemas';
 import { objectData, stringField } from './parent-link-signal-data';
 import type { ParentLinkCapabilityConfig, PendingParentResponse } from './parent-link-types';
 

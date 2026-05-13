@@ -1,7 +1,7 @@
 import {
-  Header,
   AppBox,
   AppButton,
+  Header,
   PageLayout,
   Section,
   Select,
@@ -27,6 +27,7 @@ const RANGE_OPTIONS: RangeOption[] = [
   { id: '24h', label: '24h', windowMs: 24 * 60 * 60_000, bucketSizeMs: 5 * 60_000 },
   { id: '7d', label: '7d', windowMs: 7 * 24 * 60 * 60_000, bucketSizeMs: 60 * 60_000 },
 ];
+const DEFAULT_RANGE_OPTION: RangeOption = { id: '1h', label: '1h', windowMs: 60 * 60_000, bucketSizeMs: 60_000 };
 
 const GROUP_BY_OPTIONS = [
   { key: 'charge', label: 'By charge' },
@@ -48,14 +49,14 @@ export function PricingOverviewPage() {
   const integrations = useIntegrations();
   const inferenceProfiles = useInferenceProfiles();
 
-  const [rangeId, setRangeId] = useState<string>(RANGE_OPTIONS[1]!.id);
+  const [rangeId, setRangeId] = useState<string>(DEFAULT_RANGE_OPTION.id);
   const [groupBy, setGroupBy] = useState<GroupByKey>('charge');
   const [variants, setVariants] = useState<MetricVariant[]>([]);
   const [seriesBuckets, setSeriesBuckets] = useState<{ value: string; buckets: MetricAggregateBucket[] }[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [domain, setDomain] = useState<{ min: number; max: number }>({ min: 0, max: 1 });
 
-  const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? RANGE_OPTIONS[1]!;
+  const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? DEFAULT_RANGE_OPTION;
 
   useEffect(() => {
     let active = true;
@@ -207,7 +208,9 @@ export function PricingOverviewPage() {
           </AppBox>
           <AppBox variant="chart-body">
             {status === 'error' ? (
-              <AppBox as="p" variant="muted-xs">Failed to load pricing data.</AppBox>
+              <AppBox as="p" variant="muted-xs">
+                Failed to load pricing data.
+              </AppBox>
             ) : (
               <StackedTimelineBarChart
                 points={points}

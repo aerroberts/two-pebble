@@ -1,7 +1,7 @@
 import {
-  Header,
   AppBox,
   AppButton,
+  Header,
   PageLayout,
   Section,
   Select,
@@ -28,6 +28,7 @@ const RANGE_OPTIONS: RangeOption[] = [
   { id: '24h', label: '24h', windowMs: 24 * 60 * 60_000, bucketSizeMs: 5 * 60_000 },
   { id: '7d', label: '7d', windowMs: 7 * 24 * 60 * 60_000, bucketSizeMs: 60 * 60_000 },
 ];
+const DEFAULT_RANGE_OPTION: RangeOption = { id: '1h', label: '1h', windowMs: 60 * 60_000, bucketSizeMs: 60_000 };
 
 type MetricKey = 'pricing.total' | 'pricing.quantity';
 
@@ -58,7 +59,9 @@ interface FilterFieldProps {
 function FilterField(props: FilterFieldProps) {
   return (
     <AppBox variant="filter-field">
-      <AppBox as="label" variant="filter-label">{props.dimension.label}</AppBox>
+      <AppBox as="label" variant="filter-label">
+        {props.dimension.label}
+      </AppBox>
       <Select
         options={props.options}
         value={props.value ?? '__all__'}
@@ -79,7 +82,7 @@ export function PricingExplorerPage() {
   const inferenceProfiles = useInferenceProfiles();
 
   const [metric, setMetric] = useState<MetricKey>('pricing.total');
-  const [rangeId, setRangeId] = useState<string>(RANGE_OPTIONS[1]!.id);
+  const [rangeId, setRangeId] = useState<string>(DEFAULT_RANGE_OPTION.id);
   const [filters, setFilters] = useState<Partial<Record<FilterKey, string>>>({});
 
   const [variants, setVariants] = useState<MetricVariant[]>([]);
@@ -87,7 +90,7 @@ export function PricingExplorerPage() {
   const [status, setStatus] = useState<LoadStatus>('idle');
   const [domain, setDomain] = useState<{ min: number; max: number }>({ min: 0, max: 1 });
 
-  const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? RANGE_OPTIONS[1]!;
+  const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? DEFAULT_RANGE_OPTION;
 
   const dimensionFilter = useMemo<Record<string, string>>(() => {
     const out: Record<string, string> = {};
@@ -241,7 +244,9 @@ export function PricingExplorerPage() {
           </AppBox>
           <AppBox variant="chart-body">
             {status === 'error' ? (
-              <AppBox as="p" variant="muted-xs">Failed to load metric data.</AppBox>
+              <AppBox as="p" variant="muted-xs">
+                Failed to load metric data.
+              </AppBox>
             ) : (
               <StackedTimelineBarChart
                 points={points}

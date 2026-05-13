@@ -48,7 +48,7 @@ export function SubAgentsSection(props: SubAgentsSectionProps) {
         <Surface>This agent has no sub-agents. Add one to let it spawn other agents at runtime.</Surface>
       ) : null}
       {props.references.map((reference, index) => (
-        <Surface key={`${index}-${reference.name}`}>
+        <Surface key={`${reference.agentRegistryId}-${reference.name}`}>
           <Input
             label="Name"
             onChange={(event) => handleUpdate(index, { name: event.target.value })}

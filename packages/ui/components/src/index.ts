@@ -147,6 +147,16 @@ export { TabSelect, type TabSelectOption, type TabSelectProps } from './componen
 export { ThemeLoader, type ThemeLoaderProps } from './components/input/theme-toggle/theme-loader';
 export { ThemeToggle, type ThemeToggleProps } from './components/input/theme-toggle/theme-toggle';
 export {
+  AppBox,
+  AppButton,
+  AppIconSwap,
+  AppRevealIconButton,
+  AppSidebarItemFrame,
+  AppSpinningIcon,
+  AppTextarea,
+  VoiceWaveformDisplay,
+} from './components/layout/app-ui/app-ui';
+export {
   AuxiliarySidebarLayout,
   type AuxiliarySidebarLayoutProps,
 } from './components/layout/auxiliary-sidebar-layout/auxiliary-sidebar-layout';
@@ -172,16 +182,6 @@ export type {
   SidebarLayoutNavigationSection,
 } from './components/layout/sidebar-layout/types';
 export { Surface, type SurfaceProps } from './components/layout/surface/surface';
-export {
-  AppBox,
-  AppButton,
-  AppIconSwap,
-  AppRevealIconButton,
-  AppSidebarItemFrame,
-  AppSpinningIcon,
-  AppTextarea,
-  VoiceWaveformDisplay,
-} from './components/layout/app-ui/app-ui';
 export {
   WorkbenchHeader,
   type WorkbenchHeaderProps,

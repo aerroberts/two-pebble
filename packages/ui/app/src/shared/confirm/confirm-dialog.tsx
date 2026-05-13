@@ -12,7 +12,9 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
   return (
     <Modal open={controller.isOpen} onClose={controller.cancel} title={request?.title}>
       <ModalBody>
-        <AppBox as="p" variant="delete-title">{request?.message}</AppBox>
+        <AppBox as="p" variant="delete-title">
+          {request?.message}
+        </AppBox>
         <ModalActions>
           <Button onClick={controller.cancel}>Cancel</Button>
           <Button variant="primary" onClick={controller.accept}>

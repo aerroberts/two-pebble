@@ -10,8 +10,8 @@ export type {
   MetricHandler,
   MetricPeriodicListener,
   MetricPromiseObservation,
+  MetricsConstructorArguments,
   MetricsInput,
   MetricWrapDimensions,
   MetricWrappedFunction,
-  MetricsConstructorArguments,
 } from './types';

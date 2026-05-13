@@ -11,6 +11,7 @@ import { installAgentPersistenceListeners, installSubAgentListeners } from './ag
 import { rehydrateAgent } from './agent-registry-rehydrate';
 import { persistAgentMetadata, persistAgentStatus } from './agent-registry-status';
 import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
+import { recordAgentTrace } from './agent-registry-traces';
 import type {
   ActiveAgentSnapshot,
   AgentListenerContext,
@@ -22,7 +23,6 @@ import type {
   RecordTraceInput,
   RunAgentInput,
 } from './agent-registry-types';
-import { recordAgentTrace } from './agent-registry-traces';
 import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';

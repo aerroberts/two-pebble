@@ -19,8 +19,8 @@ import { tasksListOperation } from '../operations/tasks.list';
 import { tasksRenameOperation } from '../operations/tasks.rename';
 import { tasksSetOwnerOperation } from '../operations/tasks.set-owner';
 import { tasksSetPoolOperation } from '../operations/tasks.set-pool';
-import { tasksUpdateDescriptionOperation } from '../operations/tasks.update-description';
 import { tasksUpdateOperation } from '../operations/tasks.update';
+import { tasksUpdateDescriptionOperation } from '../operations/tasks.update-description';
 
 /**
  * Binds task-board persistence handlers.

@@ -1,4 +1,4 @@
-import type { CellContent, DataCells } from '../../thread/index';
+import type { DataCells } from '../../thread/index';
 
 export interface PebbleAgentToolTrace {
   type: 'tool';
