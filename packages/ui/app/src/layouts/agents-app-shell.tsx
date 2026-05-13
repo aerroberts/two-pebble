@@ -15,7 +15,9 @@ export function AgentsAppShell(props: AppShellProps) {
   const completeAgent = useCompleteAgent();
   const agentList = agents.values().sort((left, right) => right.startedAt - left.startedAt);
   const activeAgents = agentList.filter((agent) => agent.status === 'running');
+  const waitingAgents = agentList.filter((agent) => agent.status === 'waiting');
   const idleAgents = agentList.filter((agent) => agent.status === 'idle');
+  const interruptedAgents = agentList.filter((agent) => agent.status === 'interrupted');
   const archivedAgents = agentList.filter((agent) => isTerminal(agent.status));
 
   const handleStop = (agentId: string) => {
@@ -50,6 +52,18 @@ export function AgentsAppShell(props: AppShellProps) {
                 ))}
               </SidebarSection>
             ) : null}
+            {waitingAgents.length > 0 ? (
+              <SidebarSection collapsible title="Waiting">
+                {waitingAgents.map((agent) => (
+                  <AgentSidebarItem
+                    active={location.pathname === `/agents/${agent.id}`}
+                    agent={agent}
+                    key={agent.id}
+                    onSelect={() => navigate(`/agents/${agent.id}`)}
+                  />
+                ))}
+              </SidebarSection>
+            ) : null}
             <SidebarSection collapsible title="Idle">
               {idleAgents.length === 0 ? (
                 <AppBox variant="sidebar-empty">No idle agents.</AppBox>
@@ -65,6 +79,18 @@ export function AgentsAppShell(props: AppShellProps) {
                 ))
               )}
             </SidebarSection>
+            {interruptedAgents.length > 0 ? (
+              <SidebarSection collapsible title="Interrupted">
+                {interruptedAgents.map((agent) => (
+                  <AgentSidebarItem
+                    active={location.pathname === `/agents/${agent.id}`}
+                    agent={agent}
+                    key={agent.id}
+                    onSelect={() => navigate(`/agents/${agent.id}`)}
+                  />
+                ))}
+              </SidebarSection>
+            ) : null}
             {archivedAgents.length > 0 ? (
               <SidebarSection collapsible defaultCollapsed title="Archived">
                 {archivedAgents.map((agent) => (
@@ -87,5 +113,5 @@ export function AgentsAppShell(props: AppShellProps) {
 }
 
 function isTerminal(status: SidebarAgentStatus): boolean {
-  return status === 'failed';
+  return status === 'failed' || status === 'offline';
 }

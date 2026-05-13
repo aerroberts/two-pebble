@@ -7,6 +7,7 @@ type CompleteAgentPayload = CompleteAgentOperation['request'];
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: CompleteAgentPayload) {
+    ctx.agentRegistry.deactivate(payload.id);
     const record = await ctx.datastore.agent.complete(payload);
     ctx.multicastBridge.emit('agentRecorded', record);
     return { id: record.id };

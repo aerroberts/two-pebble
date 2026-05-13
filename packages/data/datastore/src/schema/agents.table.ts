@@ -26,7 +26,7 @@ export const agentsTable = customTable('agents', {
   metadata: text('metadata').notNull().default('{}'),
 
   // The status of the agent
-  status: text('status', { enum: ['idle', 'running', 'waiting', 'offline', 'failed'] }).notNull(),
+  status: text('status', { enum: ['idle', 'running', 'waiting', 'interrupted', 'offline', 'failed'] }).notNull(),
 
   // The agent lifecycle information itself
   startedAt: integer('started_at', { mode: 'number' }).notNull(),

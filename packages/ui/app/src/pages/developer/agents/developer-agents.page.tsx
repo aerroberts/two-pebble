@@ -4,19 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type LoadStatus = 'loading' | 'ready' | 'error';
-type StartedAt = number | null;
 
 interface HotAgentRow {
   id: string;
   name: string;
-  status: string;
-  startedAt: StartedAt;
 }
 
 const hotAgentColumns: TableColumn<HotAgentRow>[] = [
   { id: 'name', header: 'Agent', cell: (row) => row.name },
-  { id: 'status', header: 'Status', cell: (row) => row.status },
-  { id: 'startedAt', header: 'Started', cell: (row) => formatStartedAt(row.startedAt) },
+  { id: 'hotRegistry', header: 'Daemon Registry', cell: () => 'Hot' },
   { id: 'id', header: 'ID', cell: (row) => row.id },
 ];
 
@@ -59,7 +55,7 @@ export function DeveloperAgentsPage() {
             Refresh
           </Button>
         }
-        subtitle="Runtime agents currently held hot in this daemon process."
+        subtitle="Agents currently present in the daemon hot agent registry."
       >
         Agents
       </Header>
@@ -83,15 +79,6 @@ function buildHotAgentRows(activeAgentIds: string[], agents: AgentRecord[]): Hot
     return {
       id,
       name: agent?.name ?? id,
-      status: agent?.status ?? 'active',
-      startedAt: agent?.startedAt ?? null,
     };
   });
-}
-
-function formatStartedAt(startedAt: StartedAt): string {
-  if (startedAt === null) {
-    return 'Unknown';
-  }
-  return new Date(startedAt).toLocaleString();
 }

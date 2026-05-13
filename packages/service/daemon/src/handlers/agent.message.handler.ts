@@ -23,6 +23,17 @@ export function handler(ctx: DaemonHandlerContext) {
       live.sendMessage([cell]);
       return { id: payload.agentId };
     }
+    const record = await ctx.datastore.agent.read({ id: payload.agentId });
+    if (record.status === 'running') {
+      await ctx.agentRegistry.interrupt(payload.agentId, 'message requested running agent without active runtime');
+      throw new Error(`Agent "${payload.agentId}" was interrupted and cannot be resumed automatically.`);
+    }
+    if (record.status === 'interrupted') {
+      throw new Error(`Agent "${payload.agentId}" was interrupted and cannot be resumed automatically.`);
+    }
+    if (record.status === 'offline' || record.status === 'failed') {
+      throw new Error(`Agent "${payload.agentId}" is ${record.status} and cannot receive messages.`);
+    }
     void ctx.agentRegistry
       .rehydrate(payload.agentId)
       .then((agent) => {

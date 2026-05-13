@@ -1,6 +1,6 @@
 import type { Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
-import type { Agent, ProbeResult } from '@two-pebble/pebble';
+import type { ProbeResult } from '@two-pebble/pebble';
 import type { AgentLivenessEvent } from '@two-pebble/protocol';
 import type { AgentRegistryService } from './agent-registry-service';
 
@@ -10,8 +10,6 @@ export type LivenessState = LivenessPayload['state'];
 
 export type LivenessBroadcaster = (payload: LivenessPayload) => void;
 
-export type AgentRehydrator = (agentId: string) => Promise<Agent>;
-
 export type LivenessTimer = ReturnType<typeof setInterval>;
 
 export interface LivenessReconcilerInput {
@@ -20,14 +18,6 @@ export interface LivenessReconcilerInput {
   daemonBootId: string;
   datastore: Datastore;
   logger: Logger;
-  rehydrate?: AgentRehydrator;
-}
-
-export interface RehydrationState {
-  attempts: number;
-  nextAttemptAt: number;
-  lastError?: string;
-  inflight: boolean;
 }
 
 export interface ProbeableAgent {

@@ -70,12 +70,6 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
         ...this.childrenSlot.value,
         { agentId: childAgentId, referenceName: input.referenceName },
       ]);
-      await this.sendParentSignal({
-        childAgentId,
-        data: { message: input.message, type: 'parent-message' },
-        description: 'Parent agent sent a startup message.',
-        name: 'Parent message',
-      });
       this.traceSubAgentInvoke(childAgentId, input.referenceName, input.message);
       return ToolResponse.success([Cell.text(`Spawned ${childAgentId}.`)]);
     });

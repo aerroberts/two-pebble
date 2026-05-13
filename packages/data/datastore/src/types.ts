@@ -142,7 +142,7 @@ export interface DatabaseTableDescription {
 
 export type DatabaseQueryValue = boolean | null | number | string;
 
-export type AgentStatus = 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
+export type AgentStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
 
 export type AgentCallStatus = 'in_progress' | 'completed' | 'failed';
 

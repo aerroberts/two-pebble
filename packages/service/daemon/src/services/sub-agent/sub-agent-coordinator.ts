@@ -11,13 +11,13 @@ import type {
 
 /**
  * Routes peer messages between parent and child agents and decides
- * whether each inbound message resumes a parked tool call or arrives as
+ * whether each inbound message resumes a waiting tool call or arrives as
  * a regular user message. Owns no per-agent runner state directly — that
  * lives on the runners injected into agents — but is the shared registry
  * the runners call into for cross-agent delivery, lazy rehydrate, and
  * pending-ask pairing lookup.
  *
- * Pairing strategy is FIFO: when a recipient has a parked tool call in
+ * Pairing strategy is FIFO: when a recipient has a waiting tool call in
  * its capability state, the next inbound message is delivered as a tool
  * result; subsequent messages queue for `drain`.
  */
@@ -33,7 +33,7 @@ export class SubAgentCoordinator {
   /**
    * Enqueues a message for the given recipient and tries to flush it
    * into the running agent (rehydrating if necessary). Pending awaits
-   * resolve first; otherwise the message goes through the parked-pair
+   * resolve first; otherwise the message goes through the waiting-pair
    * lookup before falling back to a normal submitMessage.
    */
   public async deliver(input: DeliverInput): Promise<void> {
@@ -71,7 +71,7 @@ export class SubAgentCoordinator {
   /**
    * Returns and clears any unread queued messages without waiting. Used
    * by the non-blocking `read*` tools so the model can peek at inbound
-   * traffic without parking.
+   * traffic without waiting.
    */
   public drain(input: DrainInput): SubAgentMessage[] {
     const queue = this.inbox.byRecipient.get(input.recipientAgentId) ?? [];

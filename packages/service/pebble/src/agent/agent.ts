@@ -35,8 +35,7 @@ export abstract class Agent extends Events<AgentEvents> {
 
   /**
    * Queues a user or parent message for the agent.
-   * The message event wakes implementations that are parked waiting for
-   * inbound work.
+   * The message event wakes implementations that are waiting for inbound work.
    */
   public sendMessage(message: DataCells): void {
     this.incomingMessageQueue.push(message);

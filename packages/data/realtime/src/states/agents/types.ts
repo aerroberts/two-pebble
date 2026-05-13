@@ -44,4 +44,4 @@ export interface ReadAgentInput {
   id: string;
 }
 
-export type AgentStatus = 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
+export type AgentStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';

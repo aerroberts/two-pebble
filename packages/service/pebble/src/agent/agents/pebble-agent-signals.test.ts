@@ -2,14 +2,14 @@ import { describe, test } from 'bun:test';
 import {
   buildSignalTestRuntime,
   expectSignalRuntimeConsumed,
-  parkOnSignal,
   resumeFromSignal,
+  waitOnSignal,
 } from './pebble-agent-signals.test-helpers';
 
 describe('feature: pebble agent durable signals', () => {
-  test('happy: open awaited signal parks the agent, received signal resumes through capability hook', async () => {
+  test('happy: open awaited signal moves the agent into waiting, received signal resumes through capability hook', async () => {
     const runtime = buildSignalTestRuntime();
-    await parkOnSignal(runtime);
+    await waitOnSignal(runtime);
     await resumeFromSignal(runtime);
     expectSignalRuntimeConsumed(runtime);
   });

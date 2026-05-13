@@ -8,7 +8,6 @@ type Payload = FreshStartOperation['request'];
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     await ctx.agentRegistry.freshStart(payload.agentId);
-    ctx.livenessReconciler?.resetRehydration(payload.agentId);
     return { agentId: payload.agentId };
   };
 }

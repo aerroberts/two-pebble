@@ -11,6 +11,6 @@ export interface AgentReadOperation {
     metadata: string;
     name: string;
     startedAt: number;
-    status: 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
+    status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
   };
 }

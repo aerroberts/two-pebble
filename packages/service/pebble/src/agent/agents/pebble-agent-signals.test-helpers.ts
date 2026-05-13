@@ -35,7 +35,7 @@ export async function waitForStatus(agent: PebbleAgent, status: WaitStatus): Pro
   });
 }
 
-export async function parkOnSignal(runtime: SignalTestRuntime): Promise<void> {
+export async function waitOnSignal(runtime: SignalTestRuntime): Promise<void> {
   runtime.agent.sendMessage([Cell.text('wait')]);
   await waitForStatus(runtime.agent, 'waiting');
   expect(runtime.runner.openSignalIds()).toEqual(['signal-test']);

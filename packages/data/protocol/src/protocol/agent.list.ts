@@ -13,7 +13,7 @@ export interface AgentListOperation {
       metadata: string;
       name: string;
       startedAt: number;
-      status: 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
+      status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
     }[];
     page: {
       limit: number;

@@ -9,11 +9,10 @@ import { resolveBuildInput } from './agent-registry-build-input';
 import { emitWorktreeInitializedTrace, resolveLaunchWorkspace } from './agent-registry-launch-workspace';
 import { installAgentPersistenceListeners, installSubAgentListeners } from './agent-registry-listeners';
 import { rehydrateAgent } from './agent-registry-rehydrate';
-import { persistAgentMetadata, persistAgentStatus } from './agent-registry-status';
+import { interruptStaleRunningAgents, persistAgentMetadata, persistAgentStatus } from './agent-registry-status';
 import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
 import { recordAgentTrace } from './agent-registry-traces';
 import type {
-  ActiveAgentSnapshot,
   AgentListenerContext,
   LaunchAgentInput,
   PersistAgentStatusInput,
@@ -59,11 +58,6 @@ export class AgentRegistryService {
     this.multicastBridge = context.multicastBridge;
     this.taskBoards = context.taskBoards;
   }
-  /**
-   * Resolves the lazily-constructed sub-agent coordinator. Bound to the
-   * daemon-owned multicast bridge so coordinator broadcasts fan out to
-   * every connected client regardless of which client triggered the call.
-   */
   private getCoordinator(): SubAgentCoordinator {
     if (this.coordinator === undefined) {
       this.coordinator = new SubAgentCoordinator({
@@ -77,21 +71,20 @@ export class AgentRegistryService {
   }
 
   /**
-   * Marks an agent stopped. Used by the kill-sub-agent tool to stop
-   * a child mid-run; clears any active runtime instance and writes the
-   * offline state to the durable record.
+   * Marks a child stopped and removes its hot runtime object.
    */
   public async terminate(input: AgentTerminateInput): Promise<void> {
-    this.activeAgents.delete(input.agentId);
+    this.deactivate(input.agentId);
     const updated = await this.datastore.agent.setStatus({ id: input.agentId, status: 'offline' });
     this.multicastBridge.emit('agentRecorded', updated);
   }
 
   /**
-   * Boot-time no-op kept for call-site compatibility.
+   * Audits durable lifecycle state at daemon boot. A runtime agent cannot
+   * survive process restart, so any persisted running row is interrupted.
    */
   public async hydrate(): Promise<void> {
-    return;
+    await interruptStaleRunningAgents({ datastore: this.datastore, logger: this.logger });
   }
 
   /**
@@ -101,6 +94,26 @@ export class AgentRegistryService {
    */
   public get(agentId: string): Agent | undefined {
     return this.activeAgents.get(agentId);
+  }
+
+  /**
+   * Removes a runtime object from the hot registry.
+   * Durable status is left to the caller.
+   */
+  public deactivate(agentId: string): void {
+    this.activeAgents.delete(agentId);
+    this.pendingRehydrations.delete(agentId);
+  }
+
+  /**
+   * Moves stale running work into interrupted limbo.
+   * This is used when no hot runtime object exists.
+   */
+  public async interrupt(agentId: string, reason: string): Promise<void> {
+    this.deactivate(agentId);
+    const updated = await this.datastore.agent.setStatus({ id: agentId, status: 'interrupted' });
+    this.multicastBridge.emit('agentRecorded', updated);
+    this.logger.warn('agent interrupted', { agentId, reason });
   }
 
   /**
@@ -131,6 +144,13 @@ export class AgentRegistryService {
   private async buildRehydratedAgent(agentId: string): Promise<Agent> {
     const bridge = this.multicastBridge;
     const record = await this.datastore.agent.read({ id: agentId });
+    if (record.status === 'running') {
+      await this.interrupt(agentId, 'rehydration requested running agent without active runtime');
+      throw new Error(`Agent "${agentId}" was interrupted and cannot be rehydrated automatically.`);
+    }
+    if (record.status === 'interrupted' || record.status === 'offline' || record.status === 'failed') {
+      throw new Error(`Agent "${agentId}" is ${record.status} and cannot be rehydrated.`);
+    }
     const runtimeAgent = await rehydrateAgent({ agentId, bridge, datastore: this.datastore, logger: this.logger });
     this.installSignalRunner(runtimeAgent, agentId);
     installTaskBoardRunner({ agent: runtimeAgent, bridge, logger: this.logger, taskBoards: this.taskBoards });
@@ -176,10 +196,6 @@ export class AgentRegistryService {
   }
 
   private registerActiveAgent(input: RunAgentInput) {
-    // Seed the sequence with the current wall clock so a rehydrated agent's
-    // new traces sort after the previous run's traces. orderId is not a
-    // timestamp; the seed just guarantees the next session's first id is
-    // greater than the prior session's last one. Increments stay monotonic.
     let orderId = Date.now();
     const nextOrderId = () => {
       orderId += 1;
@@ -201,21 +217,10 @@ export class AgentRegistryService {
     }
   }
   /**
-   * Returns ids of every agent the daemon is currently running.
+   * Returns ids of every agent currently hot in this daemon.
    */
   public listActiveAgentIds(): string[] {
     return Array.from(this.activeAgents.keys());
-  }
-
-  /**
-   * Returns a snapshot of every currently-active runtime agent.
-   */
-  public snapshotActiveAgents(): ActiveAgentSnapshot[] {
-    const snapshot: ActiveAgentSnapshot[] = [];
-    for (const [agentId, agent] of this.activeAgents.entries()) {
-      snapshot.push({ agentId, agent });
-    }
-    return snapshot;
   }
 
   /**
@@ -232,6 +237,10 @@ export class AgentRegistryService {
     if (received.items.length === 0) {
       return;
     }
+    const record = await this.datastore.agent.read({ id: agentId });
+    if (record.status !== 'waiting' && record.status !== 'idle') {
+      return;
+    }
     const agent = await this.rehydrate(agentId);
     if (agent instanceof PebbleAgent) {
       agent.resumeFromSignal();
@@ -239,23 +248,16 @@ export class AgentRegistryService {
   }
 
   /**
-   * Drops the active runtime instance and clears resume metadata so the
-   * next rehydration starts a fresh framework session under the same
-   * durable agent id. Used as an escape hatch when an agent can no
-   * longer be resumed (e.g. the framework session expired) and the user
-   * has indicated they want to keep working under the same agent.
+   * Drops hot runtime state and resume metadata so next rehydrate starts
+   * a fresh framework session under the same durable agent id.
    */
   public async freshStart(agentId: string): Promise<void> {
-    this.activeAgents.delete(agentId);
-    this.pendingRehydrations.delete(agentId);
+    this.deactivate(agentId);
     await this.datastore.agent.setMetadata({ id: agentId, metadata: '{}' });
   }
 
   /**
-   * Launches a new agent run from a registry row.
-   * Resolves profile + integration + workspace, creates the agent record,
-   * builds the runtime agent, wires durable listeners, and tracks the
-   * agent until its lifecycle terminates.
+   * Launches a new runtime agent from a registry row.
    */
   public async launch(input: LaunchAgentInput) {
     const bridge = this.multicastBridge;

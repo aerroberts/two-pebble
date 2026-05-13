@@ -1,6 +1,6 @@
 import type { Logger } from '@two-pebble/logger';
 import type { Agent } from '@two-pebble/pebble';
-import { Cell, PebbleAgent } from '@two-pebble/pebble';
+import { PebbleAgent } from '@two-pebble/pebble';
 import { buildCapability, installCapabilityRunners } from '@two-pebble/pebble/capabilities';
 import type { DaemonBridge } from '../../types';
 import type { AgentRegistryService } from '../agent-registry-service';
@@ -36,13 +36,6 @@ interface AttachParentLinkInput {
   agent: Agent;
   coordinator: SubAgentCoordinator;
   mode: 'fresh' | 'rehydrate';
-  parentAgentId: string;
-}
-
-interface DeliverInitialSpawnMessageInput {
-  childAgentId: string;
-  coordinator: SubAgentCoordinator;
-  message: string;
   parentAgentId: string;
 }
 
@@ -117,23 +110,4 @@ export function installFreshLaunchAgent(input: InstallFreshAgentInput): void {
       parentAgentId: input.parentAgentId,
     });
   }
-}
-
-/**
- * Delivers the spawn-time initial message to a child agent through the
- * coordinator with a `Parent Agent Ask` envelope (expectsReply true).
- * Used in place of `emitIncomingMessage` so the child sees the message
- * under a peer label and its exit hook blocks settling without a reply.
- */
-export async function deliverInitialSpawnMessage(input: DeliverInitialSpawnMessageInput): Promise<void> {
-  await input.coordinator.deliver({
-    recipientAgentId: input.childAgentId,
-    message: {
-      content: [Cell.text(input.message)],
-      expectsReply: true,
-      fromAgentId: input.parentAgentId,
-      label: 'Parent Agent Ask',
-      receivedAt: Date.now(),
-    },
-  });
 }

@@ -107,7 +107,7 @@ export type PeerMessageListener = (event: PeerMessageEvent) => void;
 export interface RunTurnsOptions {
   /**
    * Resume the agentic loop without first appending a user message.
-   * Used when a parked tool call has just been paired by `submitToolResult`
+   * Used when a waiting tool call has just been paired by `submitToolResult`
    * — the thread already has the awaited content; the model just needs
    * another iteration to react.
    */
@@ -172,7 +172,7 @@ export interface CapabilityStateSnapshot {
   value: PebbleJsonValue;
 }
 
-export type AgentStatus = 'idle' | 'running' | 'waiting' | 'failed' | 'offline';
+export type AgentStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'failed' | 'offline';
 export type AgentStatusEvent = { status: AgentStatus; message: string };
 
 export type TraceListener = (trace: PebbleAgentTrace) => void;

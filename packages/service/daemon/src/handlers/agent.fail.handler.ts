@@ -7,6 +7,7 @@ type FailAgentPayload = FailAgentOperation['request'];
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: FailAgentPayload) {
+    ctx.agentRegistry.deactivate(payload.id);
     const record = await ctx.datastore.agent.fail(payload);
     ctx.multicastBridge.emit('agentRecorded', record);
     const sync = await ctx.taskBoards.syncOwnedTasksFromAgentStatus({

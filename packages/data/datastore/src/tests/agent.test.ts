@@ -107,6 +107,18 @@ describe('feature: operation agent.set-status', () => {
     await datastore.close();
     expect(running.status).toBe('running');
   });
+
+  test('happy: setStatus marks an agent interrupted', async () => {
+    const datastore = await useDatastoreForTesting();
+    const agent = await datastore.agent.create({
+      description: 'interrupted status agent',
+      name: 'Interrupted Status',
+      workspaceId: 'legacy',
+    });
+    const interrupted = await datastore.agent.setStatus({ id: agent.id, status: 'interrupted' });
+    await datastore.close();
+    expect(interrupted.status).toBe('interrupted');
+  });
 });
 
 describe('feature: operation agent.set-metadata', () => {

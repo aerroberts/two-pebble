@@ -14,7 +14,7 @@ export class SignalTestCapability extends AgentCapability {
   public readonly receivedMessages: string[] = [];
 
   /**
-   * Registers the single test tool that parks the agent on a signal.
+   * Registers the single test tool that moves the agent into waiting on a signal.
    * The signal id is deterministic so assertions can inspect the in-memory
    * runner without searching generated ids.
    */

@@ -40,6 +40,10 @@ export class ParentSideRunner implements SubAgentRunner {
       message: input.message,
       parentAgentId: this.ctx.parentAgentId,
     });
+    await this.ctx.coordinator.deliver({
+      recipientAgentId: launched.id,
+      message: this.message(input.message, { label: 'Parent Agent Ask', expectsReply: true }),
+    });
     return launched.id;
   }
 
@@ -58,7 +62,7 @@ export class ParentSideRunner implements SubAgentRunner {
   }
 
   /**
-   * Sends and parks: posts the message as an ask and immediately enters
+   * Sends and waits: posts the message as an ask and immediately enters
    * the await state. The parent's tool layer surfaces this as a single
    * tool call that returns the eventual reply when the child responds.
    */

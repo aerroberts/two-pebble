@@ -35,7 +35,7 @@ export class ChildSideRunner implements ParentLinkRunner {
   }
 
   /**
-   * Notifies and parks: posts the question as an ask and immediately
+   * Notifies and waits: posts the question as an ask and immediately
    * enters the await state. The child's tool layer surfaces this as a
    * single tool call that returns the parent's eventual reply.
    */

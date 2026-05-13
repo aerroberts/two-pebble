@@ -40,6 +40,22 @@ function iconConfigForStatus(input: IconConfigInput): IconConfig {
       hoverAction: input.onArchive ?? null,
     };
   }
+  if (input.status === 'waiting') {
+    return {
+      defaultIcon: <Icon name="clock" color="text-current" />,
+      hoverIcon: null,
+      hoverLabel: null,
+      hoverAction: null,
+    };
+  }
+  if (input.status === 'interrupted') {
+    return {
+      defaultIcon: <Icon name="triangle-alert" color="text-current" />,
+      hoverIcon: null,
+      hoverLabel: null,
+      hoverAction: null,
+    };
+  }
   if (input.status === 'failed') {
     return {
       defaultIcon: <Icon name="circle-x" color="text-current" />,
@@ -48,8 +64,16 @@ function iconConfigForStatus(input: IconConfigInput): IconConfig {
       hoverAction: null,
     };
   }
+  if (input.status === 'offline') {
+    return {
+      defaultIcon: <Icon name="circle-check" color="text-current" />,
+      hoverIcon: null,
+      hoverLabel: null,
+      hoverAction: null,
+    };
+  }
   return {
-    defaultIcon: <Icon name="circle-check" color="text-current" />,
+    defaultIcon: <Icon name="circle" color="text-current" />,
     hoverIcon: null,
     hoverLabel: null,
     hoverAction: null,

@@ -2,23 +2,19 @@ import type { Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
 import type { Agent, ProbeResult } from '@two-pebble/pebble';
 import type { AgentRegistryService } from './agent-registry-service';
-import { PROBE_TIMEOUT_MS, REHYDRATE_BACKOFF_MS, TICK_MS } from './liveness-reconciler-constants';
+import { PROBE_TIMEOUT_MS, TICK_MS } from './liveness-reconciler-constants';
 import { deriveActiveState } from './liveness-reconciler-state';
 import type {
-  AgentRehydrator,
   LivenessBroadcaster,
   LivenessReconcilerInput,
   LivenessTimer,
   ProbeableAgent,
-  RehydrationState,
 } from './liveness-reconciler-types';
 
 /**
- * Continuously reconciles "intent" (durable agent.status) with "actuality"
- * (whether a live agent process is running, what its probe says). Ticks on
- * a fixed interval, broadcasts a liveness snapshot per non-terminal agent,
- * and (when enabled) rehydrates orphans with exponential backoff. Never
- * writes durable agent status itself; that stays in the agent's own code.
+ * Reconciles durable agent status with the hot runtime registry. Running
+ * rows must have a live runtime object; otherwise they are interrupted.
+ * Hot running agents get periodic liveness broadcasts for the UI.
  */
 export class LivenessReconciler {
   private readonly agentRegistry: AgentRegistryService;
@@ -26,8 +22,6 @@ export class LivenessReconciler {
   private readonly daemonBootId: string;
   private readonly datastore: Datastore;
   private readonly logger: Logger;
-  private readonly rehydrateAgent?: AgentRehydrator;
-  private readonly rehydrationState = new Map<string, RehydrationState>();
   private timer: LivenessTimer | undefined;
   private tickInflight = false;
 
@@ -37,7 +31,6 @@ export class LivenessReconciler {
     this.daemonBootId = input.daemonBootId;
     this.datastore = input.datastore;
     this.logger = input.logger;
-    this.rehydrateAgent = input.rehydrate;
   }
 
   /**
@@ -65,15 +58,6 @@ export class LivenessReconciler {
     this.timer = undefined;
   }
 
-  /**
-   * Clears any cached rehydration backoff state for an agent so the next
-   * tick attempts a fresh rehydration immediately rather than waiting for
-   * the prior attempt's exponential delay.
-   */
-  public resetRehydration(agentId: string): void {
-    this.rehydrationState.delete(agentId);
-  }
-
   private async tick(): Promise<void> {
     if (this.tickInflight) {
       return;
@@ -97,25 +81,30 @@ export class LivenessReconciler {
         record.status !== 'running' &&
         record.status !== 'waiting' &&
         record.status !== 'idle' &&
+        record.status !== 'interrupted' &&
         record.status !== 'offline'
       ) {
         continue;
       }
       const active = this.agentRegistry.get(record.id);
       if (active !== undefined) {
-        await this.broadcastActive(record.id, active, now);
+        if (record.status === 'running') {
+          await this.broadcastActive(record.id, active, now);
+        }
         continue;
       }
       if (record.status === 'idle' || record.status === 'offline') {
         continue;
       }
-      await this.maybeRehydrate(record.id, now);
+      if (record.status === 'waiting' || record.status === 'interrupted') {
+        continue;
+      }
+      await this.agentRegistry.interrupt(record.id, 'running status without active runtime');
     }
   }
 
   private async broadcastActive(agentId: string, agent: Agent, now: number): Promise<void> {
     const probe = await this.probeWithTimeout(agent);
-    this.rehydrationState.delete(agentId);
     const state = deriveActiveState(probe, now);
     this.broadcast({
       agentId,
@@ -124,49 +113,6 @@ export class LivenessReconciler {
       lastActivityAt: probe.lastActivityAt,
       hint: probe.hint,
     });
-  }
-
-  private async maybeRehydrate(agentId: string, now: number): Promise<void> {
-    const rehydrate = this.rehydrateAgent;
-    let state = this.rehydrationState.get(agentId);
-    if (state === undefined) {
-      state = { attempts: 0, nextAttemptAt: now, inflight: false };
-      this.rehydrationState.set(agentId, state);
-    }
-    this.broadcast({
-      agentId,
-      daemonBootId: this.daemonBootId,
-      state: 'reconnecting',
-      lastActivityAt: 0,
-      rehydrationAttempts: state.attempts,
-      lastError: state.lastError,
-    });
-    if (rehydrate === undefined) {
-      return;
-    }
-    if (state.inflight) {
-      return;
-    }
-    if (now < state.nextAttemptAt) {
-      return;
-    }
-    state.inflight = true;
-    try {
-      await rehydrate(agentId);
-      this.rehydrationState.delete(agentId);
-    } catch (error) {
-      state.attempts += 1;
-      state.lastError = error instanceof Error ? error.message : String(error);
-      const backoff = REHYDRATE_BACKOFF_MS[Math.min(state.attempts, REHYDRATE_BACKOFF_MS.length) - 1];
-      state.nextAttemptAt = Date.now() + (backoff ?? REHYDRATE_BACKOFF_MS[REHYDRATE_BACKOFF_MS.length - 1]);
-      this.logger.warn('agent rehydration attempt failed', {
-        agentId,
-        attempt: state.attempts,
-        error: state.lastError,
-      });
-    } finally {
-      state.inflight = false;
-    }
   }
 
   private async probeWithTimeout(agent: Agent): Promise<ProbeResult> {

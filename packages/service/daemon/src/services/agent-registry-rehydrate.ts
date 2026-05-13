@@ -58,17 +58,22 @@ interface StateSnapshotData {
 }
 
 /**
- * Reconstructs an idle agent from durable state so a follow-up message can
- * be delivered after the daemon restarted. Framework agents replay through
+ * Reconstructs an idle or waiting agent from durable state so a follow-up
+ * message or resolved signal can be delivered. Framework agents replay through
  * `resumeMetadata`; Pebble agents reload thread cells from the conversation
  * snapshot op and replay state-snapshot traces onto capability slots. The
- * returned agent is left in idle status; the surrounding service tracks it
- * in activeAgents and attaches listeners before returning to the caller.
+ * returned agent starts idle; the surrounding service attaches listeners
+ * before delivering the message or signal that wakes it.
  */
 export async function rehydrateAgent(input: RehydrateAgentInput): Promise<Agent> {
   const record = await input.datastore.agent.read({ id: input.agentId });
-  if (record.status === 'failed') {
-    throw new Error(`agent "${input.agentId}" cannot be rehydrated from terminal status "${record.status}"`);
+  if (
+    record.status === 'running' ||
+    record.status === 'failed' ||
+    record.status === 'offline' ||
+    record.status === 'interrupted'
+  ) {
+    throw new Error(`agent "${input.agentId}" cannot be rehydrated from status "${record.status}"`);
   }
   if (record.agentRegistryId === null || record.agentRegistryId === undefined) {
     throw new Error(`agent "${input.agentId}" has no registry link and cannot be rehydrated`);

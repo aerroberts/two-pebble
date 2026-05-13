@@ -5,26 +5,26 @@ import type { DaemonBridge } from '../types';
 import type { PersistAgentStatusInput } from './agent-registry-types';
 import type { TaskBoardService } from './task-board-service';
 
-interface HydrateZombiesInput {
+interface InterruptStaleRunningAgentsInput {
   datastore: Datastore;
   logger: Logger;
 }
 
 /**
- * Resets any 'running' agents left behind by a prior daemon process to 'idle'.
- * Without this the UI lies about state and the next daemon process has no
- * way to know which agents really are alive.
+ * Marks any 'running' agents left behind by a prior daemon process as
+ * interrupted. Runtime agent objects do not survive daemon restart, so these
+ * rows cannot honestly remain running and should not auto-resume from signals.
  */
-export async function hydrateAgentZombies(input: HydrateZombiesInput): Promise<void> {
+export async function interruptStaleRunningAgents(input: InterruptStaleRunningAgentsInput): Promise<void> {
   const { items } = await input.datastore.agent.list({ limit: 1000, offset: 0 });
-  const zombies = items.filter((row) => row.status === 'running');
-  for (const zombie of zombies) {
-    await input.datastore.agent.setStatus({ id: zombie.id, status: 'idle' }).catch((error) => {
+  const interrupted = items.filter((row) => row.status === 'running');
+  for (const agent of interrupted) {
+    await input.datastore.agent.setStatus({ id: agent.id, status: 'interrupted' }).catch((error) => {
       const message = error instanceof Error ? error.message : String(error);
-      input.logger.warn('agent zombie reset failed', { agentId: zombie.id, error: message });
+      input.logger.warn('agent interrupt audit failed', { agentId: agent.id, error: message });
     });
   }
-  input.logger.info('agent zombies reset', { count: zombies.length });
+  input.logger.info('agent interrupt audit complete', { count: interrupted.length });
 }
 
 interface PersistStatusInput extends PersistAgentStatusInput {
@@ -36,12 +36,11 @@ interface PersistStatusInput extends PersistAgentStatusInput {
 
 /**
  * Persists a runtime agent's status change and broadcasts it.
- * Terminal statuses evict the agent from activeAgents so dead instances
- * don't accumulate across long-running daemons, and propagate the terminal
- * state to any task the agent owns so task lifecycle mirrors the delegate's.
+ * Only running agents stay in the active runtime registry. Waiting, idle,
+ * interrupted, and terminal statuses are durable states, not hot daemon state.
  */
 export async function persistAgentStatus(input: PersistStatusInput): Promise<void> {
-  if (input.status === 'failed' || input.status === 'offline') {
+  if (input.status !== 'running') {
     input.activeAgents.delete(input.agentId);
   }
   let updatedName: string | undefined;

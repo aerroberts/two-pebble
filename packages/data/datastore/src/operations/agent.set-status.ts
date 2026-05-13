@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { createUtcNow } from '../table/create-utc-now';
 import type { DatastoreContext } from '../types';
 
-type AgentLifecycleStatus = 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
+type AgentLifecycleStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
 
 type OperationHandlerInput = {
   id: string;

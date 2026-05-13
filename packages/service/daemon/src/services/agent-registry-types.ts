@@ -82,11 +82,6 @@ export interface RunAgentInput {
 
 export type NextAgentTraceOrderId = () => number;
 
-export interface ActiveAgentSnapshot {
-  agentId: string;
-  agent: Agent;
-}
-
 export interface AgentListenerContext {
   datastore: Datastore;
   logger: Logger;
@@ -140,7 +135,7 @@ export interface BuildLaunchAgentInput_Framework {
 
 export type BuildLaunchAgentInput = BuildLaunchAgentInput_Pebble | BuildLaunchAgentInput_Framework;
 
-export type AgentLifecycleStatus = 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
+export type AgentLifecycleStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
 
 export interface PersistAgentStatusInput {
   agentId: string;

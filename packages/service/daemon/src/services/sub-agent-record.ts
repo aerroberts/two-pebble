@@ -23,7 +23,7 @@ export interface SubAgentRecord {
   name: string;
   parentAgentId?: string | null;
   startedAt: number;
-  status: 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
+  status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
 }
 
 export async function readSubAgent(datastore: Datastore, id: string) {

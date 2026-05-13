@@ -103,7 +103,6 @@ export class TwoPebbleDaemon {
       daemonBootId: this.daemonBootId,
       datastore: this.datastore,
       logger,
-      rehydrate: (agentId) => agentRegistry.rehydrate(agentId),
     });
     this.reconciler.start();
     this.context.livenessReconciler = this.reconciler;
