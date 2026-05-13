@@ -33,7 +33,11 @@ export {
   type ProviderLogoProvider,
   type ProviderLogoSize,
 } from './components/branding/provider-logo/provider-logo';
-export { TwoPebbleLogo, type TwoPebbleLogoProps } from './components/branding/two-pebble-logo/two-pebble-logo';
+export {
+  TwoPebbleLogo,
+  type TwoPebbleLogoProps,
+  type TwoPebbleLogoSize,
+} from './components/branding/two-pebble-logo/two-pebble-logo';
 export {
   Heatmap,
   type HeatmapAxisLabel,
@@ -213,7 +217,6 @@ export {
   type NotConnectedPageProps,
 } from './components/states/not-connected-page/not-connected-page';
 export { NotFoundPage, type NotFoundPageProps } from './components/states/not-found-page/not-found-page';
-export { StonePair, type StonePairProps } from './components/states/stone-pair/stone-pair';
 export {
   TaskGraph,
   type TaskGraphInput,

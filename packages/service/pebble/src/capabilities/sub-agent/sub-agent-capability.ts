@@ -10,14 +10,15 @@ interface ChildRecord {
   referenceName: string;
 }
 
-interface SubAgentCapabilityConfig {
-  references?: { name: string; agentRegistryId: string }[];
+interface SubAgentReference {
+  agentRegistryId: string;
+  description?: string;
+  name: string;
 }
 
-const spawnSchema = z.object({
-  referenceName: z.string(),
-  message: z.string(),
-});
+interface SubAgentCapabilityConfig {
+  agents?: SubAgentReference[];
+}
 
 const sendSchema = z.object({
   childAgentId: z.string(),
@@ -38,16 +39,24 @@ const killSchema = z.object({
   reason: z.string(),
 });
 
+const listSchema = z.object({});
+
 export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig> {
   public readonly id = 'sub-agent';
   public readonly description = 'Lets a Pebble agent spawn and message child agents.';
   private readonly childrenSlot = this.useState<ChildRecord[]>('children', []);
 
-  public override hookOnRegister(_config: SubAgentCapabilityConfig) {
+  public override hookOnRegister(config: SubAgentCapabilityConfig) {
+    const references = readReferences(config);
+    const spawnSchema = z.object({
+      referenceName: referenceNameSchema(references),
+      message: z.string(),
+    });
+
     return {
       tools: [
         new NativeTool({
-          description: 'Spawn a child agent by configured reference name and send its initial message.',
+          description: spawnToolDescription(references),
           name: 'spawn-sub-agent',
           schema: spawnSchema,
         }).onInvoke(async (input) => {
@@ -67,6 +76,11 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
           });
           return ToolResponse.success([Cell.text(`Spawned ${childAgentId}.`)]);
         }),
+        new NativeTool({
+          description: 'List configured sub-agent reference names and spawned child agent ids.',
+          name: 'list-sub-agents',
+          schema: listSchema,
+        }).onInvoke(() => ToolResponse.success(listSubAgentsCells(references, this.childrenSlot.value))),
         new NativeTool({
           description: 'Send a one-way message to a child agent.',
           name: 'send-sub-agent-message',
@@ -129,4 +143,56 @@ function messageCells(message: SubAgentMessage): DataCells {
 function messagesToCells(messages: SubAgentMessage[]): DataCells {
   if (messages.length === 0) return [Cell.text('No queued child messages.')];
   return messages.flatMap(messageCells);
+}
+
+function readReferences(config: SubAgentCapabilityConfig): SubAgentReference[] {
+  if (!Array.isArray(config.agents)) return [];
+  return config.agents.filter((agent) => agent.name.length > 0 && agent.agentRegistryId.length > 0);
+}
+
+function referenceNameSchema(references: SubAgentReference[]) {
+  const names = references.map((reference) => reference.name);
+  if (names.length === 0) return z.string().describe('Configured sub-agent reference name.');
+  return z.enum(names as [string, ...string[]]).describe('Configured sub-agent reference name.');
+}
+
+function spawnToolDescription(references: SubAgentReference[]): string {
+  if (references.length === 0) {
+    return 'Spawn a child agent by configured reference name and send its initial message. No sub-agent references are currently configured.';
+  }
+
+  const referenceList = references
+    .map((reference) => {
+      const description =
+        reference.description === undefined || reference.description.length === 0 ? '' : ` - ${reference.description}`;
+      return `${reference.name}${description}`;
+    })
+    .join('; ');
+
+  return `Spawn a child agent by configured reference name and send its initial message. Valid reference names: ${referenceList}`;
+}
+
+function listSubAgentsCells(references: SubAgentReference[], children: ChildRecord[]): DataCells {
+  const referenceCells =
+    references.length === 0
+      ? [Cell.text('No configured sub-agent references.')]
+      : references.map((reference) => {
+          const description =
+            reference.description === undefined || reference.description.length === 0
+              ? ''
+              : ` - ${reference.description}`;
+          return Cell.text(`${reference.name}${description}`);
+        });
+
+  const childCells =
+    children.length === 0
+      ? [Cell.text('No spawned child agents.')]
+      : children.map((child) => Cell.text(`${child.agentId} (${child.referenceName})`));
+
+  return [
+    Cell.header2('Configured sub-agents'),
+    ...referenceCells,
+    Cell.header2('Spawned child agents'),
+    ...childCells,
+  ];
 }

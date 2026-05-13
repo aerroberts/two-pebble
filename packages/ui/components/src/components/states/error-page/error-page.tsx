@@ -1,7 +1,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
+import { TwoPebbleLogo } from '../../branding/two-pebble-logo/two-pebble-logo';
 import { Icon } from '../../content/icon/icon';
-import { StonePair } from '../stone-pair/stone-pair';
 
 export interface ErrorPageProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'> {
   details?: ReactNode;
@@ -29,7 +29,7 @@ export function ErrorPage(props: ErrorPageProps) {
     <div className={rootClassName} {...rest}>
       <div className="w-full max-w-xl">
         <div className="mx-auto flex max-w-md flex-col items-center text-center">
-          <StonePair />
+          <TwoPebbleLogo size="large" />
           <h1 className="mt-6 flex items-center gap-2 text-lg tracking-[-0.02em] text-content">
             <Icon name="x" color="text-danger" />
             {title}

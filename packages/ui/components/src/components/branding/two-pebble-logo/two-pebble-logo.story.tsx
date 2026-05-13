@@ -26,3 +26,11 @@ export const WithText: Story = {
     </SyntaxExample>
   ),
 };
+
+export const Large: Story = {
+  render: () => (
+    <SyntaxExample>
+      <TwoPebbleLogo size="large" />
+    </SyntaxExample>
+  ),
+};

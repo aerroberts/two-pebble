@@ -1,43 +1,69 @@
+<p align="center">
+  <img src="./assets/two-pebble-logo.svg" alt="Two Pebble logo" width="96" height="96" />
+</p>
+
 # Two Pebble
 
-Headless Bun daemon plus a React SPA that connects to it over WebSocket. The daemon owns a local SQLite database (Drizzle on `bun:sqlite`) and speaks a typed bridge protocol; any client — browser, future native shell, CLI — connects via the same WebSocket transport.
+Two Pebble is the agentic orchestration of the future: a local-first daemon, CLI, and UI for coordinating agents, tools, tasks, and runtime state through one typed protocol.
 
-## Workspace layout
+The daemon owns the durable state and serves the browser UI. The CLI launches and talks to the daemon. The UI connects back over the same bridge, so every surface works from the same source of truth.
 
-```text
-packages/core/guardrails    Vendored guardrails CLI (no longer an external dep)
-packages/data/protocol      Zod schemas + transport-agnostic typed bridge
-packages/data/datastore     Drizzle schema and bun:sqlite store
-packages/ui/components      React component library developed through Storybook
-packages/ui/app             React SPA, Zustand store, talks to daemon over WebSocket
-packages/pebble/matrix      Vendored event protocol for agent / provider integrations
-packages/pebble/daemon      Headless Bun process: owns datastore, hosts WebSocket
+## Setup
+
+Install dependencies:
+
+```bash
+bun install
 ```
 
-## Local development
+Build the workspace and install the `peb` CLI:
 
-In two terminals:
+```bash
+bun run cli:install
+```
+
+Start Two Pebble:
+
+```bash
+peb run
+```
+
+`peb run` starts the daemon, serves the built UI, and opens it in your browser. By default it starts at `http://127.0.0.1:49152`; if that port is busy, the daemon moves upward to the next free port.
+
+Use a specific starting port when needed:
+
+```bash
+peb run --port 49200
+```
+
+## What Runs Locally
+
+- Daemon: the Bun process that owns state, WebSocket bridge handlers, agents, task boards, and metrics.
+- UI: the built React app served by the daemon from the same host and port.
+- Database: local SQLite files under `~/.two-pebble/data`.
+- Logs: daemon logs under `~/.two-pebble/logs`.
+
+## Development
+
+Run the daemon and open the UI in development mode:
+
+```bash
+bun run dev
+```
+
+Run pieces directly:
 
 ```bash
 bun run dev:daemon
 bun run dev:ui
+bun run dev:components
 ```
 
-Then open the daemon URL printed as `ui available at` (default `http://127.0.0.1:49152`). The SPA connects back to the same host by default. Override with `VITE_DAEMON_URL` to point at a remote daemon.
-
-## Verification commands
+## Verification
 
 ```bash
-bun install
-bun run guard           # run guardrails across every package
-bun run typecheck       # typecheck every package
-bun run test            # run bun:test suites in every package
-bun run test:coverage   # same as test, with line + function coverage tables
-bun run proof           # spawn daemon, hit Ollama, persist + read back lm_calls
-bun run --filter @two-pebble/components storybook
+bun run typecheck
+bun run test
+bun run guard
+bun run build
 ```
-
-Each package ships its own `code.guard` that inherits a guardrails group:
-
-- `@group/guardrails-typescript` for non-UI packages
-- `@group/guardrails-react` for `@two-pebble/components` and `@two-pebble/app`

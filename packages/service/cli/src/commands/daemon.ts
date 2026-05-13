@@ -24,10 +24,11 @@ export function registerDaemonCommand(program: Command) {
       const daemonEntry = resolve(cliDirectory, '..', '..', 'daemon', 'scripts', 'daemon.ts');
       process.stdout.write(`peb run: starting daemon (${daemonEntry})\n`);
       process.stdout.write(`peb run: hint port ${port} — daemon picks the first free port at or above this\n`);
+      process.stdout.write('peb run: opening UI when daemon is ready\n');
       process.stdout.write('peb run: Ctrl-C to stop\n');
       const child = spawn('bun', [daemonEntry], {
         stdio: 'inherit',
-        env: { ...process.env, TWO_PEBBLE_PORT: String(port) },
+        env: { ...process.env, TWO_PEBBLE_OPEN_UI: '1', TWO_PEBBLE_PORT: String(port) },
       });
       forwardSignal('SIGINT', child);
       forwardSignal('SIGTERM', child);

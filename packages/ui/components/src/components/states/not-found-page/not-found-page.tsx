@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
-import { StonePair } from '../stone-pair/stone-pair';
+import { TwoPebbleLogo } from '../../branding/two-pebble-logo/two-pebble-logo';
 
 export interface NotFoundPageProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'> {
   details?: ReactNode;
@@ -26,7 +26,7 @@ export function NotFoundPage(props: NotFoundPageProps) {
     <div className={rootClassName} {...rest}>
       <div className="w-full max-w-xl">
         <div className="mx-auto flex max-w-md flex-col items-center text-center">
-          <StonePair />
+          <TwoPebbleLogo size="large" />
           <h1 className="mt-6 text-lg tracking-[-0.02em] text-content">
             <span className="mr-3 text-content-muted">?</span>
             {title}
