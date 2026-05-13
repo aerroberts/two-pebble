@@ -289,7 +289,7 @@ export class AgentRegistryService {
             integrationId: buildInput.params.integration.id,
           }
         : {};
-    void this.runAgent({
+    await this.runAgent({
       agent: runtimeAgent,
       agentId: agent.id,
       bridge,
@@ -300,6 +300,7 @@ export class AgentRegistryService {
       workspaceId: launchWorkspace.workspace.id,
     }).catch((error) => {
       this.logger.warn('daemon agent failed', { agentId: agent.id, error });
+      throw error;
     });
 
     return { id: agent.id };
