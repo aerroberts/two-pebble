@@ -10,8 +10,7 @@ export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, 'classNa
 
 export function Sidebar(props: SidebarProps) {
   const { branding, brandingTitle, children, footer, tone = 'default', ...rest } = props;
-  const backgroundClass = 'bg-surface';
-  void tone;
+  const backgroundClass = tone === 'auxiliary' ? 'bg-surface-alt' : 'bg-surface';
 
   return (
     <aside className={`flex h-full min-h-0 w-full flex-col overflow-hidden pt-1 ${backgroundClass}`} {...rest}>

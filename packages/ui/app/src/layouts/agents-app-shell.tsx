@@ -30,7 +30,7 @@ export function AgentsAppShell(props: AppShellProps) {
     <MainAppShell>
       <AuxiliarySidebarLayout
         sidebar={
-          <Sidebar tone="auxiliary">
+          <Sidebar>
             <SidebarOption
               active={location.pathname === '/agents/new'}
               icon="plus"
