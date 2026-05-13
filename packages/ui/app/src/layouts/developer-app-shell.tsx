@@ -44,11 +44,25 @@ export function DeveloperAppShell(props: AppShellProps) {
                 label="Database"
                 onClick={() => navigate('/developer/database')}
               />
+            </SidebarSection>
+            <SidebarSection title="Agents">
               <SidebarOption
-                active={location.pathname.startsWith('/developer/threads')}
+                active={location.pathname === '/developer/agents'}
+                icon="bot"
+                label="Agents"
+                onClick={() => navigate('/developer/agents')}
+              />
+              <SidebarOption
+                active={location.pathname.startsWith('/developer/agents/signals')}
+                icon="radio"
+                label="Signals"
+                onClick={() => navigate('/developer/agents/signals')}
+              />
+              <SidebarOption
+                active={location.pathname.startsWith('/developer/agents/thread-log')}
                 icon="message-square"
-                label="Threads"
-                onClick={() => navigate('/developer/threads')}
+                label="Thread Log"
+                onClick={() => navigate('/developer/agents/thread-log')}
               />
             </SidebarSection>
           </Sidebar>

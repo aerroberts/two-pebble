@@ -33,14 +33,14 @@ export function DeveloperThreadPage() {
   }, [orderId, readThreadSnapshot, threadId]);
 
   if (threadId.length === 0 || (orderIdParam !== undefined && orderId === null)) {
-    return <Navigate to="/developer/threads" replace />;
+    return <Navigate to="/developer/agents/thread-log" replace />;
   }
 
   return (
     <ThreadSnapshotView
       orderId={orderId}
       cells={cells}
-      onViewFullThread={() => navigate(`/developer/threads/${encodeURIComponent(threadId)}`)}
+      onViewFullThread={() => navigate(`/developer/agents/thread-log/${encodeURIComponent(threadId)}`)}
       status={status}
     />
   );

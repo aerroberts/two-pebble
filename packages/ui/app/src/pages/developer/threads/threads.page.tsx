@@ -50,7 +50,7 @@ export function ThreadsPage() {
   const renderItems = (rows: ThreadSummaryRecord[]) =>
     rows.map((thread) => ({
       key: thread.threadId,
-      onClick: () => navigate(`/developer/threads/${encodeURIComponent(thread.threadId)}`),
+      onClick: () => navigate(`/developer/agents/thread-log/${encodeURIComponent(thread.threadId)}`),
       subtitle: formatThreadSubtitle(thread),
       title: thread.threadId,
       value: <RelativeTime date={thread.updatedAt} silent />,
@@ -61,7 +61,7 @@ export function ThreadsPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header subtitle="Every conversation thread persisted in the local datastore.">Threads</Header>
+      <Header subtitle="Every conversation thread persisted in the local datastore.">Thread Log</Header>
       <Section title="Tracing" subtitle="Threads attached to one or more agent runs.">
         <ListLayout
           emptyState={status === 'ready' ? 'No tracing threads.' : baseEmpty}

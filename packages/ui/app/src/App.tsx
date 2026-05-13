@@ -1,9 +1,9 @@
 import { LoadingPage, NotConnectedPage } from '@two-pebble/components';
 import { useRealtimeConnection } from '@two-pebble/realtime';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { DeveloperRoutes } from './developer-routes';
 import { AgentsAppShell } from './layouts/agents-app-shell';
 import { ConfigurationAppShell } from './layouts/configuration-app-shell';
-import { DeveloperAppShell } from './layouts/developer-app-shell';
 import { MainAppShell } from './layouts/main-app-shell';
 import { MetricsAppShell } from './layouts/metrics-app-shell';
 import { AgentDetailPage } from './pages/agent-detail/agent-detail.page';
@@ -22,11 +22,6 @@ import { ThemeSettingsPage } from './pages/configuration/theme/theme-settings.pa
 import { ThirdPartyAgentSettingsPage } from './pages/configuration/third-party-agents/third-party-agent-settings.page';
 import { ThirdPartyAgentsPage } from './pages/configuration/third-party-agents/third-party-agents.page';
 import { VoiceSettingsPage } from './pages/configuration/voice/voice-settings.page';
-import { DaemonLogPage } from './pages/developer/daemon-logs/daemon-log.page';
-import { DaemonLogsPage } from './pages/developer/daemon-logs/daemon-logs.page';
-import { DatabaseSettingsPage } from './pages/developer/database/database-settings.page';
-import { DeveloperThreadPage } from './pages/developer/threads/developer-thread-page';
-import { ThreadsPage } from './pages/developer/threads/threads.page';
 import { MetricDetailPage } from './pages/metrics/metric-detail.page';
 import { MetricsExplorerPage } from './pages/metrics/metrics-explorer.page';
 import { PricingExplorerPage } from './pages/metrics/pricing-explorer.page';
@@ -83,7 +78,7 @@ export function App() {
           </AgentsAppShell>
         }
       />
-      <Route path="/threads" element={<Navigate to="/developer/threads" replace />} />
+      <Route path="/threads" element={<Navigate to="/developer/agents/thread-log" replace />} />
       <Route path="/threads/:threadId" element={<RedirectToDeveloperThread />} />
       <Route path="/threads/:threadId/:orderId" element={<RedirectToDeveloperThread />} />
       <Route
@@ -241,57 +236,7 @@ export function App() {
           </ConfigurationAppShell>
         }
       />
-      <Route path="/developer" element={<Navigate to="/developer/daemon-logs" replace />} />
-      <Route path="/developer/debug" element={<Navigate to="/developer/daemon-logs" replace />} />
-      <Route path="/developer/debug/:logId" element={<Navigate to="/developer/daemon-logs" replace />} />
-      <Route
-        path="/developer/daemon-logs"
-        element={
-          <DeveloperAppShell>
-            <DaemonLogsPage />
-          </DeveloperAppShell>
-        }
-      />
-      <Route
-        path="/developer/daemon-logs/:logId"
-        element={
-          <DeveloperAppShell>
-            <DaemonLogPage />
-          </DeveloperAppShell>
-        }
-      />
-      <Route
-        path="/developer/database"
-        element={
-          <DeveloperAppShell>
-            <DatabaseSettingsPage />
-          </DeveloperAppShell>
-        }
-      />
-      <Route
-        path="/developer/threads"
-        element={
-          <DeveloperAppShell>
-            <ThreadsPage />
-          </DeveloperAppShell>
-        }
-      />
-      <Route
-        path="/developer/threads/:threadId"
-        element={
-          <DeveloperAppShell>
-            <DeveloperThreadPage />
-          </DeveloperAppShell>
-        }
-      />
-      <Route
-        path="/developer/threads/:threadId/:orderId"
-        element={
-          <DeveloperAppShell>
-            <DeveloperThreadPage />
-          </DeveloperAppShell>
-        }
-      />
+      <Route path="/developer/*" element={<DeveloperRoutes />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

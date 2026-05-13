@@ -30,5 +30,5 @@ export function threadSnapshotPath(pointer: string): ThreadSnapshotPath {
     return null;
   }
 
-  return `/developer/threads/${encodeURIComponent(parsed.threadId)}/${parsed.orderId}`;
+  return `/developer/agents/thread-log/${encodeURIComponent(parsed.threadId)}/${parsed.orderId}`;
 }
