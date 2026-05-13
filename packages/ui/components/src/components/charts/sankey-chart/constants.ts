@@ -1,0 +1,12 @@
+export const SANKEY_LAYOUT = {
+  NODE_WIDTH: 4,
+  NODE_PAD: 28,
+  NODE_RADIUS: 1,
+  LABEL_GAP: 6,
+  TOP_PAD: 24,
+  BOTTOM_PAD: 8,
+  BODY_HEIGHT: 280,
+  LEFT_PAD: 8,
+  RIGHT_PAD: 160,
+  CHART_WIDTH: 1000,
+} as const;

@@ -1,0 +1,6 @@
+z.enum(["small", "large"])
+
+
+-----
+
+"small" | "large"

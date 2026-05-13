@@ -1,0 +1,13 @@
+node_modules
+.DS_Store
+dist
+release
+coverage
+storybook-static
+*.log
+*.tsbuildinfo
+tmp
+packages/pebble/daemon/var
+.data
+packages/data/datastore/.test
+docs

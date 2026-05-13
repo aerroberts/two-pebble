@@ -1,0 +1,6 @@
+z.union([z.literal("read"), z.literal("write")])
+
+
+-----
+
+<union-literals><![CDATA[read|write]]></union-literals>

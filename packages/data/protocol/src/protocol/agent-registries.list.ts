@@ -1,0 +1,44 @@
+import type { AgentRegistryKind } from '@two-pebble/datatypes';
+
+export interface AgentRegistryRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  name: string;
+  /**
+   * Discriminator: 'pebble' rows reference an inference profile;
+   * 'framework' rows reference a third-party agent install.
+   */
+  kind: AgentRegistryKind;
+  inferenceProfileId: string | null;
+  thirdPartyAgentInstallId: string | null;
+  systemPrompt: string;
+  /**
+   * Serialized JSON list of `{ id, config }` capability specs the
+   * launch flow attaches to each agent run. UI surfaces this as the
+   * Capabilities + Sub-agents sections of the registry editor.
+   */
+  capabilities: string;
+  /**
+   * Serialized JSON workspace config. Discriminated union with kind
+   * 'cwd' | 'fixed' | 'worktree'. The daemon parses this and resolves the
+   * concrete workspace at launch.
+   */
+  workspaceConfig: string;
+}
+
+export interface AgentRegistriesListOperation {
+  name: 'listAgentRegistries';
+  request: {
+    limit?: number;
+    offset?: number;
+  };
+  response: {
+    items: AgentRegistryRecord[];
+    page: {
+      limit: number;
+      offset: number;
+      total: number;
+    };
+  };
+}

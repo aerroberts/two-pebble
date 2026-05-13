@@ -1,0 +1,2 @@
+{"id":"message-1","type":"operationRequest","operation":"explode","payload":{"value":41}}
+{"id":"message-2","type":"operationResponse","status":"error","error":"No handler registered for operation: explode"}

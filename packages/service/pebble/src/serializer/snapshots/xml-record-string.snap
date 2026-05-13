@@ -1,0 +1,9 @@
+z.record(z.string(), z.string())
+
+
+-----
+
+<record-string>
+  <myCustomKey><![CDATA[string]]></myCustomKey>
+  <!-- repeat as needed with any key names -->
+</record-string>

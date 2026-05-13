@@ -1,0 +1,32 @@
+{
+  "name": "@two-pebble/daemon",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
+    "dev": "bun --watch scripts/daemon.ts",
+    "start": "bun scripts/daemon.ts",
+    "guard": "bunx guardrails",
+    "lint": "biome check --write .",
+    "test": "echo 'No daemon tests configured'",
+    "test:coverage": "echo 'No daemon tests configured'",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@two-pebble/datastore": "workspace:*",
+    "@two-pebble/datatypes": "workspace:*",
+    "@two-pebble/logger": "workspace:*",
+    "@two-pebble/metrics": "workspace:*",
+    "@two-pebble/names": "workspace:*",
+    "@two-pebble/pebble": "workspace:*",
+    "@two-pebble/protocol": "workspace:*",
+    "@two-pebble/tasks": "workspace:*",
+    "@two-pebble/ws-bridge": "workspace:*"
+  },
+  "devDependencies": {
+    "@two-pebble/guardrails": "workspace:*"
+  }
+}

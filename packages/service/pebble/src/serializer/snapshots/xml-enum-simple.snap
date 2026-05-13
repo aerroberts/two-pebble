@@ -1,0 +1,6 @@
+z.enum(["small", "large"])
+
+
+-----
+
+<enum-simple><![CDATA[small|large]]></enum-simple>

@@ -1,0 +1,9 @@
+z.object({ path: z.string().describe("Workspace-relative path") })
+
+
+-----
+
+<tool-read-file>
+  <!-- Workspace-relative path -->
+  <path><![CDATA[string]]></path>
+</tool-read-file>

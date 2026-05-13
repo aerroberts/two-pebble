@@ -1,0 +1,8 @@
+z.record(z.string(), z.string())
+
+
+-----
+
+{
+  "exampleKey": "string"
+}

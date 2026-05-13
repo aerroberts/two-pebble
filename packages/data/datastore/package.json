@@ -1,0 +1,39 @@
+{
+  "name": "@two-pebble/datastore",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
+    "db:check": "drizzle-kit check",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun scripts/migrate.ts",
+    "guard": "bunx guardrails",
+    "lint": "biome check --write .",
+    "test": "bun test ./src/tests/*.test.ts",
+    "test:coverage": "bun test --coverage ./src/tests/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.3",
+    "@two-pebble/datatypes": "workspace:*",
+    "@two-pebble/logger": "workspace:*",
+    "@two-pebble/metrics": "workspace:*",
+    "@two-pebble/pebble": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.8",
+    "@two-pebble/guardrails": "workspace:*"
+  }
+}

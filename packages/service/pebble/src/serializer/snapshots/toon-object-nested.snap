@@ -1,0 +1,8 @@
+z.object({ file: z.object({ path: z.string(), size: z.number() }) })
+
+
+-----
+
+file:
+  path: string
+  size: 123

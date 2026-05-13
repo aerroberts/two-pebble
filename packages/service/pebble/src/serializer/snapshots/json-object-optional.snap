@@ -1,0 +1,10 @@
+z.object({ required: z.string(), optional: z.string().optional() })
+
+
+-----
+
+{
+  "required": "string",
+  // optional
+  "optional": "string"
+}

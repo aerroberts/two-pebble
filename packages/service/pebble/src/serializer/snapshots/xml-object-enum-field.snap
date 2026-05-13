@@ -1,0 +1,9 @@
+z.object({ mode: z.enum(["read", "write"]).describe("File mode") })
+
+
+-----
+
+<object-enum-field>
+  <!-- File mode -->
+  <mode><![CDATA[read|write]]></mode>
+</object-enum-field>

@@ -1,0 +1,10 @@
+z.object({ metadata: z.record(z.string(), z.string()) })
+
+
+-----
+
+{
+  "metadata": {
+    "exampleKey": "string"
+  }
+}

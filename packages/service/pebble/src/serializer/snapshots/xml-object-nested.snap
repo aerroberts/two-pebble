@@ -1,0 +1,11 @@
+z.object({ file: z.object({ path: z.string(), size: z.number() }) })
+
+
+-----
+
+<object-nested>
+  <file>
+    <path><![CDATA[string]]></path>
+    <size><![CDATA[number]]></size>
+  </file>
+</object-nested>

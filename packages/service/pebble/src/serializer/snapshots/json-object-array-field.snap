@@ -1,0 +1,10 @@
+z.object({ paths: z.array(z.string()) })
+
+
+-----
+
+{
+  "paths": [
+      "string"
+    ]
+}

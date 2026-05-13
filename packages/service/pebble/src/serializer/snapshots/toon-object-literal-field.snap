@@ -1,0 +1,6 @@
+z.object({ action: z.literal("replace") })
+
+
+-----
+
+action: replace

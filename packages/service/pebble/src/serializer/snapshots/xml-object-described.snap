@@ -1,0 +1,9 @@
+z.object({ name: z.string().describe("Display name") }).describe("User profile")
+
+
+-----
+
+<object-described>
+  <!-- Display name -->
+  <name><![CDATA[string]]></name>
+</object-described>

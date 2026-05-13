@@ -1,0 +1,10 @@
+z.record(z.string(), z.object({ count: z.number() }))
+
+
+-----
+
+{
+  "exampleKey": {
+    "count": 123
+  }
+}

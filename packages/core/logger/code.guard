@@ -1,0 +1,3 @@
+{
+  "inherit": "@group/guardrails-typescript"
+}

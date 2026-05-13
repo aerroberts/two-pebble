@@ -1,0 +1,7 @@
+z.array(z.object({ path: z.string() }))
+
+
+-----
+
+value[1]{path}:
+  string

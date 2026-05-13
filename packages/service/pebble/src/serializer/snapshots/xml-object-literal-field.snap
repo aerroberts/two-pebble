@@ -1,0 +1,8 @@
+z.object({ action: z.literal("replace") })
+
+
+-----
+
+<object-literal-field>
+  <action><![CDATA[replace]]></action>
+</object-literal-field>

@@ -1,0 +1,169 @@
+{
+  "definition": "@group/guardrails-typescript",
+  "additional": {
+    "@rule/file-length": {
+      "files": {
+        "classFile": {
+          "maxLines": 400
+        },
+        "typescriptFile": {
+          "maxLines": 400
+        }
+      }
+    },
+    "@rule/top-level-definitions": {
+      "files": {
+        "classFile": {
+          "allowedTopLevelStatements": [
+            "import",
+            "class"
+          ]
+        },
+        "testFile": {
+          "allowedTopLevelStatements": [
+            "import",
+            "describe"
+          ],
+          "bannedNestedDefinitions": [
+            "class",
+            "function",
+            "interface",
+            "type"
+          ]
+        },
+        "indexFile": {
+          "allowedTopLevelStatements": [
+            "import",
+            "export"
+          ]
+        },
+        "typesFile": {
+          "allowedTopLevelStatements": [
+            "import",
+            "export",
+            "interface",
+            "type"
+          ]
+        }
+      }
+    },
+    "@rule/class-name": {
+      "classNamePattern": "^[A-Z][A-Za-z0-9]*$",
+      "fileNameCase": "kebab-case"
+    },
+    "@rule/documentation": {
+      "statements": [
+        {
+          "match": "class",
+          "minimumJSDocLines": 3
+        },
+        {
+          "match": "publicClassMethod",
+          "minimumJSDocLines": 3
+        }
+      ]
+    },
+    "@rule/class-member-order": {
+      "memberOrder": [
+        "fields",
+        "constructor",
+        "accessors",
+        "methods"
+      ],
+      "maxConstructors": 1
+    },
+    "@rule/class-static-member": {
+      "allowStaticMembers": false
+    },
+    "@rule/definition-length": {
+      "excludeTestFiles": true,
+      "definitions": [
+        {
+          "match": "classMember",
+          "maxLines": 80
+        },
+        {
+          "match": "function",
+          "maxLines": 200
+        },
+        {
+          "match": "ifStatement",
+          "maxLines": 80
+        },
+        {
+          "match": "tryBlock",
+          "maxLines": 80
+        },
+        {
+          "match": "catchBlock",
+          "maxLines": 80
+        }
+      ]
+    },
+    "@rule/indent": {
+      "files": {
+        "typescriptFile": {
+          "maxIndentLevel": 6,
+          "spacesPerIndentLevel": 2
+        }
+      }
+    },
+    "@rule/typescript-re-export-only-file": {
+      "allowReExportOnlyFiles": false
+    },
+    "@rule/typescript-type-safety": {
+      "forbiddenSyntax": [
+        "any",
+        "unknown",
+        "satisfies",
+        "globalThis"
+      ]
+    },
+    "@rule/typescript-function-shape": {
+      "maxFunctionParameters": 3,
+      "maxSimpleUnionMembers": 5,
+      "allowOptionalParameters": false,
+      "allowDefaultParameters": false,
+      "allowComplexSignatureTypes": false
+    },
+    "@rule/typescript-variable-type": {
+      "maxSimpleUnionMembers": 5,
+      "allowComplexVariableTypes": false
+    },
+    "@rule/test-const-order": {
+      "allowConstAfterDescribe": false
+    },
+    "@rule/test-describe-structure": {
+      "describeNamePrefix": "feature: ",
+      "allowNestedDescribe": false
+    },
+    "@rule/test-case-structure": {
+      "testCallNames": [
+        "test",
+        "it"
+      ],
+      "requiredDescribeDepth": 1,
+      "allowedTestNamePrefixes": [
+        "happy: ",
+        "unhappy: ",
+        "snapshot: "
+      ],
+      "maxTestLines": 12
+    },
+    "@rule/test-hook": {
+      "bannedHookNames": [
+        "beforeEach",
+        "afterEach",
+        "beforeAll",
+        "afterAll"
+      ]
+    },
+    "@rule/test-mock": {
+      "bannedMockNames": [
+        "mock",
+        "spy",
+        "spyOn"
+      ]
+    }
+  }
+}

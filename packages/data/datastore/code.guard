@@ -1,0 +1,50 @@
+{
+  "inherit": "@group/guardrails-typescript",
+  "additional": {
+    "@rule/code-structure": {
+      "rules": [
+        {
+          "match": "src/schema/*",
+          "type": "must-be-file",
+          "recommendation": "Datastore schema modules stay flat so every table is visible in one directory."
+        },
+        {
+          "match": "src/schema/*/*",
+          "existence": "must-not-exist",
+          "recommendation": "Datastore schema must not use nested folders."
+        },
+        {
+          "match": "src/operations/*",
+          "type": "must-be-file",
+          "recommendation": "Datastore operations stay flat so the proxy surface is easy to scan. Each operation defines its own input type inline and exports a function which itself returns a handler function using this input type. Operations do not import types to reuse across operations.",
+          "contains": [
+            "return async function handler(input: OperationHandlerInput) {",
+            "type OperationHandlerInput = {"
+          ],
+          "excludes": ["export type", "export interface"],
+          "extract": {
+            "$operationFile": "$name"
+          }
+        },
+        {
+          "match": "src/operations/*/*",
+          "existence": "must-not-exist",
+          "recommendation": "Datastore operation modules must not use nested folders."
+        },
+        {
+          "match": "src/tests/*",
+          "type": "must-be-file",
+          "fileNameEndsWith": ".test.ts",
+          "recommendation": "Datastore test-scope files must use the .test.ts suffix so the whole tests folder follows one visible naming convention."
+        },
+        {
+          "match": "src/tests/*.test.ts",
+          "existence": "must-be-file",
+          "type": "must-be-file",
+          "exhaustivelyContains": ["describe('feature: operation $operationFile', () => {"],
+          "recommendation": "Each datastore operation must have its own describe block somewhere in the testing scope"
+        }
+      ]
+    }
+  }
+}

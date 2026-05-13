@@ -1,0 +1,10 @@
+z.object({ name: z.string(), count: z.number(), enabled: z.boolean() })
+
+
+-----
+
+<object-required>
+  <name><![CDATA[string]]></name>
+  <count><![CDATA[number]]></count>
+  <enabled><![CDATA[true|false]]></enabled>
+</object-required>

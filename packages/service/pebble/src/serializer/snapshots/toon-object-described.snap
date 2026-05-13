@@ -1,0 +1,6 @@
+z.object({ name: z.string().describe("Display name") }).describe("User profile")
+
+
+-----
+
+name: string

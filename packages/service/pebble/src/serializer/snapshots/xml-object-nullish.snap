@@ -1,0 +1,9 @@
+z.object({ maybe: z.string().nullish() })
+
+
+-----
+
+<object-nullish>
+  <!-- one of the allowed schema variants -->
+  <maybe optional><![CDATA[value]]></maybe>
+</object-nullish>

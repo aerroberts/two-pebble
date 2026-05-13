@@ -1,0 +1,11 @@
+z.object({ metadata: z.record(z.string(), z.string()) })
+
+
+-----
+
+<object-record-field>
+  <metadata>
+    <myCustomKey><![CDATA[string]]></myCustomKey>
+    <!-- repeat as needed with any key names -->
+  </metadata>
+</object-record-field>

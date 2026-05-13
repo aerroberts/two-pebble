@@ -1,0 +1,11 @@
+z.array(z.object({ path: z.string() }))
+
+
+-----
+
+<array-object>
+  <item>
+    <path><![CDATA[string]]></path>
+  </item>
+  <!-- repeat <item> as needed -->
+</array-object>

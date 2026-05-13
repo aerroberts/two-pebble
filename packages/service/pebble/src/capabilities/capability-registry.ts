@@ -1,0 +1,43 @@
+import type { AgentCapability } from '../agent';
+import type { PebbleJsonValue } from '../types';
+import { ParentLinkCapability } from './parent-link/parent-link-capability';
+import { ProgressiveTaskListCapability } from './progressive-task-list/progressive-task-list-capability';
+import { SubAgentCapability } from './sub-agent/sub-agent-capability';
+import { TaskBoardAccessCapability } from './task-board-access/task-board-access-capability';
+import { TurnCounterCapability } from './turn-counter/turn-counter-capability';
+import { WorkspaceAccessCapability } from './workspace-access/workspace-access-capability';
+
+export type CapabilityFactory = () => AgentCapability<PebbleJsonValue>;
+
+export const knownCapabilityIds = [
+  'parent-link',
+  'progressive-task-list',
+  'sub-agent',
+  'task-board-access',
+  'workspace-access',
+  'counter',
+] as const;
+
+/**
+ * Capabilties are serialized to disk and have to be reinitialized on each agent run.
+ * This allows for a capability to be reinitialized with the same config on each agent run.
+ */
+export class CapabilityRegistry {
+  // Construct a new capability instance
+  public newCapability(id: string): AgentCapability<PebbleJsonValue> {
+    if (id === 'parent-link') return new ParentLinkCapability() as AgentCapability<PebbleJsonValue>;
+    if (id === 'progressive-task-list') return new ProgressiveTaskListCapability() as AgentCapability<PebbleJsonValue>;
+    if (id === 'sub-agent') return new SubAgentCapability() as AgentCapability<PebbleJsonValue>;
+    if (id === 'task-board-access') return new TaskBoardAccessCapability() as AgentCapability<PebbleJsonValue>;
+    if (id === 'workspace-access') return new WorkspaceAccessCapability();
+    if (id === 'counter') return new TurnCounterCapability() as AgentCapability<PebbleJsonValue>;
+
+    throw new Error(`Unknown capability id: "${id}"`);
+  }
+}
+
+export const capabilityRegistry = new CapabilityRegistry();
+
+export function buildCapability(id: string): AgentCapability<PebbleJsonValue> {
+  return capabilityRegistry.newCapability(id);
+}

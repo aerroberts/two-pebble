@@ -1,0 +1,11 @@
+z.record(z.string(), z.object({ count: z.number() }))
+
+
+-----
+
+<record-object>
+  <myCustomKey>
+    <count><![CDATA[number]]></count>
+  </myCustomKey>
+  <!-- repeat as needed with any key names -->
+</record-object>

@@ -1,0 +1,6 @@
+z.object({ mode: z.enum(["read", "write"]).describe("File mode") })
+
+
+-----
+
+mode: read

@@ -1,0 +1,33 @@
+{
+  "name": "two-pebble-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*/*"
+  ],
+  "scripts": {
+    "dev": "bun run dev:daemon & bun run dev:open & wait",
+    "dev:components": "bun run --filter @two-pebble/components storybook",
+    "dev:daemon": "bun run --filter @two-pebble/daemon dev",
+    "dev:open": "bun scripts/open-dev.ts",
+    "dev:ui": "bun run --filter @two-pebble/app dev",
+    "db:check": "bun run --filter @two-pebble/datastore db:check",
+    "db:migrate": "bun run --filter @two-pebble/datastore db:migrate",
+    "build": "bun run --filter '*' build",
+    "cli:install": "bun run build && bun run --filter @two-pebble/cli link",
+    "lint": "biome check --write .",
+    "storybook": "bun run --filter @two-pebble/components storybook",
+    "guard": "bun run --filter '*' guard",
+    "test": "bun run --filter '*' test",
+    "test:coverage": "bun run --filter '*' test:coverage",
+    "typecheck": "bun run --filter '*' typecheck",
+    "proof": "bun scripts/proof-of-life.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
+    "@two-pebble/protocol": "workspace:*",
+    "@types/bun": "1.3.13",
+    "@types/node": "22.19.17",
+    "husky": "^9.1.7",
+    "typescript": "6.0.2"
+  }
+}

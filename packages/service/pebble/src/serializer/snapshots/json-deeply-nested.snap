@@ -1,0 +1,12 @@
+z.object({ a: z.object({ b: z.object({ c: z.string() }) }) })
+
+
+-----
+
+{
+  "a": {
+      "b": {
+          "c": "string"
+        }
+    }
+}

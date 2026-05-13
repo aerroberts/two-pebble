@@ -1,0 +1,9 @@
+z.record(z.string(), z.string())
+
+
+-----
+
+{
+  // any key name
+  "exampleKey": "string"
+}

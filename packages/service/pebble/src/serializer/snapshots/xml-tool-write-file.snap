@@ -1,0 +1,10 @@
+z.object({ path: z.string(), content: z.string(), overwrite: z.boolean().optional() })
+
+
+-----
+
+<tool-write-file>
+  <path><![CDATA[string]]></path>
+  <content><![CDATA[string]]></content>
+  <overwrite optional><![CDATA[true|false]]></overwrite>
+</tool-write-file>

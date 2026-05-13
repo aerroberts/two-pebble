@@ -1,0 +1,9 @@
+z.object({ required: z.string(), optional: z.string().optional() })
+
+
+-----
+
+<object-optional>
+  <required><![CDATA[string]]></required>
+  <optional optional><![CDATA[string]]></optional>
+</object-optional>

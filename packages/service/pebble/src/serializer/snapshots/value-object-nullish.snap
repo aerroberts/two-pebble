@@ -1,0 +1,8 @@
+z.object({ maybe: z.string().nullish() })
+
+
+-----
+
+{
+  "maybe": "string"
+}

@@ -1,0 +1,33 @@
+{
+  "inherit": "@group/guardrails-typescript",
+  "exclude": [
+    {
+      "rules": ["@rule/file-length"],
+      "paths": ["src/agent/agents/pebble-agent.ts"],
+      "justification": "PebbleAgent is long and will continue to be long"
+    }
+  ],
+  "additional": {
+    "@rule/code-structure": {
+      "rules": [
+        {
+          "match": "src/traces/agent-traces",
+          "type": "must-be-dir",
+          "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership."
+        },
+        {
+          "match": "src/traces/agent-traces/*",
+          "type": "must-be-file",
+          "allowedImports": ["../../thread", "../../thread/index"],
+          "contains": ["export interface PebbleAgent"],
+          "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types."
+        },
+        {
+          "match": "src/traces/agent-traces/*/*",
+          "existence": "must-not-exist",
+          "recommendation": "Agent trace interfaces stay one file deep so the trace catalog is scanable."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+z.array(z.string())
+
+
+-----
+
+<array-string>
+  <item><![CDATA[string]]></item>
+  <!-- repeat <item> as needed -->
+</array-string>

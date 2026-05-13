@@ -1,0 +1,21 @@
+{
+  "inherit": "@group/guardrails-typescript",
+  "additional": {
+    "@rule/code-structure": {
+      "rules": [
+        {
+          "match": "src/handlers/*.handler.ts",
+          "type": "must-be-file",
+          "contains": ["export function handler(ctx: DaemonHandlerContext) {", "return async function wrappedHandler("],
+          "excludes": ["ctx.bridge", "bridge.emit"],
+          "recommendation": "Each handler exports a handler which wraps the actual handler function for consistent error handling and logging. State changes must broadcast through ctx.multicastBridge.emit so every connected UI sees the mutation — handlers must not call ctx.bridge.emit or any other per-client bridge emit, because the caller is often a one-shot CLI client and other UIs would never receive the event."
+        },
+        {
+          "match": "src/handlers/*.test.ts",
+          "existence": "must-not-exist",
+          "recommendation": "Daemon handler tests live in src/tests, not alongside handler files. Keep src/handlers free of test-only files so the protocol surface stays scannable."
+        }
+      ]
+    }
+  }
+}

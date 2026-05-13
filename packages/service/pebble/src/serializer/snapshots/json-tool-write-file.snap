@@ -1,0 +1,11 @@
+z.object({ path: z.string(), content: z.string(), overwrite: z.boolean().optional() })
+
+
+-----
+
+{
+  "path": "string",
+  "content": "string",
+  // optional
+  "overwrite": true
+}

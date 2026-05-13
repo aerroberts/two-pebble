@@ -1,0 +1,87 @@
+{
+  "inherit": "@group/guardrails-typescript",
+  "exclude": [
+    {
+      "rules": ["@rule/file-length"],
+      "paths": ["src/realtime-datastore.ts"],
+      "justification": "RealtimeDatastore wires every state slice and is intentionally a single facade."
+    }
+  ],
+  "additional": {
+    "@rule/code-structure": {
+      "rules": [
+        {
+          "match": "src/operations",
+          "type": "must-be-dir",
+          "recommendation": "Realtime bridge behavior belongs in the operations directory."
+        },
+        {
+          "match": "src/operations/*",
+          "type": "must-be-file",
+          "recommendation": "Realtime operations stay flat so bridge command behavior is easy to scan."
+        },
+        {
+          "match": "src/operations/*/*",
+          "existence": "must-not-exist",
+          "recommendation": "Realtime operations should not grow nested folders."
+        },
+        {
+          "match": "src/states",
+          "type": "must-be-dir",
+          "recommendation": "Realtime Zustand state belongs in the states directory."
+        },
+        {
+          "match": "src/states/*",
+          "type": "must-be-dir",
+          "recommendation": "Each realtime state owns a folder for state, listeners, and hooks."
+        },
+        {
+          "match": "src/states/*/state.ts",
+          "type": "must-be-file",
+          "recommendation": "Each realtime state folder must define its Zustand state shape in state.ts."
+        },
+        {
+          "match": "src/states/*/listen.ts",
+          "type": "must-be-file",
+          "recommendation": "Each realtime state folder must own the daemon event listeners that update that state."
+        },
+        {
+          "match": "src/states/*/hooks",
+          "type": "must-be-dir",
+          "recommendation": "Realtime state hooks live beside the state they read or mutate."
+        },
+        {
+          "match": "src/states/*/hooks/*.hook.ts",
+          "type": "must-be-file",
+          "recommendation": "Realtime state hooks should be explicit one-hook modules."
+        },
+        {
+          "match": "src/states/*/hooks/*/*",
+          "existence": "must-not-exist",
+          "recommendation": "Realtime state hook folders should stay flat."
+        },
+        {
+          "match": "src/states/*/store.test.ts",
+          "type": "must-be-file",
+          "contains": [
+            "test('happy: backfill, hooks load current state'",
+            "test('happy: backfill + realtime, hooks load current state and realtime hook listens to state changes'",
+            "test('happy: realtime, hook listens to state changes'",
+            "test('happy: backfill empty, hooks load empty state'"
+          ],
+          "recommendation": "Every realtime state must own a store.test.ts file proving backfill, backfill plus realtime, realtime-only, and empty backfill behavior."
+        },
+        {
+          "match": "src/testing",
+          "type": "must-be-dir",
+          "recommendation": "Realtime integration testing utilities belong in src/testing beside the package they validate."
+        },
+        {
+          "match": "src/testing/stores",
+          "existence": "must-not-exist",
+          "recommendation": "Store behavior suites belong beside each realtime state as src/states/<state>/store.test.ts."
+        }
+      ]
+    }
+  }
+}

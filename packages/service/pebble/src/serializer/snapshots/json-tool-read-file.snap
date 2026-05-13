@@ -1,0 +1,9 @@
+z.object({ path: z.string().describe("Workspace-relative path") })
+
+
+-----
+
+{
+  // Workspace-relative path
+  "path": "string"
+}

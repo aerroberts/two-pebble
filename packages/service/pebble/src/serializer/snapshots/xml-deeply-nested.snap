@@ -1,0 +1,12 @@
+z.object({ a: z.object({ b: z.object({ c: z.string() }) }) })
+
+
+-----
+
+<deeply-nested>
+  <a>
+    <b>
+      <c><![CDATA[string]]></c>
+    </b>
+  </a>
+</deeply-nested>

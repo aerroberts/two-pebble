@@ -1,0 +1,9 @@
+z.object({ maybe: z.string().nullish() })
+
+
+-----
+
+{
+  // one of: "{\"type\":\"string\"}", "{\"type\":\"null\"}"; optional
+  "maybe": "string"
+}

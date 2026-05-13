@@ -1,0 +1,2 @@
+{"id":"message-1","type":"operationRequest","operation":"ping","payload":{"value":41}}
+{"id":"message-2","type":"operationResponse","status":"success","payload":{"value":42}}

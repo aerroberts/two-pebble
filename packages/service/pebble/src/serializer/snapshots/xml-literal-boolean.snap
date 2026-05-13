@@ -1,0 +1,6 @@
+z.literal(true)
+
+
+-----
+
+<literal-boolean><![CDATA[true|false]]></literal-boolean>
