@@ -34,16 +34,22 @@ function replayPools(input: ReplayPoolsInput): void {
     const before = pending.length;
     for (let index = pending.length - 1; index >= 0; index -= 1) {
       const pool = pending[index];
-      if (pool === undefined) continue;
+      if (pool === undefined) {
+        continue;
+      }
       const parent = pool.parentPoolId;
       if (parent === null || input.engine.listPools().some((existing) => existing.id === parent)) {
         input.engine.addPool({ id: pool.id, parentPoolId: parent ?? undefined });
         pending.splice(index, 1);
       }
     }
-    if (pending.length !== before) continue;
+    if (pending.length !== before) {
+      continue;
+    }
     const orphan = pending.find((pool) => pool.parentPoolId !== null && !knownIds.has(pool.parentPoolId));
-    if (orphan === undefined) throw new Error('cyclic pool parents in datastore');
+    if (orphan === undefined) {
+      throw new Error('cyclic pool parents in datastore');
+    }
     input.logger.warn('pool references missing parent — moving to board root', {
       poolId: orphan.id,
       parentPoolId: orphan.parentPoolId,
@@ -87,5 +93,7 @@ function replayTasks(input: ReplayTasksInput): void {
 }
 
 function replayDependencies(engine: TaskBoard, deps: TaskDependencyRecord[]): void {
-  for (const edge of deps) engine.addDependency({ fromId: edge.fromId, toId: edge.toId });
+  for (const edge of deps) {
+    engine.addDependency({ fromId: edge.fromId, toId: edge.toId });
+  }
 }

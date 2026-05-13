@@ -15,7 +15,9 @@ export function useAgentPriceLineItems(input: UseAgentPriceLineItemsInput) {
   const agentId = input.agentId;
 
   useEffect(() => {
-    if (agentId.length === 0) return;
+    if (agentId.length === 0) {
+      return;
+    }
     const agent = agents.getItem(agentId);
     if (agent === null) {
       void datastore.agent.priceLineItems.list({ agentId }).catch(() => undefined);

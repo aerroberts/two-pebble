@@ -46,8 +46,12 @@ export function TaskBoardPage() {
   );
   const listTasks = useMemo(() => sortTasksForList(state.tasks), [state.tasks]);
 
-  if (state.boardId.length === 0) return <Navigate replace to="/tasks" />;
-  if (state.board === null) return <Navigate replace to="/tasks" />;
+  if (state.boardId.length === 0) {
+    return <Navigate replace to="/tasks" />;
+  }
+  if (state.board === null) {
+    return <Navigate replace to="/tasks" />;
+  }
 
   const toggleSelect = (id: string) => {
     state.setSelectedTaskId(state.selectedTaskId === id ? null : id);

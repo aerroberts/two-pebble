@@ -27,7 +27,9 @@ export function MonacoCode(props: MonacoCodeProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const updateHeight = () => {
-    if (!editorRef.current) return;
+    if (!editorRef.current) {
+      return;
+    }
     const contentHeight = editorRef.current.getContentHeight();
     setHeight(Math.max(minHeight, Math.min(maxHeight, contentHeight)));
   };

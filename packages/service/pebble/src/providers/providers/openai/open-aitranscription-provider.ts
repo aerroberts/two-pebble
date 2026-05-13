@@ -97,12 +97,24 @@ export class OpenAITranscriptionProvider extends TranscriptionProvider {
 
   private filenameForMimeType(mimeType: string): string {
     const normalized = mimeType.toLowerCase();
-    if (normalized.includes('wav')) return 'audio.wav';
-    if (normalized.includes('mp3') || normalized.includes('mpeg')) return 'audio.mp3';
-    if (normalized.includes('ogg')) return 'audio.ogg';
-    if (normalized.includes('webm')) return 'audio.webm';
-    if (normalized.includes('flac')) return 'audio.flac';
-    if (normalized.includes('m4a') || normalized.includes('mp4')) return 'audio.m4a';
+    if (normalized.includes('wav')) {
+      return 'audio.wav';
+    }
+    if (normalized.includes('mp3') || normalized.includes('mpeg')) {
+      return 'audio.mp3';
+    }
+    if (normalized.includes('ogg')) {
+      return 'audio.ogg';
+    }
+    if (normalized.includes('webm')) {
+      return 'audio.webm';
+    }
+    if (normalized.includes('flac')) {
+      return 'audio.flac';
+    }
+    if (normalized.includes('m4a') || normalized.includes('mp4')) {
+      return 'audio.m4a';
+    }
     return 'audio.bin';
   }
 }

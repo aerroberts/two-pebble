@@ -62,7 +62,9 @@ export class ConversationThread {
     this.cellListeners.push(listener);
     return () => {
       const index = this.cellListeners.indexOf(listener);
-      if (index >= 0) this.cellListeners.splice(index, 1);
+      if (index >= 0) {
+        this.cellListeners.splice(index, 1);
+      }
     };
   }
 

@@ -14,7 +14,9 @@ export function agentRenameOperation(ctx: DatastoreContext) {
       .where(eq(ctx.schema.agentsTable.id, input.id))
       .returning()
       .get();
-    if (row === undefined) throw new Error(`agent "${input.id}" not found`);
+    if (row === undefined) {
+      throw new Error(`agent "${input.id}" not found`);
+    }
     return row;
   };
 }

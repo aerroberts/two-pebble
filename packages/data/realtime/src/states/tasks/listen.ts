@@ -7,7 +7,9 @@ import type { RealtimeOperationContext } from '../../types';
  */
 export function listenToTasks(ctx: RealtimeOperationContext): void {
   const client = ctx.datastore.client;
-  if (client === null) return;
+  if (client === null) {
+    return;
+  }
 
   client.listen('taskBoardUpdated', (record) => {
     ctx.datastore.patch({ taskBoards: ctx.datastore.state.taskBoards.withItem(record.id, record, 'ready') });
@@ -36,7 +38,9 @@ export function listenToTasks(ctx: RealtimeOperationContext): void {
     const key = `${deleted.fromId}:${deleted.toId}`;
     const all = ctx.datastore.state.taskDependencies;
     const matching = all.values().find((edge) => edge.fromId === deleted.fromId && edge.toId === deleted.toId);
-    if (matching === undefined) return;
+    if (matching === undefined) {
+      return;
+    }
     ctx.datastore.patch({ taskDependencies: all.withoutItem(matching.id) });
     void key;
   });

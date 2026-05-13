@@ -154,7 +154,9 @@ async function resolveBuildParams(input: ResolveBuildParamsInput): Promise<Resol
 
 async function loadRestoredThread(input: LoadRestoredThreadInput): Promise<RestoredThread | undefined> {
   const threadId = input.metadata.threadId;
-  if (typeof threadId !== 'string' || threadId.length === 0) return undefined;
+  if (typeof threadId !== 'string' || threadId.length === 0) {
+    return undefined;
+  }
   const snapshot = await input.datastore.agent.conversationCells.snapshot({ threadId });
   const cells: ConversationThreadCell[] = snapshot.items.map((item) => ({
     orderId: item.orderId,
@@ -170,7 +172,9 @@ async function loadCapabilitySlots(input: LoadCapabilitySlotsInput): Promise<Cap
   const result = await input.datastore.agent.traces.listByType({ agentId: input.agentId, type: 'state-snapshot' });
   const slots: CapabilityRehydrateSlots = new Map();
   for (const item of result.items) {
-    if (item.type !== 'state-snapshot') continue;
+    if (item.type !== 'state-snapshot') {
+      continue;
+    }
     const data = item.data as StateSnapshotData;
     let bucket = slots.get(data.capabilityId);
     if (bucket === undefined) {
@@ -185,7 +189,9 @@ async function loadCapabilitySlots(input: LoadCapabilitySlotsInput): Promise<Cap
 function parseMetadata(input: ParseMetadataInput): PebbleJsonRecord {
   try {
     const parsed = JSON.parse(input.serialized) as PebbleJsonValue;
-    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {};
+    }
     return parsed;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

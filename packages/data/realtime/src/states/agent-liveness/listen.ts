@@ -9,7 +9,9 @@ import type { AgentLivenessRecord } from './types';
  */
 export function listenToAgentLiveness(ctx: RealtimeOperationContext) {
   const client = ctx.datastore.client;
-  if (client === null) return;
+  if (client === null) {
+    return;
+  }
   client.listen('agentLiveness', (payload) => {
     const previousBootId = ctx.datastore.state.daemonBootId;
     if (previousBootId !== null && previousBootId !== payload.daemonBootId) {

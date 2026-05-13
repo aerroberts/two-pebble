@@ -14,7 +14,9 @@ export function taskBoardsUpdateOperation(ctx: DatastoreContext) {
       .where(eq(ctx.schema.taskBoardsTable.id, input.id))
       .returning()
       .get();
-    if (row === undefined) throw new Error(`task board "${input.id}" not found`);
+    if (row === undefined) {
+      throw new Error(`task board "${input.id}" not found`);
+    }
     return row as TaskBoardRecord;
   };
 }

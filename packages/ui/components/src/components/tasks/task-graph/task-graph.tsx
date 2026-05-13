@@ -24,7 +24,9 @@ export function TaskGraph(props: TaskGraphProps) {
   const layout = useElkLayout(props.graph);
 
   const onNodeClick = (_event: unknown, node: Node) => {
-    if (node.type !== 'task') return;
+    if (node.type !== 'task') {
+      return;
+    }
     props.onSelectTask?.(node.id);
   };
 
@@ -57,7 +59,9 @@ function useElkLayout(input: TaskGraphInput): FlowGraph | null {
   useEffect(() => {
     let cancelled = false;
     void buildTaskFlowGraph(input).then((result) => {
-      if (!cancelled) setLayout(result);
+      if (!cancelled) {
+        setLayout(result);
+      }
     });
     return () => {
       cancelled = true;
@@ -76,7 +80,9 @@ function toReactFlowNode(node: FlowNode, selectedTaskId: string | undefined): No
     selectable: node.type === 'task',
     selected: node.type === 'task' && node.id === selectedTaskId,
   };
-  if (node.parentId !== undefined) base.parentId = node.parentId;
+  if (node.parentId !== undefined) {
+    base.parentId = node.parentId;
+  }
   if (node.type === 'pool') {
     base.style = { width: node.width, height: node.height };
     base.zIndex = -1;

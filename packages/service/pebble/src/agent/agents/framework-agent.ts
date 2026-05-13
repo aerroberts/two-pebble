@@ -68,7 +68,9 @@ export class FrameworkAgent extends Agent {
    */
   private onIncomingMessage(): void {
     const messages = this.pullAllMessages();
-    if (messages.length === 0) return;
+    if (messages.length === 0) {
+      return;
+    }
     if (this.getStatus() === 'failed') {
       throw new Error(`agent is ${this.getStatus()} and cannot accept messages`);
     }

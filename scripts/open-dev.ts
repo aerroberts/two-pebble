@@ -12,7 +12,9 @@ async function main() {
 async function waitForDaemonUrl(): Promise<string> {
   for (let attempt = 0; attempt < RETRIES; attempt += 1) {
     const url = await findDaemonUrl();
-    if (url !== undefined) return url;
+    if (url !== undefined) {
+      return url;
+    }
     await Bun.sleep(RETRY_DELAY_MS);
   }
 
@@ -23,7 +25,9 @@ async function findDaemonUrl(): Promise<string | undefined> {
   for (let offset = 0; offset < PORT_RANGE; offset += 1) {
     const port = START_PORT + offset;
     const url = `http://${HOST}:${port}`;
-    if (await isDaemonReady(url)) return url;
+    if (await isDaemonReady(url)) {
+      return url;
+    }
   }
   return undefined;
 }
@@ -31,7 +35,9 @@ async function findDaemonUrl(): Promise<string | undefined> {
 async function isDaemonReady(url: string): Promise<boolean> {
   try {
     const response = await fetch(`${url}/health`);
-    if (!response.ok) return false;
+    if (!response.ok) {
+      return false;
+    }
     const body = (await response.json()) as { state?: string };
     return body.state === 'ready';
   } catch {

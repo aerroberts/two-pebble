@@ -37,11 +37,18 @@ export class Rule extends Guardrail<TopLevelDefinitionsRuleOptions> {
     const fileName = basename(input.file);
     const fileTypes: TopLevelDefinitionFileType[] = [];
 
-    if (input.file.endsWith('.test.ts')) fileTypes.push('testFile');
-    if (fileName === 'index.ts') fileTypes.push('indexFile');
-    if (fileName === 'types.ts') fileTypes.push('typesFile');
-    if (!input.file.endsWith('.test.ts') && input.sourceFile.statements.some(ts.isClassDeclaration))
+    if (input.file.endsWith('.test.ts')) {
+      fileTypes.push('testFile');
+    }
+    if (fileName === 'index.ts') {
+      fileTypes.push('indexFile');
+    }
+    if (fileName === 'types.ts') {
+      fileTypes.push('typesFile');
+    }
+    if (!input.file.endsWith('.test.ts') && input.sourceFile.statements.some(ts.isClassDeclaration)) {
       fileTypes.push('classFile');
+    }
 
     return fileTypes.filter(
       (fileType) =>
@@ -51,7 +58,9 @@ export class Rule extends Guardrail<TopLevelDefinitionsRuleOptions> {
 
   private checkTopLevelStatements(sourceFile: ts.SourceFile, reporter: Reporter, policy: TopLevelDefinitionPolicy) {
     const allowed = policy.allowedTopLevelStatements;
-    if (!allowed) return;
+    if (!allowed) {
+      return;
+    }
 
     for (const statement of sourceFile.statements) {
       if (!this.isAllowedTopLevelStatement(statement, allowed)) {
@@ -62,7 +71,9 @@ export class Rule extends Guardrail<TopLevelDefinitionsRuleOptions> {
 
   private checkNestedDefinitions(sourceFile: ts.SourceFile, reporter: Reporter, policy: TopLevelDefinitionPolicy) {
     const banned = policy.bannedNestedDefinitions;
-    if (!banned) return;
+    if (!banned) {
+      return;
+    }
 
     const visitNode = (node: ts.Node) => {
       const kind = this.kindForDefinition(node);
@@ -83,25 +94,55 @@ export class Rule extends Guardrail<TopLevelDefinitionsRuleOptions> {
   }
 
   private kindForTopLevelStatement(statement: ts.Statement): TopLevelStatementKind | undefined {
-    if (ts.isImportDeclaration(statement) || ts.isImportEqualsDeclaration(statement)) return 'import';
-    if (ts.isExportDeclaration(statement)) return 'export';
-    if (ts.isClassDeclaration(statement)) return 'class';
-    if (ts.isFunctionDeclaration(statement)) return 'function';
-    if (ts.isInterfaceDeclaration(statement)) return 'interface';
-    if (ts.isTypeAliasDeclaration(statement)) return 'type';
-    if (ts.isEnumDeclaration(statement)) return 'enum';
-    if (ts.isVariableStatement(statement)) return 'const';
-    if (this.isTopLevelDescribe(statement)) return 'describe';
+    if (ts.isImportDeclaration(statement) || ts.isImportEqualsDeclaration(statement)) {
+      return 'import';
+    }
+    if (ts.isExportDeclaration(statement)) {
+      return 'export';
+    }
+    if (ts.isClassDeclaration(statement)) {
+      return 'class';
+    }
+    if (ts.isFunctionDeclaration(statement)) {
+      return 'function';
+    }
+    if (ts.isInterfaceDeclaration(statement)) {
+      return 'interface';
+    }
+    if (ts.isTypeAliasDeclaration(statement)) {
+      return 'type';
+    }
+    if (ts.isEnumDeclaration(statement)) {
+      return 'enum';
+    }
+    if (ts.isVariableStatement(statement)) {
+      return 'const';
+    }
+    if (this.isTopLevelDescribe(statement)) {
+      return 'describe';
+    }
     return undefined;
   }
 
   private kindForDefinition(node: ts.Node): TopLevelStatementKind | undefined {
-    if (ts.isClassDeclaration(node)) return 'class';
-    if (ts.isFunctionDeclaration(node)) return 'function';
-    if (ts.isInterfaceDeclaration(node)) return 'interface';
-    if (ts.isTypeAliasDeclaration(node)) return 'type';
-    if (ts.isEnumDeclaration(node)) return 'enum';
-    if (ts.isVariableStatement(node)) return 'const';
+    if (ts.isClassDeclaration(node)) {
+      return 'class';
+    }
+    if (ts.isFunctionDeclaration(node)) {
+      return 'function';
+    }
+    if (ts.isInterfaceDeclaration(node)) {
+      return 'interface';
+    }
+    if (ts.isTypeAliasDeclaration(node)) {
+      return 'type';
+    }
+    if (ts.isEnumDeclaration(node)) {
+      return 'enum';
+    }
+    if (ts.isVariableStatement(node)) {
+      return 'const';
+    }
     return undefined;
   }
 
@@ -119,13 +160,18 @@ export class Rule extends Guardrail<TopLevelDefinitionsRuleOptions> {
   }
 
   private defaultPolicyFor(fileType: TopLevelDefinitionFileType): TopLevelDefinitionPolicy {
-    if (fileType === 'classFile') return { allowedTopLevelStatements: ['import', 'class'] };
-    if (fileType === 'testFile')
+    if (fileType === 'classFile') {
+      return { allowedTopLevelStatements: ['import', 'class'] };
+    }
+    if (fileType === 'testFile') {
       return {
         allowedTopLevelStatements: ['import', 'describe'],
         bannedNestedDefinitions: ['class', 'function', 'interface', 'type'],
       };
-    if (fileType === 'indexFile') return { allowedTopLevelStatements: ['import', 'export'] };
+    }
+    if (fileType === 'indexFile') {
+      return { allowedTopLevelStatements: ['import', 'export'] };
+    }
     return { allowedTopLevelStatements: ['import', 'export', 'interface', 'type'] };
   }
 

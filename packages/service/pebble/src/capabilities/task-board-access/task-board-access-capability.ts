@@ -22,7 +22,9 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
    * model tool calls concise.
    */
   public override initialize(config: TaskBoardAccessCapabilityConfig): void {
-    if (typeof config.boardId === 'string') this.boardIdSlot.set(config.boardId);
+    if (typeof config.boardId === 'string') {
+      this.boardIdSlot.set(config.boardId);
+    }
   }
 
   /**
@@ -69,13 +71,17 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
 
   private runner() {
     const runner = getCapabilityRunners(this.agent).taskBoard;
-    if (runner === undefined) throw new Error('task-board runner is not installed.');
+    if (runner === undefined) {
+      throw new Error('task-board runner is not installed.');
+    }
     return runner;
   }
 
   private boardId(input: string | undefined): string {
     const boardId = input ?? this.boardIdSlot.value;
-    if (boardId.length === 0) throw new Error('boardId is required.');
+    if (boardId.length === 0) {
+      throw new Error('boardId is required.');
+    }
     return boardId;
   }
 }

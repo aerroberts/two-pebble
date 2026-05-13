@@ -18,7 +18,9 @@ export function ThemeToggle(props: ThemeToggleProps) {
   }, [key]);
 
   function handleChange(value: string) {
-    if (!isTheme(value)) return;
+    if (!isTheme(value)) {
+      return;
+    }
     setTheme(value);
     localStorage.setItem(key, value);
     applyTheme(value);

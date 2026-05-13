@@ -13,13 +13,19 @@ export function WorkflowNodesLayer(props: WorkflowNodesLayerProps) {
     <>
       {props.nodes.map((node) => {
         const position = props.positions.get(node.id);
-        if (!position) return null;
+        if (!position) {
+          return null;
+        }
         return <WorkflowNodeRenderer key={node.id} node={node} position={position} onNodeClick={props.onNodeClick} />;
       })}
       {props.nodes.map((node) => {
-        if (!node.children || node.children.length === 0) return null;
+        if (!node.children || node.children.length === 0) {
+          return null;
+        }
         const pos = props.positions.get(node.id);
-        if (!pos) return null;
+        if (!pos) {
+          return null;
+        }
         return (
           <WorkflowChildGroupCard
             key={`children-${node.id}`}

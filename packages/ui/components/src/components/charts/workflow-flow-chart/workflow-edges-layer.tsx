@@ -19,7 +19,9 @@ export function WorkflowEdgesLayer(props: WorkflowEdgesLayerProps) {
       {props.edges.map((edge) => {
         const sourcePos = props.positions.get(edge.source);
         const targetPos = props.positions.get(edge.target);
-        if (!sourcePos || !targetPos) return null;
+        if (!sourcePos || !targetPos) {
+          return null;
+        }
         const sourceNode = props.nodeMap.get(edge.source);
         const targetNode = props.nodeMap.get(edge.target);
         return (
@@ -33,9 +35,13 @@ export function WorkflowEdgesLayer(props: WorkflowEdgesLayerProps) {
         );
       })}
       {props.nodes.map((node) => {
-        if (!node.children || node.children.length === 0) return null;
+        if (!node.children || node.children.length === 0) {
+          return null;
+        }
         const pos = props.positions.get(node.id);
-        if (!pos) return null;
+        if (!pos) {
+          return null;
+        }
         return <WorkflowChildEdgePath key={`child-edge-${node.id}`} parentPos={pos} />;
       })}
     </>

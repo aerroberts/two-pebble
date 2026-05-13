@@ -32,7 +32,9 @@ export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps)
         onKeyDown={(event) => {
           if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
-            if (!sendDisabled) props.onChatSubmit();
+            if (!sendDisabled) {
+              props.onChatSubmit();
+            }
           }
         }}
         placeholder="Send a follow-up message — Enter to send, Shift+Enter for newline"

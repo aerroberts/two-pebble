@@ -53,7 +53,9 @@ interface DeliverInitialSpawnMessageInput {
  * runtime without re-reading the registry row.
  */
 export function installSubAgentRunner(input: InstallRunnersInput): void {
-  if (!input.specs.some((spec) => spec.id === 'sub-agent')) return;
+  if (!input.specs.some((spec) => spec.id === 'sub-agent')) {
+    return;
+  }
   installCapabilityRunners(input.agent, {
     subAgent: new ParentSideRunner({
       agentRegistry: input.agentRegistry,
@@ -73,7 +75,9 @@ export function installSubAgentRunner(input: InstallRunnersInput): void {
  * declare it.
  */
 export function attachParentLinkCapability(input: AttachParentLinkInput): void {
-  if (!(input.agent instanceof PebbleAgent)) return;
+  if (!(input.agent instanceof PebbleAgent)) {
+    return;
+  }
   installCapabilityRunners(input.agent, {
     parentLink: new ChildSideRunner({
       childAgentId: input.agent.agentId,

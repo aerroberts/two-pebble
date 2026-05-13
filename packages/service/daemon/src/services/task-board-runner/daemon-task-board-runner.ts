@@ -77,7 +77,9 @@ export class DaemonTaskBoardRunner implements TaskBoardRunner {
   public async renameTask(input: TaskBoardRenameTaskInput): Promise<void> {
     const record = await this.taskBoards.renameTask(input.taskId, input.name);
     const refreshed = await this.taskBoards.listTasks(record.boardId);
-    for (const task of refreshed) this.bridge.emit('taskUpdated', task);
+    for (const task of refreshed) {
+      this.bridge.emit('taskUpdated', task);
+    }
   }
 
   /**
@@ -88,7 +90,9 @@ export class DaemonTaskBoardRunner implements TaskBoardRunner {
   public async updateTaskDescription(input: TaskBoardUpdateTaskDescriptionInput): Promise<void> {
     const record = await this.taskBoards.updateTaskDescription(input.taskId, input.description);
     const refreshed = await this.taskBoards.listTasks(record.boardId);
-    for (const task of refreshed) this.bridge.emit('taskUpdated', task);
+    for (const task of refreshed) {
+      this.bridge.emit('taskUpdated', task);
+    }
   }
 
   /**
@@ -105,7 +109,9 @@ export class DaemonTaskBoardRunner implements TaskBoardRunner {
     this.broadcastEvents(events);
     this.bridge.emit('taskUpdated', result);
     const refreshed = await this.taskBoards.listTasks(input.boardId);
-    for (const task of refreshed) this.bridge.emit('taskUpdated', task);
+    for (const task of refreshed) {
+      this.bridge.emit('taskUpdated', task);
+    }
   }
 
   /**
@@ -118,7 +124,9 @@ export class DaemonTaskBoardRunner implements TaskBoardRunner {
     this.broadcastEvents(events);
     this.bridge.emit('taskDeleted', { id: input.taskId, boardId: input.boardId });
     const refreshed = await this.taskBoards.listTasks(input.boardId);
-    for (const task of refreshed) this.bridge.emit('taskUpdated', task);
+    for (const task of refreshed) {
+      this.bridge.emit('taskUpdated', task);
+    }
   }
 
   /**

@@ -19,7 +19,9 @@ export function handler(ctx: DaemonHandlerContext) {
     });
     ctx.multicastBridge.emit('taskEventRecorded', undelegationEvent);
     const refreshed = await ctx.taskBoards.listTasks(updated.boardId);
-    for (const entry of refreshed) ctx.multicastBridge.emit('taskUpdated', entry);
+    for (const entry of refreshed) {
+      ctx.multicastBridge.emit('taskUpdated', entry);
+    }
     return { id: payload.taskId };
   };
 }
@@ -35,7 +37,9 @@ async function findTaskRow(ctx: DaemonHandlerContext, taskId: string): Promise<M
   for (const board of boards.items) {
     const tasks = await ctx.datastore.taskBoards.tasks.list({ boardId: board.id });
     const found = tasks.items.find((task) => task.id === taskId);
-    if (found !== undefined) return found as MinimalTaskRow;
+    if (found !== undefined) {
+      return found as MinimalTaskRow;
+    }
   }
   throw new Error(`task "${taskId}" not found`);
 }

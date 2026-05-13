@@ -49,12 +49,16 @@ function topologicalDepths(nodes: Array<WorkflowNode>, incoming: Map<string, Arr
   while (remaining.size > 0) {
     const nextLayer = Array.from(remaining).filter((id) => {
       const inc = incoming.get(id);
-      if (!inc) return true;
+      if (!inc) {
+        return true;
+      }
       return inc.every((dep) => !remaining.has(dep));
     });
     if (nextLayer.length === 0) {
       const breaker = remaining.values().next().value;
-      if (breaker) nextLayer.push(breaker);
+      if (breaker) {
+        nextLayer.push(breaker);
+      }
     }
     for (const id of nextLayer) {
       depths.set(id, currentDepth);
@@ -81,7 +85,9 @@ function positionColumns(columns: Array<Array<WorkflowNode>>) {
     let h = 0;
     col.forEach((node, i) => {
       h += nodeEffectiveHeight(node);
-      if (i < col.length - 1) h += ROW_GAP;
+      if (i < col.length - 1) {
+        h += ROW_GAP;
+      }
     });
     maxColHeight = Math.max(maxColHeight, h);
   });

@@ -26,7 +26,9 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
    * The id can later be overridden by a pending response context.
    */
   public override initialize(config: ParentLinkCapabilityConfig): void {
-    if (typeof config.parentAgentId === 'string') this.parentAgentIdSlot.set(config.parentAgentId);
+    if (typeof config.parentAgentId === 'string') {
+      this.parentAgentIdSlot.set(config.parentAgentId);
+    }
   }
 
   /**
@@ -124,7 +126,9 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     const type = stringField(data, 'type');
     if (type === 'parent-message') {
       const message = stringField(data, 'message');
-      if (message !== undefined) this.agent.addUserContext('Parent Agent Message', [Cell.text(message)]);
+      if (message !== undefined) {
+        this.agent.addUserContext('Parent Agent Message', [Cell.text(message)]);
+      }
       return;
     }
     if (type === 'respond-parent') {
@@ -150,7 +154,9 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     }
     if (type === 'parent-response') {
       const message = stringField(data, 'message');
-      if (message === undefined) return;
+      if (message === undefined) {
+        return;
+      }
       this.agent.addUserContext('Parent Agent Response', [Cell.header2('Parent Agent Response'), Cell.text(message)]);
     }
   }
@@ -169,9 +175,13 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
 
   private parentAgentId(): string {
     const pending = this.pendingParentResponseSlot.value;
-    if (pending !== null) return pending.parentAgentId;
+    if (pending !== null) {
+      return pending.parentAgentId;
+    }
     const parentAgentId = this.parentAgentIdSlot.value;
-    if (parentAgentId !== null) return parentAgentId;
+    if (parentAgentId !== null) {
+      return parentAgentId;
+    }
     throw new Error('parent-link capability does not know its parent agent yet.');
   }
 }

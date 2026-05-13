@@ -25,7 +25,9 @@ export function AgentDetailPage() {
         'Stop this agent? Any pending follow-up messages will be discarded. The agent will return to idle and can be resumed.',
       confirmLabel: 'Stop',
     });
-    if (ok) await state.stopAgentRun();
+    if (ok) {
+      await state.stopAgentRun();
+    }
   };
 
   const requestFreshStart = async () => {
@@ -35,7 +37,9 @@ export function AgentDetailPage() {
         'Discard the agent’s saved session and start a new framework session under the same agent? The thread history stays attached, but the framework will not remember it directly.',
       confirmLabel: 'Fresh start',
     });
-    if (ok) await state.freshStartAgentRun();
+    if (ok) {
+      await state.freshStartAgentRun();
+    }
   };
 
   const showFreshStart = state.liveness?.state === 'reconnecting';

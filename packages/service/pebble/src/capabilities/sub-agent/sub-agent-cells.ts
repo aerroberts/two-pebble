@@ -11,12 +11,16 @@ export function listSubAgentsCells(references: SubAgentReference[], children: Ch
 }
 
 function referenceCells(references: SubAgentReference[]): DataCells {
-  if (references.length === 0) return [Cell.text('No configured sub-agent references.')];
+  if (references.length === 0) {
+    return [Cell.text('No configured sub-agent references.')];
+  }
   return references.map((reference) => Cell.text(referenceDescription(reference)));
 }
 
 function childCells(children: ChildRecord[]): DataCells {
-  if (children.length === 0) return [Cell.text('No spawned child agents.')];
+  if (children.length === 0) {
+    return [Cell.text('No spawned child agents.')];
+  }
   return children.map((child) => Cell.text(`${child.agentId} (${child.referenceName})`));
 }
 

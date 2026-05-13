@@ -45,6 +45,8 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
 
 function composeFrameworkSystemPrompt(agentId: string, registrySystemPrompt: string): string {
   const naming = renderAgentNamingInstruction(agentId);
-  if (registrySystemPrompt.length === 0) return naming;
+  if (registrySystemPrompt.length === 0) {
+    return naming;
+  }
   return `${naming}\n\n${registrySystemPrompt}`;
 }

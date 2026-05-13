@@ -30,9 +30,13 @@ export function TabSelect(props: TabSelectProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState<IndicatorStyle>({ width: 0, x: 0, visible: false });
   useLayoutEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) {
+      return;
+    }
     const selectedButton = buttonRefsRef.current.get(props.value);
-    if (!selectedButton) return;
+    if (!selectedButton) {
+      return;
+    }
     setIndicatorStyle({
       width: selectedButton.offsetWidth,
       x: selectedButton.offsetLeft,

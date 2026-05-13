@@ -14,8 +14,12 @@ export function handler(ctx: DaemonHandlerContext) {
       agentStatus: 'failed',
       reason: `auto: agent ${record.name} failed`,
     });
-    for (const event of sync.events) ctx.multicastBridge.emit('taskEventRecorded', event);
-    for (const task of sync.tasks) ctx.multicastBridge.emit('taskUpdated', task);
+    for (const event of sync.events) {
+      ctx.multicastBridge.emit('taskEventRecorded', event);
+    }
+    for (const task of sync.tasks) {
+      ctx.multicastBridge.emit('taskUpdated', task);
+    }
     return { id: record.id };
   };
 }

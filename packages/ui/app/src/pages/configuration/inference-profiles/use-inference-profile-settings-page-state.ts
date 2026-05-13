@@ -71,11 +71,17 @@ export function useInferenceProfileSettingsPageState() {
   };
 
   const selectModel = (modelId: string) => {
-    if (profile?.value == null) return;
+    if (profile?.value == null) {
+      return;
+    }
     setModel(modelId);
-    if (modelId === getInferenceProfileModel(profile.value)) return;
+    if (modelId === getInferenceProfileModel(profile.value)) {
+      return;
+    }
     const next = withUpdatedModel(profile.value, modelId);
-    if (next === undefined) return;
+    if (next === undefined) {
+      return;
+    }
     updateProfile(next);
   };
 

@@ -13,7 +13,9 @@ export function agentSignalsMarkResolvedOperation(ctx: DatastoreContext) {
       .where(eq(ctx.schema.agentSignalsTable.id, input.id))
       .returning()
       .get();
-    if (row === undefined) throw new Error(`Agent signal not found: ${input.id}`);
+    if (row === undefined) {
+      throw new Error(`Agent signal not found: ${input.id}`);
+    }
     return row as AgentSignalRecord;
   };
 }

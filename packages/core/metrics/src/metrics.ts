@@ -52,8 +52,12 @@ export class Metrics {
    */
   public emit(name: string, value: number, ...input: MetricEmitDimensions): void {
     assertValidMetricName(name);
-    if (!Number.isFinite(value)) return;
-    if (this.handler === undefined) return;
+    if (!Number.isFinite(value)) {
+      return;
+    }
+    if (this.handler === undefined) {
+      return;
+    }
     const entry: MetricEntry = { name, value, dimensions: input[0] ?? {}, timestamp: Date.now() };
     try {
       this.handler(entry);

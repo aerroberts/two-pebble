@@ -15,14 +15,17 @@ export class Rule extends Guardrail<TestDescribeStructureRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (input.file.endsWith('.test.ts')) this.checkFile(input);
+      if (input.file.endsWith('.test.ts')) {
+        this.checkFile(input);
+      }
     });
   }
 
   private checkFile(input: TestRuleInput) {
     const visit = (node: ts.Node) => {
-      if (ts.isCallExpression(node) && this.getDirectCallName(node) === 'describe')
+      if (ts.isCallExpression(node) && this.getDirectCallName(node) === 'describe') {
         this.checkDescribe(node, input.reporter);
+      }
       ts.forEachChild(node, visit);
     };
 
@@ -30,17 +33,22 @@ export class Rule extends Guardrail<TestDescribeStructureRuleOptions> {
   }
 
   private checkDescribe(node: ts.CallExpression, reporter: Reporter) {
-    if (!this.firstStringArgStartsWith(node, this.options.describeNamePrefix ?? 'feature: '))
+    if (!this.firstStringArgStartsWith(node, this.options.describeNamePrefix ?? 'feature: ')) {
       this.fail(reporter, 'describe-name');
-    if (!(this.options.allowNestedDescribe ?? false) && this.describeDepth(node) > 0)
+    }
+    if (!(this.options.allowNestedDescribe ?? false) && this.describeDepth(node) > 0) {
       this.fail(reporter, 'nested-describe');
+    }
   }
 
   private firstStringArgStartsWith(node: ts.CallExpression, prefix: string) {
     const firstArg = node.arguments[0];
-    if (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg))
+    if (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg)) {
       return firstArg.text.startsWith(prefix);
-    if (ts.isTemplateExpression(firstArg)) return firstArg.head.text.startsWith(prefix);
+    }
+    if (ts.isTemplateExpression(firstArg)) {
+      return firstArg.head.text.startsWith(prefix);
+    }
     return false;
   }
 
@@ -49,7 +57,9 @@ export class Rule extends Guardrail<TestDescribeStructureRuleOptions> {
     let current = node.parent;
 
     while (current !== undefined) {
-      if (ts.isCallExpression(current) && this.getDirectCallName(current) === 'describe') depth++;
+      if (ts.isCallExpression(current) && this.getDirectCallName(current) === 'describe') {
+        depth++;
+      }
       current = current.parent;
     }
 

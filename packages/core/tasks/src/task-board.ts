@@ -53,7 +53,9 @@ export class TaskBoard {
   public addPool(input: AddPoolInput): PoolRecord {
     this.requireUniqueId(input.id);
     const parentId = input.parentPoolId ?? null;
-    if (parentId !== null) this.requirePool(parentId);
+    if (parentId !== null) {
+      this.requirePool(parentId);
+    }
     const record: PoolRecord = { id: input.id, boardId: this.id, parentPoolId: parentId };
     this.poolsById.set(input.id, record);
     this.graph.registerEntity(input.id, parentId, true);
@@ -69,7 +71,9 @@ export class TaskBoard {
   public addTask(input: AddTaskInput): TaskRecord {
     this.requireUniqueId(input.id);
     const parentId = input.poolId ?? null;
-    if (parentId !== null) this.requirePool(parentId);
+    if (parentId !== null) {
+      this.requirePool(parentId);
+    }
     const previous = this.snapshotTaskStatuses();
     const record: TaskRecord = { id: input.id, boardId: this.id, poolId: parentId, status: 'pending' };
     this.tasksById.set(input.id, record);
@@ -87,7 +91,9 @@ export class TaskBoard {
    */
   public addDependency(input: AddDependencyInput): void {
     this.validateDependency(input.fromId, input.toId);
-    if (this.graph.hasEdge(input.fromId, input.toId)) return;
+    if (this.graph.hasEdge(input.fromId, input.toId)) {
+      return;
+    }
     const previous = this.snapshotTaskStatuses();
     this.graph.addEdge(input.fromId, input.toId);
     this.emitStatusChanges(previous);
@@ -99,7 +105,9 @@ export class TaskBoard {
    * whose effective status changes will trigger subscriber events.
    */
   public removeDependency(fromId: string, toId: string): void {
-    if (!this.graph.hasEdge(fromId, toId)) return;
+    if (!this.graph.hasEdge(fromId, toId)) {
+      return;
+    }
     const previous = this.snapshotTaskStatuses();
     this.graph.removeEdge(fromId, toId);
     this.emitStatusChanges(previous);
@@ -111,7 +119,9 @@ export class TaskBoard {
    * Throws when the id is not a known task; pools are removed via removePool.
    */
   public removeTask(taskId: string): void {
-    if (!this.tasksById.has(taskId)) throw new NotFoundError(taskId);
+    if (!this.tasksById.has(taskId)) {
+      throw new NotFoundError(taskId);
+    }
     const previous = this.snapshotTaskStatuses();
     this.graph.forgetEntity(taskId);
     this.tasksById.delete(taskId);
@@ -125,9 +135,13 @@ export class TaskBoard {
    * cascade-deletes since callers may want different cleanup semantics.
    */
   public removePool(poolId: string): void {
-    if (!this.poolsById.has(poolId)) throw new NotFoundError(poolId);
+    if (!this.poolsById.has(poolId)) {
+      throw new NotFoundError(poolId);
+    }
     const memberCount = this.graph.childCountOf(poolId);
-    if (memberCount > 0) throw new NonEmptyPoolError(poolId, memberCount);
+    if (memberCount > 0) {
+      throw new NonEmptyPoolError(poolId, memberCount);
+    }
     const previous = this.snapshotTaskStatuses();
     this.graph.forgetEntity(poolId);
     this.poolsById.delete(poolId);
@@ -141,7 +155,9 @@ export class TaskBoard {
    */
   public setTaskStatus(taskId: string, status: SettableTaskStatus): void {
     const task = this.tasksById.get(taskId);
-    if (task === undefined) throw new NotFoundError(taskId);
+    if (task === undefined) {
+      throw new NotFoundError(taskId);
+    }
     const currentEffective = this.computeEffectiveStatus(taskId);
     this.requireValidTransition(taskId, currentEffective, status);
     const previous = this.snapshotTaskStatuses();
@@ -157,7 +173,9 @@ export class TaskBoard {
    */
   public getTask(taskId: string): TaskRecord {
     const task = this.tasksById.get(taskId);
-    if (task === undefined) throw new NotFoundError(taskId);
+    if (task === undefined) {
+      throw new NotFoundError(taskId);
+    }
     return { ...task };
   }
 
@@ -168,7 +186,9 @@ export class TaskBoard {
    */
   public getPool(poolId: string): PoolRecord {
     const pool = this.poolsById.get(poolId);
-    if (pool === undefined) throw new NotFoundError(poolId);
+    if (pool === undefined) {
+      throw new NotFoundError(poolId);
+    }
     return { ...pool };
   }
 
@@ -178,7 +198,9 @@ export class TaskBoard {
    * addressed here since they have no exposed status enum.
    */
   public getTaskStatus(taskId: string): TaskEffectiveStatus {
-    if (!this.tasksById.has(taskId)) throw new NotFoundError(taskId);
+    if (!this.tasksById.has(taskId)) {
+      throw new NotFoundError(taskId);
+    }
     return this.computeEffectiveStatus(taskId);
   }
 
@@ -190,7 +212,9 @@ export class TaskBoard {
   public getAvailableTasks(): TaskRecord[] {
     const result: TaskRecord[] = [];
     for (const task of this.tasksById.values()) {
-      if (this.computeEffectiveStatus(task.id) === 'open') result.push({ ...task });
+      if (this.computeEffectiveStatus(task.id) === 'open') {
+        result.push({ ...task });
+      }
     }
     return result;
   }
@@ -229,28 +253,42 @@ export class TaskBoard {
     this.listeners.push(listener);
     return () => {
       const index = this.listeners.indexOf(listener);
-      if (index >= 0) this.listeners.splice(index, 1);
+      if (index >= 0) {
+        this.listeners.splice(index, 1);
+      }
     };
   }
 
   private requireUniqueId(id: string): void {
-    if (this.tasksById.has(id) || this.poolsById.has(id)) throw new DuplicateIdError(id);
+    if (this.tasksById.has(id) || this.poolsById.has(id)) {
+      throw new DuplicateIdError(id);
+    }
   }
 
   private requirePool(id: string): void {
-    if (!this.poolsById.has(id)) throw new NotFoundError(id);
+    if (!this.poolsById.has(id)) {
+      throw new NotFoundError(id);
+    }
   }
 
   private requireKnown(id: string): void {
-    if (!this.tasksById.has(id) && !this.poolsById.has(id)) throw new NotFoundError(id);
+    if (!this.tasksById.has(id) && !this.poolsById.has(id)) {
+      throw new NotFoundError(id);
+    }
   }
 
   private validateDependency(fromId: string, toId: string): void {
     this.requireKnown(fromId);
     this.requireKnown(toId);
-    if (fromId === toId) throw new SelfDependencyError(fromId);
-    if (this.graph.parentOf(fromId) !== this.graph.parentOf(toId)) throw new SiblingViolationError(fromId, toId);
-    if (this.graph.wouldCreateCycle(fromId, toId)) throw new CycleError(fromId, toId);
+    if (fromId === toId) {
+      throw new SelfDependencyError(fromId);
+    }
+    if (this.graph.parentOf(fromId) !== this.graph.parentOf(toId)) {
+      throw new SiblingViolationError(fromId, toId);
+    }
+    if (this.graph.wouldCreateCycle(fromId, toId)) {
+      throw new CycleError(fromId, toId);
+    }
   }
 
   private requireValidTransition(taskId: string, current: TaskEffectiveStatus, requested: SettableTaskStatus): void {
@@ -265,7 +303,9 @@ export class TaskBoard {
   private applyDependencies(fromId: string, targetIds: string[]): void {
     for (const toId of targetIds) {
       this.validateDependency(fromId, toId);
-      if (!this.graph.hasEdge(fromId, toId)) this.graph.addEdge(fromId, toId);
+      if (!this.graph.hasEdge(fromId, toId)) {
+        this.graph.addEdge(fromId, toId);
+      }
     }
   }
 
@@ -274,19 +314,27 @@ export class TaskBoard {
       const stored = this.storedStatusByTaskId.get(id) as TaskStoredStatus;
       return stored === 'success' || stored === 'failure';
     }
-    if (!this.poolsById.has(id)) return false;
+    if (!this.poolsById.has(id)) {
+      return false;
+    }
     let hasChild = false;
     for (const childId of this.graph.childrenOf(id)) {
       hasChild = true;
-      if (!this.isResolved(childId)) return false;
+      if (!this.isResolved(childId)) {
+        return false;
+      }
     }
     return hasChild;
   }
 
   private computeEffectiveStatus(taskId: string): TaskEffectiveStatus {
     const stored = this.storedStatusByTaskId.get(taskId) as TaskStoredStatus;
-    if (stored === 'success' || stored === 'failure') return stored;
-    if (stored === 'working' || stored === 'waiting') return stored;
+    if (stored === 'success' || stored === 'failure') {
+      return stored;
+    }
+    if (stored === 'working' || stored === 'waiting') {
+      return stored;
+    }
     return this.isAnyDependencyUnresolved(taskId) ? 'blocked' : 'open';
   }
 
@@ -294,7 +342,9 @@ export class TaskBoard {
     let cursor: ParentId = id;
     while (cursor !== null) {
       for (const target of this.graph.outgoingOf(cursor)) {
-        if (!this.isResolved(target)) return true;
+        if (!this.isResolved(target)) {
+          return true;
+        }
       }
       cursor = this.graph.parentOf(cursor);
     }
@@ -303,22 +353,30 @@ export class TaskBoard {
 
   private snapshotTaskStatuses(): EffectiveStatusMap {
     const snapshot = new Map<string, TaskEffectiveStatus>();
-    for (const taskId of this.tasksById.keys()) snapshot.set(taskId, this.computeEffectiveStatus(taskId));
+    for (const taskId of this.tasksById.keys()) {
+      snapshot.set(taskId, this.computeEffectiveStatus(taskId));
+    }
     return snapshot;
   }
 
   private emitStatusChanges(previous: EffectiveStatusMap): void {
-    if (this.listeners.length === 0) return;
+    if (this.listeners.length === 0) {
+      return;
+    }
     for (const taskId of this.tasksById.keys()) {
       const next = this.computeEffectiveStatus(taskId);
       const before = previous.get(taskId);
-      if (before === undefined || before === next) continue;
+      if (before === undefined || before === next) {
+        continue;
+      }
       this.dispatchStatusEvent(taskId, before, next);
     }
   }
 
   private dispatchStatusEvent(taskId: string, previous: TaskEffectiveStatus, next: TaskEffectiveStatus): void {
     const event = { type: 'task-status-changed' as const, taskId, previous, next };
-    for (const listener of [...this.listeners]) listener(event);
+    for (const listener of [...this.listeners]) {
+      listener(event);
+    }
   }
 }

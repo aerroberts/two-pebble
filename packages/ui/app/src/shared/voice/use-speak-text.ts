@@ -14,6 +14,14 @@ export interface SpeakTextController {
   stop: () => void;
 }
 
+interface SpeechPlaybackContext {
+  isCurrent: () => boolean;
+  releaseAudio: () => void;
+  setActiveText: (text: string | null) => void;
+  setError: (error: string) => void;
+  setState: (state: SpeakTextState) => void;
+}
+
 export function useSpeakText(): SpeakTextController {
   const appSettings = useAppSettings();
   const generateSpeech = useGenerateSpeech();
@@ -48,38 +56,44 @@ export function useSpeakText(): SpeakTextController {
   const start = useCallback(
     (text: string) => {
       const trimmed = text.trim();
-      if (trimmed.length === 0 || profileId === null) return;
+      if (trimmed.length === 0 || profileId === null) {
+        return;
+      }
       const seq = ++requestSeqRef.current;
       releaseAudio();
       setError('');
       setState('loading');
       setActiveText(trimmed);
+      const playbackContext: SpeechPlaybackContext = {
+        isCurrent: () => requestSeqRef.current === seq,
+        releaseAudio,
+        setActiveText,
+        setError,
+        setState,
+      };
       void (async () => {
         try {
           const result = await generateSpeech({ inferenceProfileId: profileId, text: trimmed });
-          if (requestSeqRef.current !== seq) return;
+          if (requestSeqRef.current !== seq) {
+            return;
+          }
           const blob = base64ToBlob(result.base64Data, result.mimeType || 'audio/mpeg');
           const url = URL.createObjectURL(blob);
           lastUrlRef.current = url;
           const audio = new Audio(url);
           audioRef.current = audio;
           audio.addEventListener('ended', () => {
-            if (requestSeqRef.current !== seq) return;
-            releaseAudio();
-            setState('idle');
-            setActiveText(null);
+            finishSpeechPlayback(playbackContext);
           });
           audio.addEventListener('error', () => {
-            if (requestSeqRef.current !== seq) return;
-            releaseAudio();
-            setState('idle');
-            setActiveText(null);
-            setError('Audio playback failed.');
+            failSpeechPlayback(playbackContext, 'Audio playback failed.');
           });
           setState('playing');
           await audio.play();
         } catch (failure) {
-          if (requestSeqRef.current !== seq) return;
+          if (requestSeqRef.current !== seq) {
+            return;
+          }
           releaseAudio();
           setState('idle');
           setActiveText(null);
@@ -91,6 +105,27 @@ export function useSpeakText(): SpeakTextController {
   );
 
   return { state, activeText, available, error, start, stop };
+}
+
+function finishSpeechPlayback(context: SpeechPlaybackContext): void {
+  if (!context.isCurrent()) {
+    return;
+  }
+  resetSpeechPlayback(context);
+}
+
+function failSpeechPlayback(context: SpeechPlaybackContext, error: string): void {
+  if (!context.isCurrent()) {
+    return;
+  }
+  resetSpeechPlayback(context);
+  context.setError(error);
+}
+
+function resetSpeechPlayback(context: SpeechPlaybackContext): void {
+  context.releaseAudio();
+  context.setState('idle');
+  context.setActiveText(null);
 }
 
 function base64ToBlob(base64: string, mimeType: string): Blob {

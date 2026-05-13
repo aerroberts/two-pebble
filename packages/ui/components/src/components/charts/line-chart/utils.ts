@@ -13,16 +13,28 @@ import type {
 } from './types';
 
 export function toEpochMs(value: ChartTimestamp): number {
-  if (value instanceof Date) return value.getTime();
-  if (typeof value === 'number') return value;
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+  if (typeof value === 'number') {
+    return value;
+  }
   return new Date(value).getTime();
 }
 
 export function defaultValueFormatter(value: number): string {
-  if (value === 0) return '0';
-  if (Math.abs(value) < 0.01) return value.toFixed(4);
-  if (Math.abs(value) < 1) return value.toFixed(3);
-  if (Math.abs(value) < 1000) return value.toFixed(2);
+  if (value === 0) {
+    return '0';
+  }
+  if (Math.abs(value) < 0.01) {
+    return value.toFixed(4);
+  }
+  if (Math.abs(value) < 1) {
+    return value.toFixed(3);
+  }
+  if (Math.abs(value) < 1000) {
+    return value.toFixed(2);
+  }
   return value.toLocaleString();
 }
 
@@ -37,19 +49,31 @@ export function resolveSeriesColor(color: OptionalColor, index: number): string 
   // Lines use the chart palette at full opacity — alpha would wash out a 1.5px
   // stroke. Filled areas under the line apply opacity through fillOpacity
   // instead of pre-mixing it into the stroke color.
-  if (!color) return CHART_PALETTE[index % CHART_PALETTE.length] ?? 'currentColor';
-  if (color in CHART_COLORS) return CHART_COLORS[color as ChartColorName];
+  if (!color) {
+    return CHART_PALETTE[index % CHART_PALETTE.length] ?? 'currentColor';
+  }
+  if (color in CHART_COLORS) {
+    return CHART_COLORS[color as ChartColorName];
+  }
   return color;
 }
 
 function getNiceCeiling(value: number): number {
-  if (value <= 0) return 1;
+  if (value <= 0) {
+    return 1;
+  }
   const exponent = Math.floor(Math.log10(value));
   const magnitude = 10 ** exponent;
   const normalized = value / magnitude;
-  if (normalized <= 1) return magnitude;
-  if (normalized <= 2) return 2 * magnitude;
-  if (normalized <= 5) return 5 * magnitude;
+  if (normalized <= 1) {
+    return magnitude;
+  }
+  if (normalized <= 2) {
+    return 2 * magnitude;
+  }
+  if (normalized <= 5) {
+    return 5 * magnitude;
+  }
   return 10 * magnitude;
 }
 
@@ -67,7 +91,9 @@ export function buildChartState(input: BuildChartStateInput): ChartState {
   const normalizedPoints: NormalizedPoint[] = input.points
     .map((point) => {
       const timestamp = toEpochMs(point.timestamp);
-      if (Number.isNaN(timestamp) || Number.isNaN(point.value)) return null;
+      if (Number.isNaN(timestamp) || Number.isNaN(point.value)) {
+        return null;
+      }
       return { seriesId: point.seriesId, timestamp, value: point.value };
     })
     .filter((point): point is NormalizedPoint => point !== null);
@@ -108,22 +134,34 @@ export function buildChartState(input: BuildChartStateInput): ChartState {
   let yMin = Number.POSITIVE_INFINITY;
   let yMax = Number.NEGATIVE_INFINITY;
   for (const point of normalizedPoints) {
-    if (point.value < yMin) yMin = point.value;
-    if (point.value > yMax) yMax = point.value;
+    if (point.value < yMin) {
+      yMin = point.value;
+    }
+    if (point.value > yMax) {
+      yMax = point.value;
+    }
   }
   // Floor at zero when every observation is non-negative; this keeps gauges and
   // counters anchored to a familiar baseline instead of zooming into noise.
-  if (yMin >= 0) yMin = 0;
-  if (yMin === yMax) yMax = yMin + 1;
+  if (yMin >= 0) {
+    yMin = 0;
+  }
+  if (yMin === yMax) {
+    yMax = yMin + 1;
+  }
   const yAxisMax = yMin >= 0 ? getNiceCeiling(yMax) : yMax + (yMax - yMin) * 0.1;
   const yAxisMin = yMin >= 0 ? 0 : yMin - (yMax - yMin) * 0.1;
 
   const pointsBySeries = new Map<string, Array<{ x: number; y: number }>>();
-  for (const series of resolvedSeries) pointsBySeries.set(series.id, []);
+  for (const series of resolvedSeries) {
+    pointsBySeries.set(series.id, []);
+  }
   const sorted = [...normalizedPoints].sort((a, b) => a.timestamp - b.timestamp);
   for (const point of sorted) {
     const bucket = pointsBySeries.get(point.seriesId);
-    if (bucket === undefined) continue;
+    if (bucket === undefined) {
+      continue;
+    }
     bucket.push({ x: point.timestamp, y: point.value });
   }
 
@@ -174,7 +212,9 @@ export function buildSvgPath(
   width: number,
   height: number,
 ): string {
-  if (points.length === 0) return '';
+  if (points.length === 0) {
+    return '';
+  }
   const xRange = Math.max(1, endMs - startMs);
   const yRange = Math.max(Number.MIN_VALUE, yMax - yMin);
   return points
@@ -195,12 +235,16 @@ export function buildAreaPath(
   width: number,
   height: number,
 ): string {
-  if (points.length === 0) return '';
+  if (points.length === 0) {
+    return '';
+  }
   const line = buildSvgPath(points, startMs, endMs, yMin, yMax, width, height);
   const xRange = Math.max(1, endMs - startMs);
   const last = points.at(-1);
   const first = points.at(0);
-  if (last === undefined || first === undefined) return '';
+  if (last === undefined || first === undefined) {
+    return '';
+  }
   const lastX = ((last.x - startMs) / xRange) * width;
   const firstX = ((first.x - startMs) / xRange) * width;
   return `${line} L${lastX.toFixed(2)},${height.toFixed(2)} L${firstX.toFixed(2)},${height.toFixed(2)} Z`;

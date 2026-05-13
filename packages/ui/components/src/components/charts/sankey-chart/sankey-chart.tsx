@@ -20,7 +20,9 @@ export function SankeyChart(props: SankeyChartProps) {
 
   const computed = useMemo(() => {
     const graph = buildGraph({ stages, nodeColors, linkColors });
-    if (graph.links.length === 0) return null;
+    if (graph.links.length === 0) {
+      return null;
+    }
     return layoutGraph({ nodes: graph.nodes, links: graph.links, numCols, chartWidth: CHART_WIDTH });
   }, [stages, nodeColors, linkColors, numCols]);
 
@@ -64,7 +66,9 @@ export function SankeyChart(props: SankeyChartProps) {
         {links.map((link) => {
           const sNode = nodeById.get(link.source);
           const tNode = nodeById.get(link.target);
-          if (!sNode || !tNode) return null;
+          if (!sNode || !tNode) {
+            return null;
+          }
           return (
             <path
               key={`${link.source}->${link.target}`}

@@ -15,7 +15,9 @@ export class Rule extends Guardrail<FileLengthRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (!input.file.endsWith('.test.ts')) this.checkFile(input, ['typescriptFile', ...this.classFileType(input)]);
+      if (!input.file.endsWith('.test.ts')) {
+        this.checkFile(input, ['typescriptFile', ...this.classFileType(input)]);
+      }
     });
     await this.forEachTsxFile((input) => this.checkFile(input, ['reactFile']));
   }
@@ -41,7 +43,9 @@ export class Rule extends Guardrail<FileLengthRuleOptions> {
   }
 
   private defaultMaxLinesFor(fileType: FileLengthFileType) {
-    if (fileType === 'reactFile') return 300;
+    if (fileType === 'reactFile') {
+      return 300;
+    }
     return 400;
   }
 

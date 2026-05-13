@@ -35,7 +35,9 @@ export class JsonlFileSyncSink implements LoggerSink {
     try {
       fs.appendFileSync(this.input.filePath, `${formatJsonlEntry(entry)}\n`);
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
     }
   }
 }

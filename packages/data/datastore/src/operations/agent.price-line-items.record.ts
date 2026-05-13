@@ -77,10 +77,18 @@ function emitPricingMetrics(row: PricingMetricRow): void {
     modelId: row.modelId,
     charge: row.charge,
   };
-  if (row.modelVariantId !== null) dimensions.modelVariantId = row.modelVariantId;
-  if (row.inferenceProfileId !== null) dimensions.inferenceProfileId = row.inferenceProfileId;
-  if (row.integrationId !== null) dimensions.integrationId = row.integrationId;
-  if (row.modelCallId !== null) dimensions.modelCallId = row.modelCallId;
+  if (row.modelVariantId !== null) {
+    dimensions.modelVariantId = row.modelVariantId;
+  }
+  if (row.inferenceProfileId !== null) {
+    dimensions.inferenceProfileId = row.inferenceProfileId;
+  }
+  if (row.integrationId !== null) {
+    dimensions.integrationId = row.integrationId;
+  }
+  if (row.modelCallId !== null) {
+    dimensions.modelCallId = row.modelCallId;
+  }
 
   metrics.emit('pricing.quantity', row.quantity, dimensions);
   metrics.emit('pricing.total', row.total, dimensions);

@@ -32,10 +32,14 @@ export function metricsListVariantsOperation(ctx: DatastoreContext) {
 }
 
 function parseDimensions(raw: MetricDimensionSource): MetricDimensionsRecord {
-  if (raw === null || raw === undefined) return {};
+  if (raw === null || raw === undefined) {
+    return {};
+  }
   try {
     const parsed = JSON.parse(String(raw)) as MetricDimensionJsonRecord;
-    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {};
+    }
     const entries = Object.entries(parsed).map(([key, value]) => [key, String(value)] as const);
     return Object.fromEntries(entries);
   } catch {

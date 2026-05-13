@@ -21,7 +21,9 @@ export class Rule extends Guardrail<DefinitionLengthRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if ((this.options.excludeTestFiles ?? true) && input.file.endsWith('.test.ts')) return;
+      if ((this.options.excludeTestFiles ?? true) && input.file.endsWith('.test.ts')) {
+        return;
+      }
       this.checkFile(input);
     });
   }
@@ -29,8 +31,9 @@ export class Rule extends Guardrail<DefinitionLengthRuleOptions> {
   private checkFile(input: TypescriptRuleInput) {
     const visitNode = (node: ts.Node) => {
       for (const policy of this.definitionPolicies()) {
-        if (this.matches(node, policy.match))
+        if (this.matches(node, policy.match)) {
           this.checkDefinition({ sourceText: input.sourceText, node, reporter: input.reporter, policy });
+        }
       }
 
       ts.forEachChild(node, visitNode);
@@ -49,11 +52,21 @@ export class Rule extends Guardrail<DefinitionLengthRuleOptions> {
   }
 
   private matches(node: ts.Node, match: DefinitionLengthMatch) {
-    if (match === 'classMember') return this.isClassMemberDefinition(node);
-    if (match === 'function') return this.isFunctionDefinition(node);
-    if (match === 'ifStatement') return ts.isIfStatement(node);
-    if (match === 'tryBlock') return ts.isTryStatement(node);
-    if (match === 'catchBlock') return ts.isCatchClause(node);
+    if (match === 'classMember') {
+      return this.isClassMemberDefinition(node);
+    }
+    if (match === 'function') {
+      return this.isFunctionDefinition(node);
+    }
+    if (match === 'ifStatement') {
+      return ts.isIfStatement(node);
+    }
+    if (match === 'tryBlock') {
+      return ts.isTryStatement(node);
+    }
+    if (match === 'catchBlock') {
+      return ts.isCatchClause(node);
+    }
     return false;
   }
 
@@ -85,7 +98,9 @@ export class Rule extends Guardrail<DefinitionLengthRuleOptions> {
   }
 
   private defaultMaxLinesFor(match: DefinitionLengthMatch) {
-    if (match === 'function') return 200;
+    if (match === 'function') {
+      return 200;
+    }
     return 80;
   }
 

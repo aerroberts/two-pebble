@@ -52,12 +52,21 @@ export class Rule extends Guardrail<DocumentationRuleOptions> {
   }
 
   private matches(node: ts.Node, match: DocumentationStatementMatch) {
-    if (match === 'class') return ts.isClassDeclaration(node);
-    if (match === 'publicClassMethod')
+    if (match === 'class') {
+      return ts.isClassDeclaration(node);
+    }
+    if (match === 'publicClassMethod') {
       return ts.isMethodDeclaration(node) && ts.isClassDeclaration(node.parent) && this.isPublic(node);
-    if (match === 'function') return ts.isFunctionDeclaration(node);
-    if (match === 'interface') return ts.isInterfaceDeclaration(node);
-    if (match === 'type') return ts.isTypeAliasDeclaration(node);
+    }
+    if (match === 'function') {
+      return ts.isFunctionDeclaration(node);
+    }
+    if (match === 'interface') {
+      return ts.isInterfaceDeclaration(node);
+    }
+    if (match === 'type') {
+      return ts.isTypeAliasDeclaration(node);
+    }
     return false;
   }
 

@@ -69,7 +69,9 @@ function iconForStatus(status: VoiceCaptureStatus): string {
 }
 
 function ariaLabelForStatus(status: VoiceCaptureStatus, disabledReason: string): string {
-  if (disabledReason.length > 0) return disabledReason;
+  if (disabledReason.length > 0) {
+    return disabledReason;
+  }
   switch (status) {
     case 'recording':
       return 'Stop recording';

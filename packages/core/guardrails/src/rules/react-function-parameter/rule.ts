@@ -20,7 +20,9 @@ export class Rule extends Guardrail<ReactFunctionParameterRuleOptions> {
 
   private checkFile(input: ReactRuleInput) {
     const visit = (node: ts.Node) => {
-      if (this.isFunctionLike(node)) this.checkFunctionParameters(node as ts.FunctionLikeDeclaration, input.reporter);
+      if (this.isFunctionLike(node)) {
+        this.checkFunctionParameters(node as ts.FunctionLikeDeclaration, input.reporter);
+      }
       ts.forEachChild(node, visit);
     };
 

@@ -63,7 +63,9 @@ export function TimelineChart(props: TimelineChartProps) {
             : item.status === 'in-progress'
               ? nowTimestamp
               : startMs + 1000;
-        if (Number.isNaN(startMs) || Number.isNaN(endMs)) return null;
+        if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
+          return null;
+        }
         return { item, startMs, endMs: Math.max(endMs, startMs + 1) };
       })
       .filter((entry): entry is NormalizedItem => !!entry);
@@ -84,8 +86,9 @@ export function TimelineChart(props: TimelineChartProps) {
   }, [normalizedItems, disabledCategories]);
 
   const dataRange = useMemo(() => {
-    if (normalizedItems.length === 0)
+    if (normalizedItems.length === 0) {
       return { startMs: nowTimestamp, endMs: nowTimestamp + 1000, totalDurationMs: 1000 };
+    }
     const start = Math.min(...normalizedItems.map((entry) => entry.startMs));
     const end = Math.max(...normalizedItems.map((entry) => entry.endMs));
     return { startMs: start, endMs: end, totalDurationMs: Math.max(end - start, 1000) };
@@ -97,7 +100,9 @@ export function TimelineChart(props: TimelineChartProps) {
         .map((range) => {
           const start = toEpochMs(range.start);
           const stop = toEpochMs(range.stop);
-          if (Number.isNaN(start) || Number.isNaN(stop) || stop <= start) return null;
+          if (Number.isNaN(start) || Number.isNaN(stop) || stop <= start) {
+            return null;
+          }
           return { label: range.label, start, stop };
         })
         .filter((range): range is NormalizedRangeOption => !!range),
@@ -110,7 +115,9 @@ export function TimelineChart(props: TimelineChartProps) {
       return;
     }
     setSelectedRangeLabel((current) => {
-      if (current && normalizedRangeOptions.some((range) => range.label === current)) return current;
+      if (current && normalizedRangeOptions.some((range) => range.label === current)) {
+        return current;
+      }
       if (defaultRangeLabel && normalizedRangeOptions.some((range) => range.label === defaultRangeLabel)) {
         return defaultRangeLabel;
       }
@@ -138,10 +145,14 @@ export function TimelineChart(props: TimelineChartProps) {
   }, [endMs, startMs, totalDurationMs, visibleItems]);
 
   const gridLines = useMemo(() => {
-    if (gridIntervalMs <= 0) return [];
+    if (gridIntervalMs <= 0) {
+      return [];
+    }
     const lines: Array<number> = [];
     let time = Math.ceil(startMs / gridIntervalMs) * gridIntervalMs;
-    if (time <= startMs) time += gridIntervalMs;
+    if (time <= startMs) {
+      time += gridIntervalMs;
+    }
     while (time < endMs) {
       lines.push(((time - startMs) / totalDurationMs) * 100);
       time += gridIntervalMs;
@@ -150,7 +161,9 @@ export function TimelineChart(props: TimelineChartProps) {
   }, [endMs, gridIntervalMs, startMs, totalDurationMs]);
 
   useEffect(() => {
-    if (!hoveredItemId) return;
+    if (!hoveredItemId) {
+      return;
+    }
     const hoveredItem = items.find((item) => item.id === hoveredItemId);
     if (!hoveredItem) {
       setHoveredItemId(null);
@@ -172,24 +185,35 @@ export function TimelineChart(props: TimelineChartProps) {
   const toggleCategory = (category: string) => {
     setDisabledCategories((prev) => {
       const next = new Set(prev);
-      if (next.has(category)) next.delete(category);
-      else next.add(category);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
       return next;
     });
   };
 
   const getTimelinePercent = (clientX: number) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) {
+      return;
+    }
     const rect = containerRef.current.getBoundingClientRect();
-    if (rect.width <= 0) return 0;
+    if (rect.width <= 0) {
+      return 0;
+    }
     const x = clientX - rect.left;
     return Math.min(100, Math.max(0, (x / rect.width) * 100));
   };
 
   const handleTimelineMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    if (dragSelection) return;
+    if (dragSelection) {
+      return;
+    }
     const percent = getTimelinePercent(event.clientX);
-    if (percent === undefined) return;
+    if (percent === undefined) {
+      return;
+    }
     setTimeTooltip({
       timeMs: Math.max(0, (percent / 100) * totalDurationMs),
       percent,
@@ -197,30 +221,44 @@ export function TimelineChart(props: TimelineChartProps) {
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) return;
+    if (event.button !== 0) {
+      return;
+    }
     const target = event.target;
-    if (target instanceof Element && target.closest('[data-timeline-bar="true"]')) return;
+    if (target instanceof Element && target.closest('[data-timeline-bar="true"]')) {
+      return;
+    }
     const percent = getTimelinePercent(event.clientX);
-    if (percent === undefined) return;
+    if (percent === undefined) {
+      return;
+    }
     event.currentTarget.setPointerCapture(event.pointerId);
     setTimeTooltip(null);
     setDragSelection({ startPercent: percent, currentPercent: percent });
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!dragSelection) return;
+    if (!dragSelection) {
+      return;
+    }
     const percent = getTimelinePercent(event.clientX);
-    if (percent === undefined) return;
+    if (percent === undefined) {
+      return;
+    }
     setDragSelection((current) => (current ? { ...current, currentPercent: percent } : current));
   };
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (!dragSelection) return;
+    if (!dragSelection) {
+      return;
+    }
     const percent = getTimelinePercent(event.clientX) ?? dragSelection.currentPercent;
     const startPercent = Math.min(dragSelection.startPercent, percent);
     const endPercent = Math.max(dragSelection.startPercent, percent);
     setDragSelection(null);
-    if (endPercent - startPercent < 0.5) return;
+    if (endPercent - startPercent < 0.5) {
+      return;
+    }
     const nextRange = {
       start: startMs + (startPercent / 100) * totalDurationMs,
       stop: startMs + (endPercent / 100) * totalDurationMs,
@@ -232,7 +270,9 @@ export function TimelineChart(props: TimelineChartProps) {
 
   const handleHoverChange = (itemId: HoveredItemId) => {
     setHoveredItemId(itemId);
-    if (itemId) setTimeTooltip(null);
+    if (itemId) {
+      setTimeTooltip(null);
+    }
   };
 
   const handleRangeOptionClick = (range: TimelineChartSelectedRange) => {

@@ -18,7 +18,9 @@ export function useTaskEvents(input: UseTaskEventsInput) {
   const allEvents = useRealtimeStore((state) => state.taskEvents);
 
   useEffect(() => {
-    if (input.taskId.length === 0) return;
+    if (input.taskId.length === 0) {
+      return;
+    }
     void datastore.taskEvents.list({ taskId: input.taskId }).catch(() => undefined);
   }, [datastore, input.taskId]);
 

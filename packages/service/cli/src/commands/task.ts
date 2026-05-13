@@ -280,7 +280,9 @@ async function runAction(options: SharedOptions, callback: (client: WsBridgeClie
 }
 
 function resolvePort(raw?: string): number {
-  if (raw === undefined) return DEFAULT_DAEMON_PORT;
+  if (raw === undefined) {
+    return DEFAULT_DAEMON_PORT;
+  }
   const explicit = Number(raw);
   if (!Number.isInteger(explicit) || explicit <= 0) {
     throw new Error(`peb task: invalid --port value "${raw}"`);

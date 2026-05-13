@@ -43,7 +43,9 @@ function findExistingAncestor(filePath: string): string {
   let current = filePath;
   while (!fs.existsSync(current)) {
     const parent = path.dirname(current);
-    if (parent === current) return current;
+    if (parent === current) {
+      return current;
+    }
     current = parent;
   }
   return current;

@@ -31,7 +31,9 @@ export async function attachInferenceProfileProviders(
   ctx: DatastoreContext,
   rows: StoredInferenceProfileRow[],
 ): Promise<InferenceProfileRecord[]> {
-  if (rows.length === 0) return [];
+  if (rows.length === 0) {
+    return [];
+  }
   const integrationIds = Array.from(new Set(rows.map((row) => row.integrationId)));
   const integrations = await ctx.database
     .select({ id: ctx.schema.integrationsTable.id, provider: ctx.schema.integrationsTable.provider })

@@ -14,7 +14,9 @@ export function CommandPaletteResultList(props: CommandPaletteResultListProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!listRef.current) return;
+    if (!listRef.current) {
+      return;
+    }
     const active = listRef.current.querySelector('[data-active="true"]');
     active?.scrollIntoView({ block: 'nearest' });
   }, []);

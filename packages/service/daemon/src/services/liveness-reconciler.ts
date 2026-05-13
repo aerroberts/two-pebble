@@ -45,7 +45,9 @@ export class LivenessReconciler {
    * does not stack timers. Caller is responsible for matching with stop().
    */
   public start(): void {
-    if (this.timer !== undefined) return;
+    if (this.timer !== undefined) {
+      return;
+    }
     this.timer = setInterval(() => {
       void this.tick();
     }, TICK_MS);
@@ -56,7 +58,9 @@ export class LivenessReconciler {
    * allowed to finish but no further ticks will be scheduled.
    */
   public stop(): void {
-    if (this.timer === undefined) return;
+    if (this.timer === undefined) {
+      return;
+    }
     clearInterval(this.timer);
     this.timer = undefined;
   }
@@ -71,7 +75,9 @@ export class LivenessReconciler {
   }
 
   private async tick(): Promise<void> {
-    if (this.tickInflight) return;
+    if (this.tickInflight) {
+      return;
+    }
     this.tickInflight = true;
     try {
       await this.reconcile();
@@ -100,7 +106,9 @@ export class LivenessReconciler {
         await this.broadcastActive(record.id, active, now);
         continue;
       }
-      if (record.status === 'idle' || record.status === 'offline') continue;
+      if (record.status === 'idle' || record.status === 'offline') {
+        continue;
+      }
       await this.maybeRehydrate(record.id, now);
     }
   }
@@ -133,9 +141,15 @@ export class LivenessReconciler {
       rehydrationAttempts: state.attempts,
       lastError: state.lastError,
     });
-    if (rehydrate === undefined) return;
-    if (state.inflight) return;
-    if (now < state.nextAttemptAt) return;
+    if (rehydrate === undefined) {
+      return;
+    }
+    if (state.inflight) {
+      return;
+    }
+    if (now < state.nextAttemptAt) {
+      return;
+    }
     state.inflight = true;
     try {
       await rehydrate(agentId);

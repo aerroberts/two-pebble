@@ -27,7 +27,9 @@ export class PriceCalculator {
    * adapter to translate upstream usage into pricing line items.
    */
   public lineItemsForUsage(provider: string, modelId: string, usage: ModelUsage | undefined): PricingLineItem[] {
-    if (usage === undefined || isEmptyUsage(usage)) return [];
+    if (usage === undefined || isEmptyUsage(usage)) {
+      return [];
+    }
     return this.calculate(`${provider}/${modelId}`, usage).lineItems;
   }
 

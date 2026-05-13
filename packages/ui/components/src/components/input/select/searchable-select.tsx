@@ -38,16 +38,22 @@ export function SearchableSelect(props: SelectProps) {
   const selectValue = useCallback(
     (value: string) => {
       props.onChange?.(value);
-      if (!isControlled) setInternalValue(value);
+      if (!isControlled) {
+        setInternalValue(value);
+      }
       setOpen(false);
     },
     [props.onChange, isControlled],
   );
 
   const openDropdown = useCallback(() => {
-    if (props.disabled) return;
+    if (props.disabled) {
+      return;
+    }
     const el = triggerRef.current;
-    if (!el) return;
+    if (!el) {
+      return;
+    }
     setRect(el.getBoundingClientRect());
     setSearch('');
     setHighlighted(-1);
@@ -55,19 +61,27 @@ export function SearchableSelect(props: SelectProps) {
   }, [props.disabled]);
 
   useEffect(() => {
-    if (open) requestAnimationFrame(() => inputRef.current?.focus());
+    if (open) {
+      requestAnimationFrame(() => inputRef.current?.focus());
+    }
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as Node;
-      if (triggerRef.current?.contains(target) || listRef.current?.contains(target)) return;
+      if (triggerRef.current?.contains(target) || listRef.current?.contains(target)) {
+        return;
+      }
       setOpen(false);
     };
     const onScroll = () => {
       const el = triggerRef.current;
-      if (el) setRect(el.getBoundingClientRect());
+      if (el) {
+        setRect(el.getBoundingClientRect());
+      }
     };
     document.addEventListener('pointerdown', onPointerDown, true);
     window.addEventListener('scroll', onScroll, true);
@@ -92,7 +106,9 @@ export function SearchableSelect(props: SelectProps) {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const opt = filteredOptions[highlighted];
-      if (opt) selectValue(opt.value);
+      if (opt) {
+        selectValue(opt.value);
+      }
     }
   };
 

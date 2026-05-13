@@ -44,7 +44,9 @@ export class SubAgentCoordinator {
     const waiter = waiterList?.shift();
     if (waiter !== undefined) {
       const next = queue.shift();
-      if (next !== undefined) waiter(next);
+      if (next !== undefined) {
+        waiter(next);
+      }
     }
     await this.flushTo({ recipientAgentId: input.recipientAgentId });
   }
@@ -56,7 +58,9 @@ export class SubAgentCoordinator {
   public async awaitNext(input: AwaitNextInput): Promise<SubAgentMessage> {
     const queue = this.inbox.byRecipient.get(input.recipientAgentId) ?? [];
     const next = queue.shift();
-    if (next !== undefined) return next;
+    if (next !== undefined) {
+      return next;
+    }
     return new Promise((resolve) => {
       const list = this.waiters.get(input.recipientAgentId) ?? [];
       list.push(resolve);
@@ -77,7 +81,9 @@ export class SubAgentCoordinator {
 
   private async flushTo(input: AwaitNextInput): Promise<void> {
     const queue = this.inbox.byRecipient.get(input.recipientAgentId) ?? [];
-    if (queue.length === 0) return;
+    if (queue.length === 0) {
+      return;
+    }
     let live: Agent;
     try {
       live = await this.ctx.agentRegistry.rehydrate(input.recipientAgentId);
@@ -91,7 +97,9 @@ export class SubAgentCoordinator {
     }
     while (queue.length > 0) {
       const message = queue.shift();
-      if (message === undefined) break;
+      if (message === undefined) {
+        break;
+      }
       if (live instanceof PebbleAgent) {
         live.sendMessage([Cell.header2(message.label), ...message.content]);
         continue;
@@ -104,9 +112,15 @@ export class SubAgentCoordinator {
   private cellsToText(cells: DataCells): string {
     return cells
       .map((cell) => {
-        if (cell.type === 'text' || cell.type === 'header1' || cell.type === 'header2') return cell.content.text;
-        if (cell.type === 'codeBlock') return cell.content.code;
-        if (cell.type === 'data') return JSON.stringify(cell.content.value);
+        if (cell.type === 'text' || cell.type === 'header1' || cell.type === 'header2') {
+          return cell.content.text;
+        }
+        if (cell.type === 'codeBlock') {
+          return cell.content.code;
+        }
+        if (cell.type === 'data') {
+          return JSON.stringify(cell.content.value);
+        }
         return '';
       })
       .join('\n');

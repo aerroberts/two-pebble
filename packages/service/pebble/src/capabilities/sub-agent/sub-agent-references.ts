@@ -1,7 +1,9 @@
 import type { SubAgentCapabilityConfig, SubAgentReference } from './sub-agent-types';
 
 export function readReferences(config: SubAgentCapabilityConfig): SubAgentReference[] {
-  if (!Array.isArray(config.agents)) return [];
+  if (!Array.isArray(config.agents)) {
+    return [];
+  }
   return config.agents.filter((agent) => agent.name.length > 0 && agent.agentRegistryId.length > 0);
 }
 

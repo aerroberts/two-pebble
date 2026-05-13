@@ -33,9 +33,12 @@ export class Rule extends Guardrail<ReactExportedComponentRuleOptions> {
   }
 
   private getExportedFunctionNames(statement: ts.Statement) {
-    if (ts.isFunctionDeclaration(statement) && this.isExported(statement) && statement.name)
+    if (ts.isFunctionDeclaration(statement) && this.isExported(statement) && statement.name) {
       return [statement.name.text];
-    if (!ts.isVariableStatement(statement) || !this.isExported(statement)) return [];
+    }
+    if (!ts.isVariableStatement(statement) || !this.isExported(statement)) {
+      return [];
+    }
     return statement.declarationList.declarations
       .filter((declaration) => this.isFunctionVariable(declaration))
       .flatMap((declaration) => (ts.isIdentifier(declaration.name) ? [declaration.name.text] : []));

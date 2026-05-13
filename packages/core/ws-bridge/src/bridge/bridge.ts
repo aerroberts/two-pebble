@@ -164,7 +164,9 @@ export class Bridge<Protocol extends BridgeProtocol> {
 
   private handleEvent(msg: MessageEvent): void {
     const handlers = this.eventListeners.get(msg.event);
-    if (!handlers) return;
+    if (!handlers) {
+      return;
+    }
     for (const handler of handlers) {
       handler(msg.payload);
     }

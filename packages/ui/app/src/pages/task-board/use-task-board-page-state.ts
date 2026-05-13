@@ -42,41 +42,44 @@ export function useTaskBoardPageState() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [delegating, setDelegating] = useState(false);
   const [error, setError] = useState('');
-
   const selectedTask = useMemo(() => {
-    if (selectedTaskId === null) return null;
+    if (selectedTaskId === null) {
+      return null;
+    }
     return contents.tasks.find((task) => task.id === selectedTaskId) ?? null;
   }, [contents.tasks, selectedTaskId]);
-
   const taskEventsState = useTaskEvents({ taskId: selectedTask?.id ?? '' });
-
   useEffect(() => {
-    if (board !== null) setBoardNameDraft(board.name);
+    if (board !== null) {
+      setBoardNameDraft(board.name);
+    }
   }, [board]);
 
   useEffect(() => {
-    if (selectedTask === null) return;
+    if (selectedTask === null) {
+      return;
+    }
     setTaskNameDraft(selectedTask.name);
     setTaskDescriptionDraft(selectedTask.description);
   }, [selectedTask]);
-
   const selectedDependencies = useMemo(() => {
-    if (selectedTask === null) return [];
+    if (selectedTask === null) {
+      return [];
+    }
     const ids = contents.dependencies.filter((edge) => edge.fromId === selectedTask.id).map((edge) => edge.toId);
     return collectTasksByIds(contents.tasks, ids);
   }, [contents.dependencies, contents.tasks, selectedTask]);
-
   const selectedDependents = useMemo(() => {
-    if (selectedTask === null) return [];
+    if (selectedTask === null) {
+      return [];
+    }
     const ids = contents.dependencies.filter((edge) => edge.toId === selectedTask.id).map((edge) => edge.fromId);
     return collectTasksByIds(contents.tasks, ids);
   }, [contents.dependencies, contents.tasks, selectedTask]);
-
   const candidateDependencies = useMemo(
     () => collectCandidateDependencies(selectedTask, contents.tasks, selectedDependencies),
     [contents.tasks, selectedDependencies, selectedTask],
   );
-
   const handle = async (action: ActionRunner) => {
     setError('');
     try {
@@ -85,7 +88,6 @@ export function useTaskBoardPageState() {
       setError(failure instanceof Error ? failure.message : String(failure));
     }
   };
-
   return {
     agentRegistries: agentRegistries.values(),
     board,
@@ -114,36 +116,54 @@ export function useTaskBoardPageState() {
     saveBoardName: () =>
       handle(async () => {
         const trimmed = boardNameDraft.trim();
-        if (board === null) return;
-        if (trimmed.length === 0 || trimmed === board.name) return;
+        if (board === null) {
+          return;
+        }
+        if (trimmed.length === 0 || trimmed === board.name) {
+          return;
+        }
         await mutations.updateBoard({ id: board.id, name: trimmed });
       }),
     saveTaskName: () =>
       handle(async () => {
-        if (selectedTask === null) return;
+        if (selectedTask === null) {
+          return;
+        }
         const trimmed = taskNameDraft.trim();
-        if (trimmed.length === 0 || trimmed === selectedTask.name) return;
+        if (trimmed.length === 0 || trimmed === selectedTask.name) {
+          return;
+        }
         await mutations.renameTask({ id: selectedTask.id, name: trimmed });
       }),
     saveTaskDescription: () =>
       handle(async () => {
-        if (selectedTask === null) return;
-        if (taskDescriptionDraft === selectedTask.description) return;
+        if (selectedTask === null) {
+          return;
+        }
+        if (taskDescriptionDraft === selectedTask.description) {
+          return;
+        }
         await mutations.updateTaskDescription({ id: selectedTask.id, description: taskDescriptionDraft });
       }),
     setSelectedTaskStatus: (status: SettableTaskStatus) =>
       handle(async () => {
-        if (selectedTask === null) return;
+        if (selectedTask === null) {
+          return;
+        }
         await mutations.setTaskStatus({ id: selectedTask.id, status, reason: `manual: set to ${status}` });
       }),
     addSelectedTaskDependency: (toId: string) =>
       handle(async () => {
-        if (selectedTask === null) return;
+        if (selectedTask === null) {
+          return;
+        }
         await mutations.createDependency({ boardId, fromId: selectedTask.id, toId });
       }),
     delegateSelectedTask: (agentRegistryId: string) =>
       handle(async () => {
-        if (selectedTask === null) return;
+        if (selectedTask === null) {
+          return;
+        }
         setDelegating(true);
         try {
           await mutations.delegateTask({ taskId: selectedTask.id, agentRegistryId });
@@ -153,7 +173,9 @@ export function useTaskBoardPageState() {
       }),
     undelegateSelectedTask: () =>
       handle(async () => {
-        if (selectedTask === null) return;
+        if (selectedTask === null) {
+          return;
+        }
         await mutations.undelegateTask({ taskId: selectedTask.id });
       }),
     selectedOwnerAgent: collectOwnerAgent(selectedTask, agents.values()),
@@ -161,7 +183,9 @@ export function useTaskBoardPageState() {
       handle(async () => {
         const trimmed = name.trim();
         const target = contents.tasks.find((task) => task.id === id);
-        if (target !== undefined && trimmed === target.name) return;
+        if (target !== undefined && trimmed === target.name) {
+          return;
+        }
         await mutations.renameTask({ id, name: trimmed });
       }),
     createTaskAfter: async (input: CreateTaskAfterInput) => {
@@ -188,7 +212,9 @@ export function useTaskBoardPageState() {
       }),
     deleteBoard: () =>
       handle(async () => {
-        if (board === null) return;
+        if (board === null) {
+          return;
+        }
         await mutations.deleteBoard({ id: board.id });
         navigate('/tasks');
       }),
@@ -196,7 +222,9 @@ export function useTaskBoardPageState() {
 }
 
 function collectOwnerAgent(selectedTask: SelectedTaskRecord, agents: AgentLike[]): OwnerAgentResult {
-  if (selectedTask === null || selectedTask.ownerId === null) return null;
+  if (selectedTask === null || selectedTask.ownerId === null) {
+    return null;
+  }
   return agents.find((entry) => entry.id === selectedTask.ownerId) ?? null;
 }
 
@@ -205,18 +233,24 @@ function collectCandidateDependencies(
   allTasks: ProtocolTaskRecord[],
   existingDeps: ProtocolTaskRecord[],
 ): ProtocolTaskRecord[] {
-  if (selectedTask === null) return [];
+  if (selectedTask === null) {
+    return [];
+  }
   const excluded = new Set<string>([selectedTask.id, ...existingDeps.map((entry) => entry.id)]);
   return allTasks.filter((task) => task.poolId === selectedTask.poolId && !excluded.has(task.id));
 }
 
 function collectTasksByIds(tasks: ProtocolTaskRecord[], ids: string[]): ProtocolTaskRecord[] {
   const lookup = new Map<string, ProtocolTaskRecord>();
-  for (const task of tasks) lookup.set(task.id, task);
+  for (const task of tasks) {
+    lookup.set(task.id, task);
+  }
   const result: ProtocolTaskRecord[] = [];
   for (const id of ids) {
     const task = lookup.get(id);
-    if (task) result.push(task);
+    if (task) {
+      result.push(task);
+    }
   }
   return result;
 }

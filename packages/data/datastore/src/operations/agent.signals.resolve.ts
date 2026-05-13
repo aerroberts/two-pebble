@@ -25,7 +25,9 @@ export function agentSignalsResolveOperation(ctx: DatastoreContext) {
     if (existing === undefined) {
       throw new Error(`Agent signal not found: ${input.agentId}/${input.capabilityId}/${input.signalId}`);
     }
-    if (existing.status === 'resolved') return existing as AgentSignalRecord;
+    if (existing.status === 'resolved') {
+      return existing as AgentSignalRecord;
+    }
 
     const row = await ctx.database
       .update(ctx.schema.agentSignalsTable)

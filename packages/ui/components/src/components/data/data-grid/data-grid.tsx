@@ -24,7 +24,9 @@ export function DataGrid(props: DataGridProps) {
   }, [data]);
 
   function handleEdit(label: string, newValue: string) {
-    if (!onEdit) return;
+    if (!onEdit) {
+      return;
+    }
     const nextData = { ...localData, [label]: newValue };
     setLocalData(nextData);
     onEdit(nextData);

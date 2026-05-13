@@ -12,7 +12,9 @@ export function taskBoardsReadOperation(ctx: DatastoreContext) {
       .from(ctx.schema.taskBoardsTable)
       .where(eq(ctx.schema.taskBoardsTable.id, input.id))
       .get();
-    if (row === undefined) throw new Error(`task board "${input.id}" not found`);
+    if (row === undefined) {
+      throw new Error(`task board "${input.id}" not found`);
+    }
     return row as TaskBoardRecord;
   };
 }

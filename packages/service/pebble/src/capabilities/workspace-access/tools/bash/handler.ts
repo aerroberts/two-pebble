@@ -67,10 +67,14 @@ function runBash(command: string, cwd: string, timeoutMs: number): Promise<BashR
       child.kill('SIGKILL');
     }, timeoutMs);
     child.stdout.on('data', (chunk: Buffer) => {
-      if (stdout.length < MAX_OUTPUT_CHARS) stdout = appendCapped(stdout, chunk.toString('utf8'));
+      if (stdout.length < MAX_OUTPUT_CHARS) {
+        stdout = appendCapped(stdout, chunk.toString('utf8'));
+      }
     });
     child.stderr.on('data', (chunk: Buffer) => {
-      if (stderr.length < MAX_OUTPUT_CHARS) stderr = appendCapped(stderr, chunk.toString('utf8'));
+      if (stderr.length < MAX_OUTPUT_CHARS) {
+        stderr = appendCapped(stderr, chunk.toString('utf8'));
+      }
     });
     child.on('close', (code) => {
       clearTimeout(timer);
@@ -97,8 +101,12 @@ function runBash(command: string, cwd: string, timeoutMs: number): Promise<BashR
 }
 
 function appendCapped(existing: string, addition: string): string {
-  if (existing.length >= MAX_OUTPUT_CHARS) return existing;
+  if (existing.length >= MAX_OUTPUT_CHARS) {
+    return existing;
+  }
   const remaining = MAX_OUTPUT_CHARS - existing.length;
-  if (addition.length <= remaining) return existing + addition;
+  if (addition.length <= remaining) {
+    return existing + addition;
+  }
   return `${existing}${addition.slice(0, remaining)}\n…[truncated at ${MAX_OUTPUT_CHARS} chars]`;
 }

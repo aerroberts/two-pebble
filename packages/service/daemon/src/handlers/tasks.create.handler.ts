@@ -14,7 +14,9 @@ export function handler(ctx: DaemonHandlerContext) {
       dependsOn: payload.dependsOn,
     });
     ctx.multicastBridge.emit('taskUpdated', result);
-    for (const event of events) ctx.multicastBridge.emit('taskEventRecorded', event);
+    for (const event of events) {
+      ctx.multicastBridge.emit('taskEventRecorded', event);
+    }
     return { id: result.id };
   };
 }

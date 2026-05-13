@@ -38,7 +38,9 @@ export function Heatmap(props: HeatmapProps) {
   const valueRange = useMemo(() => getValueRange(props.data), [props.data]);
   const dataByKey = useMemo(() => {
     const map = new Map<string, HeatmapDatum>();
-    for (const cell of props.data) map.set(getCellKey(cell.x, cell.y), cell);
+    for (const cell of props.data) {
+      map.set(getCellKey(cell.x, cell.y), cell);
+    }
     return map;
   }, [props.data]);
   const rows = useMemo(
@@ -106,7 +108,9 @@ interface HeatmapRowProps {
 
 function HeatmapRow(props: HeatmapRowProps) {
   const yLabel = props.row[0]?.yLabel;
-  if (!yLabel) return null;
+  if (!yLabel) {
+    return null;
+  }
 
   return (
     <>
@@ -180,7 +184,9 @@ function HeatmapCell(props: HeatmapCellProps) {
   );
   const tooltip = datum ? getTooltipProps(datum, context, props.renderTooltip) : undefined;
 
-  if (!datum || !tooltip) return cell;
+  if (!datum || !tooltip) {
+    return cell;
+  }
 
   return (
     <Tooltip content={tooltip.content} data={tooltip.data} header={tooltip.header}>
@@ -210,7 +216,9 @@ function getCellKey(x: string, y: string) {
 }
 
 function getValueRange(data: Array<HeatmapDatum>) {
-  if (data.length === 0) return { minValue: 0, maxValue: 0 };
+  if (data.length === 0) {
+    return { minValue: 0, maxValue: 0 };
+  }
   let minValue = data[0]?.value ?? 0;
   let maxValue = data[0]?.value ?? 0;
   for (const cell of data) {
@@ -227,8 +235,12 @@ function resolveCellColor(
   emptyCellColor: string,
   getCellColor?: HeatmapProps['getCellColor'],
 ) {
-  if (datum.color) return datum.color;
-  if (getCellColor) return getCellColor(datum, context);
+  if (datum.color) {
+    return datum.color;
+  }
+  if (getCellColor) {
+    return getCellColor(datum, context);
+  }
   const range = context.maxValue - context.minValue;
   const ratio = range > 0 ? (datum.value - context.minValue) / range : datum.value > 0 ? 1 : 0;
   const colorWeight = Math.round(12 + clamp(ratio, 0, 1) * 88);
@@ -275,13 +287,19 @@ function getCellAriaLabel(cell: HeatmapResolvedCell, datum?: HeatmapDatum) {
 }
 
 function getAxisLabelText(label: HeatmapAxisLabel) {
-  if (typeof label.label === 'string' || typeof label.label === 'number') return String(label.label);
+  if (typeof label.label === 'string' || typeof label.label === 'number') {
+    return String(label.label);
+  }
   return label.ariaLabel ?? label.id;
 }
 
 function getDatumLabelText(datum?: HeatmapDatum) {
-  if (!datum) return '';
-  if (typeof datum.label === 'string' || typeof datum.label === 'number') return String(datum.label);
+  if (!datum) {
+    return '';
+  }
+  if (typeof datum.label === 'string' || typeof datum.label === 'number') {
+    return String(datum.label);
+  }
   return '';
 }
 

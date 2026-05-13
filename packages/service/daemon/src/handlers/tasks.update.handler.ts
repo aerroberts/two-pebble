@@ -16,15 +16,21 @@ export function handler(ctx: DaemonHandlerContext) {
         break;
       }
     }
-    if (boardId === undefined) throw new Error(`task "${payload.id}" not found`);
+    if (boardId === undefined) {
+      throw new Error(`task "${payload.id}" not found`);
+    }
     const { result, events } = await ctx.taskBoards.setTaskStatus(boardId, {
       id: payload.id,
       status: payload.status,
       reason: payload.reason,
     });
     const refreshed = await ctx.taskBoards.listTasks(boardId);
-    for (const task of refreshed) ctx.multicastBridge.emit('taskUpdated', task);
-    for (const event of events) ctx.multicastBridge.emit('taskEventRecorded', event);
+    for (const task of refreshed) {
+      ctx.multicastBridge.emit('taskUpdated', task);
+    }
+    for (const event of events) {
+      ctx.multicastBridge.emit('taskEventRecorded', event);
+    }
     return { id: result.id };
   };
 }

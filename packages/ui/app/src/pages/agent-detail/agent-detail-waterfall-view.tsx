@@ -42,6 +42,8 @@ const waterfallScopeOptions = [
 
 function setScope(props: AgentDetailWaterfallViewProps) {
   return (value: string) => {
-    if (value === 'this-agent' || value === 'all-children') props.onScopeChange(value);
+    if (value === 'this-agent' || value === 'all-children') {
+      props.onScopeChange(value);
+    }
   };
 }

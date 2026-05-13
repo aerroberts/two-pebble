@@ -35,9 +35,15 @@ export function registerAgentCommand(program: Command) {
 }
 
 async function resolveDaemonUrl(options: SetNameOptions): Promise<string> {
-  if (options.url !== undefined) return options.url;
-  if (process.env.TWO_PEBBLE_DAEMON_URL !== undefined) return process.env.TWO_PEBBLE_DAEMON_URL;
-  if (options.port !== undefined) return daemonUrlForPort(parsePort(options.port));
+  if (options.url !== undefined) {
+    return options.url;
+  }
+  if (process.env.TWO_PEBBLE_DAEMON_URL !== undefined) {
+    return process.env.TWO_PEBBLE_DAEMON_URL;
+  }
+  if (options.port !== undefined) {
+    return daemonUrlForPort(parsePort(options.port));
+  }
   return scanForAgent(options.agentId);
 }
 
@@ -54,8 +60,12 @@ async function scanForAgent(agentId: string): Promise<string> {
   for (let port = DEFAULT_DAEMON_PORT; port < DEFAULT_DAEMON_PORT + MAX_DAEMON_PROBES; port += 1) {
     tried.push(port);
     const status = await tryReadStatus(port);
-    if (status === null) break;
-    if (status.activeAgentIds.includes(agentId)) return daemonUrlForPort(port);
+    if (status === null) {
+      break;
+    }
+    if (status.activeAgentIds.includes(agentId)) {
+      return daemonUrlForPort(port);
+    }
   }
   throw new Error(`no daemon owns agent ${agentId} (scanned ports ${tried.join(', ')})`);
 }

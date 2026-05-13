@@ -39,9 +39,15 @@ export class ClaudeCodeEventConverter {
    * async concern owned by the agent (account info), not the converter.
    */
   public convertMessage(message: SDKMessage, provider: string): ConvertedClaudeCodeEvent[] {
-    if (message.type === 'assistant') return this.convertAssistantMessage(message);
-    if (message.type === 'user') return this.convertUserMessage(message);
-    if (message.type === 'result') return convertResultMessage(message, provider);
+    if (message.type === 'assistant') {
+      return this.convertAssistantMessage(message);
+    }
+    if (message.type === 'user') {
+      return this.convertUserMessage(message);
+    }
+    if (message.type === 'result') {
+      return convertResultMessage(message, provider);
+    }
     return [];
   }
 
@@ -66,7 +72,9 @@ export class ClaudeCodeEventConverter {
     transcript: string | undefined,
     provider: string,
   ): ConvertedClaudeCodeEvent[] {
-    if (this.processedSubagentTranscriptPaths.has(input.agent_transcript_path)) return [];
+    if (this.processedSubagentTranscriptPaths.has(input.agent_transcript_path)) {
+      return [];
+    }
     this.processedSubagentTranscriptPaths.add(input.agent_transcript_path);
     if (transcript === undefined) {
       this.removeActiveSubagent(input.agent_id);
@@ -112,15 +120,21 @@ export class ClaudeCodeEventConverter {
   private readSubagentMetadata(message: SDKAssistantMessage | SDKUserMessage): SubagentMetadata | undefined {
     const metadata = message as (SDKAssistantMessage | SDKUserMessage) & ForwardedMetadata;
     const agentInstanceId = metadata.agent_id ?? metadata.agentId ?? this.activeSubagentIds.at(-1);
-    if (agentInstanceId === undefined) return undefined;
+    if (agentInstanceId === undefined) {
+      return undefined;
+    }
     const agentTemplateId =
       metadata.agent_type ?? metadata.attributionAgent ?? this.subagentTemplateIds.get(agentInstanceId);
-    if (agentTemplateId !== undefined) this.subagentTemplateIds.set(agentInstanceId, agentTemplateId);
+    if (agentTemplateId !== undefined) {
+      this.subagentTemplateIds.set(agentInstanceId, agentTemplateId);
+    }
     return { agentInstanceId, ...(agentTemplateId === undefined ? {} : { agentTemplateId }) };
   }
 
   private removeActiveSubagent(agentInstanceId: string) {
     const index = this.activeSubagentIds.lastIndexOf(agentInstanceId);
-    if (index >= 0) this.activeSubagentIds.splice(index, 1);
+    if (index >= 0) {
+      this.activeSubagentIds.splice(index, 1);
+    }
   }
 }

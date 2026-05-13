@@ -27,43 +27,71 @@ export function coerceToSchema(schema: z.ZodType, value: ToolInput): ToolInput {
 }
 
 function coerce(node: JsonSchemaNode, value: ToolInput): ToolInput {
-  if (Array.isArray(node.anyOf)) return coerceUnion(node.anyOf, value);
-  if (Array.isArray(node.oneOf)) return coerceUnion(node.oneOf, value);
-  if (node.type === 'number' || node.type === 'integer') return coerceNumber(value);
-  if (node.type === 'boolean') return coerceBoolean(value);
-  if (node.type === 'object') return coerceObject(node, value);
-  if (node.type === 'array') return coerceArray(node, value);
+  if (Array.isArray(node.anyOf)) {
+    return coerceUnion(node.anyOf, value);
+  }
+  if (Array.isArray(node.oneOf)) {
+    return coerceUnion(node.oneOf, value);
+  }
+  if (node.type === 'number' || node.type === 'integer') {
+    return coerceNumber(value);
+  }
+  if (node.type === 'boolean') {
+    return coerceBoolean(value);
+  }
+  if (node.type === 'object') {
+    return coerceObject(node, value);
+  }
+  if (node.type === 'array') {
+    return coerceArray(node, value);
+  }
   return value;
 }
 
 function coerceUnion(branches: JsonSchemaNode[], value: ToolInput): ToolInput {
   for (const branch of branches) {
     const next = coerce(branch, value);
-    if (next !== value) return next;
+    if (next !== value) {
+      return next;
+    }
   }
   return value;
 }
 
 function coerceNumber(value: ToolInput): ToolInput {
-  if (typeof value !== 'string') return value;
+  if (typeof value !== 'string') {
+    return value;
+  }
   const trimmed = value.trim();
-  if (trimmed.length === 0) return value;
+  if (trimmed.length === 0) {
+    return value;
+  }
   const parsed = Number(trimmed);
   return Number.isFinite(parsed) ? parsed : value;
 }
 
 function coerceBoolean(value: ToolInput): ToolInput {
-  if (typeof value !== 'string') return value;
+  if (typeof value !== 'string') {
+    return value;
+  }
   const lower = value.trim().toLowerCase();
-  if (lower === 'true') return true;
-  if (lower === 'false') return false;
+  if (lower === 'true') {
+    return true;
+  }
+  if (lower === 'false') {
+    return false;
+  }
   return value;
 }
 
 function coerceObject(node: JsonSchemaNode, value: ToolInput): ToolInput {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return value;
+  }
   const properties = node.properties;
-  if (properties === undefined) return value;
+  if (properties === undefined) {
+    return value;
+  }
   const result: ToolInputRecord = {};
   const input = value as ToolInputRecord;
   for (const [key, child] of Object.entries(input)) {
@@ -74,8 +102,12 @@ function coerceObject(node: JsonSchemaNode, value: ToolInput): ToolInput {
 }
 
 function coerceArray(node: JsonSchemaNode, value: ToolInput): ToolInput {
-  if (!Array.isArray(value)) return value;
+  if (!Array.isArray(value)) {
+    return value;
+  }
   const items = node.items;
-  if (items === undefined) return value;
+  if (items === undefined) {
+    return value;
+  }
   return value.map((entry) => coerce(items, entry));
 }

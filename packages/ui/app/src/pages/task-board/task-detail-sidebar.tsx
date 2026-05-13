@@ -65,7 +65,9 @@ function renderDelegateControl(props: TaskDetailSidebarProps): ReactNode {
       </AppBox>
     );
   }
-  if (props.delegateAgents.length === 0) return null;
+  if (props.delegateAgents.length === 0) {
+    return null;
+  }
   return (
     <Select
       options={props.delegateAgents}

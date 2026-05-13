@@ -96,16 +96,36 @@ export class OpenRouterTranscriptionProvider extends TranscriptionProvider {
 
   private audioFormatFor(mimeType: string): string {
     const normalized = mimeType.toLowerCase();
-    if (normalized.includes('wav')) return 'wav';
-    if (normalized.includes('mp3') || normalized.includes('mpeg')) return 'mp3';
-    if (normalized.includes('flac')) return 'flac';
-    if (normalized.includes('ogg')) return 'ogg';
-    if (normalized.includes('webm')) return 'webm';
-    if (normalized.includes('m4a') || normalized.includes('mp4')) return 'm4a';
-    if (normalized.includes('aiff')) return 'aiff';
-    if (normalized.includes('aac')) return 'aac';
-    if (normalized.includes('pcm16')) return 'pcm16';
-    if (normalized.includes('pcm24')) return 'pcm24';
+    if (normalized.includes('wav')) {
+      return 'wav';
+    }
+    if (normalized.includes('mp3') || normalized.includes('mpeg')) {
+      return 'mp3';
+    }
+    if (normalized.includes('flac')) {
+      return 'flac';
+    }
+    if (normalized.includes('ogg')) {
+      return 'ogg';
+    }
+    if (normalized.includes('webm')) {
+      return 'webm';
+    }
+    if (normalized.includes('m4a') || normalized.includes('mp4')) {
+      return 'm4a';
+    }
+    if (normalized.includes('aiff')) {
+      return 'aiff';
+    }
+    if (normalized.includes('aac')) {
+      return 'aac';
+    }
+    if (normalized.includes('pcm16')) {
+      return 'pcm16';
+    }
+    if (normalized.includes('pcm24')) {
+      return 'pcm24';
+    }
     return 'wav';
   }
 }

@@ -10,7 +10,9 @@ export function buildGraph(input: BuildGraphInput): BuildGraphResult {
   const getOrCreate = (col: number, label: string): SNode => {
     const id = `${col}:${label}`;
     const existing = nodeMap.get(id);
-    if (existing) return existing;
+    if (existing) {
+      return existing;
+    }
     const node: SNode = {
       id,
       label,
@@ -28,7 +30,9 @@ export function buildGraph(input: BuildGraphInput): BuildGraphResult {
 
   for (let i = 0; i < stages.length; i++) {
     for (const { from, to, count } of stages[i].links) {
-      if (count <= 0) continue;
+      if (count <= 0) {
+        continue;
+      }
       const sNode = getOrCreate(i, from);
       const tNode = getOrCreate(i + 1, to);
       links.push({
@@ -62,12 +66,20 @@ function layoutColumns(nodes: Array<SNode>, numCols: number, chartWidth: number)
   const colSpacing = usableWidth / (numCols - 1 || 1);
 
   const columns: Array<Array<SNode>> = Array.from({ length: numCols }, () => []);
-  for (const n of nodes) columns[n.col].push(n);
-  for (const col of columns) col.sort((a, b) => b.value - a.value);
-  for (const n of nodes) n.x = SANKEY_LAYOUT.LEFT_PAD + n.col * colSpacing;
+  for (const n of nodes) {
+    columns[n.col].push(n);
+  }
+  for (const col of columns) {
+    col.sort((a, b) => b.value - a.value);
+  }
+  for (const n of nodes) {
+    n.x = SANKEY_LAYOUT.LEFT_PAD + n.col * colSpacing;
+  }
 
   for (const col of columns) {
-    if (col.length === 0) continue;
+    if (col.length === 0) {
+      continue;
+    }
     const totalValue = col.reduce((s, n) => s + n.value, 0);
     const totalPad = SANKEY_LAYOUT.NODE_PAD * (col.length - 1);
     const availableHeight = SANKEY_LAYOUT.BODY_HEIGHT - totalPad;
@@ -82,7 +94,11 @@ function layoutColumns(nodes: Array<SNode>, numCols: number, chartWidth: number)
 
     const totalUsed = y - SANKEY_LAYOUT.NODE_PAD - SANKEY_LAYOUT.TOP_PAD;
     const offset = (SANKEY_LAYOUT.BODY_HEIGHT - totalUsed) / 2;
-    if (offset > 0) for (const n of col) n.y += offset;
+    if (offset > 0) {
+      for (const n of col) {
+        n.y += offset;
+      }
+    }
   }
 }
 
@@ -109,7 +125,9 @@ function assignLinkBands(nodes: Array<SNode>, links: Array<SLinkInternal>) {
 
   for (const [sourceId, sLinks] of linksBySource) {
     const sNode = nodeById.get(sourceId);
-    if (!sNode) continue;
+    if (!sNode) {
+      continue;
+    }
     const totalOut = sLinks.reduce((s, l) => s + l.value, 0);
     const scale = totalOut > 0 ? sNode.height / totalOut : 0;
     let y = sNode.y;
@@ -123,7 +141,9 @@ function assignLinkBands(nodes: Array<SNode>, links: Array<SLinkInternal>) {
 
   for (const [targetId, tLinks] of linksByTarget) {
     const tNode = nodeById.get(targetId);
-    if (!tNode) continue;
+    if (!tNode) {
+      continue;
+    }
     const totalIn = tLinks.reduce((s, l) => s + l.value, 0);
     const scale = totalIn > 0 ? tNode.height / totalIn : 0;
     let y = tNode.y;
@@ -156,9 +176,13 @@ export function computeHeaderPositions(
   const headerPositions: Array<{ x: number; label: string }> = [];
   for (let col = 0; col < numCols; col++) {
     const colNode = nodes.find((n) => n.col === col);
-    if (!colNode) continue;
+    if (!colNode) {
+      continue;
+    }
     const label = col < columnHeaders.length ? columnHeaders[col] : '';
-    if (label) headerPositions.push({ x: colNode.x, label });
+    if (label) {
+      headerPositions.push({ x: colNode.x, label });
+    }
   }
   return headerPositions;
 }

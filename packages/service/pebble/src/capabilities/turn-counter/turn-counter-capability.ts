@@ -16,7 +16,9 @@ export class TurnCounterCapability extends AgentCapability<TurnCounterCapability
    * rehydrate; the durable value comes back through restoreSlots instead.
    */
   public override initialize(config: TurnCounterCapabilityConfig): void {
-    if (typeof config.start === 'number') this.countSlot.set(config.start);
+    if (typeof config.start === 'number') {
+      this.countSlot.set(config.start);
+    }
   }
 
   /**

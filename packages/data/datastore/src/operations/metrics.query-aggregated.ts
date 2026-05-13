@@ -66,6 +66,8 @@ export function metricsQueryAggregatedOperation(ctx: DatastoreContext) {
 
 function jsonPathSegment(key: string): string {
   // sqlite json_extract path segment: bare for safe identifiers, quoted otherwise.
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) return key;
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) {
+    return key;
+  }
   return `"${key.replaceAll('"', '\\"')}"`;
 }

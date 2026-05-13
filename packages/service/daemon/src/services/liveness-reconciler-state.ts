@@ -3,8 +3,14 @@ import { STALE_AFTER_MS } from './liveness-reconciler-constants';
 import type { LivenessState } from './liveness-reconciler-types';
 
 export function deriveActiveState(probe: ProbeResult, now: number): LivenessState {
-  if (probe.settled === 'idle') return 'idle';
-  if (!probe.alive) return 'idle';
-  if (probe.lastActivityAt > 0 && now - probe.lastActivityAt > STALE_AFTER_MS) return 'stalled';
+  if (probe.settled === 'idle') {
+    return 'idle';
+  }
+  if (!probe.alive) {
+    return 'idle';
+  }
+  if (probe.lastActivityAt > 0 && now - probe.lastActivityAt > STALE_AFTER_MS) {
+    return 'stalled';
+  }
   return 'running';
 }

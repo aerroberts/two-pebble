@@ -76,7 +76,9 @@ export class MemorySignalRunner implements SignalRunner {
    */
   public async markResolved(id: string): Promise<void> {
     for (const signal of this.signals.values()) {
-      if (signal.id === id) signal.status = 'resolved';
+      if (signal.id === id) {
+        signal.status = 'resolved';
+      }
     }
   }
 

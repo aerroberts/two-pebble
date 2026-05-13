@@ -28,9 +28,13 @@ export class Events<TEvents extends EventMap> {
    */
   public off<K extends keyof TEvents>(event: K, listener: EventListener<TEvents[K]>): this {
     const bucket = this.listeners[event];
-    if (!bucket) return this;
+    if (!bucket) {
+      return this;
+    }
     const index = bucket.indexOf(listener);
-    if (index !== -1) bucket.splice(index, 1);
+    if (index !== -1) {
+      bucket.splice(index, 1);
+    }
     return this;
   }
 
@@ -54,8 +58,12 @@ export class Events<TEvents extends EventMap> {
    */
   public emit<K extends keyof TEvents>(event: K, ...args: TEvents[K]): boolean {
     const bucket = this.listeners[event];
-    if (!bucket?.length) return false;
-    for (const listener of [...bucket]) listener(...args);
+    if (!bucket?.length) {
+      return false;
+    }
+    for (const listener of [...bucket]) {
+      listener(...args);
+    }
     return true;
   }
 }

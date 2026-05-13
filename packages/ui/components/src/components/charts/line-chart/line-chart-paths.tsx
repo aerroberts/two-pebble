@@ -32,9 +32,13 @@ export function LineChartPaths(props: LineChartPathsProps) {
         );
       })}
       {chartState.resolvedSeries.map((series) => {
-        if (!props.enabledSeriesIds.has(series.id)) return null;
+        if (!props.enabledSeriesIds.has(series.id)) {
+          return null;
+        }
         const points = chartState.pointsBySeries.get(series.id) ?? [];
-        if (points.length === 0) return null;
+        if (points.length === 0) {
+          return null;
+        }
         const color = chartState.paletteBySeries.get(series.id) ?? 'currentColor';
         const linePath = buildSvgPath(
           points,

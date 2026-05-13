@@ -106,7 +106,9 @@ export class AnthropicProvider extends ModelProvider {
       model: this.modelId,
       stop_sequences: [END_TURN_STOP_TOKEN],
     };
-    if (tools.length > 0) request.tools = tools;
+    if (tools.length > 0) {
+      request.tools = tools;
+    }
     return request;
   }
 
@@ -121,12 +123,16 @@ export class AnthropicProvider extends ModelProvider {
   private buildMessage(turn: ConversationTurn): AnthropicProviderMessage {
     const role = turn.role === 'assistant' ? 'assistant' : 'user';
     const hasStructuralToolCell = turn.cells.some((cell) => cell.type === 'toolUse' || cell.type === 'toolResult');
-    if (!hasStructuralToolCell) return { role, content: turn.raw };
+    if (!hasStructuralToolCell) {
+      return { role, content: turn.raw };
+    }
 
     const blocks: AnthropicProviderContentBlock[] = [];
     let textBuffer = '';
     const flushText = () => {
-      if (textBuffer.length === 0) return;
+      if (textBuffer.length === 0) {
+        return;
+      }
       blocks.push({ type: 'text', text: textBuffer });
       textBuffer = '';
     };
@@ -150,12 +156,16 @@ export class AnthropicProvider extends ModelProvider {
           tool_use_id: cell.content.callId,
           content: text.length > 0 ? text : '(no output)',
         };
-        if (!cell.content.success) block.is_error = true;
+        if (!cell.content.success) {
+          block.is_error = true;
+        }
         blocks.push(block);
         continue;
       }
       const rendered = renderTextCellAnthropic(cell);
-      if (rendered.length === 0) continue;
+      if (rendered.length === 0) {
+        continue;
+      }
       textBuffer = textBuffer.length === 0 ? rendered : `${textBuffer}\n\n${rendered}`;
     }
     flushText();

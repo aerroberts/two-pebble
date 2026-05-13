@@ -20,7 +20,9 @@ export function ProportionalBarChart(props: ProportionalBarChartProps) {
   const showLegend = props.showLegend ?? true;
   const height = props.height ?? 8;
   const total = props.items.reduce((sum, i) => sum + i.value, 0);
-  if (total === 0) return null;
+  if (total === 0) {
+    return null;
+  }
 
   return (
     <div className="w-full">

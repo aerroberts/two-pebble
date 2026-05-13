@@ -22,7 +22,9 @@ export function agentSignalsRegisterOperation(ctx: DatastoreContext) {
         ),
       )
       .get();
-    if (existing !== undefined) return existing as AgentSignalRecord;
+    if (existing !== undefined) {
+      return existing as AgentSignalRecord;
+    }
 
     const row = await ctx.database
       .insert(ctx.schema.agentSignalsTable)

@@ -16,14 +16,18 @@ export class Rule extends Guardrail<TypescriptFunctionShapeRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (input.file.endsWith('.test.ts')) return;
+      if (input.file.endsWith('.test.ts')) {
+        return;
+      }
       this.checkFile(input);
     });
   }
 
   private checkFile(input: TypescriptRuleInput) {
     const visit = (node: ts.Node) => {
-      if (this.isFunctionLike(node)) this.checkFunction(node as ts.FunctionLikeDeclaration, input.reporter);
+      if (this.isFunctionLike(node)) {
+        this.checkFunction(node as ts.FunctionLikeDeclaration, input.reporter);
+      }
       ts.forEachChild(node, visit);
     };
 
@@ -36,7 +40,9 @@ export class Rule extends Guardrail<TypescriptFunctionShapeRuleOptions> {
     }
 
     const isGenericBoundary = this.isGenericBoundary(node);
-    for (const parameter of node.parameters) this.checkParameter(parameter, reporter, isGenericBoundary);
+    for (const parameter of node.parameters) {
+      this.checkParameter(parameter, reporter, isGenericBoundary);
+    }
 
     if (
       !this.allowsComplexSignatureTypes() &&
@@ -49,17 +55,20 @@ export class Rule extends Guardrail<TypescriptFunctionShapeRuleOptions> {
   }
 
   private checkParameter(parameter: ts.ParameterDeclaration, reporter: Reporter, isGenericBoundary: boolean) {
-    if (!(this.options.allowOptionalParameters ?? false) && parameter.questionToken)
+    if (!(this.options.allowOptionalParameters ?? false) && parameter.questionToken) {
       this.fail(reporter, 'optional-parameter');
-    if (!(this.options.allowDefaultParameters ?? false) && parameter.initializer)
+    }
+    if (!(this.options.allowDefaultParameters ?? false) && parameter.initializer) {
       this.fail(reporter, 'default-parameter');
+    }
     if (
       !this.allowsComplexSignatureTypes() &&
       !isGenericBoundary &&
       parameter.type &&
       !isSimpleType(parameter.type, { maxSimpleUnionMembers: this.maxSimpleUnionMembers() })
-    )
+    ) {
       this.fail(reporter, 'complex-signature-type');
+    }
   }
 
   private isFunctionLike(node: ts.Node) {
@@ -78,7 +87,9 @@ export class Rule extends Guardrail<TypescriptFunctionShapeRuleOptions> {
     let current: ts.Node | undefined = node;
 
     while (current !== undefined) {
-      if (this.hasTypeParameters(current)) return true;
+      if (this.hasTypeParameters(current)) {
+        return true;
+      }
       current = current.parent;
     }
 
@@ -86,11 +97,15 @@ export class Rule extends Guardrail<TypescriptFunctionShapeRuleOptions> {
   }
 
   private hasTypeParameters(node: ts.Node) {
-    if (ts.isClassDeclaration(node) || ts.isClassExpression(node) || ts.isFunctionDeclaration(node))
+    if (ts.isClassDeclaration(node) || ts.isClassExpression(node) || ts.isFunctionDeclaration(node)) {
       return node.typeParameters !== undefined;
-    if (ts.isFunctionExpression(node) || ts.isArrowFunction(node) || ts.isMethodDeclaration(node))
+    }
+    if (ts.isFunctionExpression(node) || ts.isArrowFunction(node) || ts.isMethodDeclaration(node)) {
       return node.typeParameters !== undefined;
-    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) return node.typeParameters !== undefined;
+    }
+    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
+      return node.typeParameters !== undefined;
+    }
     return false;
   }
 

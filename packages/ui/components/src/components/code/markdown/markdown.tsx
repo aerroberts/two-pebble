@@ -20,7 +20,9 @@ const COMPONENTS: Components = {
   li: (props) => <li className="leading-relaxed" {...props} />,
   code: (codeProps) => {
     const isBlock = codeProps.className?.includes('language-');
-    if (isBlock) return <code className={codeProps.className} {...codeProps} />;
+    if (isBlock) {
+      return <code className={codeProps.className} {...codeProps} />;
+    }
     return <code className="bg-surface-hover rounded-md px-1 py-0.5 font-mono text-content" {...codeProps} />;
   },
   pre: (props) => (

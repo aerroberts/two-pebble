@@ -27,7 +27,9 @@ interface EnsureContext {
  */
 export async function ensureSubAgent(ctx: EnsureContext, input: EnsureSubAgentInput): Promise<string> {
   const id = input.event.agentInstanceId;
-  if (id.trim().length === 0) throw new Error('Sub-agent instance id must not be empty.');
+  if (id.trim().length === 0) {
+    throw new Error('Sub-agent instance id must not be empty.');
+  }
   const pending = ctx.pending.get(id);
   if (pending !== undefined) {
     if (pending.parentAgentId !== input.parentAgentId) {
@@ -40,7 +42,9 @@ export async function ensureSubAgent(ctx: EnsureContext, input: EnsureSubAgentIn
   try {
     return await promise;
   } finally {
-    if (ctx.pending.get(id)?.promise === promise) ctx.pending.delete(id);
+    if (ctx.pending.get(id)?.promise === promise) {
+      ctx.pending.delete(id);
+    }
   }
 }
 
@@ -60,7 +64,9 @@ async function ensureSubAgentRecord(ctx: EnsureContext, input: EnsureSubAgentInp
     parentAgentId: input.parentAgentId,
     workspaceId: input.workspaceId,
   });
-  if (result.created) input.bridge.emit('agentRecorded', result.record);
+  if (result.created) {
+    input.bridge.emit('agentRecorded', result.record);
+  }
   return result.id;
 }
 

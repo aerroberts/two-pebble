@@ -166,7 +166,9 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
 
   private requireSignalRunner() {
     const runner = getCapabilityRunners(this.agent).signal;
-    if (runner === undefined) throw new Error('signal runner is not installed.');
+    if (runner === undefined) {
+      throw new Error('signal runner is not installed.');
+    }
     return runner;
   }
 }

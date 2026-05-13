@@ -98,7 +98,9 @@ export class OllamaProvider extends ModelProvider {
       options: { stop: [END_TURN_STOP_TOKEN] },
       stream: false,
     };
-    if (tools.length > 0) request.tools = tools;
+    if (tools.length > 0) {
+      request.tools = tools;
+    }
     return request;
   }
 
@@ -124,7 +126,9 @@ export class OllamaProvider extends ModelProvider {
           continue;
         }
         const rendered = renderTextCellOllama(cell);
-        if (rendered.length === 0) continue;
+        if (rendered.length === 0) {
+          continue;
+        }
         text = text.length === 0 ? rendered : `${text}\n\n${rendered}`;
       }
       return [{ role: 'assistant', content: text, tool_calls: toolCalls }];
@@ -134,7 +138,9 @@ export class OllamaProvider extends ModelProvider {
       const messages: OllamaProviderMessage[] = [];
       let userTextBuffer = '';
       const flushUserText = () => {
-        if (userTextBuffer.length === 0) return;
+        if (userTextBuffer.length === 0) {
+          return;
+        }
         messages.push({ role: 'user', content: userTextBuffer });
         userTextBuffer = '';
       };
@@ -153,7 +159,9 @@ export class OllamaProvider extends ModelProvider {
           continue;
         }
         const rendered = renderTextCellOllama(cell);
-        if (rendered.length === 0) continue;
+        if (rendered.length === 0) {
+          continue;
+        }
         userTextBuffer = userTextBuffer.length === 0 ? rendered : `${userTextBuffer}\n\n${rendered}`;
       }
       flushUserText();

@@ -56,7 +56,9 @@ export function useVoiceCapture(input: UseVoiceCaptureInput): UseVoiceCaptureRes
       : '';
 
   const startRecording = async () => {
-    if (profileId === null) return;
+    if (profileId === null) {
+      return;
+    }
     setErrorMessage('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -64,7 +66,9 @@ export function useVoiceCapture(input: UseVoiceCaptureInput): UseVoiceCaptureRes
       const recorder = mimeType === undefined ? new MediaRecorder(stream) : new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
       recorder.addEventListener('dataavailable', (event) => {
-        if (event.data.size > 0) chunksRef.current.push(event.data);
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
       });
       recorder.addEventListener('stop', () => {
         void finalizeRecording(recorder.mimeType, profileId);
@@ -88,7 +92,9 @@ export function useVoiceCapture(input: UseVoiceCaptureInput): UseVoiceCaptureRes
   const setupAnalyser = (stream: MediaStream): AudioAnalyser => {
     const browserWindow = window as BrowserWindowWithWebkitAudio;
     const AudioContextCtor = browserWindow.AudioContext ?? browserWindow.webkitAudioContext;
-    if (typeof AudioContextCtor !== 'function') return null;
+    if (typeof AudioContextCtor !== 'function') {
+      return null;
+    }
     const audioContext = new AudioContextCtor();
     const source = audioContext.createMediaStreamSource(stream);
     const analyserNode = audioContext.createAnalyser();
@@ -101,7 +107,9 @@ export function useVoiceCapture(input: UseVoiceCaptureInput): UseVoiceCaptureRes
 
   const stopRecording = () => {
     const recorder = recorderRef.current;
-    if (recorder === null) return;
+    if (recorder === null) {
+      return;
+    }
     setStatus('transcribing');
     setAnalyser(null);
     teardownAudioContext(audioContextRef.current);
@@ -181,7 +189,9 @@ function isMediaRecorderSupported(): boolean {
 }
 
 function pickRecorderMimeType(): string | undefined {
-  if (typeof MediaRecorder === 'undefined') return undefined;
+  if (typeof MediaRecorder === 'undefined') {
+    return undefined;
+  }
   const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
   for (const candidate of candidates) {
     if (MediaRecorder.isTypeSupported(candidate)) {
@@ -194,14 +204,18 @@ function pickRecorderMimeType(): string | undefined {
 type RecorderOrNull = MediaRecorder | null;
 
 function stopRecorderTracks(recorder: RecorderOrNull) {
-  if (recorder === null) return;
+  if (recorder === null) {
+    return;
+  }
   for (const track of recorder.stream.getTracks()) {
     track.stop();
   }
 }
 
 function teardownAudioContext(context: AudioContextMaybe) {
-  if (context === null) return;
+  if (context === null) {
+    return;
+  }
   if (context.state !== 'closed') {
     void context.close().catch(() => undefined);
   }

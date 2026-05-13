@@ -14,14 +14,12 @@ import { useAgents, useInferenceProfiles, useIntegrations, useRealtimeDatastore 
 import { useEffect, useMemo, useState } from 'react';
 
 type LoadStatus = 'idle' | 'loading' | 'ready' | 'error';
-
 interface RangeOption {
   id: string;
   label: string;
   windowMs: number;
   bucketSizeMs: number;
 }
-
 const RANGE_OPTIONS: RangeOption[] = [
   { id: '5m', label: '5m', windowMs: 5 * 60_000, bucketSizeMs: 10_000 },
   { id: '1h', label: '1h', windowMs: 60 * 60_000, bucketSizeMs: 60_000 },
@@ -29,14 +27,11 @@ const RANGE_OPTIONS: RangeOption[] = [
   { id: '7d', label: '7d', windowMs: 7 * 24 * 60 * 60_000, bucketSizeMs: 60 * 60_000 },
 ];
 const DEFAULT_RANGE_OPTION: RangeOption = { id: '1h', label: '1h', windowMs: 60 * 60_000, bucketSizeMs: 60_000 };
-
 type MetricKey = 'pricing.total' | 'pricing.quantity';
-
 const METRIC_OPTIONS: { value: MetricKey; label: string }[] = [
   { value: 'pricing.total', label: 'Cost (USD)' },
   { value: 'pricing.quantity', label: 'Quantity' },
 ];
-
 const FILTER_DIMENSIONS = [
   { key: 'charge', label: 'Charge' },
   { key: 'provider', label: 'Provider' },
@@ -48,14 +43,12 @@ const FILTER_DIMENSIONS = [
 
 type FilterDimension = (typeof FILTER_DIMENSIONS)[number];
 type FilterKey = FilterDimension['key'];
-
 interface FilterFieldProps {
   dimension: FilterDimension;
   options: { value: string; label: string }[];
   value: string | undefined;
   onChange: (value: string) => void;
 }
-
 function FilterField(props: FilterFieldProps) {
   return (
     <AppBox variant="filter-field">
@@ -80,21 +73,21 @@ export function PricingExplorerPage() {
   const agents = useAgents();
   const integrations = useIntegrations();
   const inferenceProfiles = useInferenceProfiles();
-
   const [metric, setMetric] = useState<MetricKey>('pricing.total');
   const [rangeId, setRangeId] = useState<string>(DEFAULT_RANGE_OPTION.id);
   const [filters, setFilters] = useState<Partial<Record<FilterKey, string>>>({});
-
   const [variants, setVariants] = useState<MetricVariant[]>([]);
   const [buckets, setBuckets] = useState<MetricAggregateBucket[]>([]);
   const [status, setStatus] = useState<LoadStatus>('idle');
   const [domain, setDomain] = useState<{ min: number; max: number }>({ min: 0, max: 1 });
-
   const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? DEFAULT_RANGE_OPTION;
-
   const dimensionFilter = useMemo<Record<string, string>>(() => {
     const out: Record<string, string> = {};
-    for (const [key, value] of Object.entries(filters)) if (value !== undefined) out[key] = value;
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined) {
+        out[key] = value;
+      }
+    }
     return out;
   }, [filters]);
 
@@ -103,7 +96,9 @@ export function PricingExplorerPage() {
     void datastore.metrics
       .listVariants({ name: metric })
       .then((result) => {
-        if (active) setVariants(result.items);
+        if (active) {
+          setVariants(result.items);
+        }
       })
       .catch(() => undefined);
     return () => {
@@ -132,7 +127,9 @@ export function PricingExplorerPage() {
         }
       })
       .catch(() => {
-        if (active) setStatus('error');
+        if (active) {
+          setStatus('error');
+        }
       });
     return () => {
       active = false;
@@ -141,12 +138,17 @@ export function PricingExplorerPage() {
 
   const labelLookup = useMemo<Record<FilterKey, Map<string, string>>>(() => {
     const agentMap = new Map<string, string>();
-    for (const agent of agents.values()) agentMap.set(agent.id, agent.name || agent.id);
+    for (const agent of agents.values()) {
+      agentMap.set(agent.id, agent.name || agent.id);
+    }
     const integrationMap = new Map<string, string>();
-    for (const integration of integrations.values())
+    for (const integration of integrations.values()) {
       integrationMap.set(integration.id, integration.name || integration.id);
+    }
     const profileMap = new Map<string, string>();
-    for (const profile of inferenceProfiles.values()) profileMap.set(profile.id, profile.name || profile.id);
+    for (const profile of inferenceProfiles.values()) {
+      profileMap.set(profile.id, profile.name || profile.id);
+    }
     return {
       charge: new Map(),
       provider: new Map(),
@@ -169,7 +171,9 @@ export function PricingExplorerPage() {
     for (const variant of variants) {
       for (const { key } of FILTER_DIMENSIONS) {
         const value = variant.dimensions[key];
-        if (value !== undefined && value !== '') collected[key].add(value);
+        if (value !== undefined && value !== '') {
+          collected[key].add(value);
+        }
       }
     }
     const out = {} as Record<FilterKey, { value: string; label: string }[]>;
@@ -204,6 +208,17 @@ export function PricingExplorerPage() {
   const totalLabel = isCost ? `$${totals.sum.toFixed(2)}` : totals.sum.toLocaleString();
   const valueLabel = isCost ? 'USD' : 'Quantity';
   const valueFormatter = isCost ? (value: number) => `$${value.toFixed(2)}` : undefined;
+  const setFilterValue = (dimension: FilterDimension, value: string) => {
+    setFilters((prev) => {
+      const next = { ...prev };
+      if (value === '__all__') {
+        delete next[dimension.key];
+      } else {
+        next[dimension.key] = value;
+      }
+      return next;
+    });
+  };
 
   return (
     <PageLayout width="fixed">
@@ -270,14 +285,7 @@ export function PricingExplorerPage() {
                 dimension={dimension}
                 options={filterOptions[dimension.key]}
                 value={filters[dimension.key]}
-                onChange={(value) =>
-                  setFilters((prev) => {
-                    const next = { ...prev };
-                    if (value === '__all__') delete next[dimension.key];
-                    else next[dimension.key] = value;
-                    return next;
-                  })
-                }
+                onChange={(value) => setFilterValue(dimension, value)}
               />
             ))}
           </AppBox>

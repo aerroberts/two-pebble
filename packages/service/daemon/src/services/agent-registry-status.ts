@@ -54,15 +54,21 @@ export async function persistAgentStatus(input: PersistStatusInput): Promise<voi
     input.logger.warn('agent status write failed', { agentId: input.agentId, error: message });
     return;
   }
-  if (input.status !== 'failed') return;
+  if (input.status !== 'failed') {
+    return;
+  }
   try {
     const sync = await input.taskBoards.syncOwnedTasksFromAgentStatus({
       agentId: input.agentId,
       agentStatus: input.status,
       reason: `auto: agent ${updatedName ?? input.agentId} ${input.status}`,
     });
-    for (const event of sync.events) input.bridge.emit('taskEventRecorded', event);
-    for (const task of sync.tasks) input.bridge.emit('taskUpdated', task);
+    for (const event of sync.events) {
+      input.bridge.emit('taskEventRecorded', event);
+    }
+    for (const task of sync.tasks) {
+      input.bridge.emit('taskUpdated', task);
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     input.logger.warn('task status sync from agent failed', { agentId: input.agentId, error: message });

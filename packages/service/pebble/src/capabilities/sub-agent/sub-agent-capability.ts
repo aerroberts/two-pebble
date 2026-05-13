@@ -157,8 +157,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       schema: sendSubAgentSchema,
     }).onInvoke(async (input) => {
       const pending = this.pendingChildQuestionsSlot.value.find((item) => item.childAgentId === input.childAgentId);
-      if (pending === undefined)
+      if (pending === undefined) {
         return ToolResponse.error('No child question pending.', [Cell.text('No child question pending.')]);
+      }
       await this.resolveSignal({
         agentId: input.childAgentId,
         capabilityId: 'parent-link',
@@ -209,7 +210,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     if (type === 'sub-agent-response') {
       const childAgentId = stringField(data, 'childAgentId');
       const message = stringField(data, 'message');
-      if (childAgentId === undefined || message === undefined) return;
+      if (childAgentId === undefined || message === undefined) {
+        return;
+      }
       this.agent.emit('trace', {
         type: 'sub-agent-success',
         data: {
@@ -223,7 +226,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     if (type === 'child-message') {
       const childAgentId = stringField(data, 'childAgentId');
       const message = stringField(data, 'message');
-      if (childAgentId === undefined || message === undefined) return;
+      if (childAgentId === undefined || message === undefined) {
+        return;
+      }
       this.agent.addUserContext('Sub-agent Message', [
         Cell.header2(`Sub-agent Message: ${childAgentId}`),
         Cell.text(message),
@@ -234,7 +239,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       const childAgentId = stringField(data, 'childAgentId');
       const message = stringField(data, 'message');
       const responseSignalId = stringField(data, 'responseSignalId');
-      if (childAgentId === undefined || message === undefined || responseSignalId === undefined) return;
+      if (childAgentId === undefined || message === undefined || responseSignalId === undefined) {
+        return;
+      }
       this.pendingChildQuestionsSlot.set([...this.pendingChildQuestionsSlot.value, { childAgentId, responseSignalId }]);
       this.agent.addUserContext('Sub-agent Ask', [
         Cell.header2(`Sub-agent Ask: ${childAgentId}`),
@@ -258,7 +265,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   private requireRunner(): SubAgentRunner {
     const runner = getCapabilityRunners(this.agent).subAgent;
-    if (runner === undefined) throw new Error('sub-agent runner is not installed.');
+    if (runner === undefined) {
+      throw new Error('sub-agent runner is not installed.');
+    }
     return runner;
   }
 

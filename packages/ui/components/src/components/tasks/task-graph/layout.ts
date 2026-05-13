@@ -58,7 +58,9 @@ export async function buildTaskFlowGraph(input: TaskGraphInput): Promise<FlowGra
 }
 
 function layoutEngine(): InstanceType<typeof ELK> {
-  if (elk === undefined) elk = new ELK();
+  if (elk === undefined) {
+    elk = new ELK();
+  }
   return elk;
 }
 
@@ -122,8 +124,12 @@ function groupPoolsByParent(pools: TaskGraphInputPool[]): Map<string | null, Tas
 
 function groupEdgesByContainer(input: TaskGraphInput): Map<string | null, TaskGraphInputDependency[]> {
   const parentOf = new Map<string, string | null>();
-  for (const task of input.tasks) parentOf.set(task.id, task.poolId);
-  for (const pool of input.pools) parentOf.set(pool.id, pool.parentPoolId);
+  for (const task of input.tasks) {
+    parentOf.set(task.id, task.poolId);
+  }
+  for (const pool of input.pools) {
+    parentOf.set(pool.id, pool.parentPoolId);
+  }
   const map = new Map<string | null, TaskGraphInputDependency[]>();
   for (const dep of input.dependencies) {
     const container = parentOf.get(dep.fromId) ?? null;
@@ -148,9 +154,13 @@ function edgesAtContainer(
 
 function convertElkResult(result: ElkNode, input: TaskGraphInput): FlowGraph {
   const taskMap = new Map<string, TaskGraphInputTask>();
-  for (const task of input.tasks) taskMap.set(task.id, task);
+  for (const task of input.tasks) {
+    taskMap.set(task.id, task);
+  }
   const poolMap = new Map<string, TaskGraphInputPool>();
-  for (const pool of input.pools) poolMap.set(pool.id, pool);
+  for (const pool of input.pools) {
+    poolMap.set(pool.id, pool);
+  }
 
   const flowNodes: FlowNode[] = [];
   const flowEdges: FlowEdge[] = [];
@@ -234,7 +244,9 @@ function collectEdgePoints(
   absoluteOrigin: { x: number; y: number },
 ): { x: number; y: number }[] {
   const section = edge.sections?.[0];
-  if (!section) return [];
+  if (!section) {
+    return [];
+  }
   const points: { x: number; y: number }[] = [];
   points.push({ x: section.startPoint.x + absoluteOrigin.x, y: section.startPoint.y + absoluteOrigin.y });
   for (const bp of section.bendPoints ?? []) {

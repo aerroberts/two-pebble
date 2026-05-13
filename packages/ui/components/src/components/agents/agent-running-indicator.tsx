@@ -22,7 +22,9 @@ export interface AgentRunningIndicatorProps {
  * is not running the indicator hides itself.
  */
 export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
-  if (props.status !== 'running') return null;
+  if (props.status !== 'running') {
+    return null;
+  }
   const liveness = props.liveness;
   const now = Date.now();
   const ageSeconds =

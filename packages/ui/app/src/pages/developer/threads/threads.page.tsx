@@ -16,12 +16,16 @@ export function ThreadsPage() {
     let cancelled = false;
     void listThreads()
       .then((result) => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
         setThreads(result.items);
         setStatus('ready');
       })
       .catch(() => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
         setThreads([]);
         setStatus('error');
       });
@@ -34,8 +38,11 @@ export function ThreadsPage() {
     const tracing: ThreadSummaryRecord[] = [];
     const other: ThreadSummaryRecord[] = [];
     for (const thread of threads) {
-      if (thread.agentIds.length > 0) tracing.push(thread);
-      else other.push(thread);
+      if (thread.agentIds.length > 0) {
+        tracing.push(thread);
+      } else {
+        other.push(thread);
+      }
     }
     return { tracingThreads: tracing, otherThreads: other };
   }, [threads]);

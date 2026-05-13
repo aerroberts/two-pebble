@@ -32,8 +32,12 @@ export function NotConnectedPage(props: NotConnectedPageProps) {
   } = props;
 
   useEffect(() => {
-    if (disableReloadOnReconnect) return;
-    if (typeof window === 'undefined') return;
+    if (disableReloadOnReconnect) {
+      return;
+    }
+    if (typeof window === 'undefined') {
+      return;
+    }
 
     const target = pollUrl ?? window.location.origin;
     let cancelled = false;
@@ -42,7 +46,9 @@ export function NotConnectedPage(props: NotConnectedPageProps) {
     const poll = async () => {
       try {
         await fetch(target, { cache: 'no-store', method: 'HEAD' });
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
         window.location.reload();
         return;
       } catch {
@@ -57,7 +63,9 @@ export function NotConnectedPage(props: NotConnectedPageProps) {
 
     return () => {
       cancelled = true;
-      if (timeout !== null) clearTimeout(timeout);
+      if (timeout !== null) {
+        clearTimeout(timeout);
+      }
     };
   }, [disableReloadOnReconnect, pollUrl, pollIntervalMs]);
 

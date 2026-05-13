@@ -60,9 +60,15 @@ export class Rule extends Guardrail<ClassMemberOrderRuleOptions> {
   }
 
   private getMemberPhase(member: ts.ClassElement): ClassMemberPhase {
-    if (ts.isPropertyDeclaration(member)) return 'fields';
-    if (ts.isConstructorDeclaration(member)) return 'constructor';
-    if (ts.isGetAccessorDeclaration(member) || ts.isSetAccessorDeclaration(member)) return 'accessors';
+    if (ts.isPropertyDeclaration(member)) {
+      return 'fields';
+    }
+    if (ts.isConstructorDeclaration(member)) {
+      return 'constructor';
+    }
+    if (ts.isGetAccessorDeclaration(member) || ts.isSetAccessorDeclaration(member)) {
+      return 'accessors';
+    }
     return 'methods';
   }
 

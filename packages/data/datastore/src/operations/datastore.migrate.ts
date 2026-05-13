@@ -25,9 +25,13 @@ export function datastoreMigrateOperation(ctx: DatastoreContext) {
 // databases are stuck without the `data` column; this restores it.
 async function repairTaskEventsDataColumn(client: Client): Promise<void> {
   const info = await client.execute("PRAGMA table_info('task_events')");
-  if (info.rows.length === 0) return;
+  if (info.rows.length === 0) {
+    return;
+  }
   const hasData = info.rows.some((row) => String(row.name) === 'data');
-  if (hasData) return;
+  if (hasData) {
+    return;
+  }
   await client.execute("ALTER TABLE `task_events` ADD `data` text NOT NULL DEFAULT '{}'");
   await client.execute("UPDATE `task_events` SET `data` = json_object('status', `status`) WHERE `kind` = 'status'");
 }

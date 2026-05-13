@@ -16,20 +16,26 @@ interface ParsedConfigCandidate {
  * UI out of editing.
  */
 export function parseWorkspaceConfigString(raw: string): WorkspaceConfig {
-  if (raw.length === 0) return DEFAULT_CONFIG;
+  if (raw.length === 0) {
+    return DEFAULT_CONFIG;
+  }
   try {
     const parsed = JSON.parse(raw) as ParsedConfigCandidate;
     if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
       return DEFAULT_CONFIG;
     }
-    if (parsed.kind === 'none') return { kind: 'none' };
+    if (parsed.kind === 'none') {
+      return { kind: 'none' };
+    }
     if (parsed.kind === 'absolute' && typeof parsed.path === 'string') {
       return { kind: 'absolute', path: parsed.path };
     }
     if (parsed.kind === 'fixed' && typeof parsed.path === 'string') {
       return { kind: 'absolute', path: parsed.path };
     }
-    if (parsed.kind === 'cwd') return DEFAULT_CONFIG;
+    if (parsed.kind === 'cwd') {
+      return DEFAULT_CONFIG;
+    }
     if (parsed.kind === 'worktree' && typeof parsed.repositoryId === 'string') {
       return { kind: 'worktree', repositoryId: parsed.repositoryId };
     }

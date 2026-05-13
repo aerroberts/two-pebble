@@ -81,7 +81,9 @@ export const subAgentNoTimingExpectation = {
 
 export function singleTrace<T>(traces: T[]) {
   const trace = traces[0];
-  if (trace === undefined || traces.length !== 1) throw new Error('Expected one aggregated trace.');
+  if (trace === undefined || traces.length !== 1) {
+    throw new Error('Expected one aggregated trace.');
+  }
   return trace;
 }
 

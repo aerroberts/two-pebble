@@ -63,7 +63,9 @@ export function PricingOverviewPage() {
     void datastore.metrics
       .listVariants({ name: METRIC_NAME })
       .then((result) => {
-        if (active) setVariants(result.items);
+        if (active) {
+          setVariants(result.items);
+        }
       })
       .catch(() => undefined);
     return () => {
@@ -75,7 +77,9 @@ export function PricingOverviewPage() {
     const counts = new Map<string, number>();
     for (const variant of variants) {
       const value = variant.dimensions[groupBy];
-      if (value === undefined || value === '') continue;
+      if (value === undefined || value === '') {
+        continue;
+      }
       counts.set(value, (counts.get(value) ?? 0) + variant.sampleCount);
     }
     return Array.from(counts.entries())
@@ -119,7 +123,9 @@ export function PricingOverviewPage() {
         }
       })
       .catch(() => {
-        if (active) setStatus('error');
+        if (active) {
+          setStatus('error');
+        }
       });
     return () => {
       active = false;
@@ -128,12 +134,17 @@ export function PricingOverviewPage() {
 
   const labelLookup = useMemo<Record<GroupByKey, Map<string, string>>>(() => {
     const agentMap = new Map<string, string>();
-    for (const agent of agents.values()) agentMap.set(agent.id, agent.name || agent.id);
+    for (const agent of agents.values()) {
+      agentMap.set(agent.id, agent.name || agent.id);
+    }
     const integrationMap = new Map<string, string>();
-    for (const integration of integrations.values())
+    for (const integration of integrations.values()) {
       integrationMap.set(integration.id, integration.name || integration.id);
+    }
     const profileMap = new Map<string, string>();
-    for (const profile of inferenceProfiles.values()) profileMap.set(profile.id, profile.name || profile.id);
+    for (const profile of inferenceProfiles.values()) {
+      profileMap.set(profile.id, profile.name || profile.id);
+    }
     return {
       charge: new Map(),
       provider: new Map(),
@@ -163,7 +174,11 @@ export function PricingOverviewPage() {
 
   const totalSum = useMemo(() => {
     let sum = 0;
-    for (const entry of seriesBuckets) for (const bucket of entry.buckets) sum += bucket.sum;
+    for (const entry of seriesBuckets) {
+      for (const bucket of entry.buckets) {
+        sum += bucket.sum;
+      }
+    }
     return sum;
   }, [seriesBuckets]);
 

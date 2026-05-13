@@ -19,15 +19,21 @@ export function uiDistDirectory(): string {
 export async function serveUiRequest(request: Request): Promise<Response | undefined> {
   const url = new URL(request.url);
   const assetResponse = await readUiAsset(url.pathname);
-  if (assetResponse !== undefined) return assetResponse;
+  if (assetResponse !== undefined) {
+    return assetResponse;
+  }
   return readUiAsset('/index.html');
 }
 
 async function readUiAsset(pathname: string): Promise<Response | undefined> {
   const cleaned = pathname === '/' ? '/index.html' : pathname;
   const filePath = path.join(UI_DIST_DIRECTORY, cleaned);
-  if (!filePath.startsWith(UI_DIST_DIRECTORY)) return undefined;
+  if (!filePath.startsWith(UI_DIST_DIRECTORY)) {
+    return undefined;
+  }
   const file = Bun.file(filePath);
-  if (!(await file.exists())) return undefined;
+  if (!(await file.exists())) {
+    return undefined;
+  }
   return new Response(file);
 }

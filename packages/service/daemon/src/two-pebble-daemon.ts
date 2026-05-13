@@ -129,7 +129,9 @@ export class TwoPebbleDaemon {
       } catch (error) {
         const wrapped = error instanceof Error ? error : new Error(String(error));
         lastError = wrapped;
-        if (!this.isAddressInUseError(wrapped)) throw wrapped;
+        if (!this.isAddressInUseError(wrapped)) {
+          throw wrapped;
+        }
         logger.info('port busy, trying next', { port });
       }
     }
@@ -141,8 +143,12 @@ export class TwoPebbleDaemon {
   }
 
   private resolveDatabaseFilePath(port: number): string {
-    if (this.input.databaseFilePath !== undefined) return this.input.databaseFilePath;
-    if (this.input.databaseFilePathForPort !== undefined) return this.input.databaseFilePathForPort(port);
+    if (this.input.databaseFilePath !== undefined) {
+      return this.input.databaseFilePath;
+    }
+    if (this.input.databaseFilePathForPort !== undefined) {
+      return this.input.databaseFilePathForPort(port);
+    }
     throw new Error('TwoPebbleDaemon requires databaseFilePath or databaseFilePathForPort.');
   }
 
@@ -156,7 +162,9 @@ export class TwoPebbleDaemon {
     metrics.shutdown();
     this.reconciler?.stop();
     this.server?.close();
-    if (this.datastore !== undefined) await this.datastore.close();
+    if (this.datastore !== undefined) {
+      await this.datastore.close();
+    }
     logger.info('ws server closed');
   }
 
@@ -192,7 +200,9 @@ export class TwoPebbleDaemon {
 
   private connect(bridge: DaemonBridge): void {
     logger.info('ws client connected');
-    if (this.context === undefined) throw new Error('Daemon context unavailable; launch must complete before connect.');
+    if (this.context === undefined) {
+      throw new Error('Daemon context unavailable; launch must complete before connect.');
+    }
     this.bridges.add(bridge);
     const context: DaemonHandlerContext = this.context;
     registerDaemonHandlers(context, (operation, handler) => {
@@ -232,7 +242,9 @@ export class TwoPebbleDaemon {
   }
 
   private emitDebugLogUpdated(bridge: DaemonBridge): void {
-    if (this.context === undefined) return;
+    if (this.context === undefined) {
+      return;
+    }
     const [log] = listDebugLogFiles(this.context.logsDirectoryPath);
     if (log !== undefined) {
       bridge.emit('debugLogUpdated', log);
@@ -244,7 +256,9 @@ export class TwoPebbleDaemon {
     if (url.pathname === '/health') {
       return Response.json({ state: 'ready' });
     }
-    if (this.isWebSocketUpgrade(request)) return undefined;
+    if (this.isWebSocketUpgrade(request)) {
+      return undefined;
+    }
     return serveUiRequest(request);
   }
 

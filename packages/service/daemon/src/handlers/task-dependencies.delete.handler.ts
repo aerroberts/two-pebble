@@ -16,12 +16,18 @@ export function handler(ctx: DaemonHandlerContext) {
         break;
       }
     }
-    if (boardId === undefined) throw new Error(`task dependency not found`);
+    if (boardId === undefined) {
+      throw new Error(`task dependency not found`);
+    }
     const events = await ctx.taskBoards.deleteDependency(boardId, payload);
     ctx.multicastBridge.emit('taskDependencyDeleted', { boardId, fromId: payload.fromId, toId: payload.toId });
     const refreshed = await ctx.taskBoards.listTasks(boardId);
-    for (const task of refreshed) ctx.multicastBridge.emit('taskUpdated', task);
-    for (const event of events) ctx.multicastBridge.emit('taskEventRecorded', event);
+    for (const task of refreshed) {
+      ctx.multicastBridge.emit('taskUpdated', task);
+    }
+    for (const event of events) {
+      ctx.multicastBridge.emit('taskEventRecorded', event);
+    }
     return { fromId: payload.fromId, toId: payload.toId };
   };
 }

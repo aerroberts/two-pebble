@@ -46,12 +46,16 @@ export function MetricDetailPage() {
 
   const range = RANGE_OPTIONS.find((option) => option.id === rangeId) ?? DEFAULT_RANGE_OPTION;
   const activeFilter = useMemo(() => {
-    if (activeVariantKey === null) return undefined;
+    if (activeVariantKey === null) {
+      return undefined;
+    }
     return variants.find((variant) => variantKey(variant) === activeVariantKey)?.dimensions;
   }, [activeVariantKey, variants]);
 
   useEffect(() => {
-    if (decodedName === '') return;
+    if (decodedName === '') {
+      return;
+    }
     let active = true;
     setVariantsStatus('loading');
     void datastore.metrics
@@ -63,7 +67,9 @@ export function MetricDetailPage() {
         }
       })
       .catch(() => {
-        if (active) setVariantsStatus('error');
+        if (active) {
+          setVariantsStatus('error');
+        }
       });
     return () => {
       active = false;
@@ -71,7 +77,9 @@ export function MetricDetailPage() {
   }, [datastore, decodedName]);
 
   useEffect(() => {
-    if (decodedName === '') return;
+    if (decodedName === '') {
+      return;
+    }
     let active = true;
     setStatus('loading');
     const toTimestamp = Date.now();
@@ -92,7 +100,9 @@ export function MetricDetailPage() {
         }
       })
       .catch(() => {
-        if (active) setStatus('error');
+        if (active) {
+          setStatus('error');
+        }
       });
     return () => {
       active = false;
@@ -112,7 +122,9 @@ export function MetricDetailPage() {
   const dimensionColumnKeys = useMemo(() => {
     const keys = new Set<string>();
     for (const variant of variants) {
-      for (const key of Object.keys(variant.dimensions)) keys.add(key);
+      for (const key of Object.keys(variant.dimensions)) {
+        keys.add(key);
+      }
     }
     return Array.from(keys).sort();
   }, [variants]);

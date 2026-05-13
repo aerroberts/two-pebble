@@ -15,17 +15,25 @@ export class Rule extends Guardrail<TestConstOrderRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (input.file.endsWith('.test.ts')) this.checkFile(input);
+      if (input.file.endsWith('.test.ts')) {
+        this.checkFile(input);
+      }
     });
   }
 
   private checkFile(input: TestRuleInput) {
-    if (this.options.allowConstAfterDescribe ?? false) return;
+    if (this.options.allowConstAfterDescribe ?? false) {
+      return;
+    }
 
     let hasSeenDescribe = false;
     for (const statement of input.sourceFile.statements) {
-      if (this.isTopLevelDescribe(statement)) hasSeenDescribe = true;
-      if (hasSeenDescribe && this.isConstStatement(statement)) this.fail(input.reporter);
+      if (this.isTopLevelDescribe(statement)) {
+        hasSeenDescribe = true;
+      }
+      if (hasSeenDescribe && this.isConstStatement(statement)) {
+        this.fail(input.reporter);
+      }
     }
   }
 

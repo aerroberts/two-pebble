@@ -28,6 +28,8 @@ export interface SelectProps {
 }
 
 export function Select(props: SelectProps) {
-  if (props.searchable) return <SearchableSelect {...props} />;
+  if (props.searchable) {
+    return <SearchableSelect {...props} />;
+  }
   return <PlainSelect {...props} />;
 }

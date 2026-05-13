@@ -32,7 +32,9 @@ export function recordingAgent(): RecordingAgent {
   const snapshots: CapabilityStateSnapshot[] = [];
   const recorder: SnapshotRecorder = {
     emit: (event: string, trace: CapabilityTraceSnapshot) => {
-      if (event === 'trace' && trace.type === 'state-snapshot') snapshots.push(trace.data);
+      if (event === 'trace' && trace.type === 'state-snapshot') {
+        snapshots.push(trace.data);
+      }
     },
   };
   return { recorder, snapshots };

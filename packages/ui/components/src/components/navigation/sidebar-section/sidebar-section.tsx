@@ -40,8 +40,12 @@ export function SidebarSection(props: SidebarSectionProps) {
   );
 
   const handleHeaderClick: MouseEventHandler = (event) => {
-    if (collapsible) setCollapsed((prev) => !prev);
-    if (onClick) onClick(event);
+    if (collapsible) {
+      setCollapsed((prev) => !prev);
+    }
+    if (onClick) {
+      onClick(event);
+    }
   };
 
   return (

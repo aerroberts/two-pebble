@@ -16,7 +16,9 @@ export function VoiceSettingsPage() {
   const speechProfileId = settings?.defaultSpeechProfileId ?? NONE_VALUE;
 
   const onTranscriptionChange = (value: string) => {
-    if (settings === null) return;
+    if (settings === null) {
+      return;
+    }
     void updateAppSettings({
       defaultTranscriptionProfileId: value === NONE_VALUE ? null : value,
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
@@ -26,7 +28,9 @@ export function VoiceSettingsPage() {
   };
 
   const onSpeechChange = (value: string) => {
-    if (settings === null) return;
+    if (settings === null) {
+      return;
+    }
     void updateAppSettings({
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
       defaultSpeechProfileId: value === NONE_VALUE ? null : value,

@@ -208,7 +208,9 @@ function getPriceLineItemRowKey(row: AgentPriceSummaryLineItem, index: number) {
 }
 
 function formatProviderLabel(value: string) {
-  if (value.length === 0) return 'Unknown provider';
+  if (value.length === 0) {
+    return 'Unknown provider';
+  }
   return value
     .replaceAll('-', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())

@@ -136,7 +136,9 @@ function buildSubAgentWaterfallItems(input: BuildWaterfallItemsInput): TimelineC
 function agentMetrics(trace: AgentTraceRecord, agents: WaterfallAgentMap, metrics: TimelineMetric[]) {
   const agentId = trace.agentId ?? '';
   const agent = agents.get(agentId);
-  if (agent === undefined) return metrics;
+  if (agent === undefined) {
+    return metrics;
+  }
   return [{ label: 'agent', value: agent.name }, ...metrics];
 }
 
@@ -157,12 +159,18 @@ function readWaterfallStatus(outcome: AgentTraceRecord | undefined) {
 }
 
 function readSubAgentStatus(status: SubAgentWaterfallStatus) {
-  if (status === 'error') return 'failed' as const;
-  if (status === 'pending') return 'in-progress' as const;
+  if (status === 'error') {
+    return 'failed' as const;
+  }
+  if (status === 'pending') {
+    return 'in-progress' as const;
+  }
   return 'success' as const;
 }
 
 function readSubAgentEndTime(completedAt: number | undefined) {
-  if (completedAt !== undefined && completedAt > 0) return completedAt;
+  if (completedAt !== undefined && completedAt > 0) {
+    return completedAt;
+  }
   return undefined;
 }

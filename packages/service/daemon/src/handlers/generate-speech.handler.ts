@@ -44,7 +44,9 @@ export function handler(ctx: DaemonHandlerContext) {
 }
 
 function approximateBase64ByteCount(base64: string): number {
-  if (base64.length === 0) return 0;
+  if (base64.length === 0) {
+    return 0;
+  }
   const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
   return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
 }

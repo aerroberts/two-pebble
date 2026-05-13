@@ -39,7 +39,9 @@ export function useAssistantPageState() {
   const settingsLoaded = appSettings.status === 'ready' || settings !== null;
 
   const persistAgentId = (nextAgentId: AssistantAgentId) => {
-    if (settings === null) return;
+    if (settings === null) {
+      return;
+    }
     void updateAppSettings({
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
@@ -50,7 +52,9 @@ export function useAssistantPageState() {
 
   const sendChatMessage = async () => {
     const trimmed = chatDraft.trim();
-    if (trimmed.length === 0 || registryId === null) return;
+    if (trimmed.length === 0 || registryId === null) {
+      return;
+    }
     setChatSending(true);
     setChatError('');
     try {

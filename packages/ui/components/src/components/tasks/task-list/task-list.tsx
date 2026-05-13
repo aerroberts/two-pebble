@@ -43,14 +43,18 @@ export function TaskList(props: TaskListProps) {
   useFocusPending(pendingFocusId, cellRefs.current, () => setPendingFocusId(null));
 
   const createFromGhost = async (name: string) => {
-    if (props.onCreateTaskAfter === undefined) return;
+    if (props.onCreateTaskAfter === undefined) {
+      return;
+    }
     const trimmed = name.trim();
     const newTaskId = await props.onCreateTaskAfter({
       poolId: null,
       afterTaskId: null,
       name: trimmed.length > 0 ? trimmed : undefined,
     });
-    if (newTaskId === undefined) return;
+    if (newTaskId === undefined) {
+      return;
+    }
     setPendingFocusId(newTaskId);
   };
 
@@ -63,7 +67,9 @@ export function TaskList(props: TaskListProps) {
   const focusLastCell = () => {
     for (let index = flatOrder.length - 1; index >= 0; index -= 1) {
       const taskId = flatOrder[index];
-      if (taskId === undefined) continue;
+      if (taskId === undefined) {
+        continue;
+      }
       const element = cellRefs.current.get(taskId);
       if (element !== undefined) {
         element.focus();
@@ -74,25 +80,37 @@ export function TaskList(props: TaskListProps) {
 
   const moveFocus = (currentTaskId: string, offset: number) => {
     const index = flatOrder.indexOf(currentTaskId);
-    if (index < 0) return;
+    if (index < 0) {
+      return;
+    }
     const targetId = flatOrder[index + offset];
-    if (!targetId) return;
+    if (!targetId) {
+      return;
+    }
     cellRefs.current.get(targetId)?.focus();
   };
 
   const handleEnter = async (currentTaskId: string) => {
     const task = props.tasks.find((entry) => entry.id === currentTaskId);
-    if (task === undefined || props.onCreateTaskAfter === undefined) return;
+    if (task === undefined || props.onCreateTaskAfter === undefined) {
+      return;
+    }
     const newTaskId = await props.onCreateTaskAfter({ poolId: task.poolId, afterTaskId: currentTaskId });
-    if (newTaskId !== undefined) setPendingFocusId(newTaskId);
+    if (newTaskId !== undefined) {
+      setPendingFocusId(newTaskId);
+    }
   };
 
   const handleDeleteEmpty = (currentTaskId: string) => {
     const index = flatOrder.indexOf(currentTaskId);
-    if (index <= 0) return;
+    if (index <= 0) {
+      return;
+    }
     const previousId = flatOrder[index - 1];
     props.onDeleteTask?.(currentTaskId);
-    if (previousId !== undefined) setPendingFocusId(previousId);
+    if (previousId !== undefined) {
+      setPendingFocusId(previousId);
+    }
   };
 
   return (
@@ -118,9 +136,13 @@ export function TaskList(props: TaskListProps) {
 
 function useFocusPending(pendingId: string | null, cellRefs: Map<string, HTMLInputElement>, onConsumed: () => void) {
   useLayoutEffect(() => {
-    if (pendingId === null) return;
+    if (pendingId === null) {
+      return;
+    }
     const element = cellRefs.get(pendingId);
-    if (element === undefined) return;
+    if (element === undefined) {
+      return;
+    }
     element.focus();
     element.setSelectionRange(element.value.length, element.value.length);
     onConsumed();
@@ -228,7 +250,9 @@ function TaskListCellRow(props: TaskListCellRowProps) {
   };
 
   const commitRename = () => {
-    if (draft === node.name) return;
+    if (draft === node.name) {
+      return;
+    }
     props.onRenameTask?.(node.id, draft);
   };
 
@@ -292,7 +316,9 @@ function TaskListGhostRow(props: TaskListGhostRowProps) {
   const handleKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      if (busy) return;
+      if (busy) {
+        return;
+      }
       setBusy(true);
       try {
         await props.onCreateTask(draft);

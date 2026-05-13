@@ -20,8 +20,12 @@ export class RetryTestSpeechProvider extends SpeechProvider {
   protected async synthesizeOnce(_input: SpeechInput, callId: string): Promise<SpeechResult> {
     this.calls += 1;
     const step = this.script.shift();
-    if (step === undefined) return this.successResult(callId);
-    if ('throw' in step) throw step.throw;
+    if (step === undefined) {
+      return this.successResult(callId);
+    }
+    if ('throw' in step) {
+      throw step.throw;
+    }
     return step;
   }
 

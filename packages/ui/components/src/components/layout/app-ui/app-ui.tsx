@@ -248,17 +248,23 @@ interface UpdateBarsInput {
 
 function resetBars(bars: Array<HTMLSpanElement | null>) {
   for (const bar of bars) {
-    if (bar !== null) bar.style.height = `${IDLE_BAR_HEIGHT_PERCENT}%`;
+    if (bar !== null) {
+      bar.style.height = `${IDLE_BAR_HEIGHT_PERCENT}%`;
+    }
   }
 }
 
 function updateBars(input: UpdateBarsInput) {
   for (let i = 0; i < input.barCount; i += 1) {
     const bucket = input.buckets[i];
-    if (bucket === undefined) continue;
+    if (bucket === undefined) {
+      continue;
+    }
     const heightPercent = calculateBarHeight(input.dataArray, bucket);
     const bar = input.barRefs[i];
-    if (bar !== null) bar.style.height = `${heightPercent}%`;
+    if (bar !== null) {
+      bar.style.height = `${heightPercent}%`;
+    }
   }
 }
 
@@ -270,7 +276,9 @@ function calculateBarHeight(dataArray: Uint8Array, bucket: SpeechBucket): number
   const samples = bucket.end - bucket.start;
   const normalized = samples > 0 ? sum / samples / 255 : 0;
   const boosted = Math.min(1, normalized * bucket.gain);
-  if (boosted <= 0.02) return IDLE_BAR_HEIGHT_PERCENT;
+  if (boosted <= 0.02) {
+    return IDLE_BAR_HEIGHT_PERCENT;
+  }
   return Math.min(
     MAX_HEIGHT_PERCENT,
     MIN_ACTIVE_HEIGHT_PERCENT + boosted * (MAX_HEIGHT_PERCENT - MIN_ACTIVE_HEIGHT_PERCENT),

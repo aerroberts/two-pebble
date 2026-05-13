@@ -97,7 +97,9 @@ function formatByteCount(count: number) {
 }
 
 function readToolMetadata(toolId: string, input: unknown): string | undefined {
-  if (input === null || typeof input !== 'object') return undefined;
+  if (input === null || typeof input !== 'object') {
+    return undefined;
+  }
   const record = input as Record<string, unknown>;
   const normalizedId = toolId.toLowerCase();
   if (normalizedId === 'bash') {
@@ -124,6 +126,8 @@ function readStringField(record: Record<string, unknown>, key: string): string |
 
 function trimPathToLastSegments(path: string, segmentCount: number): string {
   const parts = path.split('/').filter((part) => part.length > 0);
-  if (parts.length <= segmentCount) return path;
+  if (parts.length <= segmentCount) {
+    return path;
+  }
   return `…/${parts.slice(-segmentCount).join('/')}`;
 }

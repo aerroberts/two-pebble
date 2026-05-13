@@ -65,7 +65,9 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
       this.emitStatusChange({ status: 'working' });
     }
     this.enqueueInput(this.toUserMessage(this.cellsToString(input.input)));
-    if (wasIdle) void this.runSession(input);
+    if (wasIdle) {
+      void this.runSession(input);
+    }
   }
 
   private async runSession(input: AgentFrameworkSubmitMessageInput) {
@@ -127,7 +129,9 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
   public override async probe() {
     const alive = !this.iteratorSettled;
     const hint = alive ? 'sdk-iterating' : this.pendingInputs.length > 0 ? 'queued' : 'idle';
-    if (alive) return { alive, lastActivityAt: this.lastSdkMessageAt, hint };
+    if (alive) {
+      return { alive, lastActivityAt: this.lastSdkMessageAt, hint };
+    }
     if (this.pendingInputs.length === 0) {
       return { alive, settled: 'idle' as const, lastActivityAt: this.lastSdkMessageAt, hint };
     }
@@ -145,13 +149,17 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
   private buildQueryOptions(workspacePath: string, systemPrompt: string) {
     const cwd = workspacePath.length > 0 ? workspacePath : this.defaultCwd;
     const options: QueryOptions = {};
-    if (cwd !== undefined) options.cwd = cwd;
+    if (cwd !== undefined) {
+      options.cwd = cwd;
+    }
     options.allowDangerouslySkipPermissions = true;
     options.forwardSubagentText = true;
     options.hooks = this.buildQueryHooks();
     options.pathToClaudeCodeExecutable = this.pathToClaudeCodeExecutable;
     options.permissionMode = 'bypassPermissions';
-    if (this.sessionId !== undefined) options.resume = this.sessionId;
+    if (this.sessionId !== undefined) {
+      options.resume = this.sessionId;
+    }
     if (systemPrompt.length > 0) {
       options.systemPrompt = { type: 'preset', preset: 'claude_code', append: systemPrompt };
     }
@@ -164,13 +172,19 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
   }
 
   private async handleQueryHook(input: HookInput) {
-    if (input.hook_event_name === 'SubagentStart') this.handleSubagentStart(input);
-    if (input.hook_event_name === 'SubagentStop') await this.handleSubagentStop(input);
+    if (input.hook_event_name === 'SubagentStart') {
+      this.handleSubagentStart(input);
+    }
+    if (input.hook_event_name === 'SubagentStop') {
+      await this.handleSubagentStop(input);
+    }
     return { continue: true };
   }
 
   private handleSubagentStart(input: SubagentStartHookInput) {
-    for (const event of this.converter.convertSubagentStart(input)) this.dispatch(event);
+    for (const event of this.converter.convertSubagentStart(input)) {
+      this.dispatch(event);
+    }
   }
 
   private async handleSubagentStop(input: SubagentStopHookInput) {
@@ -182,18 +196,29 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
   }
 
   private dispatch(event: ConvertedClaudeCodeEvent) {
-    if (event.kind === 'agent-trace') this.emitTrace(event.trace.type, event.trace.data);
-    else if (event.kind === 'sub-agent-trace') this.emitSubAgentTrace(event.event);
-    else if (event.kind === 'sub-agent-start') this.emitSubAgentStart(event.event);
-    else if (event.kind === 'sub-agent-stop') this.emitSubAgentStop(event.event);
-    else if (event.kind === 'sub-agent-usage') this.emitSubAgentUsage(event.event);
-    else if (event.kind === 'usage') this.emitUsage(event.usage);
+    if (event.kind === 'agent-trace') {
+      this.emitTrace(event.trace.type, event.trace.data);
+    } else if (event.kind === 'sub-agent-trace') {
+      this.emitSubAgentTrace(event.event);
+    } else if (event.kind === 'sub-agent-start') {
+      this.emitSubAgentStart(event.event);
+    } else if (event.kind === 'sub-agent-stop') {
+      this.emitSubAgentStop(event.event);
+    } else if (event.kind === 'sub-agent-usage') {
+      this.emitSubAgentUsage(event.event);
+    } else if (event.kind === 'usage') {
+      this.emitUsage(event.usage);
+    }
   }
 
   private captureSessionId(message: SDKMessage) {
     const incoming = message.session_id;
-    if (incoming === undefined || incoming.length === 0) return;
-    if (incoming === this.sessionId) return;
+    if (incoming === undefined || incoming.length === 0) {
+      return;
+    }
+    if (incoming === this.sessionId) {
+      return;
+    }
     this.sessionId = incoming;
     this.emitMetadataUpdate({ sessionId: incoming });
   }

@@ -59,7 +59,6 @@ export class AgentRegistryService {
     this.multicastBridge = context.multicastBridge;
     this.taskBoards = context.taskBoards;
   }
-
   /**
    * Resolves the lazily-constructed sub-agent coordinator. Bound to the
    * daemon-owned multicast bridge so coordinator broadcasts fan out to
@@ -89,12 +88,7 @@ export class AgentRegistryService {
   }
 
   /**
-   * Boot-time entry point. Used to flip every running agent back to idle
-   * before the reconciler took over; now a no-op kept for call-site
-   * compatibility. The LivenessReconciler drives rehydration directly
-   * from the DB intent on its tick, so durable intent (running) is
-   * preserved across daemon restarts and the reconciler is responsible
-   * for getting reality to match.
+   * Boot-time no-op kept for call-site compatibility.
    */
   public async hydrate(): Promise<void> {
     return;
@@ -116,15 +110,21 @@ export class AgentRegistryService {
    */
   public async rehydrate(agentId: string): Promise<Agent> {
     const cached = this.activeAgents.get(agentId);
-    if (cached !== undefined) return cached;
+    if (cached !== undefined) {
+      return cached;
+    }
     const inflight = this.pendingRehydrations.get(agentId);
-    if (inflight !== undefined) return inflight;
+    if (inflight !== undefined) {
+      return inflight;
+    }
     const promise = this.buildRehydratedAgent(agentId);
     this.pendingRehydrations.set(agentId, promise);
     try {
       return await promise;
     } finally {
-      if (this.pendingRehydrations.get(agentId) === promise) this.pendingRehydrations.delete(agentId);
+      if (this.pendingRehydrations.get(agentId) === promise) {
+        this.pendingRehydrations.delete(agentId);
+      }
     }
   }
 
@@ -200,21 +200,15 @@ export class AgentRegistryService {
       });
     }
   }
-
   /**
    * Returns ids of every agent the daemon is currently running.
-   * Used by the status operation so tooling can route tool calls
-   * to the daemon that actually owns the agent.
    */
   public listActiveAgentIds(): string[] {
     return Array.from(this.activeAgents.keys());
   }
 
   /**
-   * Returns a snapshot of every currently-active runtime agent paired with
-   * its id. Used by the liveness reconciler to call probe on each agent
-   * once per tick. The returned array is a snapshot — mutating it has no
-   * effect on the registry's internal map.
+   * Returns a snapshot of every currently-active runtime agent.
    */
   public snapshotActiveAgents(): ActiveAgentSnapshot[] {
     const snapshot: ActiveAgentSnapshot[] = [];
@@ -231,11 +225,17 @@ export class AgentRegistryService {
    */
   public async wakeIfSignalsReady(agentId: string): Promise<void> {
     const open = await this.datastore.agent.signals.listOpenForAgent({ agentId });
-    if (open.items.length > 0) return;
+    if (open.items.length > 0) {
+      return;
+    }
     const received = await this.datastore.agent.signals.listReceivedForAgent({ agentId });
-    if (received.items.length === 0) return;
+    if (received.items.length === 0) {
+      return;
+    }
     const agent = await this.rehydrate(agentId);
-    if (agent instanceof PebbleAgent) agent.resumeFromSignal();
+    if (agent instanceof PebbleAgent) {
+      agent.resumeFromSignal();
+    }
   }
 
   /**
@@ -342,7 +342,9 @@ export class AgentRegistryService {
         specs: parseCapabilitySpecs(input.registry.capabilities, this.logger),
       });
     }
-    if (input.parentAgentId !== undefined) return;
+    if (input.parentAgentId !== undefined) {
+      return;
+    }
     input.agent.sendMessage([Cell.text(input.message)]);
   }
 
@@ -369,7 +371,6 @@ export class AgentRegistryService {
       recordTrace: (input) => this.recordTrace(input),
     };
   }
-
   private async persistAgentStatus(input: PersistAgentStatusInput): Promise<void> {
     await persistAgentStatus({
       ...input,
@@ -379,19 +380,15 @@ export class AgentRegistryService {
       taskBoards: this.taskBoards,
     });
   }
-
   private async recordTrace(input: RecordTraceInput) {
     await recordAgentTrace({ ...input, datastore: this.datastore, pending: this.subAgentCreatePromises });
   }
-
   private async recordModelCall(input: RecordModelCallInput) {
     await recordModelCall(this.datastore, input);
   }
-
   private async recordConversationCell(input: RecordConversationCellInput) {
     await recordConversationCell(this.datastore, input);
   }
-
   private async recordPriceLineItem(input: RecordPriceLineItemInput) {
     await recordPriceLineItem(this.datastore, input);
   }

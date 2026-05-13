@@ -10,10 +10,14 @@ export interface ModalProps {
 }
 
 export function Modal(props: ModalProps) {
-  if (!props.open) return null;
+  if (!props.open) {
+    return null;
+  }
 
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') props.onClose?.();
+    if (event.key === 'Escape') {
+      props.onClose?.();
+    }
   };
 
   return (

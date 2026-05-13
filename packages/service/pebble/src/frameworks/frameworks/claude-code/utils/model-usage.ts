@@ -9,7 +9,9 @@ import type { ModelUsage as PebbleModelUsage } from '../../../../pricing';
 export function normalizeClaudeCodeModelId(modelId: string): string {
   const ansiStylePattern = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g');
   const plain = modelId.replace(ansiStylePattern, '').replace(/\[[0-9;]*m\]$/g, '');
-  if (plain.startsWith('anthropic/')) return plain.substring('anthropic/'.length);
+  if (plain.startsWith('anthropic/')) {
+    return plain.substring('anthropic/'.length);
+  }
   return plain;
 }
 

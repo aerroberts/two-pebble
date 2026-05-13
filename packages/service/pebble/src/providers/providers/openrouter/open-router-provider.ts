@@ -107,7 +107,9 @@ export class OpenRouterProvider extends ModelProvider {
       messages: thread.serialize().flatMap((turn) => this.buildMessages(turn)),
       stop: [END_TURN_STOP_TOKEN],
     };
-    if (tools.length > 0) request.tools = tools;
+    if (tools.length > 0) {
+      request.tools = tools;
+    }
     return request;
   }
 
@@ -161,7 +163,9 @@ export class OpenRouterProvider extends ModelProvider {
         continue;
       }
       const rendered = this.renderTextCell(cell);
-      if (rendered.length === 0) continue;
+      if (rendered.length === 0) {
+        continue;
+      }
       text = text.length === 0 ? rendered : `${text}\n\n${rendered}`;
     }
     const message: OpenRouterProviderMessage = {
@@ -176,7 +180,9 @@ export class OpenRouterProvider extends ModelProvider {
     const messages: OpenRouterProviderMessage[] = [];
     let userTextBuffer = '';
     const flushUserText = () => {
-      if (userTextBuffer.length === 0) return;
+      if (userTextBuffer.length === 0) {
+        return;
+      }
       messages.push({ role: 'user', content: userTextBuffer });
       userTextBuffer = '';
     };
@@ -195,7 +201,9 @@ export class OpenRouterProvider extends ModelProvider {
         continue;
       }
       const rendered = this.renderTextCell(cell);
-      if (rendered.length === 0) continue;
+      if (rendered.length === 0) {
+        continue;
+      }
       userTextBuffer = userTextBuffer.length === 0 ? rendered : `${userTextBuffer}\n\n${rendered}`;
     }
     flushUserText();

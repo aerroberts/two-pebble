@@ -15,7 +15,9 @@ export class Rule extends Guardrail<TestCaseStructureRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (input.file.endsWith('.test.ts')) this.checkFile(input);
+      if (input.file.endsWith('.test.ts')) {
+        this.checkFile(input);
+      }
     });
   }
 
@@ -32,9 +34,12 @@ export class Rule extends Guardrail<TestCaseStructureRuleOptions> {
   }
 
   private checkTest(sourceText: string, node: ts.CallExpression, reporter: Reporter) {
-    if (this.describeDepth(node) !== (this.options.requiredDescribeDepth ?? 1))
+    if (this.describeDepth(node) !== (this.options.requiredDescribeDepth ?? 1)) {
       this.fail(reporter, 'test-outside-describe');
-    if (!this.hasAllowedTestName(node)) this.fail(reporter, 'test-name');
+    }
+    if (!this.hasAllowedTestName(node)) {
+      this.fail(reporter, 'test-name');
+    }
 
     const callback = this.getCallback(node);
     if (
@@ -51,9 +56,12 @@ export class Rule extends Guardrail<TestCaseStructureRuleOptions> {
 
   private firstStringArgStartsWith(node: ts.CallExpression, prefix: string) {
     const firstArg = node.arguments[0];
-    if (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg))
+    if (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg)) {
       return firstArg.text.startsWith(prefix);
-    if (ts.isTemplateExpression(firstArg)) return firstArg.head.text.startsWith(prefix);
+    }
+    if (ts.isTemplateExpression(firstArg)) {
+      return firstArg.head.text.startsWith(prefix);
+    }
     return false;
   }
 
@@ -66,7 +74,9 @@ export class Rule extends Guardrail<TestCaseStructureRuleOptions> {
     let current = node.parent;
 
     while (current !== undefined) {
-      if (ts.isCallExpression(current) && this.getDirectCallName(current) === 'describe') depth++;
+      if (ts.isCallExpression(current) && this.getDirectCallName(current) === 'describe') {
+        depth++;
+      }
       current = current.parent;
     }
 

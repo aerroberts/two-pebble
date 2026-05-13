@@ -14,7 +14,9 @@ const daemon = new TwoPebbleDaemon({
 });
 
 await daemon.launch();
-if (process.env.TWO_PEBBLE_OPEN_UI === '1') Bun.spawn(['open', `http://${daemon.hostname}:${daemon.port}`]);
+if (process.env.TWO_PEBBLE_OPEN_UI === '1') {
+  Bun.spawn(['open', `http://${daemon.hostname}:${daemon.port}`]);
+}
 
 async function shutdown(): Promise<void> {
   await daemon.close();

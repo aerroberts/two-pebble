@@ -4,13 +4,17 @@ type NullableDate = Date | null;
 type NullableDuration = number | null | undefined;
 
 export function toDate(value: DurationInputDate): NullableDate {
-  if (value === null || value === undefined) return null;
+  if (value === null || value === undefined) {
+    return null;
+  }
   const d = value instanceof Date ? value : new Date(value);
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
 export function formatDuration(milliseconds: number): string {
-  if (!Number.isFinite(milliseconds) || milliseconds < 0) return '-';
+  if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+    return '-';
+  }
 
   const totalMs = Math.floor(milliseconds);
   const totalSeconds = Math.floor(totalMs / 1000);
@@ -23,22 +27,36 @@ export function formatDuration(milliseconds: number): string {
   const days = totalDays % 7;
   const weeks = Math.floor(totalDays / 7);
 
-  if (weeks) return `${weeks} week${weeks === 1 ? '' : 's'}`;
-  if (days) return `${days} day${days === 1 ? '' : 's'}`;
-  if (hours) return `${hours} hour${hours === 1 ? '' : 's'}`;
-  if (minutes) return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  if (weeks) {
+    return `${weeks} week${weeks === 1 ? '' : 's'}`;
+  }
+  if (days) {
+    return `${days} day${days === 1 ? '' : 's'}`;
+  }
+  if (hours) {
+    return `${hours} hour${hours === 1 ? '' : 's'}`;
+  }
+  if (minutes) {
+    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  }
 
-  if (totalSeconds >= 1) return `${seconds} second${seconds === 1 ? '' : 's'}`;
+  if (totalSeconds >= 1) {
+    return `${seconds} second${seconds === 1 ? '' : 's'}`;
+  }
   return 'less than 1 second';
 }
 
 // Ultra-compact duration for inline/dense UIs: "120ms", "42s", "2m", "3h", "4d", "5w". Shows the
 // largest whole unit only; nothing under a millisecond.
 export function formatDurationShort(milliseconds: number): string {
-  if (!Number.isFinite(milliseconds) || milliseconds < 0) return '-';
+  if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+    return '-';
+  }
 
   const totalMs = Math.floor(milliseconds);
-  if (totalMs < 1000) return `${totalMs}ms`;
+  if (totalMs < 1000) {
+    return `${totalMs}ms`;
+  }
 
   const totalSeconds = Math.floor(totalMs / 1000);
   const totalMinutes = Math.floor(totalSeconds / 60);
@@ -46,15 +64,25 @@ export function formatDurationShort(milliseconds: number): string {
   const totalDays = Math.floor(totalHours / 24);
   const weeks = Math.floor(totalDays / 7);
 
-  if (weeks) return `${weeks}w`;
-  if (totalDays) return `${totalDays}d`;
-  if (totalHours) return `${totalHours}h`;
-  if (totalMinutes) return `${totalMinutes}m`;
+  if (weeks) {
+    return `${weeks}w`;
+  }
+  if (totalDays) {
+    return `${totalDays}d`;
+  }
+  if (totalHours) {
+    return `${totalHours}h`;
+  }
+  if (totalMinutes) {
+    return `${totalMinutes}m`;
+  }
   return `${totalSeconds}s`;
 }
 
 export function formatAbsoluteDuration(milliseconds: number): string {
-  if (!Number.isFinite(milliseconds) || milliseconds < 0) return '-';
+  if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+    return '-';
+  }
 
   const totalMs = Math.floor(milliseconds);
   const ms = totalMs % 1000;
@@ -97,8 +125,12 @@ export function computeDuration(
     return { computedMs: duration, startDate: startD, endDate: endD };
   }
 
-  if (!startD) return { computedMs: null, startDate: null, endDate: null };
-  if (!endD) return { computedMs: null, startDate: startD, endDate: null };
+  if (!startD) {
+    return { computedMs: null, startDate: null, endDate: null };
+  }
+  if (!endD) {
+    return { computedMs: null, startDate: startD, endDate: null };
+  }
 
   return {
     computedMs: Math.max(0, endD.getTime() - startD.getTime()),

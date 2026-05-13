@@ -32,15 +32,21 @@ export function handler(ctx: DaemonHandlerContext) {
     });
     ctx.multicastBridge.emit('taskEventRecorded', delegationEvent);
     const refreshed = await ctx.taskBoards.listTasks(updated.boardId);
-    for (const entry of refreshed) ctx.multicastBridge.emit('taskUpdated', entry);
+    for (const entry of refreshed) {
+      ctx.multicastBridge.emit('taskUpdated', entry);
+    }
     const { events: statusEvents } = await ctx.taskBoards.setTaskStatus(updated.boardId, {
       id: payload.taskId,
       status: 'working',
       reason: `manual: delegated to ${registry.name}`,
     });
-    for (const event of statusEvents) ctx.multicastBridge.emit('taskEventRecorded', event);
+    for (const event of statusEvents) {
+      ctx.multicastBridge.emit('taskEventRecorded', event);
+    }
     const afterStatus = await ctx.taskBoards.listTasks(updated.boardId);
-    for (const entry of afterStatus) ctx.multicastBridge.emit('taskUpdated', entry);
+    for (const entry of afterStatus) {
+      ctx.multicastBridge.emit('taskUpdated', entry);
+    }
     return { agentId: launched.id };
   };
 }
@@ -58,13 +64,17 @@ async function findTask(ctx: DaemonHandlerContext, taskId: string): Promise<Mini
   for (const board of boards.items) {
     const tasks = await ctx.datastore.taskBoards.tasks.list({ boardId: board.id });
     const found = tasks.items.find((task) => task.id === taskId);
-    if (found !== undefined) return found as MinimalTaskRow;
+    if (found !== undefined) {
+      return found as MinimalTaskRow;
+    }
   }
   throw new Error(`task "${taskId}" not found`);
 }
 
 function buildDelegateMessage(name: string, description: string): string {
   const lines = [`Please do this task: ${name}`];
-  if (description.trim().length > 0) lines.push('', description);
+  if (description.trim().length > 0) {
+    lines.push('', description);
+  }
   return lines.join('\n');
 }

@@ -23,12 +23,18 @@ export function parseCapabilitiesJson(serialized: string): CapabilitySpec[] {
   } catch {
     return [];
   }
-  if (!Array.isArray(parsed)) return [];
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
   const result: CapabilitySpec[] = [];
   for (const entry of parsed) {
-    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) continue;
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
+      continue;
+    }
     const record = entry as CapabilitySpecLike;
-    if (typeof record.id !== 'string') continue;
+    if (typeof record.id !== 'string') {
+      continue;
+    }
     result.push({ id: record.id, config: record.config ?? null });
   }
   return result;
@@ -52,7 +58,9 @@ export function splitCapabilities(specs: CapabilitySpec[]): SplitCapabilities {
  * persisting an empty `agents: []` entry — keeps the JSON column tidy.
  */
 export function mergeCapabilities(others: CapabilitySpec[], references: SubAgentReferenceInput[]): CapabilitySpec[] {
-  if (references.length === 0) return others;
+  if (references.length === 0) {
+    return others;
+  }
   const config: SubAgentCapabilityConfig = { agents: references };
   return [...others, { id: 'sub-agent', config }];
 }
@@ -63,15 +71,25 @@ interface SplitCapabilities {
 }
 
 function readSubAgentReferences(config: CapabilityConfigValue | undefined): SubAgentReferenceInput[] {
-  if (config === undefined || config === null || typeof config !== 'object' || Array.isArray(config)) return [];
+  if (config === undefined || config === null || typeof config !== 'object' || Array.isArray(config)) {
+    return [];
+  }
   const agents = (config as CapabilityConfigRecord).agents;
-  if (!Array.isArray(agents)) return [];
+  if (!Array.isArray(agents)) {
+    return [];
+  }
   const result: SubAgentReferenceInput[] = [];
   for (const entry of agents) {
-    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) continue;
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
+      continue;
+    }
     const record = entry as Partial<SubAgentReferenceInput>;
-    if (typeof record.name !== 'string') continue;
-    if (typeof record.agentRegistryId !== 'string') continue;
+    if (typeof record.name !== 'string') {
+      continue;
+    }
+    if (typeof record.agentRegistryId !== 'string') {
+      continue;
+    }
     result.push({
       agentRegistryId: record.agentRegistryId,
       description: typeof record.description === 'string' ? record.description : '',

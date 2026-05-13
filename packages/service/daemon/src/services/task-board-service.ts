@@ -50,7 +50,9 @@ export class TaskBoardService {
    */
   public async hydrate(): Promise<void> {
     const { items: boards } = await this.datastore.taskBoards.list({});
-    for (const board of boards) await this.hydrateBoard(board.id);
+    for (const board of boards) {
+      await this.hydrateBoard(board.id);
+    }
     this.logger.info('task boards hydrated', { count: boards.length });
   }
 
@@ -183,7 +185,9 @@ export class TaskBoardService {
     if (poolId !== null) {
       const engine = this.requireEngine(input.boardId);
       const hasPool = engine.listPools().some((pool) => pool.id === poolId);
-      if (!hasPool) throw new Error(`task pool "${poolId}" not found on board "${input.boardId}"`);
+      if (!hasPool) {
+        throw new Error(`task pool "${poolId}" not found on board "${input.boardId}"`);
+      }
     }
     const record = await this.datastore.taskBoards.tasks.create({
       boardId: input.boardId,
@@ -324,7 +328,9 @@ export class TaskBoardService {
       const { items: tasks } = await this.datastore.taskBoards.tasks.list({ boardId: board.id });
       const owned = tasks.filter((task) => task.ownerId === input.agentId);
       for (const task of owned) {
-        if (task.status === 'success' || task.status === 'failure') continue;
+        if (task.status === 'success' || task.status === 'failure') {
+          continue;
+        }
         try {
           const outcome = await this.setTaskStatus(board.id, { id: task.id, status: targetStatus, reason });
           tasksOut.push(outcome.result);
@@ -383,7 +389,9 @@ export class TaskBoardService {
 
   private requireEngine(boardId: string): TaskBoard {
     const engine = this.engines.get(boardId);
-    if (engine === undefined) throw new Error(`task board "${boardId}" not loaded`);
+    if (engine === undefined) {
+      throw new Error(`task board "${boardId}" not loaded`);
+    }
     return engine;
   }
 }

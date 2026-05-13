@@ -63,7 +63,9 @@ export function CommandPalette(props: CommandPaletteProps) {
     }
   };
 
-  if (!props.open) return null;
+  if (!props.open) {
+    return null;
+  }
 
   return (
     <div

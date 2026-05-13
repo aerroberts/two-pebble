@@ -7,9 +7,15 @@ import type { InferenceProfileKind, IntegrationProvider } from '@two-pebble/real
  * providers/kinds we don't curate (Ollama, OpenRouter).
  */
 export function getKnownModelIds(provider: IntegrationProvider, kind: InferenceProfileKind): string[] {
-  if (provider === 'anthropic') return ANTHROPIC_KNOWN_MODELS[kind] ?? [];
-  if (provider === 'openai') return OPENAI_KNOWN_MODELS[kind] ?? [];
-  if (provider === 'openrouter') return OPENROUTER_KNOWN_MODELS[kind] ?? [];
+  if (provider === 'anthropic') {
+    return ANTHROPIC_KNOWN_MODELS[kind] ?? [];
+  }
+  if (provider === 'openai') {
+    return OPENAI_KNOWN_MODELS[kind] ?? [];
+  }
+  if (provider === 'openrouter') {
+    return OPENROUTER_KNOWN_MODELS[kind] ?? [];
+  }
   return [];
 }
 

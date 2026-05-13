@@ -29,7 +29,9 @@ export function SubAgentTrace(props: TraceComponentProps<'sub-agent'>) {
 }
 
 function renderOpenAction(props: TraceComponentProps<'sub-agent'>) {
-  if (props.onAgentClick === undefined) return undefined;
+  if (props.onAgentClick === undefined) {
+    return undefined;
+  }
 
   return (
     <button

@@ -31,7 +31,9 @@ interface RehydrateAttachInput {
  * the failing capability rather than crashing the daemon.
  */
 export function attachFreshPebbleCapabilities(input: FreshAttachInput): void {
-  if (!(input.agent instanceof PebbleAgent)) return;
+  if (!(input.agent instanceof PebbleAgent)) {
+    return;
+  }
   for (const spec of input.capabilities) {
     try {
       const capability = buildCapability(spec.id);
@@ -49,7 +51,9 @@ export function attachFreshPebbleCapabilities(input: FreshAttachInput): void {
  * not run; restored slots fully describe the durable state.
  */
 export function attachRehydratedPebbleCapabilities(input: RehydrateAttachInput): void {
-  if (!(input.agent instanceof PebbleAgent)) return;
+  if (!(input.agent instanceof PebbleAgent)) {
+    return;
+  }
   for (const spec of input.capabilities) {
     try {
       const capability = buildCapability(spec.id);
@@ -76,12 +80,18 @@ export function parseCapabilitySpecs(serialized: string, logger: Logger): Capabi
     logger.warn('capability list parse failed', { error: message });
     return [];
   }
-  if (!Array.isArray(parsed)) return [];
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
   const specs: CapabilitySpec[] = [];
   for (const entry of parsed) {
-    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) continue;
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
+      continue;
+    }
     const record = entry as Record<string, PebbleJsonValue | undefined>;
-    if (typeof record.id !== 'string') continue;
+    if (typeof record.id !== 'string') {
+      continue;
+    }
     specs.push({ id: record.id, config: record.config ?? {} });
   }
   return specs;

@@ -7,7 +7,9 @@ export function summarizeToolInput(toolId: string, input: object): string | unde
     case 'Bash':
     case 'BashOutput': {
       const description = readString(fields.description);
-      if (description !== undefined) return description;
+      if (description !== undefined) {
+        return description;
+      }
       return clip(readString(fields.command));
     }
     case 'Read':
@@ -18,7 +20,9 @@ export function summarizeToolInput(toolId: string, input: object): string | unde
     case 'Grep': {
       const pattern = readString(fields.pattern);
       const path = readString(fields.path);
-      if (pattern === undefined) return undefined;
+      if (pattern === undefined) {
+        return undefined;
+      }
       return path === undefined ? pattern : `${pattern} in ${path}`;
     }
     case 'Glob':
@@ -28,7 +32,9 @@ export function summarizeToolInput(toolId: string, input: object): string | unde
       return readString(fields.description);
     case 'TodoWrite': {
       const todos = fields.todos;
-      if (!Array.isArray(todos)) return undefined;
+      if (!Array.isArray(todos)) {
+        return undefined;
+      }
       return `${todos.length} todo${todos.length === 1 ? '' : 's'}`;
     }
     case 'WebFetch':
@@ -44,14 +50,22 @@ export function summarizeToolInput(toolId: string, input: object): string | unde
 }
 
 function readString(value: unknown): string | undefined {
-  if (typeof value !== 'string') return undefined;
+  if (typeof value !== 'string') {
+    return undefined;
+  }
   const trimmed = value.trim();
-  if (trimmed.length === 0) return undefined;
+  if (trimmed.length === 0) {
+    return undefined;
+  }
   return trimmed;
 }
 
 function clip(value: string | undefined): string | undefined {
-  if (value === undefined) return undefined;
-  if (value.length <= MAX_SUMMARY_LENGTH) return value;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value.length <= MAX_SUMMARY_LENGTH) {
+    return value;
+  }
   return `${value.slice(0, MAX_SUMMARY_LENGTH - 1)}…`;
 }

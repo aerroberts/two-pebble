@@ -25,8 +25,12 @@ export class RetryTestProvider extends ModelProvider {
   protected async invokeProvider(_thread: ConversationThread, _modelCallId: string) {
     this.calls += 1;
     const step = this.script.shift();
-    if (step === undefined) return this.successResult();
-    if ('throw' in step) throw step.throw;
+    if (step === undefined) {
+      return this.successResult();
+    }
+    if ('throw' in step) {
+      throw step.throw;
+    }
     return step;
   }
 

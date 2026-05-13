@@ -169,7 +169,9 @@ export class PebbleAgent extends Agent {
    */
   public async removeTool(tool: AgentTool, reason: string) {
     const toolIndex = this.agentTools.findIndex((registration) => registration.tool === tool);
-    if (toolIndex >= 0) this.agentTools.splice(toolIndex, 1);
+    if (toolIndex >= 0) {
+      this.agentTools.splice(toolIndex, 1);
+    }
     this.thread.pushUser(`Tool Deregistration: ${tool.id}`, ...Event.toolDeregistration({ name: tool.id, reason }));
   }
 
@@ -180,7 +182,9 @@ export class PebbleAgent extends Agent {
     const status = this.getStatus();
 
     // if we are already running, do nothing, we will get read the message again in the next loop
-    if (status === 'running') return;
+    if (status === 'running') {
+      return;
+    }
 
     // if we are idle, we can start the agent so it pulls in the message
     if (status === 'idle' || status === 'waiting') {
@@ -197,7 +201,9 @@ export class PebbleAgent extends Agent {
     try {
       this.changeStatus('running', 'agent running');
       const waitingForSignal = await this.runLoop();
-      if (waitingForSignal) return;
+      if (waitingForSignal) {
+        return;
+      }
       this.emit('trace', {
         type: 'agent-success',
         data: { content: [] },
@@ -223,7 +229,9 @@ export class PebbleAgent extends Agent {
     while (true) {
       // First we process any durable signals that might have woken the agent
       const waitingForSignal = await this.pullSignals();
-      if (waitingForSignal) return true;
+      if (waitingForSignal) {
+        return true;
+      }
 
       // Then we trigger the initial step
       await this.hookOnAgenticStepStart();
@@ -272,7 +280,9 @@ export class PebbleAgent extends Agent {
 
   private async pullSignals(): Promise<boolean> {
     const runner = getCapabilityRunners(this).signal;
-    if (runner === undefined) return false;
+    if (runner === undefined) {
+      return false;
+    }
 
     const signals = await runner.snapshot(this.agentId);
     if (signals.openAwaited.length > 0) {
@@ -337,7 +347,9 @@ export class PebbleAgent extends Agent {
       throw new Error(errorMessage);
     }
 
-    for (const output of result.output) this.recordProviderOutput(output);
+    for (const output of result.output) {
+      this.recordProviderOutput(output);
+    }
 
     return {
       threadCellPointer: result.threadCellPointer,
@@ -361,14 +373,24 @@ export class PebbleAgent extends Agent {
       });
     }
     this.emit('modelCall', result);
-    for (const lineItem of result.prices) this.emit('lineItem', lineItem);
+    for (const lineItem of result.prices) {
+      this.emit('lineItem', lineItem);
+    }
   }
 
   private recordProviderOutput(output: ProviderOutputBlock): void {
-    if (output.type === 'thinking') this.recordThinkingOutput(output.text);
-    if (output.type === 'text') this.recordTextOutput(output.text);
-    if (output.type === 'image') this.recordImageOutput(output.base64Image);
-    if (output.type === 'tool') this.recordToolOutput(output);
+    if (output.type === 'thinking') {
+      this.recordThinkingOutput(output.text);
+    }
+    if (output.type === 'text') {
+      this.recordTextOutput(output.text);
+    }
+    if (output.type === 'image') {
+      this.recordImageOutput(output.base64Image);
+    }
+    if (output.type === 'tool') {
+      this.recordToolOutput(output);
+    }
   }
 
   private recordThinkingOutput(text: string): void {
@@ -396,7 +418,9 @@ export class PebbleAgent extends Agent {
   }
 
   private recordToolOutput(output: ProviderOutputBlock): void {
-    if (output.type !== 'tool') return;
+    if (output.type !== 'tool') {
+      return;
+    }
     this.thread.pushAssistant(
       'Tool Call Requested',
       Cell.toolUse({
@@ -455,7 +479,9 @@ export class PebbleAgent extends Agent {
       // Call tool handler itself
       const result = await tool.invoke(input.input);
 
-      if (tool.type !== 'cli') this.recordToolResult(input, startTime, result);
+      if (tool.type !== 'cli') {
+        this.recordToolResult(input, startTime, result);
+      }
       this.emitToolResultTrace(input, result);
 
       // If this is a cli tool, we actually have no context to write to the thread, so we just return the result
@@ -615,7 +641,9 @@ export class PebbleAgent extends Agent {
   }
 
   private toolInputForTrace(input: ToolInput): ToolInputRecord {
-    if (input !== null && typeof input === 'object' && !Array.isArray(input)) return input;
+    if (input !== null && typeof input === 'object' && !Array.isArray(input)) {
+      return input;
+    }
     return { value: input };
   }
 

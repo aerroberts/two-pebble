@@ -47,7 +47,9 @@ function clampToCorner(
   const dx = source.x - corner.x;
   const dy = source.y - corner.y;
   const distance = Math.hypot(dx, dy);
-  if (distance === 0) return corner;
+  if (distance === 0) {
+    return corner;
+  }
   const offset = Math.min(radius, distance / 2);
   return { x: corner.x + (dx / distance) * offset, y: corner.y + (dy / distance) * offset };
 }

@@ -36,9 +36,15 @@ export function registerCallToolCommand(program: Command) {
 }
 
 async function resolveDaemonUrl(options: CallToolOptions): Promise<string> {
-  if (options.url !== undefined) return options.url;
-  if (process.env.TWO_PEBBLE_DAEMON_URL !== undefined) return process.env.TWO_PEBBLE_DAEMON_URL;
-  if (options.port !== undefined) return daemonUrlForPort(parsePort(options.port));
+  if (options.url !== undefined) {
+    return options.url;
+  }
+  if (process.env.TWO_PEBBLE_DAEMON_URL !== undefined) {
+    return process.env.TWO_PEBBLE_DAEMON_URL;
+  }
+  if (options.port !== undefined) {
+    return daemonUrlForPort(parsePort(options.port));
+  }
   return scanForAgent(options.agentId);
 }
 

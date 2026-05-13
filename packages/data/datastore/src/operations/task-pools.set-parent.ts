@@ -14,7 +14,9 @@ export function taskPoolsSetParentOperation(ctx: DatastoreContext) {
       .where(eq(ctx.schema.taskPoolsTable.id, input.id))
       .returning()
       .get();
-    if (row === undefined) throw new Error(`task pool "${input.id}" not found`);
+    if (row === undefined) {
+      throw new Error(`task pool "${input.id}" not found`);
+    }
     return row as TaskPoolRecord;
   };
 }

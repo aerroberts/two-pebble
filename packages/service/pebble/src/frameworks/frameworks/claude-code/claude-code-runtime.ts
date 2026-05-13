@@ -44,7 +44,9 @@ const TRANSCRIPT_READ_DELAY_MS = 50;
  * provider key. The SDK's `firstParty` value is Anthropic in disguise.
  */
 export function mapApiProvider(apiProvider: ApiProvider): string {
-  if (apiProvider === undefined || apiProvider === 'firstParty') return 'anthropic';
+  if (apiProvider === undefined || apiProvider === 'firstParty') {
+    return 'anthropic';
+  }
   return apiProvider;
 }
 
@@ -56,8 +58,12 @@ export function mapApiProvider(apiProvider: ApiProvider): string {
 export async function readTranscriptWithRetry(path: string): Promise<string | undefined> {
   for (let attempt = 1; attempt <= TRANSCRIPT_READ_ATTEMPTS; attempt += 1) {
     const transcript = await readTranscriptFile(path);
-    if (transcript !== undefined && isTranscriptComplete(transcript)) return transcript;
-    if (attempt === TRANSCRIPT_READ_ATTEMPTS) return transcript;
+    if (transcript !== undefined && isTranscriptComplete(transcript)) {
+      return transcript;
+    }
+    if (attempt === TRANSCRIPT_READ_ATTEMPTS) {
+      return transcript;
+    }
     await delay(TRANSCRIPT_READ_DELAY_MS);
   }
   return undefined;

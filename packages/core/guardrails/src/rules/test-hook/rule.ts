@@ -15,14 +15,17 @@ export class Rule extends Guardrail<TestHookRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (input.file.endsWith('.test.ts')) this.checkFile(input);
+      if (input.file.endsWith('.test.ts')) {
+        this.checkFile(input);
+      }
     });
   }
 
   private checkFile(input: TestRuleInput) {
     const visit = (node: ts.Node) => {
-      if (ts.isCallExpression(node) && this.bannedHookNames().includes(this.getCallName(node)))
+      if (ts.isCallExpression(node) && this.bannedHookNames().includes(this.getCallName(node))) {
         this.fail(input.reporter);
+      }
       ts.forEachChild(node, visit);
     };
 
@@ -30,8 +33,12 @@ export class Rule extends Guardrail<TestHookRuleOptions> {
   }
 
   private getCallName(node: ts.CallExpression) {
-    if (ts.isIdentifier(node.expression)) return node.expression.text;
-    if (ts.isPropertyAccessExpression(node.expression)) return node.expression.name.text;
+    if (ts.isIdentifier(node.expression)) {
+      return node.expression.text;
+    }
+    if (ts.isPropertyAccessExpression(node.expression)) {
+      return node.expression.name.text;
+    }
     return '';
   }
 

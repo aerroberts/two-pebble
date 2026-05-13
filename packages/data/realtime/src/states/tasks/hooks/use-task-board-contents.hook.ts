@@ -20,7 +20,9 @@ export function useTaskBoardContents(input: UseTaskBoardContentsInput) {
   const allDeps = useRealtimeStore((state) => state.taskDependencies);
 
   useEffect(() => {
-    if (input.boardId.length === 0) return;
+    if (input.boardId.length === 0) {
+      return;
+    }
     void datastore.taskPools.list({ boardId: input.boardId }).catch(() => undefined);
     void datastore.tasks.list({ boardId: input.boardId }).catch(() => undefined);
     void datastore.taskDependencies.list({ boardId: input.boardId }).catch(() => undefined);

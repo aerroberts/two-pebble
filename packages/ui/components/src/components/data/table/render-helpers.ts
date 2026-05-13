@@ -11,8 +11,12 @@ interface BodyRowInput<TRow> {
 }
 
 function getAlignmentClassName(alignment: TableColumnAlignment = 'left') {
-  if (alignment === 'center') return 'text-center';
-  if (alignment === 'right') return 'text-right';
+  if (alignment === 'center') {
+    return 'text-center';
+  }
+  if (alignment === 'right') {
+    return 'text-right';
+  }
   return 'text-left';
 }
 

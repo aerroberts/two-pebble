@@ -24,7 +24,9 @@ export function MetricsExplorerPage() {
         }
       })
       .catch(() => {
-        if (active) setStatus('error');
+        if (active) {
+          setStatus('error');
+        }
       });
     return () => {
       active = false;

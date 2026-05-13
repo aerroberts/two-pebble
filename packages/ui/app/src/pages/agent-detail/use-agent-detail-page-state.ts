@@ -78,10 +78,14 @@ export function useAgentDetailPageState() {
     [agentId, modelCallSummaries, priceLineItemState.lineItems],
   );
   const traceTimeRange = useMemo(() => {
-    if (agentTraces.length === 0) return undefined;
+    if (agentTraces.length === 0) {
+      return undefined;
+    }
     const firstTrace = agentTraces[0];
     const lastTrace = agentTraces[agentTraces.length - 1];
-    if (firstTrace === undefined || lastTrace === undefined) return undefined;
+    if (firstTrace === undefined || lastTrace === undefined) {
+      return undefined;
+    }
     return { startTime: firstTrace.createdAt, endTime: lastTrace.createdAt };
   }, [agentTraces]);
   const loadingPriceLineItems = (priceLineItemState.agents.getItem(agentId)?.status ?? 'loading') === 'loading';
@@ -91,8 +95,11 @@ export function useAgentDetailPageState() {
     setSearchParams(
       (prev) => {
         const updated = new URLSearchParams(prev);
-        if (next === 'chat') updated.delete('view');
-        else updated.set('view', next);
+        if (next === 'chat') {
+          updated.delete('view');
+        } else {
+          updated.set('view', next);
+        }
         return updated;
       },
       { replace: true },
@@ -126,7 +133,9 @@ export function useAgentDetailPageState() {
 
   const sendChatMessage = async () => {
     const trimmed = chatDraft.trim();
-    if (trimmed.length === 0 || agentId.length === 0) return;
+    if (trimmed.length === 0 || agentId.length === 0) {
+      return;
+    }
     setChatSending(true);
     setChatError('');
     try {
@@ -140,7 +149,9 @@ export function useAgentDetailPageState() {
   };
 
   const stopAgentRun = async () => {
-    if (agentId.length === 0) return;
+    if (agentId.length === 0) {
+      return;
+    }
     setStopping(true);
     setChatError('');
     try {
@@ -153,7 +164,9 @@ export function useAgentDetailPageState() {
   };
 
   const freshStartAgentRun = async () => {
-    if (agentId.length === 0) return;
+    if (agentId.length === 0) {
+      return;
+    }
     setRestarting(true);
     setChatError('');
     try {
@@ -200,7 +213,9 @@ export function useAgentDetailPageState() {
 function readDescendantAgentIds(agentId: string, agents: AgentRecord[]) {
   const childrenByParentId = new Map<string, string[]>();
   for (const agent of agents) {
-    if (!agent.parentAgentId) continue;
+    if (!agent.parentAgentId) {
+      continue;
+    }
     childrenByParentId.set(agent.parentAgentId, [...(childrenByParentId.get(agent.parentAgentId) ?? []), agent.id]);
   }
 
@@ -208,7 +223,9 @@ function readDescendantAgentIds(agentId: string, agents: AgentRecord[]) {
   const pending = [...(childrenByParentId.get(agentId) ?? [])];
   while (pending.length > 0) {
     const childId = pending.shift();
-    if (childId === undefined || descendants.includes(childId)) continue;
+    if (childId === undefined || descendants.includes(childId)) {
+      continue;
+    }
     descendants.push(childId);
     pending.push(...(childrenByParentId.get(childId) ?? []));
   }

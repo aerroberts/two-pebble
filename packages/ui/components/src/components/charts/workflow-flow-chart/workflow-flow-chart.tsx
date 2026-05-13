@@ -22,7 +22,9 @@ export function WorkflowFlowChart(props: WorkflowFlowChartProps) {
   const layout = useMemo(() => computeLayout({ nodes, edges: effectiveEdges }), [nodes, effectiveEdges]);
   const nodeMap = useMemo(() => {
     const m = new Map<string, WorkflowNode>();
-    for (const n of nodes) m.set(n.id, n);
+    for (const n of nodes) {
+      m.set(n.id, n);
+    }
     return m;
   }, [nodes]);
 

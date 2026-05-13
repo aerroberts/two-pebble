@@ -14,7 +14,9 @@ const FALLBACK_CONFIG: AgentRegistryWorkspaceConfig = { kind: 'absolute', path: 
  */
 export function parseWorkspaceConfig(input: ParseWorkspaceConfigInput): AgentRegistryWorkspaceConfig {
   const raw = input.registry.workspaceConfig;
-  if (raw.length === 0) return FALLBACK_CONFIG;
+  if (raw.length === 0) {
+    return FALLBACK_CONFIG;
+  }
   let parsed: PebbleJsonValue;
   try {
     parsed = JSON.parse(raw) as PebbleJsonValue;
@@ -32,8 +34,12 @@ export function parseWorkspaceConfig(input: ParseWorkspaceConfigInput): AgentReg
   }
   const record = parsed as Record<string, PebbleJsonValue | undefined>;
   const kind = record.kind;
-  if (kind === 'none') return { kind: 'none' };
-  if (kind === 'cwd') return FALLBACK_CONFIG;
+  if (kind === 'none') {
+    return { kind: 'none' };
+  }
+  if (kind === 'cwd') {
+    return FALLBACK_CONFIG;
+  }
   if (kind === 'absolute' && typeof record.path === 'string') {
     return { kind: 'absolute', path: record.path };
   }

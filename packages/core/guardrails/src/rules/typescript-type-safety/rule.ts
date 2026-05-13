@@ -15,7 +15,9 @@ export class Rule extends Guardrail<TypescriptTypeSafetyRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (input.file.endsWith('.test.ts')) return;
+      if (input.file.endsWith('.test.ts')) {
+        return;
+      }
       this.checkFile(input);
     });
   }

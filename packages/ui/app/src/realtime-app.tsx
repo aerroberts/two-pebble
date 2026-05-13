@@ -8,8 +8,12 @@ const FALLBACK_DAEMON_URL = 'ws://127.0.0.1:49152';
 
 function resolveDaemonUrl(): string {
   const override = import.meta.env.VITE_DAEMON_URL as string | undefined;
-  if (override !== undefined && override.length > 0) return override;
-  if (typeof window === 'undefined') return FALLBACK_DAEMON_URL;
+  if (override !== undefined && override.length > 0) {
+    return override;
+  }
+  if (typeof window === 'undefined') {
+    return FALLBACK_DAEMON_URL;
+  }
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   return `${protocol}://${window.location.host}`;
 }

@@ -67,7 +67,9 @@ interface GeneratedEntry {
 
 function buildEntry(model: OpenRouterModel): GeneratedEntry | undefined {
   const pricing = model.pricing;
-  if (pricing === undefined) return undefined;
+  if (pricing === undefined) {
+    return undefined;
+  }
   const inputTokensReadUncachedPPM = perTokenToPPM(pricing.prompt);
   const inputTokensReadCachedPPM = perTokenToPPM(pricing.input_cache_read);
   const inputTokensWriteCachedPPM = perTokenToPPM(pricing.input_cache_write);
@@ -93,10 +95,16 @@ function buildEntry(model: OpenRouterModel): GeneratedEntry | undefined {
 }
 
 function perTokenToPPM(value: string | undefined): number | undefined {
-  if (value === undefined) return undefined;
+  if (value === undefined) {
+    return undefined;
+  }
   const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return undefined;
-  if (parsed === 0) return 0;
+  if (!Number.isFinite(parsed)) {
+    return undefined;
+  }
+  if (parsed === 0) {
+    return 0;
+  }
   return roundForDisplay(parsed * 1_000_000);
 }
 

@@ -24,7 +24,9 @@ export function listAgentTracesOperation(ctx: RealtimeOperationContext) {
         next = result.items.reduce((registry, item) => registry.withItem(item.id, item, 'ready'), next);
         lastResult = result;
         offset += result.items.length;
-        if (result.items.length < PAGE_SIZE || offset >= result.page.total) break;
+        if (result.items.length < PAGE_SIZE || offset >= result.page.total) {
+          break;
+        }
       }
       ctx.datastore.patch({ agentTraces: next.withStatus('ready') });
       return lastResult;

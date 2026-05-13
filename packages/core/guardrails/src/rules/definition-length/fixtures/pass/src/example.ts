@@ -13,7 +13,9 @@ export class ExampleClass {
 }
 
 export function readName(name: string) {
-  if (name.length > 0) return name;
+  if (name.length > 0) {
+    return name;
+  }
   try {
     return 'example';
   } catch {

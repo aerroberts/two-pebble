@@ -74,6 +74,8 @@ type SetPriceChartMode = (mode: PriceChartMode) => void;
 
 function setPriceChartMode(setMode: SetPriceChartMode) {
   return (value: string) => {
-    if (value === 'price' || value === 'quantity') setMode(value);
+    if (value === 'price' || value === 'quantity') {
+      setMode(value);
+    }
   };
 }

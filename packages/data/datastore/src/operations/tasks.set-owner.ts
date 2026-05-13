@@ -14,7 +14,9 @@ export function tasksSetOwnerOperation(ctx: DatastoreContext) {
       .where(eq(ctx.schema.tasksTable.id, input.id))
       .returning()
       .get();
-    if (row === undefined) throw new Error(`task "${input.id}" not found`);
+    if (row === undefined) {
+      throw new Error(`task "${input.id}" not found`);
+    }
     return row as TaskRecord;
   };
 }

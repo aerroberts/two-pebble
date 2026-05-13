@@ -16,9 +16,15 @@ export function collectNativeToolDefinitions(thread: ConversationThread): Native
   const byName = new Map<string, NativeToolDefinition>();
   for (const threadCell of thread.cells) {
     for (const cell of threadCell.cells) {
-      if (cell.type !== 'toolRegistration') continue;
-      if (cell.content.toolType !== 'native') continue;
-      if (cell.content.inputSchema === undefined) continue;
+      if (cell.type !== 'toolRegistration') {
+        continue;
+      }
+      if (cell.content.toolType !== 'native') {
+        continue;
+      }
+      if (cell.content.inputSchema === undefined) {
+        continue;
+      }
       byName.set(cell.content.name, {
         name: cell.content.name,
         description: cell.content.description,

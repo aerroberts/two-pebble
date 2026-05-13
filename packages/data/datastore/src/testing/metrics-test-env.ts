@@ -74,7 +74,9 @@ export function expectDistinctBucketsInOrder(buckets: MetricAggregateBucket[]) {
   const secondBucket = buckets[1];
   expect(firstBucket).toBeDefined();
   expect(secondBucket).toBeDefined();
-  if (firstBucket === undefined || secondBucket === undefined) throw new Error('expected two metric buckets');
+  if (firstBucket === undefined || secondBucket === undefined) {
+    throw new Error('expected two metric buckets');
+  }
   expect(secondBucket.bucketStart).toBeGreaterThan(firstBucket.bucketStart);
 }
 

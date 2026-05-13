@@ -24,6 +24,8 @@ export const listSubAgentsSchema = z.object({});
 
 export function referenceNameSchema(references: SubAgentReference[]) {
   const names = references.map((reference) => reference.name);
-  if (names.length === 0) return z.string().describe('Configured sub-agent reference name.');
+  if (names.length === 0) {
+    return z.string().describe('Configured sub-agent reference name.');
+  }
   return z.enum(names as [string, ...string[]]).describe('Configured sub-agent reference name.');
 }

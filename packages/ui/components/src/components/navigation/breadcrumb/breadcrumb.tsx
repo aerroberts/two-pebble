@@ -33,7 +33,9 @@ export function Breadcrumb(props: BreadcrumbProps) {
     </nav>
   );
 
-  if (!mobileItems) return desktopNav;
+  if (!mobileItems) {
+    return desktopNav;
+  }
 
   return (
     <>

@@ -31,7 +31,9 @@ export function registerStatusCommand(program: Command) {
 }
 
 function resolveStatusPort(options: StatusOptions): number {
-  if (options.port === undefined) return DEFAULT_DAEMON_PORT;
+  if (options.port === undefined) {
+    return DEFAULT_DAEMON_PORT;
+  }
   const explicit = Number(options.port);
   if (!Number.isInteger(explicit) || explicit <= 0) {
     throw new Error(`peb status: invalid --port value "${options.port}"`);

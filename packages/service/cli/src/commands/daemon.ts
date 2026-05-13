@@ -41,7 +41,9 @@ export function registerDaemonCommand(program: Command) {
 }
 
 function resolvePortHint(options: RunOptions): number {
-  if (options.port === undefined) return DEFAULT_DAEMON_PORT;
+  if (options.port === undefined) {
+    return DEFAULT_DAEMON_PORT;
+  }
   const explicit = Number(options.port);
   if (!Number.isInteger(explicit) || explicit <= 0) {
     throw new Error(`peb run: invalid --port value "${options.port}"`);
@@ -51,6 +53,8 @@ function resolvePortHint(options: RunOptions): number {
 
 function forwardSignal(signal: NodeJS.Signals, child: ReturnType<typeof spawn>) {
   process.on(signal, () => {
-    if (child.pid !== undefined && !child.killed) child.kill(signal);
+    if (child.pid !== undefined && !child.killed) {
+      child.kill(signal);
+    }
   });
 }

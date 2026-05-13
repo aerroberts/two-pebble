@@ -10,7 +10,9 @@ export function handler(ctx: DaemonHandlerContext) {
     const pool = await readPoolBoard(ctx, payload.id);
     const events = await ctx.taskBoards.deletePool(pool.boardId, payload.id);
     ctx.multicastBridge.emit('taskPoolDeleted', { id: payload.id, boardId: pool.boardId });
-    for (const event of events) ctx.multicastBridge.emit('taskEventRecorded', event);
+    for (const event of events) {
+      ctx.multicastBridge.emit('taskEventRecorded', event);
+    }
     return { id: payload.id };
   };
 }
@@ -20,7 +22,9 @@ async function readPoolBoard(ctx: DaemonHandlerContext, poolId: string) {
   for (const board of all.items) {
     const pools = await ctx.datastore.taskBoards.pools.list({ boardId: board.id });
     const found = pools.items.find((pool) => pool.id === poolId);
-    if (found !== undefined) return found;
+    if (found !== undefined) {
+      return found;
+    }
   }
   throw new Error(`task pool "${poolId}" not found`);
 }

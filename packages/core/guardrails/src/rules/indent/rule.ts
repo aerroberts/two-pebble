@@ -14,7 +14,9 @@ export class Rule extends Guardrail<IndentRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (!input.file.endsWith('.test.ts')) this.checkFile(input, 'typescriptFile');
+      if (!input.file.endsWith('.test.ts')) {
+        this.checkFile(input, 'typescriptFile');
+      }
     });
     await this.forEachTsxFile((input) => this.checkFile(input, 'reactFile'));
   }
@@ -41,7 +43,9 @@ export class Rule extends Guardrail<IndentRuleOptions> {
   }
 
   private defaultMaxIndentLevelFor(fileType: IndentFileType) {
-    if (fileType === 'reactFile') return 10;
+    if (fileType === 'reactFile') {
+      return 10;
+    }
     return 6;
   }
 

@@ -13,7 +13,9 @@ export function AssistantSettingsPage() {
   const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
 
   const onAssistantAgentChange = (value: string) => {
-    if (settings === null) return;
+    if (settings === null) {
+      return;
+    }
     const nextRegistryId = value === NONE_VALUE ? null : value;
     const registryChanged = nextRegistryId !== settings.assistantAgentRegistryId;
     void updateAppSettings({

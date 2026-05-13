@@ -80,7 +80,9 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
    */
   private taskStatus(taskId: string) {
     const task = this.tasksSlot.value.find((t) => t.id === taskId);
-    if (!task) throw new ProgressiveTaskListTaskNotFoundError(taskId);
+    if (!task) {
+      throw new ProgressiveTaskListTaskNotFoundError(taskId);
+    }
     return task.status;
   }
 
@@ -107,8 +109,12 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
   public completeTaskSuccessfully(taskId: string, completionReason: string | undefined) {
     const tasks = this.tasksSlot.value;
     const task = tasks.find((t) => t.id === taskId);
-    if (!task) throw new ProgressiveTaskListTaskNotFoundError(taskId);
-    if (task.status === 'completed') throw new ProgressiveTaskListTaskAlreadyTerminalError(taskId, task.status);
+    if (!task) {
+      throw new ProgressiveTaskListTaskNotFoundError(taskId);
+    }
+    if (task.status === 'completed') {
+      throw new ProgressiveTaskListTaskAlreadyTerminalError(taskId, task.status);
+    }
     if (task.dependsOn) {
       const dependencyStatus = this.taskStatus(task.dependsOn);
       if (dependencyStatus !== 'completed' && dependencyStatus !== 'invalid') {
@@ -130,8 +136,12 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
   public completeTaskUnsuccessfully(taskId: string, invalidReason: string) {
     const tasks = this.tasksSlot.value;
     const task = tasks.find((t) => t.id === taskId);
-    if (!task) throw new ProgressiveTaskListTaskNotFoundError(taskId);
-    if (task.status === 'invalid') throw new ProgressiveTaskListTaskAlreadyTerminalError(taskId, task.status);
+    if (!task) {
+      throw new ProgressiveTaskListTaskNotFoundError(taskId);
+    }
+    if (task.status === 'invalid') {
+      throw new ProgressiveTaskListTaskAlreadyTerminalError(taskId, task.status);
+    }
     this.replaceTask(taskId, (current) => ({ ...current, status: 'invalid', invalidReason }));
     this.emitTaskListUpdateIfChanged();
   }
@@ -174,11 +184,15 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
     });
     const changes = tasks.flatMap((task) => {
       const oldStatus = lastStatuses[task.id] ?? null;
-      if (oldStatus === task.status) return [];
+      if (oldStatus === task.status) {
+        return [];
+      }
       return [{ id: task.id, oldStatus, newStatus: task.status }];
     });
     const nextStatuses: Record<string, TaskStatus> = {};
-    for (const task of tasks) nextStatuses[task.id] = task.status;
+    for (const task of tasks) {
+      nextStatuses[task.id] = task.status;
+    }
     this.emittedStatusesSlot.set(nextStatuses);
     return { tasks, changes };
   }
@@ -189,7 +203,9 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
    * are intentionally silent.
    */
   private emitTaskListUpdateIfChanged() {
-    if (this.agent === undefined) return;
+    if (this.agent === undefined) {
+      return;
+    }
     const taskListUpdate = this.buildTaskListUpdate();
     if (taskListUpdate.changes.length > 0) {
       this.agent.emit('trace', { type: 'task-list-update', data: taskListUpdate });
@@ -200,8 +216,12 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
    * Returns the human reason attached to a terminal task status.
    */
   private getTaskStatusReason(task: Task) {
-    if (task.status === 'completed') return task.completionReason;
-    if (task.status === 'invalid') return task.invalidReason;
+    if (task.status === 'completed') {
+      return task.completionReason;
+    }
+    if (task.status === 'invalid') {
+      return task.invalidReason;
+    }
     return undefined;
   }
 
@@ -257,7 +277,9 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
   private getRevealableTasks() {
     const revealTasks: Task[] = [];
     for (const task of this.tasksSlot.value) {
-      if (this.taskStatus(task.id) !== 'pending') continue;
+      if (this.taskStatus(task.id) !== 'pending') {
+        continue;
+      }
       if (!task.hiddenUntilActive) {
         revealTasks.push(task);
         continue;
@@ -267,7 +289,9 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
         continue;
       }
       const dependencyStatus = this.taskStatus(task.dependsOn);
-      if (dependencyStatus === 'completed' || dependencyStatus === 'invalid') revealTasks.push(task);
+      if (dependencyStatus === 'completed' || dependencyStatus === 'invalid') {
+        revealTasks.push(task);
+      }
     }
     return revealTasks;
   }
@@ -279,9 +303,13 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
     const autocompleteableTasks: Task[] = [];
     const turnCounter = this.turnCounterSlot.value;
     for (const task of this.tasksSlot.value) {
-      if (task.status !== 'open' || task.autocompleteTurns === undefined) continue;
+      if (task.status !== 'open' || task.autocompleteTurns === undefined) {
+        continue;
+      }
       const turnsActive = turnCounter - task.openedOnTurn;
-      if (turnsActive >= task.autocompleteTurns) autocompleteableTasks.push(task);
+      if (turnsActive >= task.autocompleteTurns) {
+        autocompleteableTasks.push(task);
+      }
     }
     return autocompleteableTasks;
   }
@@ -292,7 +320,9 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
    */
   public override hookOnEarlyExit() {
     const status = this.status();
-    if (status.allTasksTerminal) return EarlyExit.possible(status.statusPrompt);
+    if (status.allTasksTerminal) {
+      return EarlyExit.possible(status.statusPrompt);
+    }
     return EarlyExit.notPossible(status.statusPrompt);
   }
 
@@ -302,7 +332,9 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
    */
   public override hookOnAgentExit(): AgentExitHookResult {
     const status = this.status();
-    if (status.allTasksTerminal) return AgentExitHook.permitExit();
+    if (status.allTasksTerminal) {
+      return AgentExitHook.permitExit();
+    }
     return AgentExitHook.denyExit(status.statusPrompt);
   }
 

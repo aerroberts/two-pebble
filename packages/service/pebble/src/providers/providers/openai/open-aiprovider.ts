@@ -105,7 +105,9 @@ export class OpenAIProvider extends ModelProvider {
       messages: thread.serialize().flatMap((turn) => this.buildMessages(turn)),
       stop: [END_TURN_STOP_TOKEN],
     };
-    if (tools.length > 0) request.tools = tools;
+    if (tools.length > 0) {
+      request.tools = tools;
+    }
     return request;
   }
 
@@ -155,7 +157,9 @@ export class OpenAIProvider extends ModelProvider {
         continue;
       }
       const rendered = this.renderTextCell(cell);
-      if (rendered.length === 0) continue;
+      if (rendered.length === 0) {
+        continue;
+      }
       text = text.length === 0 ? rendered : `${text}\n\n${rendered}`;
     }
     const message: OpenAIProviderMessage = {
@@ -170,7 +174,9 @@ export class OpenAIProvider extends ModelProvider {
     const messages: OpenAIProviderMessage[] = [];
     let userTextBuffer = '';
     const flushUserText = () => {
-      if (userTextBuffer.length === 0) return;
+      if (userTextBuffer.length === 0) {
+        return;
+      }
       messages.push({ role: 'user', content: userTextBuffer });
       userTextBuffer = '';
     };
@@ -189,7 +195,9 @@ export class OpenAIProvider extends ModelProvider {
         continue;
       }
       const rendered = this.renderTextCell(cell);
-      if (rendered.length === 0) continue;
+      if (rendered.length === 0) {
+        continue;
+      }
       userTextBuffer = userTextBuffer.length === 0 ? rendered : `${userTextBuffer}\n\n${rendered}`;
     }
     flushUserText();

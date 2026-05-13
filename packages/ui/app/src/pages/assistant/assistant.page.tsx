@@ -44,7 +44,9 @@ export function AssistantPage() {
         'Provision a fresh Assistant agent on the next message? The previous agent stays in your agent list and can be reopened from there.',
       confirmLabel: 'Reset',
     });
-    if (ok) state.resetContext();
+    if (ok) {
+      state.resetContext();
+    }
   };
 
   if (state.settingsLoaded && state.registryId === null) {
@@ -86,7 +88,9 @@ export function AssistantPage() {
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
-                if (!sendDisabled) void state.sendChatMessage();
+                if (!sendDisabled) {
+                  void state.sendChatMessage();
+                }
               }
             }}
             placeholder="Talk to your Assistant — Enter to send, Shift+Enter for newline"
@@ -132,7 +136,11 @@ export function AssistantPage() {
 }
 
 function joinTranscript(existing: string, transcript: string): string {
-  if (transcript.length === 0) return existing;
-  if (existing.length === 0) return transcript;
+  if (transcript.length === 0) {
+    return existing;
+  }
+  if (existing.length === 0) {
+    return transcript;
+  }
   return existing.endsWith(' ') ? `${existing}${transcript}` : `${existing} ${transcript}`;
 }

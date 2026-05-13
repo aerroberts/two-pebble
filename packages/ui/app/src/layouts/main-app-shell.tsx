@@ -76,13 +76,21 @@ export function MainAppShell(props: AppShellProps) {
 }
 
 function isHomeActive(pathname: string): boolean {
-  if (pathname === '/') return true;
+  if (pathname === '/') {
+    return true;
+  }
   return pathname.startsWith('/agents') || pathname.startsWith('/threads') || pathname.startsWith('/tasks');
 }
 
 function getPageName(pathname: string): string {
-  if (pathname.startsWith('/configuration')) return 'Settings';
-  if (pathname.startsWith('/metrics')) return 'Metrics';
-  if (pathname.startsWith('/developer')) return 'Developer';
+  if (pathname.startsWith('/configuration')) {
+    return 'Settings';
+  }
+  if (pathname.startsWith('/metrics')) {
+    return 'Metrics';
+  }
+  if (pathname.startsWith('/developer')) {
+    return 'Developer';
+  }
   return 'two pebble';
 }

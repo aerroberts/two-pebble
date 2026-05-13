@@ -251,7 +251,9 @@ export class Datastore {
     };
     // Metrics on metric operations would feed back into themselves and produce
     // unbounded recursion through the registered onMetric handler.
-    if (operation.startsWith('metrics.')) return logged;
+    if (operation.startsWith('metrics.')) {
+      return logged;
+    }
     return metrics.wrap('datastore.operation', logged, { operation }) as DatastoreOperationHandler;
   }
 
@@ -294,10 +296,15 @@ export class Datastore {
   }
 
   private normalizeQueryValue(value: Value): DatabaseQueryValue {
-    if (value === null || typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string')
+    if (value === null || typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
       return value;
-    if (typeof value === 'bigint') return value.toString();
-    if (value instanceof ArrayBuffer) return `[blob: ${value.byteLength} bytes]`;
+    }
+    if (typeof value === 'bigint') {
+      return value.toString();
+    }
+    if (value instanceof ArrayBuffer) {
+      return `[blob: ${value.byteLength} bytes]`;
+    }
     return String(value);
   }
 

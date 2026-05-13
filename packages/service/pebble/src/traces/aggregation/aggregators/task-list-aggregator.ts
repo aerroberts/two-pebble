@@ -22,7 +22,9 @@ export class TaskListAggregator extends PebbleTraceAggregator {
    * the thread has no turns at all, every task-list-update passes through.
    */
   public aggregate(traces: PebbleAgentAggregatedTrace[]): PebbleAgentAggregatedTrace[] {
-    if (!traces.some((trace) => trace.type === 'turn-start')) return traces;
+    if (!traces.some((trace) => trace.type === 'turn-start')) {
+      return traces;
+    }
     const lastInTurnByIndex = this.findLastTaskListUpdatePerTurn(traces);
     const result: PebbleAgentAggregatedTrace[] = [];
     for (const [index, trace] of traces.entries()) {
@@ -30,7 +32,9 @@ export class TaskListAggregator extends PebbleTraceAggregator {
         result.push(trace);
         continue;
       }
-      if (lastInTurnByIndex.has(index)) result.push(trace);
+      if (lastInTurnByIndex.has(index)) {
+        result.push(trace);
+      }
     }
     return result;
   }
@@ -40,13 +44,19 @@ export class TaskListAggregator extends PebbleTraceAggregator {
     let pendingLast: number | undefined;
     for (const [index, trace] of traces.entries()) {
       if (trace.type === 'turn-start') {
-        if (pendingLast !== undefined) lastIndices.add(pendingLast);
+        if (pendingLast !== undefined) {
+          lastIndices.add(pendingLast);
+        }
         pendingLast = undefined;
         continue;
       }
-      if (trace.type === 'task-list-update') pendingLast = index;
+      if (trace.type === 'task-list-update') {
+        pendingLast = index;
+      }
     }
-    if (pendingLast !== undefined) lastIndices.add(pendingLast);
+    if (pendingLast !== undefined) {
+      lastIndices.add(pendingLast);
+    }
     return lastIndices;
   }
 }

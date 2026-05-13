@@ -23,8 +23,12 @@ const EXTENSION_MAP: Record<string, string> = {
 };
 
 export function inferLanguage(title?: string) {
-  if (!title) return 'plaintext';
+  if (!title) {
+    return 'plaintext';
+  }
   const ext = title.split('.').pop()?.toLowerCase();
-  if (!ext) return 'plaintext';
+  if (!ext) {
+    return 'plaintext';
+  }
   return EXTENSION_MAP[ext] ?? 'plaintext';
 }

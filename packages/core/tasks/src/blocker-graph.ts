@@ -20,7 +20,9 @@ export class BlockerGraph {
    */
   public registerEntity(id: string, parentId: ParentId, isPool: boolean): void {
     this.parentByEntityId.set(id, parentId);
-    if (isPool) this.poolIds.add(id);
+    if (isPool) {
+      this.poolIds.add(id);
+    }
     if (parentId !== null) {
       const set = this.childrenByPoolId.get(parentId) ?? new Set<string>();
       set.add(id);
@@ -39,15 +41,25 @@ export class BlockerGraph {
       const siblings = this.childrenByPoolId.get(parentId);
       if (siblings !== undefined) {
         siblings.delete(id);
-        if (siblings.size === 0) this.childrenByPoolId.delete(parentId);
+        if (siblings.size === 0) {
+          this.childrenByPoolId.delete(parentId);
+        }
       }
     }
     this.parentByEntityId.delete(id);
     this.poolIds.delete(id);
     const outgoing = this.outgoingByFromId.get(id);
-    if (outgoing !== undefined) for (const toId of [...outgoing]) this.removeEdge(id, toId);
+    if (outgoing !== undefined) {
+      for (const toId of [...outgoing]) {
+        this.removeEdge(id, toId);
+      }
+    }
     const incoming = this.incomingByToId.get(id);
-    if (incoming !== undefined) for (const fromId of [...incoming]) this.removeEdge(fromId, id);
+    if (incoming !== undefined) {
+      for (const fromId of [...incoming]) {
+        this.removeEdge(fromId, id);
+      }
+    }
   }
 
   /**
@@ -72,8 +84,12 @@ export class BlockerGraph {
    */
   public *childrenOf(poolId: string): Generator<string> {
     const children = this.childrenByPoolId.get(poolId);
-    if (children === undefined) return;
-    for (const childId of children) yield childId;
+    if (children === undefined) {
+      return;
+    }
+    for (const childId of children) {
+      yield childId;
+    }
   }
 
   /**
@@ -105,12 +121,16 @@ export class BlockerGraph {
     const outgoing = this.outgoingByFromId.get(fromId);
     if (outgoing !== undefined) {
       outgoing.delete(toId);
-      if (outgoing.size === 0) this.outgoingByFromId.delete(fromId);
+      if (outgoing.size === 0) {
+        this.outgoingByFromId.delete(fromId);
+      }
     }
     const incoming = this.incomingByToId.get(toId);
     if (incoming !== undefined) {
       incoming.delete(fromId);
-      if (incoming.size === 0) this.incomingByToId.delete(toId);
+      if (incoming.size === 0) {
+        this.incomingByToId.delete(toId);
+      }
     }
   }
 
@@ -121,8 +141,12 @@ export class BlockerGraph {
    */
   public *outgoingOf(id: string): Generator<string> {
     const targets = this.outgoingByFromId.get(id);
-    if (targets === undefined) return;
-    for (const toId of targets) yield toId;
+    if (targets === undefined) {
+      return;
+    }
+    for (const toId of targets) {
+      yield toId;
+    }
   }
 
   /**
@@ -132,7 +156,9 @@ export class BlockerGraph {
   public listEdges(): DependencyRecord[] {
     const edges: DependencyRecord[] = [];
     for (const [fromId, targets] of this.outgoingByFromId) {
-      for (const toId of targets) edges.push({ fromId, toId });
+      for (const toId of targets) {
+        edges.push({ fromId, toId });
+      }
     }
     return edges;
   }
@@ -152,16 +178,24 @@ export class BlockerGraph {
    * every node, and pool-to-direct-child containment for pools.
    */
   public canReachInBlockerGraph(start: string, target: string): boolean {
-    if (start === target) return true;
+    if (start === target) {
+      return true;
+    }
     const visited = new Set<string>();
     const stack: string[] = [start];
     while (stack.length > 0) {
       const current = stack.pop() as string;
-      if (visited.has(current)) continue;
+      if (visited.has(current)) {
+        continue;
+      }
       visited.add(current);
       for (const next of this.collectBlockers(current)) {
-        if (next === target) return true;
-        if (!visited.has(next)) stack.push(next);
+        if (next === target) {
+          return true;
+        }
+        if (!visited.has(next)) {
+          stack.push(next);
+        }
       }
     }
     return false;
@@ -176,12 +210,20 @@ export class BlockerGraph {
     let cursor: ParentId = id;
     while (cursor !== null) {
       const explicit = this.outgoingByFromId.get(cursor);
-      if (explicit !== undefined) for (const target of explicit) yield target;
+      if (explicit !== undefined) {
+        for (const target of explicit) {
+          yield target;
+        }
+      }
       cursor = this.parentByEntityId.get(cursor) ?? null;
     }
     if (this.poolIds.has(id)) {
       const children = this.childrenByPoolId.get(id);
-      if (children !== undefined) for (const childId of children) yield childId;
+      if (children !== undefined) {
+        for (const childId of children) {
+          yield childId;
+        }
+      }
     }
   }
 }

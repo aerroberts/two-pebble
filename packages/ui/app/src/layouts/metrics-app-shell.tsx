@@ -11,8 +11,12 @@ import type { AppShellProps } from './app-shell-props';
 import { MainAppShell } from './main-app-shell';
 
 function isMetricsExplorerActive(pathname: string): boolean {
-  if (pathname === '/metrics') return true;
-  if (pathname.startsWith('/metrics/pricing')) return false;
+  if (pathname === '/metrics') {
+    return true;
+  }
+  if (pathname.startsWith('/metrics/pricing')) {
+    return false;
+  }
   return pathname.startsWith('/metrics/');
 }
 

@@ -35,7 +35,9 @@ export class FileSyncSink implements LoggerSink {
     try {
       fs.appendFileSync(this.input.filePath, `${formatPrettyEntry(entry, { color: false })}\n`);
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
     }
   }
 }

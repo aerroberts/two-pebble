@@ -16,15 +16,23 @@ export class Rule extends Guardrail<TypescriptReExportOnlyFileRuleOptions> {
    */
   public async check() {
     await this.forEachTypescriptFile((input) => {
-      if (input.file.endsWith('.test.ts')) return;
+      if (input.file.endsWith('.test.ts')) {
+        return;
+      }
       this.checkFile(input);
     });
   }
 
   private checkFile(input: TypescriptRuleInput) {
-    if (this.options.allowReExportOnlyFiles ?? false) return;
-    if (basename(input.file) === 'index.ts') return;
-    if (this.isReExportOnlyFile(input.sourceFile)) this.fail(input.reporter);
+    if (this.options.allowReExportOnlyFiles ?? false) {
+      return;
+    }
+    if (basename(input.file) === 'index.ts') {
+      return;
+    }
+    if (this.isReExportOnlyFile(input.sourceFile)) {
+      this.fail(input.reporter);
+    }
   }
 
   private isReExportOnlyFile(sourceFile: ts.SourceFile) {

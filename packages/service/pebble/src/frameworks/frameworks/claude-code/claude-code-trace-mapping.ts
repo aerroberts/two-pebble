@@ -64,7 +64,9 @@ export function wrapTraces(
   traces: PebbleAgentTrace[],
   subagent: SubagentMetadata | undefined,
 ): ConvertedClaudeCodeEvent[] {
-  if (subagent === undefined) return traces.map((trace) => ({ kind: 'agent-trace', trace }));
+  if (subagent === undefined) {
+    return traces.map((trace) => ({ kind: 'agent-trace', trace }));
+  }
   return traces.map((trace) => ({ kind: 'sub-agent-trace', event: { ...subagent, trace } }));
 }
 
@@ -81,7 +83,9 @@ export function assistantMessageToTraces(message: SDKAssistantMessage): PebbleAg
         data: { callId: block.id, toolId: block.name, input: (block.input ?? {}) as object, source: 'framework' },
       });
       const taskListTrace = todoWriteToTaskListTrace(block.name, block.input as PebbleJsonValue | undefined);
-      if (taskListTrace !== undefined) traces.push(taskListTrace);
+      if (taskListTrace !== undefined) {
+        traces.push(taskListTrace);
+      }
     }
   }
   return traces;
@@ -96,20 +100,30 @@ function todoWriteToTaskListTrace(
   toolName: string,
   rawInput: PebbleJsonValue | undefined,
 ): PebbleAgentTrace | undefined {
-  if (toolName !== 'TodoWrite') return undefined;
+  if (toolName !== 'TodoWrite') {
+    return undefined;
+  }
   if (rawInput === null || rawInput === undefined || typeof rawInput !== 'object' || Array.isArray(rawInput)) {
     return undefined;
   }
   const todosRaw = (rawInput as PebbleJsonRecord).todos;
-  if (!Array.isArray(todosRaw)) return undefined;
+  if (!Array.isArray(todosRaw)) {
+    return undefined;
+  }
   const tasks: TaskListUpdateTask[] = [];
   const changes: TaskListUpdateChange[] = [];
   for (const [index, raw] of todosRaw.entries()) {
-    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) continue;
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+      continue;
+    }
     const todo = raw as TodoLike;
-    if (typeof todo.content !== 'string') continue;
+    if (typeof todo.content !== 'string') {
+      continue;
+    }
     const status = mapTodoStatus(todo.status);
-    if (status === undefined) continue;
+    if (status === undefined) {
+      continue;
+    }
     const id = `todo-${index}`;
     tasks.push({ id, description: todo.content, status });
     changes.push({ id, oldStatus: null, newStatus: status });
@@ -118,27 +132,43 @@ function todoWriteToTaskListTrace(
 }
 
 function mapTodoStatus(value: PebbleJsonValue | undefined): TaskListUpdateStatus | undefined {
-  if (value === 'pending') return 'pending';
-  if (value === 'in_progress') return 'open';
-  if (value === 'completed') return 'completed';
+  if (value === 'pending') {
+    return 'pending';
+  }
+  if (value === 'in_progress') {
+    return 'open';
+  }
+  if (value === 'completed') {
+    return 'completed';
+  }
   return undefined;
 }
 
 export function userMessageToTraces(message: SDKUserMessage): PebbleAgentTrace[] {
   const content = message.message.content;
-  if (typeof content === 'string') return [{ type: 'user-message', data: { content: [text(content)] } }];
+  if (typeof content === 'string') {
+    return [{ type: 'user-message', data: { content: [text(content)] } }];
+  }
   const traces: PebbleAgentTrace[] = [];
   for (const block of content) {
     const trace = userBlockToTrace(block);
-    if (trace !== undefined) traces.push(trace);
+    if (trace !== undefined) {
+      traces.push(trace);
+    }
   }
   return traces;
 }
 
 function userBlockToTrace(block: UserMessageBlock): PebbleAgentTrace | undefined {
-  if (typeof block === 'string') return { type: 'user-message', data: { content: [text(block)] } };
-  if (block.type === 'text') return { type: 'user-message', data: { content: [text(block.text)] } };
-  if (block.type !== 'tool_result') return undefined;
+  if (typeof block === 'string') {
+    return { type: 'user-message', data: { content: [text(block)] } };
+  }
+  if (block.type === 'text') {
+    return { type: 'user-message', data: { content: [text(block.text)] } };
+  }
+  if (block.type !== 'tool_result') {
+    return undefined;
+  }
   const resultCells = toolResultCells(block.content);
   if (block.is_error) {
     return {
@@ -157,11 +187,17 @@ function userBlockToTrace(block: UserMessageBlock): PebbleAgentTrace | undefined
 }
 
 function toolResultCells(content: ToolResultContent): DataCells {
-  if (content === undefined) return [];
-  if (typeof content === 'string') return [Cell.text(content)];
+  if (content === undefined) {
+    return [];
+  }
+  if (typeof content === 'string') {
+    return [Cell.text(content)];
+  }
   const cells: DataCells = [];
   for (const block of content) {
-    if (block.type === 'text') cells.push(Cell.text(block.text));
+    if (block.type === 'text') {
+      cells.push(Cell.text(block.text));
+    }
   }
   return cells;
 }
@@ -224,7 +260,9 @@ export function parseTranscript(transcript: string): ParsedTranscript {
 export function parseTranscriptUsages(transcript: string): ParsedTranscriptUsage[] {
   const usages: ParsedTranscriptUsage[] = [];
   for (const message of parseTranscriptMessages(transcript)) {
-    if (message.type !== 'result' || message.modelUsage === undefined) continue;
+    if (message.type !== 'result' || message.modelUsage === undefined) {
+      continue;
+    }
     for (const [modelId, modelUsage] of Object.entries(message.modelUsage)) {
       usages.push({ modelId, modelUsage });
     }
@@ -262,15 +300,23 @@ function readResultText(messages: TranscriptMessage[]): string {
 
 function readResultError(messages: TranscriptMessage[]): string | undefined {
   const result = messages.find((item) => item.type === 'result' && item.subtype !== 'success');
-  if (result === undefined) return undefined;
+  if (result === undefined) {
+    return undefined;
+  }
   return result.errors?.join('\n') ?? result.subtype ?? 'Sub-agent failed.';
 }
 
 function readMessageText(message: TranscriptMessage | undefined): string {
-  if (message === undefined) return '';
+  if (message === undefined) {
+    return '';
+  }
   const content = message.message?.content;
-  if (typeof content === 'string') return content;
-  if (content === undefined) return '';
+  if (typeof content === 'string') {
+    return content;
+  }
+  if (content === undefined) {
+    return '';
+  }
   return content
     .filter((block) => block.type === 'text' && typeof block.text === 'string')
     .map((block) => block.text ?? '')
