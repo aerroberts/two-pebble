@@ -1,6 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { useDatastoreForTesting } from '../testing/datastore-test-env';
-import { seedBoardWithOneTask, seedTwoTasks } from '../testing/task-boards-test-env';
+import {
+  createPendingTask,
+  recordStatusTaskEvent,
+  recordTwoTaskEvents,
+  seedBoardWithOneTask,
+  seedBoardWithPoolAndTask,
+  seedBoardWithTwoPools,
+  seedTwoTasks,
+} from '../testing/task-boards-test-env';
 
 describe('feature: operation task-boards.create', () => {
   test('happy: create returns the persisted board', async () => {
@@ -86,16 +94,20 @@ describe('feature: operation task-pools.delete', () => {
   });
 });
 
+describe('feature: operation task-pools.set-parent', () => {
+  test('happy: setParent moves a pool under a parent pool', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { childPoolId, parentPoolId } = await seedBoardWithTwoPools(datastore);
+    const pool = await datastore.taskBoards.pools.setParent({ id: childPoolId, parentPoolId });
+    await datastore.close();
+    expect(pool.parentPoolId).toBe(parentPoolId);
+  });
+});
+
 describe('feature: operation tasks.create', () => {
   test('happy: task persists with status and pool', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'A' });
-    const task = await datastore.taskBoards.tasks.create({
-      boardId: board.id,
-      poolId: null,
-      name: 'T',
-      status: 'pending',
-    });
+    const task = await createPendingTask(datastore);
     await datastore.close();
     expect(task.status).toBe('pending');
   });
@@ -152,6 +164,16 @@ describe('feature: operation tasks.set-owner', () => {
   });
 });
 
+describe('feature: operation tasks.set-pool', () => {
+  test('happy: setPool moves a task into a pool', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { poolId, taskId } = await seedBoardWithPoolAndTask(datastore);
+    const task = await datastore.taskBoards.tasks.setPool({ id: taskId, poolId });
+    await datastore.close();
+    expect(task.poolId).toBe(poolId);
+  });
+});
+
 describe('feature: operation tasks.delete', () => {
   test('happy: delete removes the task', async () => {
     const datastore = await useDatastoreForTesting();
@@ -199,38 +221,16 @@ describe('feature: operation task-dependencies.delete', () => {
 describe('feature: operation task-events.record', () => {
   test('happy: record persists a status event with reason', async () => {
     const datastore = await useDatastoreForTesting();
-    const { taskId } = await seedBoardWithOneTask(datastore);
-    const event = await datastore.taskBoards.events.record({
-      taskId,
-      kind: 'status',
-      status: 'working',
-      reason: 'manual',
-      data: '{}',
-    });
+    const event = await recordStatusTaskEvent(datastore);
     await datastore.close();
-    expect(event).toMatchObject({ taskId, status: 'working', reason: 'manual' });
+    expect(event).toMatchObject({ status: 'working', reason: 'manual' });
   });
 });
 
 describe('feature: operation task-events.list', () => {
   test('happy: list returns events for a task in chronological order', async () => {
     const datastore = await useDatastoreForTesting();
-    const { taskId } = await seedBoardWithOneTask(datastore);
-    await datastore.taskBoards.events.record({
-      taskId,
-      kind: 'status',
-      status: 'working',
-      reason: 'first',
-      data: '{}',
-    });
-    await datastore.taskBoards.events.record({
-      taskId,
-      kind: 'status',
-      status: 'success',
-      reason: 'second',
-      data: '{}',
-    });
-    const events = await datastore.taskBoards.events.list({ taskId });
+    const events = await recordTwoTaskEvents(datastore);
     await datastore.close();
     expect(events.items.map((event) => event.reason)).toEqual(['first', 'second']);
   });

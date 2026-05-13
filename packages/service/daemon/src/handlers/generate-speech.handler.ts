@@ -7,6 +7,7 @@ import type { DaemonHandlerContext } from '../types';
 type GenerateSpeechOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'generateSpeech'>;
 type GenerateSpeechPayload = GenerateSpeechOperation['request'];
 type GenerateSpeechResponse = GenerateSpeechOperation['response'];
+type ProviderOutput = object;
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: GenerateSpeechPayload): Promise<GenerateSpeechResponse> {
@@ -48,13 +49,13 @@ function approximateBase64ByteCount(base64: string): number {
   return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
 }
 
-function buildSpeechErrorMessage(message: string | undefined, providerOutput: object): string {
+function buildSpeechErrorMessage(message: string | undefined, providerOutput: ProviderOutput): string {
   const head = message ?? 'Speech generation failed';
   const detail = serializeProviderOutput(providerOutput);
   return detail.length > 0 ? `${head} | provider response: ${detail}` : head;
 }
 
-function serializeProviderOutput(providerOutput: object): string {
+function serializeProviderOutput(providerOutput: ProviderOutput): string {
   try {
     const serialized = JSON.stringify(providerOutput);
     return serialized.length > 1200 ? `${serialized.slice(0, 1200)}…` : serialized;

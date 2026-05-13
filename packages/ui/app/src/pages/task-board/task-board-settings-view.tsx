@@ -1,4 +1,4 @@
-import { Button, Input, ListLayout, type ListLayoutItem, Section, Surface } from '@two-pebble/components';
+import { AppBox, Button, Input, ListLayout, type ListLayoutItem, Section, Surface } from '@two-pebble/components';
 import type { TaskPoolRecord } from '@two-pebble/realtime';
 
 interface TaskBoardSettingsViewProps {
@@ -30,24 +30,31 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
       </Section>
       <Section compact title="Danger zone">
         <Surface>
-          <div className="flex items-center justify-between gap-3">
+          <AppBox variant="delete-row">
             <div>
-              <div className="text-sm font-medium text-content">Delete board</div>
-              <div className="text-xs text-content-muted">
+              <AppBox variant="delete-title">Delete board</AppBox>
+              <AppBox variant="delete-description">
                 Permanently removes the board and every task it contains.
-              </div>
+              </AppBox>
             </div>
             <Button leftIcon="trash" onClick={props.onDeleteBoard}>
               Delete board
             </Button>
-          </div>
+          </AppBox>
         </Surface>
       </Section>
     </>
   );
 }
 
-function toPoolItem(pool: TaskPoolRecord, onDelete: (poolId: string) => void): ListLayoutItem {
+interface PoolItemInput {
+  pool: TaskPoolRecord;
+  onDelete: PoolDeleteHandler;
+}
+
+type PoolDeleteHandler = (poolId: string) => void;
+
+function toPoolItem(pool: TaskPoolRecord, onDelete: PoolDeleteHandler): ListLayoutItem {
   return {
     key: pool.id,
     icon: 'folder',

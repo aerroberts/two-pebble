@@ -33,10 +33,14 @@ export abstract class Agent extends Events<AgentEvents> {
     this.workspacePath = input.workspacePath;
   }
 
-  // Pull all incoming messages from the queue
+  /**
+   * Queues a user or parent message for the agent.
+   * The message event wakes implementations that are parked waiting for
+   * inbound work.
+   */
   public sendMessage(message: DataCells): void {
     this.incomingMessageQueue.push(message);
-    this.emit('signal', 'incoming-message');
+    this.emit('message');
     // TODO some sort of incoming message trace emit
   }
 

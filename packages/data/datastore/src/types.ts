@@ -8,6 +8,7 @@ import type {
   ThirdPartyAgentInstall,
   WorkspaceConfig,
 } from '@two-pebble/datatypes';
+import type { PebbleJsonValue } from '@two-pebble/pebble';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import type { Datastore } from './datastore';
 import type {
@@ -15,6 +16,7 @@ import type {
   agentConversationCellsTable,
   agentPriceLineItemsTable,
   agentRegistriesTable,
+  agentSignalsTable,
   agentsTable,
   agentTracesTable,
   appSettingsTable,
@@ -76,6 +78,7 @@ export type LibsqlClient = Client;
 export interface DatastoreSchema extends Record<string, object> {
   agentConversationCellsTable: typeof agentConversationCellsTable;
   agentPriceLineItemsTable: typeof agentPriceLineItemsTable;
+  agentSignalsTable: typeof agentSignalsTable;
   agentCallsTable: typeof agentCallsTable;
   agentRegistriesTable: typeof agentRegistriesTable;
   agentTracesTable: typeof agentTracesTable;
@@ -142,6 +145,25 @@ export type DatabaseQueryValue = boolean | null | number | string;
 export type AgentStatus = 'idle' | 'running' | 'waiting' | 'offline' | 'failed';
 
 export type AgentCallStatus = 'in_progress' | 'completed' | 'failed';
+
+export type AgentSignalKind = 'awaited' | 'push';
+export type AgentSignalStatus = 'open' | 'received' | 'resolved';
+
+export interface AgentSignalRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  agentId: string;
+  capabilityId: string;
+  data: PebbleJsonValue;
+  description: string;
+  kind: AgentSignalKind;
+  name: string;
+  receivedAt: number | null;
+  resolvedAt: number | null;
+  signalId: string;
+  status: AgentSignalStatus;
+}
 
 export type WorktreeStatus = 'creating' | 'active' | 'deleted';
 
@@ -252,6 +274,12 @@ export interface TaskEventRecord {
 
 export type MetricDimensionsRecord = Record<string, string>;
 
+export type MetricDimensionScalar = boolean | null | number | string;
+
+export type MetricDimensionJsonRecord = Record<string, MetricDimensionScalar>;
+
+export type MetricDimensionSource = bigint | boolean | null | number | object | string | undefined;
+
 export interface MetricRecord {
   id: string;
   createdAt: number;
@@ -268,4 +296,17 @@ export interface MetricAggregateBucket {
   max: number;
   avg: number;
   sum: number;
+}
+
+export interface MetricNameSummary {
+  name: string;
+  sampleCount: number;
+  firstSeenAt: number;
+  lastSeenAt: number;
+}
+
+export interface MetricVariant {
+  dimensions: MetricDimensionsRecord;
+  sampleCount: number;
+  lastSeenAt: number;
 }

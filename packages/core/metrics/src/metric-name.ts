@@ -1,12 +1,10 @@
-const METRIC_NAME_PATTERN = /^[a-z]+(\.[a-z]+)*$/;
+import { InvalidMetricNameError } from './invalid-metric-name-error';
 
-export class InvalidMetricNameError extends Error {
-  public constructor(name: string) {
-    super(`Invalid metric name: ${JSON.stringify(name)}. Names must be lowercase letters separated by dots.`);
-    this.name = 'InvalidMetricNameError';
-  }
-}
-
+/**
+ * Enforces the metric naming contract.
+ *
+ * Names are lowercase dot-separated segments like `agent.run.duration`.
+ */
 export function assertValidMetricName(name: string): void {
-  if (!METRIC_NAME_PATTERN.test(name)) throw new InvalidMetricNameError(name);
+  if (!/^[a-z]+(\.[a-z]+)*$/.test(name)) throw new InvalidMetricNameError(name);
 }

@@ -7,6 +7,6 @@ type ListThreadsPayload = ListThreadsOperation['request'];
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(_payload: ListThreadsPayload) {
-    return ctx.datastore.threads.list();
+    return ctx.datastore.threads.list({});
   };
 }

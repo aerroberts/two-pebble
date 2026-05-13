@@ -11,6 +11,12 @@ import type { PebbleAgentModelCallTrace } from './agent-traces/model-call';
 import type { PebbleAgentModelCallFailureTrace } from './agent-traces/model-call-failure';
 import type { PebbleAgentModelCallStartTrace } from './agent-traces/model-call-start';
 import type { PebbleAgentModelCallSuccessTrace } from './agent-traces/model-call-success';
+import type {
+  PebbleAgentSignalReceivedTrace,
+  PebbleAgentSignalRegisteredTrace,
+  PebbleAgentSignalResolvedTrace,
+  PebbleAgentWaitingTrace,
+} from './agent-traces/signal';
 import type { PebbleAgentStateSnapshotTrace } from './agent-traces/state-snapshot';
 import type { PebbleAgentSubAgentTrace } from './agent-traces/sub-agent';
 import type { PebbleAgentSubAgentFailureTrace } from './agent-traces/sub-agent-failure';
@@ -42,6 +48,10 @@ export type PebbleAgentTrace =
   | PebbleAgentModelCallStartTrace
   | PebbleAgentModelCallSuccessTrace
   | PebbleAgentModelCallTrace
+  | PebbleAgentSignalReceivedTrace
+  | PebbleAgentSignalRegisteredTrace
+  | PebbleAgentSignalResolvedTrace
+  | PebbleAgentWaitingTrace
   | PebbleAgentStateSnapshotTrace
   | PebbleAgentSubAgentFailureTrace
   | PebbleAgentSubAgentInvokeTrace

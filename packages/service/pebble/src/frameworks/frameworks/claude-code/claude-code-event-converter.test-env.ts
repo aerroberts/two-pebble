@@ -1,3 +1,6 @@
+import { expect } from 'bun:test';
+import type { ConvertedClaudeCodeEvent } from './claude-code-trace-mapping';
+
 export function assistantTextMessage(content: string) {
   return {
     type: 'assistant',
@@ -52,6 +55,17 @@ export function successResultMessage(result: string, modelId: string) {
 }
 
 export const DEFAULT_TEST_MODEL_ID = 'anthropic/claude-opus-4-7';
+
+export function expectTaskListStatuses(events: ConvertedClaudeCodeEvent[]): void {
+  const taskListEvent = events.find((event) => event.kind === 'agent-trace' && event.trace.type === 'task-list-update');
+  expect(taskListEvent).toMatchObject({
+    kind: 'agent-trace',
+    trace: {
+      type: 'task-list-update',
+      data: { tasks: [{ status: 'open' }, { status: 'pending' }, { status: 'completed' }] },
+    },
+  });
+}
 
 export function subagentStartHookInput(agentId: string, agentType: string) {
   return { hook_event_name: 'SubagentStart', agent_id: agentId, agent_type: agentType } as never;

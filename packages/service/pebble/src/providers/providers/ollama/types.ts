@@ -1,3 +1,5 @@
+import type { ToolInputRecord } from '../../../agent/tools/tool-input';
+
 export interface OllamaProviderOptions {
   model: string;
   baseUrl?: string;
@@ -11,7 +13,7 @@ export interface OllamaProviderMessage {
 }
 
 export interface OllamaProviderRequestToolCall {
-  function: { name: string; arguments: object };
+  function: { name: string; arguments: ToolInputRecord };
 }
 
 export interface OllamaProviderRequest {
@@ -50,5 +52,5 @@ export interface OllamaToolCall {
 
 export interface OllamaToolFunction {
   name?: string;
-  arguments?: object;
+    arguments?: ToolInputRecord;
 }

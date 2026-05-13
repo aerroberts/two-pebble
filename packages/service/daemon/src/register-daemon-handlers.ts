@@ -12,6 +12,9 @@ import { handler as listAgentPriceLineItemsHandler } from './handlers/agent.pric
 import { handler as recordAgentPriceLineItemHandler } from './handlers/agent.price-line-items.record.handler';
 import { handler as readAgentHandler } from './handlers/agent.read.handler';
 import { handler as renameAgentHandler } from './handlers/agent.rename.handler';
+import { handler as listAgentSignalsHandler } from './handlers/agent.signals.list.handler';
+import { handler as resolveAgentSignalHandler } from './handlers/agent.signals.resolve.handler';
+import { handler as sendAgentSignalHandler } from './handlers/agent.signals.send.handler';
 import { handler as stopAgentHandler } from './handlers/agent.stop.handler';
 import { handler as callAgentToolHandler } from './handlers/agent.tool.call.handler';
 import { handler as listAgentTracesHandler } from './handlers/agent.traces.list.handler';
@@ -98,6 +101,9 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('failAgent', failAgentHandler(context));
   register('launchAgent', launchAgentHandler(context));
   register('sendAgentMessage', sendAgentMessageHandler(context));
+  register('sendAgentSignal', sendAgentSignalHandler(context));
+  register('resolveAgentSignal', resolveAgentSignalHandler(context));
+  register('listAgentSignals', listAgentSignalsHandler(context));
   register('listAgentCalls', listAgentCallsHandler(context));
   register('listAgentPriceLineItems', listAgentPriceLineItemsHandler(context));
   register('listAgentTraces', listAgentTracesHandler(context));

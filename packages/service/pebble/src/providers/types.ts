@@ -1,4 +1,15 @@
 import type { PricingLineItem } from '../pricing';
+import type { ToolInputRecord } from '../agent/tools/tool-input';
+import type { ConversationThread } from '../thread/index';
+
+export type ProviderException = Error | null | object | string | undefined;
+
+export interface ModelProviderExceptionInput {
+  error: ProviderException;
+  modelCallId: string;
+  thread: ConversationThread;
+  startedAt: number;
+}
 
 /**
  * Shared shape for every provider call result (chat / transcription / speech).
@@ -37,7 +48,7 @@ type ProviderOutputBlockTool = {
   type: 'tool';
   callid: string;
   toolid: string;
-  payload: object;
+  payload: ToolInputRecord;
 };
 
 export type ProviderOutputBlock =

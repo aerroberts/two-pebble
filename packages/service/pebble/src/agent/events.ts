@@ -3,7 +3,6 @@ import type { ProviderResult } from '../providers/types';
 import type { PebbleAgentTrace } from '../traces/types';
 import type { PebbleJsonRecord } from '../types';
 import type {
-  AgentSignal,
   AgentStatusEvent,
   PebbleAgentConversationCell,
   SubAgentLifecycleEvent,
@@ -24,8 +23,8 @@ export type AgentEvents = {
   // The agent has a lifecyle it progressed through, this is emitted whenever the status changes from one state to another
   status: [AgentStatusEvent];
 
-  // This is an internal signal that is emitted by the agent to signal something has occured, not for external use
-  signal: [AgentSignal];
+  // Emitted internally when caller-supplied user messages are available to drain.
+  message: [];
 
   // A trace is a developer facing event which indicates that something happened as part of agent execution
   // Traces track everything from user messages, to model calls, to tool use. They are the main source of data powering the UI

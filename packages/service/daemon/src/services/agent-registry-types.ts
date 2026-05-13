@@ -1,4 +1,5 @@
 import type {
+  Datastore,
   AgentRegistryRecord,
   InferenceProfileRecord,
   IntegrationRecord,
@@ -19,6 +20,8 @@ import type {
   UsageReport,
 } from '@two-pebble/pebble';
 import type { DaemonBridge } from '../types';
+import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
+import type { TaskBoardService } from './task-board-service';
 
 export interface LaunchAgentInput {
   agentRegistryId: string;
@@ -78,6 +81,29 @@ export interface RunAgentInput {
 }
 
 export type NextAgentTraceOrderId = () => number;
+
+export interface ActiveAgentSnapshot {
+  agentId: string;
+  agent: Agent;
+}
+
+export interface AgentListenerContext {
+  datastore: Datastore;
+  logger: Logger;
+  pending: SubAgentCreatePromiseMap;
+  taskBoards: TaskBoardService;
+  persistAgentStatus(input: PersistAgentStatusInput): Promise<void>;
+  recordConversationCell(input: RecordConversationCellInput): Promise<void>;
+  recordModelCall(input: RecordModelCallInput): Promise<void>;
+  recordPriceLineItem(input: RecordPriceLineItemInput): Promise<void>;
+  recordTrace(input: RecordTraceInput): Promise<void>;
+}
+
+export interface AgentListenerInstallInput {
+  context: AgentListenerContext;
+  input: RunAgentInput;
+  nextOrderId: NextAgentTraceOrderId;
+}
 
 export interface BuildLaunchAgentInput_Pebble {
   agentId: string;
@@ -154,6 +180,7 @@ export interface RecordPriceLineItemInput {
 export interface EmitWorktreeInitializedInput {
   agentId: string;
   bridge: DaemonBridge;
+  datastore: Datastore;
   worktree: ResolvedWorktree;
 }
 
@@ -221,6 +248,9 @@ export type BuildLaunchAgentParams = BuildLaunchAgentParams_Pebble | BuildLaunch
 
 export interface ResolveLaunchWorkspaceInput {
   bridge: DaemonBridge;
+  datastore: Datastore;
+  logger: Logger;
+  multicastBridge: DaemonBridge;
   registry: AgentRegistryRecord;
 }
 

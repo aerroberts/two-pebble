@@ -14,7 +14,7 @@ type OperationHandlerOutput = {
 };
 
 export function metricsQueryAggregatedOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput): Promise<OperationHandlerOutput> {
+  return async function handler(input: OperationHandlerInput) {
     if (!Number.isInteger(input.bucketSizeMs) || input.bucketSizeMs <= 0) {
       throw new Error(`bucketSizeMs must be a positive integer; got ${input.bucketSizeMs}`);
     }
@@ -60,7 +60,7 @@ export function metricsQueryAggregatedOperation(ctx: DatastoreContext) {
         sum: Number(row.sum_value ?? 0),
       };
     });
-    return { buckets };
+    return { buckets } as OperationHandlerOutput;
   };
 }
 

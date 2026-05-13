@@ -1,8 +1,10 @@
-import type { Datastore, TaskDependencyRecord } from '@two-pebble/datastore';
+import type { Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
 import type { ProtocolTaskRecord } from '@two-pebble/protocol';
 import { TaskBoard } from '@two-pebble/tasks';
+import { toProtocolTask } from './task-board-protocol-task';
 import { rowToProtocolEvent } from './task-board-event-mapping';
+import { hydrateTaskBoard } from './task-board-service-hydration';
 import type {
   BoardSnapshot,
   CapturedStatusEvent,
@@ -16,7 +18,6 @@ import type {
   MutationContextInput,
   MutationOutcome,
   OwnerId,
-  PoolReplayRow,
   RecordDelegationInput,
   RecordedTaskEvent,
   RecordUndelegationInput,
@@ -204,7 +205,7 @@ export class TaskBoardService {
       },
     );
     const engine = this.requireEngine(input.boardId);
-    return { result: this.toProtocolTask(record, engine), events };
+    return { result: toProtocolTask(record, engine), events };
   }
 
   /**
@@ -225,7 +226,7 @@ export class TaskBoardService {
     );
     const updated = await this.datastore.taskBoards.tasks.update({ id: input.id, status: input.status });
     const engine = this.requireEngine(boardId);
-    return { result: this.toProtocolTask(updated, engine), events };
+    return { result: toProtocolTask(updated, engine), events };
   }
 
   /**
@@ -285,7 +286,7 @@ export class TaskBoardService {
     return {
       board,
       pools: pools.items,
-      tasks: tasks.items.map((task) => this.toProtocolTask(task, engine)),
+      tasks: tasks.items.map((task) => toProtocolTask(task, engine)),
       dependencies: dependencies.items,
     };
   }
@@ -297,7 +298,7 @@ export class TaskBoardService {
   public async listTasks(boardId: string): Promise<ProtocolTaskRecord[]> {
     const tasks = await this.datastore.taskBoards.tasks.list({ boardId });
     const engine = this.requireEngine(boardId);
-    return tasks.items.map((task) => this.toProtocolTask(task, engine));
+    return tasks.items.map((task) => toProtocolTask(task, engine));
   }
 
   /**
@@ -315,7 +316,7 @@ export class TaskBoardService {
    * overrides are not overwritten by the after-the-fact sync.
    */
   public async syncOwnedTasksFromAgentStatus(input: SyncTasksFromAgentInput): Promise<SyncTasksFromAgentResult> {
-    const targetStatus: 'failure' = 'failure';
+    const targetStatus = 'failure';
     const reason = input.reason ?? `auto: agent ${input.agentStatus}`;
     const { items: boards } = await this.datastore.taskBoards.list({});
     const tasksOut: ProtocolTaskRecord[] = [];
@@ -377,74 +378,8 @@ export class TaskBoardService {
   }
 
   private async hydrateBoard(boardId: string): Promise<void> {
-    const engine = new TaskBoard(boardId);
-    const pools = await this.datastore.taskBoards.pools.list({ boardId });
-    const tasks = await this.datastore.taskBoards.tasks.list({ boardId });
-    const dependencies = await this.datastore.taskBoards.dependencies.list({ boardId });
-    this.replayPools(engine, pools.items);
-    this.replayTasks(engine, tasks.items);
-    this.replayDependencies(engine, dependencies.items);
+    const engine = await hydrateTaskBoard({ boardId, datastore: this.datastore, logger: this.logger });
     this.engines.set(boardId, engine);
-  }
-
-  private replayPools(engine: TaskBoard, pools: PoolReplayRow[]): void {
-    const knownIds = new Set(pools.map((pool) => pool.id));
-    const pending = [...pools];
-    while (pending.length > 0) {
-      const before = pending.length;
-      for (let index = pending.length - 1; index >= 0; index -= 1) {
-        const pool = pending[index];
-        if (pool === undefined) continue;
-        const parent = pool.parentPoolId;
-        if (parent === null || engine.listPools().some((existing) => existing.id === parent)) {
-          engine.addPool({ id: pool.id, parentPoolId: parent ?? undefined });
-          pending.splice(index, 1);
-        }
-      }
-      if (pending.length !== before) continue;
-      // No progress this pass — either a true cycle, or one/more pools reference
-      // a parent id that isn't in the dataset. Orphaned-parent rows are
-      // recoverable: log a warning, drop the parent in memory, and persist the
-      // repair so subsequent boots stay clean. True cycles still throw.
-      const orphan = pending.find((pool) => pool.parentPoolId !== null && !knownIds.has(pool.parentPoolId));
-      if (orphan === undefined) throw new Error('cyclic pool parents in datastore');
-      this.logger.warn('pool references missing parent — moving to board root', {
-        poolId: orphan.id,
-        parentPoolId: orphan.parentPoolId,
-      });
-      void this.datastore.taskBoards.pools.setParent({ id: orphan.id, parentPoolId: null }).catch((error) => {
-        const message = error instanceof Error ? error.message : String(error);
-        this.logger.warn('failed to persist orphaned-parent repair', { poolId: orphan.id, error: message });
-      });
-      orphan.parentPoolId = null;
-    }
-  }
-
-  private replayTasks(engine: TaskBoard, tasks: DatastoreTaskRow[]): void {
-    const validPoolIds = new Set(engine.listPools().map((pool) => pool.id));
-    for (const task of tasks) {
-      let poolId = task.poolId;
-      if (poolId !== null && !validPoolIds.has(poolId)) {
-        this.logger.warn('task references missing pool — moving to board root', {
-          taskId: task.id,
-          poolId,
-        });
-        void this.datastore.taskBoards.tasks.setPool({ id: task.id, poolId: null }).catch((error) => {
-          const message = error instanceof Error ? error.message : String(error);
-          this.logger.warn('failed to persist orphaned-pool repair', { taskId: task.id, error: message });
-        });
-        poolId = null;
-      }
-      engine.addTask({ id: task.id, poolId: poolId ?? undefined });
-      const stored = task.status;
-      if (stored === 'working' || stored === 'waiting' || stored === 'success' || stored === 'failure') {
-        engine.setTaskStatus(task.id, stored);
-      }
-    }
-  }
-
-  private replayDependencies(engine: TaskBoard, deps: TaskDependencyRecord[]): void {
-    for (const edge of deps) engine.addDependency({ fromId: edge.fromId, toId: edge.toId });
   }
 
   private requireEngine(boardId: string): TaskBoard {
@@ -453,18 +388,4 @@ export class TaskBoardService {
     return engine;
   }
 
-  private toProtocolTask(row: DatastoreTaskRow, engine: TaskBoard): ProtocolTaskRecord {
-    return {
-      id: row.id,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      boardId: row.boardId,
-      poolId: row.poolId,
-      name: row.name,
-      description: row.description ?? '',
-      ownerId: row.ownerId ?? null,
-      status: row.status as ProtocolTaskRecord['status'],
-      effectiveStatus: engine.getTaskStatus(row.id),
-    };
-  }
 }

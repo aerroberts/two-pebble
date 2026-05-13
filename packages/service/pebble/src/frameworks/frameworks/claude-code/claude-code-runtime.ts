@@ -32,6 +32,10 @@ export type QueryHooks = NonNullable<QueryOptions['hooks']>;
 export type InputStreamResolver = () => void;
 export type ApiProvider = AccountInfo['apiProvider'];
 
+export interface ActiveClaudeCodeQuery {
+  interrupt(): Promise<void>;
+}
+
 const TRANSCRIPT_READ_ATTEMPTS = 5;
 const TRANSCRIPT_READ_DELAY_MS = 50;
 

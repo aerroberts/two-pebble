@@ -1,5 +1,7 @@
 import {
   Header,
+  AppBox,
+  AppButton,
   LineChart,
   type LineChartPoint,
   PageLayout,
@@ -123,31 +125,27 @@ export function MetricDetailPage() {
       <Section
         title="Chart"
         actionItems={
-          <div className="flex gap-1">
+          <AppBox variant="range-buttons">
             {RANGE_OPTIONS.map((option) => {
               const active = option.id === rangeId;
               return (
-                <button
+                <AppButton
                   key={option.id}
                   type="button"
                   onClick={() => setRangeId(option.id)}
-                  className={
-                    active
-                      ? 'rounded-md bg-surface-active px-2 py-1 text-xs font-medium text-content'
-                      : 'rounded-md px-2 py-1 text-xs text-content-muted hover:bg-surface-hover'
-                  }
+                  variant={active ? 'range-active' : 'range-idle'}
                 >
                   {option.label}
-                </button>
+                </AppButton>
               );
             })}
-          </div>
+          </AppBox>
         }
       >
         <Surface>
-          <div className="p-4">
+          <AppBox variant="chart-body">
             {status === 'error' ? (
-              <p className="text-xs text-content-muted">Failed to load metric data.</p>
+              <AppBox as="p" variant="muted-xs">Failed to load metric data.</AppBox>
             ) : (
               <LineChart
                 points={aggregatedPoints}
@@ -161,7 +159,7 @@ export function MetricDetailPage() {
                 emptyMessage={status === 'loading' ? 'Loading metric data.' : 'No samples in this window.'}
               />
             )}
-          </div>
+          </AppBox>
         </Surface>
       </Section>
 
@@ -199,7 +197,7 @@ function VariantsTable(props: VariantsTableProps) {
     const dimensionColumns: TableColumn<MetricVariant>[] = props.dimensionKeys.map((key) => ({
       id: `dim-${key}`,
       header: key,
-      cell: (row) => row.dimensions[key] ?? <span className="text-content-faint">—</span>,
+      cell: (row) => row.dimensions[key] ?? <AppBox as="span" variant="faint-text">—</AppBox>,
     }));
     return [
       {
@@ -207,9 +205,13 @@ function VariantsTable(props: VariantsTableProps) {
         header: '',
         width: '24px',
         cell: (row) => (
-          <span aria-hidden className={variantKey(row) === props.activeKey ? 'text-accent' : 'text-transparent'}>
+          <AppBox
+            aria-hidden
+            as="span"
+            variant={variantKey(row) === props.activeKey ? 'metric-active-dot' : 'metric-inactive-dot'}
+          >
             ●
-          </span>
+          </AppBox>
         ),
       },
       ...dimensionColumns,

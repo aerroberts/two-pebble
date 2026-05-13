@@ -1,4 +1,5 @@
 import {
+  type ProtocolTaskRecord,
   useAgentRegistries,
   useAgents,
   useTaskBoardContents,
@@ -13,6 +14,14 @@ type TaskBoardView = 'graph' | 'list' | 'settings';
 type ActionRunner = () => Promise<void>;
 type PoolId = string | null;
 type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure';
+type CreateTaskAfterInput = { poolId: PoolId; name?: string };
+type SelectedTaskRecord = ProtocolTaskRecord | null;
+type OwnerAgentResult = AgentLike | null;
+
+interface AgentLike {
+  id: string;
+  name: string;
+}
 
 export type { SettableTaskStatus, TaskBoardView };
 
@@ -155,7 +164,7 @@ export function useTaskBoardPageState() {
         if (target !== undefined && trimmed === target.name) return;
         await mutations.renameTask({ id, name: trimmed });
       }),
-    createTaskAfter: async (input: { poolId: PoolId; name?: string }) => {
+    createTaskAfter: async (input: CreateTaskAfterInput) => {
       try {
         const result = await mutations.createTask({
           boardId,
@@ -186,33 +195,28 @@ export function useTaskBoardPageState() {
   };
 }
 
-interface AgentLike {
-  id: string;
-  name: string;
-}
-
-function collectOwnerAgent<T extends { ownerId: string | null }>(
-  selectedTask: T | null,
+function collectOwnerAgent(
+  selectedTask: SelectedTaskRecord,
   agents: AgentLike[],
-): AgentLike | null {
+): OwnerAgentResult {
   if (selectedTask === null || selectedTask.ownerId === null) return null;
   return agents.find((entry) => entry.id === selectedTask.ownerId) ?? null;
 }
 
-function collectCandidateDependencies<T extends { id: string; name: string; poolId: PoolId; effectiveStatus: string }>(
-  selectedTask: T | null,
-  allTasks: T[],
-  existingDeps: T[],
-): T[] {
+function collectCandidateDependencies(
+  selectedTask: SelectedTaskRecord,
+  allTasks: ProtocolTaskRecord[],
+  existingDeps: ProtocolTaskRecord[],
+): ProtocolTaskRecord[] {
   if (selectedTask === null) return [];
   const excluded = new Set<string>([selectedTask.id, ...existingDeps.map((entry) => entry.id)]);
   return allTasks.filter((task) => task.poolId === selectedTask.poolId && !excluded.has(task.id));
 }
 
-function collectTasksByIds<T extends { id: string }>(tasks: T[], ids: string[]): T[] {
-  const lookup = new Map<string, T>();
+function collectTasksByIds(tasks: ProtocolTaskRecord[], ids: string[]): ProtocolTaskRecord[] {
+  const lookup = new Map<string, ProtocolTaskRecord>();
   for (const task of tasks) lookup.set(task.id, task);
-  const result: T[] = [];
+  const result: ProtocolTaskRecord[] = [];
   for (const id of ids) {
     const task = lookup.get(id);
     if (task) result.push(task);

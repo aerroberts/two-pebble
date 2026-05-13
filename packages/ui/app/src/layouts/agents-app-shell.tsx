@@ -1,9 +1,11 @@
-import { AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection } from '@two-pebble/components';
+import { AppBox, AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection } from '@two-pebble/components';
 import { type AgentRecord, useAgents, useCompleteAgent, useStopAgent } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AgentSidebarItem } from './agents-sidebar-item';
+import { AgentSidebarItem } from './agent-sidebar-item';
 import type { AppShellProps } from './app-shell-props';
 import { MainAppShell } from './main-app-shell';
+
+type SidebarAgentStatus = AgentRecord['status'];
 
 export function AgentsAppShell(props: AppShellProps) {
   const location = useLocation();
@@ -50,7 +52,7 @@ export function AgentsAppShell(props: AppShellProps) {
             ) : null}
             <SidebarSection collapsible title="Idle">
               {idleAgents.length === 0 ? (
-                <div className="px-3 py-1.5 text-xs text-content-muted">No idle agents.</div>
+                <AppBox variant="sidebar-empty">No idle agents.</AppBox>
               ) : (
                 idleAgents.map((agent) => (
                   <AgentSidebarItem
@@ -84,6 +86,6 @@ export function AgentsAppShell(props: AppShellProps) {
   );
 }
 
-function isTerminal(status: AgentRecord['status']): boolean {
+function isTerminal(status: SidebarAgentStatus): boolean {
   return status === 'failed';
 }

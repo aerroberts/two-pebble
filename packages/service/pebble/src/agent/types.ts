@@ -175,8 +175,6 @@ export interface CapabilityStateSnapshot {
 export type AgentStatus = 'idle' | 'running' | 'waiting' | 'failed' | 'offline';
 export type AgentStatusEvent = { status: AgentStatus; message: string };
 
-export type AgentSignal = 'incoming-message';
-
 export type TraceListener = (trace: PebbleAgentTrace) => void;
 export type ModelCallListener = (call: ProviderResult) => void;
 export type LineItemListener = (lineItem: PricingLineItem) => void;

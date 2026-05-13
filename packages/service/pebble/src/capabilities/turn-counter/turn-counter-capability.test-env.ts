@@ -7,7 +7,12 @@ interface CapabilityFixture {
 }
 
 interface SnapshotRecorder {
-  emit(event: string, trace: { type: string; data: CapabilityStateSnapshot }): void;
+  emit(event: string, trace: CapabilityTraceSnapshot): void;
+}
+
+interface CapabilityTraceSnapshot {
+  type: string;
+  data: CapabilityStateSnapshot;
 }
 
 interface RecordingAgent {
@@ -26,7 +31,7 @@ interface TurnCounterRehydrateSlots {
 export function recordingAgent(): RecordingAgent {
   const snapshots: CapabilityStateSnapshot[] = [];
   const recorder: SnapshotRecorder = {
-    emit: (event: string, trace: { type: string; data: CapabilityStateSnapshot }) => {
+    emit: (event: string, trace: CapabilityTraceSnapshot) => {
       if (event === 'trace' && trace.type === 'state-snapshot') snapshots.push(trace.data);
     },
   };

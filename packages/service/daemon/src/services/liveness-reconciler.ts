@@ -1,36 +1,17 @@
 import type { Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
 import type { Agent, ProbeResult } from '@two-pebble/pebble';
-import type { AgentLivenessEvent } from '@two-pebble/protocol';
 import type { AgentRegistryService } from './agent-registry-service';
-
-type LivenessPayload = AgentLivenessEvent['payload'];
-type Broadcaster = (payload: LivenessPayload) => void;
-
-const TICK_MS = 2_000;
-const PROBE_TIMEOUT_MS = 250;
-const STALE_AFTER_MS = 60_000;
-const REHYDRATE_BACKOFF_MS = [1_000, 2_000, 4_000, 8_000, 16_000, 30_000];
-
-interface LivenessReconcilerInput {
-  agentRegistry: AgentRegistryService;
-  broadcast: Broadcaster;
-  daemonBootId: string;
-  datastore: Datastore;
-  logger: Logger;
-  rehydrate?: (agentId: string) => Promise<Agent>;
-}
-
-interface RehydrationState {
-  attempts: number;
-  nextAttemptAt: number;
-  lastError?: string;
-  inflight: boolean;
-}
-
-interface ProbeableAgent {
-  probe(): Promise<ProbeResult>;
-}
+import { PROBE_TIMEOUT_MS, REHYDRATE_BACKOFF_MS, TICK_MS } from './liveness-reconciler-constants';
+import { deriveActiveState } from './liveness-reconciler-state';
+import type {
+  AgentRehydrator,
+  LivenessBroadcaster,
+  LivenessReconcilerInput,
+  LivenessTimer,
+  ProbeableAgent,
+  RehydrationState,
+} from './liveness-reconciler-types';
 
 /**
  * Continuously reconciles "intent" (durable agent.status) with "actuality"
@@ -41,13 +22,13 @@ interface ProbeableAgent {
  */
 export class LivenessReconciler {
   private readonly agentRegistry: AgentRegistryService;
-  private readonly broadcast: Broadcaster;
+  private readonly broadcast: LivenessBroadcaster;
   private readonly daemonBootId: string;
   private readonly datastore: Datastore;
   private readonly logger: Logger;
-  private readonly rehydrateAgent?: (agentId: string) => Promise<Agent>;
+  private readonly rehydrateAgent?: AgentRehydrator;
   private readonly rehydrationState = new Map<string, RehydrationState>();
-  private timer: ReturnType<typeof setInterval> | undefined;
+  private timer: LivenessTimer | undefined;
   private tickInflight = false;
 
   public constructor(input: LivenessReconcilerInput) {
@@ -188,18 +169,11 @@ export class LivenessReconciler {
           clearTimeout(timer);
           resolve(result);
         })
-        .catch((error: unknown) => {
+        .catch((error) => {
           clearTimeout(timer);
           const message = error instanceof Error ? error.message : String(error);
           resolve({ alive: true, lastActivityAt: 0, hint: `probe-error: ${message}` });
         });
     });
   }
-}
-
-function deriveActiveState(probe: ProbeResult, now: number): LivenessPayload['state'] {
-  if (probe.settled === 'idle') return 'idle';
-  if (!probe.alive) return 'idle';
-  if (probe.lastActivityAt > 0 && now - probe.lastActivityAt > STALE_AFTER_MS) return 'stalled';
-  return 'running';
 }

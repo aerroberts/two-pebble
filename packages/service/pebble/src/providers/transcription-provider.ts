@@ -1,4 +1,4 @@
-import type { TranscriptionInput, TranscriptionResult } from './types';
+import type { ProviderException, TranscriptionInput, TranscriptionResult } from './types';
 import { withRetries } from './utils/retry';
 
 /**
@@ -35,7 +35,7 @@ export abstract class TranscriptionProvider {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private exceptionToResult(error: unknown, callId: string, startedAt: number): TranscriptionResult {
+  private exceptionToResult(error: ProviderException, callId: string, startedAt: number): TranscriptionResult {
     return {
       id: callId,
       startedAt,

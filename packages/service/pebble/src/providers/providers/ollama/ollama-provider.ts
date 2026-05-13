@@ -1,10 +1,12 @@
-import type { CellContent } from '../../../thread/cells/index';
 import type { ConversationThread, ConversationTurn } from '../../../thread/index';
+import type { ToolInputRecord } from '../../../agent/tools/tool-input';
+import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
 import { ModelProvider } from '../../model-provider';
 import { collectNativeToolDefinitions } from '../../native-tools';
 import type { ProviderOutputBlock, ProviderResult } from '../../types';
 import { isRetryableProviderStatus } from '../../utils/retry';
 import { buildOllamaPriceLineItems } from './pricing';
+import { renderTextCellOllama } from './render-text-cell';
 import type {
   OllamaChatResponse,
   OllamaProviderMessage,
@@ -93,7 +95,7 @@ export class OllamaProvider extends ModelProvider {
     const request: OllamaProviderRequest = {
       messages: thread.serialize().flatMap((turn) => this.buildMessages(turn)),
       model: this.modelId,
-      options: { stop: [ModelProvider.END_TURN_STOP_TOKEN] },
+      options: { stop: [END_TURN_STOP_TOKEN] },
       stream: false,
     };
     if (tools.length > 0) request.tools = tools;
@@ -139,8 +141,8 @@ export class OllamaProvider extends ModelProvider {
       for (const cell of turn.cells) {
         if (cell.type === 'toolResult') {
           flushUserText();
-          const text = (cell.content.content as { type: string; content: unknown }[])
-            .map((inner) => renderTextCellOllama(inner as CellContent))
+          const text = cell.content.content
+            .map((inner) => renderTextCellOllama(inner))
             .filter((rendered) => rendered.length > 0)
             .join('\n\n');
           messages.push({
@@ -173,34 +175,9 @@ export class OllamaProvider extends ModelProvider {
         type: 'tool',
         callid: crypto.randomUUID(),
         toolid: toolCall.function?.name ?? 'unknown',
-        payload: toolCall.function?.arguments ?? {},
+        payload: toolCall.function?.arguments ?? ({} as ToolInputRecord),
       });
     }
     return output;
-  }
-}
-
-function renderTextCellOllama(cell: CellContent): string {
-  switch (cell.type) {
-    case 'codeBlock':
-      return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
-    case 'data':
-      return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
-    case 'header1':
-      return `# ${cell.content.text}`;
-    case 'header2':
-      return `## ${cell.content.text}`;
-    case 'text':
-      return cell.content.text;
-    case 'audio':
-      return cell.content.transcript == null || cell.content.transcript.length === 0
-        ? '[audio]'
-        : `[audio: ${cell.content.transcript}]`;
-    case 'image':
-      return `[image](data:image/*;base64,${cell.content.base64Data})`;
-    case 'toolRegistration':
-    case 'toolUse':
-    case 'toolResult':
-      return '';
   }
 }

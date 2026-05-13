@@ -1,6 +1,7 @@
 export { agentCallsTable } from './agent.calls.table';
 export { agentConversationCellsTable } from './agent.conversation.cells.table';
 export { agentPriceLineItemsTable } from './agent.price-line-items.table';
+export { agentSignalsTable } from './agent.signals.table';
 export { agentTracesTable } from './agent.traces.table';
 export { agentRegistriesTable } from './agent-registries.table';
 export { agentsTable } from './agents.table';

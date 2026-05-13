@@ -1,14 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { InvalidMetricNameError } from '../metric-name';
+import { InvalidMetricNameError } from '../invalid-metric-name-error';
 import { Metrics } from '../metrics';
-import type { MetricEntry } from '../types';
-
-function setupMetrics() {
-  const entries: MetricEntry[] = [];
-  const m = new Metrics();
-  m.onMetric((e) => entries.push(e));
-  return { metrics: m, entries };
-}
+import { setupMetrics, setupPeriodicErrorIsolation } from '../testing/metrics-test-env';
 
 describe('feature: Metrics.emit', () => {
   test('happy: invokes registered handler synchronously', () => {
@@ -33,24 +26,24 @@ describe('feature: Metrics.emit', () => {
     expect(() => m.emit('foo', 1)).not.toThrow();
   });
 
-  test('sad: rejects names with uppercase letters', () => {
+  test('unhappy: rejects names with uppercase letters', () => {
     const m = new Metrics();
     expect(() => m.emit('FooBar', 1)).toThrow(InvalidMetricNameError);
   });
 
-  test('sad: rejects names with dashes', () => {
+  test('unhappy: rejects names with dashes', () => {
     const m = new Metrics();
     expect(() => m.emit('foo-bar', 1)).toThrow(InvalidMetricNameError);
   });
 
-  test('sad: rejects empty segments', () => {
+  test('unhappy: rejects empty segments', () => {
     const m = new Metrics();
     expect(() => m.emit('foo..bar', 1)).toThrow(InvalidMetricNameError);
     expect(() => m.emit('.foo', 1)).toThrow(InvalidMetricNameError);
     expect(() => m.emit('foo.', 1)).toThrow(InvalidMetricNameError);
   });
 
-  test('sad: drops non-finite values silently', () => {
+  test('unhappy: drops non-finite values silently', () => {
     const { metrics, entries } = setupMetrics();
     metrics.emit('foo', Number.NaN);
     metrics.emit('foo', Number.POSITIVE_INFINITY);
@@ -67,7 +60,7 @@ describe('feature: Metrics.wrap', () => {
     expect(names).toEqual(['op.run.duration', 'op.run.success']);
   });
 
-  test('sad: emits duration and failure for sync throw', () => {
+  test('unhappy: emits duration and failure for sync throw', () => {
     const { metrics, entries } = setupMetrics();
     const wrapped = metrics.wrap('op.run', () => {
       throw new Error('boom');
@@ -85,7 +78,7 @@ describe('feature: Metrics.wrap', () => {
     expect(names).toEqual(['op.run.duration', 'op.run.success']);
   });
 
-  test('sad: emits duration and failure for async reject', async () => {
+  test('unhappy: emits duration and failure for async reject', async () => {
     const { metrics, entries } = setupMetrics();
     const wrapped = metrics.wrap('op.run', async () => {
       throw new Error('boom');
@@ -116,16 +109,9 @@ describe('feature: Metrics.periodically', () => {
   });
 
   test('happy: an erroring listener does not block siblings', () => {
-    const m = new Metrics({ periodicIntervalMs: 60_000 });
-    let bRan = false;
-    m.periodically(() => {
-      throw new Error('boom');
-    });
-    m.periodically(() => {
-      bRan = true;
-    });
-    m.firePeriodicListenersForTesting();
-    m.shutdown();
-    expect(bRan).toBe(true);
+    const { metrics, state } = setupPeriodicErrorIsolation();
+    metrics.firePeriodicListenersForTesting();
+    metrics.shutdown();
+    expect(state.secondListenerRan).toBe(true);
   });
 });

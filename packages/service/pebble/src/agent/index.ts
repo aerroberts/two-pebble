@@ -9,6 +9,16 @@ export { EarlyExit } from './hooks/early-exit';
 export type { ToolResponseResult } from './hooks/tool-response';
 export { ToolResponse } from './hooks/tool-response';
 export type {
+  AgentSignal,
+  AgentSignalKind,
+  AgentSignalStatus,
+  RegisterSignalInput,
+  ResolveSignalInput,
+  SendSignalInput,
+  SignalRunner,
+  SignalSnapshot,
+} from './signal-runner';
+export type {
   ParentLinkAskInput,
   ParentLinkAwaitInput,
   ParentLinkNotifyInput,

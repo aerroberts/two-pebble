@@ -8,6 +8,7 @@ import {
   assistantTodoWriteMessage,
   assistantToolUseMessage,
   DEFAULT_TEST_MODEL_ID,
+  expectTaskListStatuses,
   subagentStartHookInput,
   subagentStopHookInput,
   successResultMessage,
@@ -48,16 +49,7 @@ describe('feature: claude code event converter — TodoWrite tool', () => {
 
   it('happy: in_progress maps to open status in the synthesized task list', () => {
     const events = new ClaudeCodeEventConverter().convertMessage(assistantTodoWriteMessage('call-1'), 'anthropic');
-    const taskListEvent = events.find(
-      (event) => event.kind === 'agent-trace' && event.trace.type === 'task-list-update',
-    );
-    expect(taskListEvent).toMatchObject({
-      kind: 'agent-trace',
-      trace: {
-        type: 'task-list-update',
-        data: { tasks: [{ status: 'open' }, { status: 'pending' }, { status: 'completed' }] },
-      },
-    });
+    expectTaskListStatuses(events);
   });
 });
 

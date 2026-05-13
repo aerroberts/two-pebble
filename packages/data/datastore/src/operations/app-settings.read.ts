@@ -20,7 +20,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
     }
 
     const now = Date.now();
-    return {
+    const fallback: AppSettingsRecord = {
       id: APP_SETTINGS_SINGLETON_ID,
       createdAt: now,
       updatedAt: now,
@@ -28,6 +28,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       defaultSpeechProfileId: null,
       assistantAgentRegistryId: null,
       assistantAgentId: null,
-    } satisfies AppSettingsRecord as AppSettingsRecord;
+    };
+    return fallback;
   };
 }

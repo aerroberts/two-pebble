@@ -1,9 +1,9 @@
 export {
   buildCapability,
-  type CapabilityFactory,
   capabilityRegistry,
-  knownCapabilityIds,
-} from './capability-registry';
+} from './capability-builder';
+export { knownCapabilityIds } from './capability-ids';
+export type { CapabilityFactory } from './capability-registry-types';
 export { ParentLinkCapability } from './parent-link';
 export * from './progressive-task-list';
 export { getCapabilityRunners, installCapabilityRunners } from './runners';

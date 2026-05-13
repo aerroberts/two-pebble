@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import type { DatastoreContext } from '../types';
-import { attachInferenceProfileProvider } from './inference-profiles-utils';
+import { attachInferenceProfileProvider } from '../operation-support/inference-profiles-utils';
 
 type OperationHandlerInput = {
   id: string;

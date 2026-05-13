@@ -9,6 +9,8 @@ import {
 } from '@two-pebble/realtime';
 import { useMemo, useState } from 'react';
 
+type AssistantAgentId = string | null;
+
 export function useAssistantPageState() {
   const appSettings = useAppSettings();
   const updateAppSettings = useUpdateAppSettings();
@@ -36,7 +38,7 @@ export function useAssistantPageState() {
 
   const settingsLoaded = appSettings.status === 'ready' || settings !== null;
 
-  const persistAgentId = (nextAgentId: string | null) => {
+  const persistAgentId = (nextAgentId: AssistantAgentId) => {
     if (settings === null) return;
     void updateAppSettings({
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,

@@ -12,6 +12,7 @@ import type { AgentFrameworkSubmitMessageInput } from '../../types';
 import { ClaudeCodeEventConverter } from './claude-code-event-converter';
 import {
   type ClaudeCodeAgentOptions,
+  type ActiveClaudeCodeQuery,
   type InputStreamResolver,
   mapApiProvider,
   type QueryHooks,
@@ -42,7 +43,7 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
   private sessionId: string | undefined;
   private lastSdkMessageAt = Date.now();
   private iteratorSettled = true;
-  private activeQuery: { interrupt: () => Promise<void> } | undefined = undefined;
+  private activeQuery: ActiveClaudeCodeQuery | undefined = undefined;
 
   public constructor(options: ClaudeCodeAgentOptions) {
     super();

@@ -1,13 +1,13 @@
-import type { DatastoreContext, MetricDimensionsRecord } from '../types';
+import type {
+  DatastoreContext,
+  MetricDimensionJsonRecord,
+  MetricDimensionsRecord,
+  MetricDimensionSource,
+  MetricVariant,
+} from '../types';
 
 type OperationHandlerInput = {
   name: string;
-};
-
-export type MetricVariant = {
-  dimensions: MetricDimensionsRecord;
-  sampleCount: number;
-  lastSeenAt: number;
 };
 
 type OperationHandlerOutput = {
@@ -15,7 +15,7 @@ type OperationHandlerOutput = {
 };
 
 export function metricsListVariantsOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput): Promise<OperationHandlerOutput> {
+  return async function handler(input: OperationHandlerInput) {
     const result = await ctx.libsqlClient.execute({
       sql: 'SELECT dimensions, COUNT(*) AS sample_count, MAX(created_at) AS last_seen FROM metrics WHERE name = ? GROUP BY dimensions ORDER BY sample_count DESC',
       args: [input.name],
@@ -27,18 +27,16 @@ export function metricsListVariantsOperation(ctx: DatastoreContext) {
         lastSeenAt: Number(row.last_seen ?? 0),
       }),
     );
-    return { items };
+    return { items } as OperationHandlerOutput;
   };
 }
 
-function parseDimensions(raw: unknown): MetricDimensionsRecord {
+function parseDimensions(raw: MetricDimensionSource): MetricDimensionsRecord {
   if (raw === null || raw === undefined) return {};
   try {
-    const parsed = JSON.parse(String(raw)) as unknown;
+    const parsed = JSON.parse(String(raw)) as MetricDimensionJsonRecord;
     if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    const entries = Object.entries(parsed as Record<string, unknown>).map(
-      ([key, value]) => [key, String(value)] as const,
-    );
+    const entries = Object.entries(parsed).map(([key, value]) => [key, String(value)] as const);
     return Object.fromEntries(entries);
   } catch {
     return {};

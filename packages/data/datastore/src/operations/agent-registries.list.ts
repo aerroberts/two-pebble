@@ -1,6 +1,6 @@
 import { count } from 'drizzle-orm';
 import type { DatastoreContext } from '../types';
-import { attachDerivedAgentRegistryKind } from './agent-registries-utils';
+import { attachDerivedAgentRegistryKind } from '../operation-support/agent-registries-utils';
 
 type OperationHandlerInput = {
   limit: number;

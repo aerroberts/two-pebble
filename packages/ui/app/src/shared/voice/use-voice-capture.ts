@@ -5,6 +5,12 @@ export type VoiceCaptureStatus = 'idle' | 'recording' | 'transcribing' | 'error'
 
 type VoiceTranscriptHandler = (text: string) => void;
 type VoiceCaptureClickHandler = () => void;
+type AudioAnalyser = AnalyserNode | null;
+type AudioContextMaybe = AudioContext | null;
+type BrowserWindowWithWebkitAudio = Window & {
+  AudioContext: typeof AudioContext;
+  webkitAudioContext?: typeof AudioContext;
+};
 
 interface UseVoiceCaptureInput {
   onTranscript: VoiceTranscriptHandler;
@@ -12,7 +18,7 @@ interface UseVoiceCaptureInput {
 }
 
 interface UseVoiceCaptureResult {
-  analyser: AnalyserNode | null;
+  analyser: AudioAnalyser;
   disabled: boolean;
   disabledReason: string;
   errorMessage: string;
@@ -25,8 +31,8 @@ interface UseVoiceCaptureResult {
 export function useVoiceCapture(input: UseVoiceCaptureInput): UseVoiceCaptureResult {
   const appSettings = useAppSettings();
   const transcribeAudio = useTranscribeAudio();
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const recorderRef = useRef<RecorderOrNull>(null);
+  const audioContextRef = useRef<AudioContextMaybe>(null);
   const chunksRef = useRef<Blob[]>([]);
   const submitAfterRef = useRef(false);
   const [status, setStatus] = useState<VoiceCaptureStatus>('idle');
@@ -79,9 +85,9 @@ export function useVoiceCapture(input: UseVoiceCaptureInput): UseVoiceCaptureRes
     }
   };
 
-  const setupAnalyser = (stream: MediaStream): AnalyserNode | null => {
-    const AudioContextCtor =
-      window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  const setupAnalyser = (stream: MediaStream): AudioAnalyser => {
+    const browserWindow = window as BrowserWindowWithWebkitAudio;
+    const AudioContextCtor = browserWindow.AudioContext ?? browserWindow.webkitAudioContext;
     if (typeof AudioContextCtor !== 'function') return null;
     const audioContext = new AudioContextCtor();
     const source = audioContext.createMediaStreamSource(stream);
@@ -194,7 +200,7 @@ function stopRecorderTracks(recorder: RecorderOrNull) {
   }
 }
 
-function teardownAudioContext(context: AudioContext | null) {
+function teardownAudioContext(context: AudioContextMaybe) {
   if (context === null) return;
   if (context.state !== 'closed') {
     void context.close().catch(() => undefined);

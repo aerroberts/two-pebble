@@ -6,7 +6,7 @@ import { Cell } from '../../thread';
 import type { PebbleAgentTrace } from '../../traces';
 import type { PebbleJsonRecord } from '../../types';
 import { Agent } from '../agent';
-import type { AgentSignal, AgentTraceData, AgentTraceType, ThirdPartyAgentConfig, ThreadCellInput } from '../types';
+import type { AgentTraceData, AgentTraceType, ThirdPartyAgentConfig, ThreadCellInput } from '../types';
 
 /**
  * A framework agent is provided by a third-party framework and owns its own
@@ -42,9 +42,7 @@ export class FrameworkAgent extends Agent {
     this.framework.onSubAgentTrace((event) => this.emit('subAgentTrace', event));
     this.framework.onSubAgentUsage((event) => this.emit('subAgentUsage', event));
 
-    this.on('signal', (signal: AgentSignal) => {
-      if (signal === 'incoming-message') this.onIncomingMessage();
-    });
+    this.on('message', () => this.onIncomingMessage());
   }
 
   /**
@@ -119,6 +117,11 @@ export class FrameworkAgent extends Agent {
     this.changeStatus('idle', `stopped: ${reason}`);
   }
 
+  /**
+   * Returns framework resume metadata persisted on the agent row.
+   * The daemon records this after framework launches so later rehydrates
+   * can resume the same third-party session.
+   */
   public getResumeMetadata() {
     return this.resumeMetadata;
   }

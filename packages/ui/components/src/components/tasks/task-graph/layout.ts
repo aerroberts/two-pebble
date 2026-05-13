@@ -27,7 +27,7 @@ export interface FlowGraph {
   rootHeight: number;
 }
 
-const elk = new ELK();
+let elk: InstanceType<typeof ELK> | undefined;
 
 const ROOT_LAYOUT_OPTIONS: Record<string, string> = {
   'elk.algorithm': 'layered',
@@ -53,8 +53,13 @@ const POOL_MIN_HEIGHT = 80;
 
 export async function buildTaskFlowGraph(input: TaskGraphInput): Promise<FlowGraph> {
   const elkInput = buildElkTree(input);
-  const result = await elk.layout(elkInput, { layoutOptions: ROOT_LAYOUT_OPTIONS });
+  const result = await layoutEngine().layout(elkInput, { layoutOptions: ROOT_LAYOUT_OPTIONS });
   return convertElkResult(result, input);
+}
+
+function layoutEngine(): InstanceType<typeof ELK> {
+  if (elk === undefined) elk = new ELK();
+  return elk;
 }
 
 function buildElkTree(input: TaskGraphInput): ElkNode {

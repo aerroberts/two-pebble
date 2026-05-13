@@ -225,6 +225,20 @@
       "when": 1781208000000,
       "tag": "0031_app_settings_assistant_agent",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1781294400000,
+      "tag": "0032_agent_status_offline_waiting",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1781380800000,
+      "tag": "0033_agent_signals",
+      "breakpoints": true
     }
   ]
 }

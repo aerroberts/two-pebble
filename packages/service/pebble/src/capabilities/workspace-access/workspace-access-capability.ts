@@ -17,6 +17,11 @@ export class WorkspaceAccessCapability extends AgentCapability {
   public readonly id = 'workspace-access';
   public readonly description = 'Workspace-scoped shell and file tools (bash, read, create, write, edit, patch).';
 
+  /**
+   * Registers file and shell tools bound to the agent workspace.
+   * Each handler receives the workspace root so path validation and cwd
+   * selection stay consistent across tools.
+   */
   public override hookOnRegister() {
     const workspacePath = this.agent.workspacePath;
     return {

@@ -1,18 +1,22 @@
 import type { AgentCapability } from '../../capabilities/agent-capability';
+import { getCapabilityRunners } from '../../capabilities/runners';
 import type { ModelProvider } from '../../providers/index';
+import type { ProviderOutputBlock, ProviderResult } from '../../providers/types';
 import { Cell, ConversationThread, type DataCells, Event } from '../../thread/index';
 import type { PebbleJsonValue } from '../../types';
 import { Agent } from '../agent';
+import type { AgentSignal } from '../signal-runner';
 import type { AgentTool } from '../tools/agent-tool';
-import type { ToolInput } from '../tools/tool-input';
+import type { ToolResponseResult } from '../hooks/tool-response';
+import type { ToolInput, ToolInputRecord } from '../tools/tool-input';
 import type {
-  AgentSignal,
   AgentToolRegistration,
   InvokeModelResult,
   PebbleAgentConfig,
   PebbleToolCall,
   ThreadCellInput,
 } from '../types';
+import type { ToolResultThreadEventInput } from './pebble-agent-runtime-types';
 
 /**
  * Pebble agents are those built into our system to allow higher level actions and orchestration.
@@ -39,7 +43,7 @@ export class PebbleAgent extends Agent {
     this.provider = config.provider;
     this.thread =
       config.restoredThread === undefined
-        ? new ConversationThread()
+        ? new ConversationThread({})
         : new ConversationThread({ cells: config.restoredThread.cells, threadId: config.restoredThread.threadId });
     this.thread.onCell((cell) => {
       this.emit('threadMessage', {
@@ -52,18 +56,17 @@ export class PebbleAgent extends Agent {
       this.thread.pushSystem('System Prompt', Cell.text(config.systemPrompt));
     }
 
-    // Setup internal hooks to handle signals from abstract parent
-    this.on('signal', (signal: AgentSignal) => {
-      if (signal === 'incoming-message') {
-        this.signaledIncomingMessage();
-      }
-    });
+    this.on('message', () => this.onIncomingMessage());
 
     // Status
     this.changeStatus('idle', 'agent initialized');
   }
 
-  // When this capability is being rehydrated from a state stored on disk which was persisted from a previous run
+  /**
+   * Rehydrates a capability from persisted slot state.
+   * Initialization is skipped because the stored state is the source of
+   * truth; registration hooks run only to rebuild runtime tools.
+   */
   public hydrateCapability<TConfig extends PebbleJsonValue>(
     capability: AgentCapability<TConfig>,
     config: TConfig,
@@ -95,7 +98,11 @@ export class PebbleAgent extends Agent {
     });
   }
 
-  // When we are registering a new capability for the first time
+  /**
+   * Registers a fresh capability for this run.
+   * Config initializes default state before the capability exposes tools
+   * and emits a registration trace.
+   */
   public registerCapability<TConfig extends PebbleJsonValue>(capability: AgentCapability<TConfig>, config: TConfig) {
     // Add to list of known
     this.capabilities.push(capability);
@@ -169,14 +176,14 @@ export class PebbleAgent extends Agent {
   /**
    * Internal hook to run whenever a new message is added to the agent's incoming message queue, if we are not already running
    */
-  private signaledIncomingMessage() {
+  private onIncomingMessage() {
     const status = this.getStatus();
 
     // if we are already running, do nothing, we will get read the message again in the next loop
     if (status === 'running') return;
 
     // if we are idle, we can start the agent so it pulls in the message
-    if (status === 'idle') {
+    if (status === 'idle' || status === 'waiting') {
       this.run().catch((error) => {
         this.changeStatus('failed', `agent failed: ${error instanceof Error ? error.message : String(error)}`);
       });
@@ -189,19 +196,36 @@ export class PebbleAgent extends Agent {
   private async run() {
     try {
       this.changeStatus('running', 'agent running');
-      await this.runLoop();
+      const waitingForSignal = await this.runLoop();
+      if (waitingForSignal) return;
+      this.emit('trace', {
+        type: 'agent-success',
+        data: { content: [] },
+      });
       this.changeStatus('idle', 'agent stopped');
     } catch (error) {
-      this.changeStatus('failed', `agent failed: ${error instanceof Error ? error.message : String(error)}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.emit('trace', {
+        type: 'agent-failure',
+        data: {
+          content: [Cell.text(message)],
+          error: message,
+        },
+      });
+      this.changeStatus('failed', `agent failed: ${message}`);
     }
   }
 
   /**
    * Handles the logic that is the agentic loop itself, the lifecycle of an agent
    */
-  private async runLoop(): Promise<void> {
+  private async runLoop(): Promise<boolean> {
     while (true) {
-      // First we trigger the initial step
+      // First we process any durable signals that might have woken the agent
+      const waitingForSignal = await this.pullSignals();
+      if (waitingForSignal) return true;
+
+      // Then we trigger the initial step
       await this.hookOnAgenticStepStart();
 
       // Then we pull in any messages that are waiting to be read
@@ -234,6 +258,42 @@ export class PebbleAgent extends Agent {
         break;
       }
     }
+    return false;
+  }
+
+  /**
+   * Resumes the agent after signal state changes.
+   * The incoming-message path already knows how to drain signals and
+   * queued user messages, so signal wakeups reuse that flow.
+   */
+  public resumeFromSignal(): void {
+    this.onIncomingMessage();
+  }
+
+  private async pullSignals(): Promise<boolean> {
+    const runner = getCapabilityRunners(this).signal;
+    if (runner === undefined) return false;
+
+    const signals = await runner.snapshot(this.agentId);
+    if (signals.openAwaited.length > 0) {
+      this.emit('trace', {
+        type: 'agent-waiting',
+        data: { signals: signals.openAwaited.map((signal) => this.signalTraceData(signal)) },
+      });
+      this.changeStatus('waiting', 'agent waiting for signals');
+      return true;
+    }
+
+    for (const signal of signals.received) {
+      this.emit('trace', { type: 'signal-received', data: this.signalTraceData(signal) });
+      this.capabilities.find((capability) => capability.id === signal.capabilityId)?.hookOnSignal(signal);
+      await runner.markResolved(signal.id);
+      this.emit('trace', {
+        type: 'signal-resolved',
+        data: { ...this.signalTraceData(signal), status: 'resolved' },
+      });
+    }
+    return false;
   }
 
   /**
@@ -270,6 +330,22 @@ export class PebbleAgent extends Agent {
     // This will not throw an error, there is a retry mechanism in the provider and
     // it returns an "error" result if it fails rather than throwing
     const result = await this.provider.invoke(this.thread, modelCallId);
+    this.emitModelCallResult(modelCallId, result);
+
+    if (result.status === 'error') {
+      const errorMessage = result.error ?? 'Provider returned an error.';
+      throw new Error(errorMessage);
+    }
+
+    for (const output of result.output) this.recordProviderOutput(output);
+
+    return {
+      threadCellPointer: result.threadCellPointer,
+      toolCalls: this.toolCallsFromProviderOutput(result.output),
+    };
+  }
+
+  private emitModelCallResult(modelCallId: string, result: ProviderResult): void {
     if (result.status === 'error') {
       this.emit('trace', {
         type: 'model-call-failure',
@@ -284,74 +360,71 @@ export class PebbleAgent extends Agent {
         data: { modelCallId },
       });
     }
-
-    // Tracking for the call
     this.emit('modelCall', result);
-    for (const lineItem of result.prices) {
-      this.emit('lineItem', lineItem);
-    }
+    for (const lineItem of result.prices) this.emit('lineItem', lineItem);
+  }
 
-    if (result.status === 'error') {
-      const errorMessage = result.error ?? 'Provider returned an error.';
-      throw new Error(errorMessage);
-    }
+  private recordProviderOutput(output: ProviderOutputBlock): void {
+    if (output.type === 'thinking') this.recordThinkingOutput(output.text);
+    if (output.type === 'text') this.recordTextOutput(output.text);
+    if (output.type === 'image') this.recordImageOutput(output.base64Image);
+    if (output.type === 'tool') this.recordToolOutput(output);
+  }
 
-    // Handle all the output being written to the thead and to the trace
-    // TODO
-    for (const output of result.output) {
-      if (output.type === 'thinking') {
-        this.thread.pushAssistant('Assistant Thinking', ...Event.agentMessage({ raw: output.text }));
-        this.emit('trace', {
-          type: 'assistant-thinking',
-          data: { content: [Cell.text(output.text)] },
-        });
-      }
-      if (output.type === 'text') {
-        this.thread.pushAssistant('Assistant Message', ...Event.agentMessage({ raw: output.text }));
-        this.emit('trace', {
-          type: 'assistant-message',
-          data: { content: [Cell.text(output.text)] },
-        });
-      }
-      if (output.type === 'image') {
-        this.thread.pushAssistant('Assistant Message', Cell.image(output.base64Image));
-        this.emit('trace', {
-          type: 'assistant-message',
-          data: { content: [Cell.image(output.base64Image)] },
-        });
-      }
-      if (output.type === 'tool') {
-        this.thread.pushAssistant(
-          'Tool Call Requested',
-          Cell.toolUse({
-            callId: output.callid,
-            toolId: output.toolid,
-            input: output.payload,
-          }),
-        );
-        this.emit('trace', {
-          type: 'tool-call-requested',
-          data: {
-            callId: output.callid,
-            input: output.payload,
-            source: 'native',
-            toolId: output.toolid,
-          },
-        });
-      }
-    }
+  private recordThinkingOutput(text: string): void {
+    this.thread.pushAssistant('Assistant Thinking', ...Event.agentMessage({ raw: text }));
+    this.emit('trace', {
+      type: 'assistant-thinking',
+      data: { content: [Cell.text(text)] },
+    });
+  }
 
-    return {
-      threadCellPointer: result.threadCellPointer,
-      toolCalls: result.output
-        .filter((output) => output.type === 'tool')
-        .map((output) => ({
-          id: output.callid,
-          type: 'native',
-          toolId: output.toolid,
-          input: output.payload as ToolInput,
-        })),
-    };
+  private recordTextOutput(text: string): void {
+    this.thread.pushAssistant('Assistant Message', ...Event.agentMessage({ raw: text }));
+    this.emit('trace', {
+      type: 'assistant-message',
+      data: { content: [Cell.text(text)] },
+    });
+  }
+
+  private recordImageOutput(base64Image: string): void {
+    this.thread.pushAssistant('Assistant Message', Cell.image(base64Image));
+    this.emit('trace', {
+      type: 'assistant-message',
+      data: { content: [Cell.image(base64Image)] },
+    });
+  }
+
+  private recordToolOutput(output: ProviderOutputBlock): void {
+    if (output.type !== 'tool') return;
+    this.thread.pushAssistant(
+      'Tool Call Requested',
+      Cell.toolUse({
+        callId: output.callid,
+        toolId: output.toolid,
+        input: output.payload,
+      }),
+    );
+    this.emit('trace', {
+      type: 'tool-call-requested',
+      data: {
+        callId: output.callid,
+        input: output.payload,
+        source: 'native',
+        toolId: output.toolid,
+      },
+    });
+  }
+
+  private toolCallsFromProviderOutput(output: ProviderOutputBlock[]): PebbleToolCall[] {
+    return output
+      .filter((item) => item.type === 'tool')
+      .map((item) => ({
+        id: item.callid,
+        type: 'native',
+        toolId: item.toolid,
+        input: item.payload as ToolInput,
+      }));
   }
 
   /**
@@ -374,24 +447,7 @@ export class PebbleAgent extends Agent {
 
     // Fail, tool invocation failure
     if (tool === undefined) {
-      const message = `Tool not found: ${input.toolId}`;
-      if (input.type !== 'cli') {
-        this.pushToolResultThreadEvent({
-          content: [Cell.text(message)],
-          duration: Date.now() - startTime,
-          error: message,
-          input,
-          success: false,
-        });
-      }
-      this.emit('trace', {
-        type: 'tool-call-failure',
-        data: {
-          error: message,
-          result: [Cell.text(message)],
-          toolCallId: input.id,
-        },
-      });
+      this.recordToolFailure(input, startTime, `Tool not found: ${input.toolId}`);
       return;
     }
 
@@ -399,61 +455,70 @@ export class PebbleAgent extends Agent {
       // Call tool handler itself
       const result = await tool.invoke(input.input);
 
-      if (tool.type !== 'cli') {
-        this.pushToolResultThreadEvent({
-          content: result.content,
-          duration: Date.now() - startTime,
-          error: result.status === 'error' ? result.error : null,
-          input,
-          success: result.status === 'success',
-        });
-      }
-
-      if (result.status === 'error') {
-        this.emit('trace', {
-          type: 'tool-call-failure',
-          data: {
-            error: result.error,
-            result: result.content,
-            toolCallId: input.id,
-          },
-        });
-      } else {
-        this.emit('trace', {
-          type: 'tool-call-success',
-          data: {
-            result: result.content,
-            toolCallId: input.id,
-          },
-        });
-      }
+      if (tool.type !== 'cli') this.recordToolResult(input, startTime, result);
+      this.emitToolResultTrace(input, result);
 
       // If this is a cli tool, we actually have no context to write to the thread, so we just return the result
       if (tool.type === 'cli') {
         return result;
       }
     } catch (caught) {
-      // Fail, tool call itself failed
       const message = caught instanceof Error ? caught.message : String(caught);
-      if (input.type !== 'cli') {
-        this.pushToolResultThreadEvent({
-          content: [Cell.text(message)],
-          duration: Date.now() - startTime,
-          error: message,
-          input,
-          success: false,
-        });
-      }
+      this.recordToolFailure(input, startTime, message);
+      return;
+    }
+  }
+
+  private recordToolResult(input: PebbleToolCall, startTime: number, result: ToolResponseResult): void {
+    this.pushToolResultThreadEvent({
+      content: result.content,
+      duration: Date.now() - startTime,
+      error: result.status === 'error' ? result.error : null,
+      input,
+      success: result.status === 'success',
+    });
+  }
+
+  private emitToolResultTrace(input: PebbleToolCall, result: ToolResponseResult): void {
+    if (result.status === 'error') {
       this.emit('trace', {
         type: 'tool-call-failure',
         data: {
-          error: message,
-          result: [Cell.text(message)],
+          error: result.error,
+          result: result.content,
           toolCallId: input.id,
         },
       });
       return;
     }
+    this.emit('trace', {
+      type: 'tool-call-success',
+      data: {
+        result: result.content,
+        toolCallId: input.id,
+      },
+    });
+  }
+
+  private recordToolFailure(input: PebbleToolCall, startTime: number, message: string): void {
+    const content = [Cell.text(message)];
+    if (input.type !== 'cli') {
+      this.pushToolResultThreadEvent({
+        content,
+        duration: Date.now() - startTime,
+        error: message,
+        input,
+        success: false,
+      });
+    }
+    this.emit('trace', {
+      type: 'tool-call-failure',
+      data: {
+        error: message,
+        result: content,
+        toolCallId: input.id,
+      },
+    });
   }
 
   /**
@@ -502,11 +567,21 @@ export class PebbleAgent extends Agent {
     this.changeStatus('offline', 'agent shutting down');
   }
 
+  /**
+   * Adds extra user-context cells to the current conversation thread.
+   * Capabilities call this before a turn to inject task lists, workspace
+   * state, or other runtime guidance.
+   */
   public addUserContext(label: string, input: ThreadCellInput): void {
     const cells = Array.isArray(input) ? input : [input];
     this.thread.pushUser(label, ...cells);
   }
 
+  /**
+   * Returns metadata required to resume this Pebble thread.
+   * The daemon persists the thread id so rehydration can reload the same
+   * conversation cells.
+   */
   public getResumeMetadata() {
     return { threadId: this.thread.threadId };
   }
@@ -514,13 +589,7 @@ export class PebbleAgent extends Agent {
   /**
    * Conversation thread utilities
    */
-  private pushToolResultThreadEvent(input: {
-    content: DataCells;
-    duration: number;
-    error: string | null;
-    input: PebbleToolCall;
-    success: boolean;
-  }) {
+  private pushToolResultThreadEvent(input: ToolResultThreadEventInput) {
     this.thread.pushUser(
       `Tool Execution ${input.success ? 'Success' : 'Failure'}: ${input.input.toolId}`,
       ...Event.toolInvokeResult({
@@ -545,8 +614,20 @@ export class PebbleAgent extends Agent {
     }));
   }
 
-  private toolInputForTrace(input: ToolInput): object {
-    if (input !== null && typeof input === 'object') return input;
+  private toolInputForTrace(input: ToolInput): ToolInputRecord {
+    if (input !== null && typeof input === 'object' && !Array.isArray(input)) return input;
     return { value: input };
+  }
+
+  private signalTraceData(signal: AgentSignal) {
+    return {
+      capabilityId: signal.capabilityId,
+      data: signal.data,
+      description: signal.description,
+      kind: signal.kind,
+      name: signal.name,
+      signalId: signal.signalId,
+      status: signal.status,
+    };
   }
 }

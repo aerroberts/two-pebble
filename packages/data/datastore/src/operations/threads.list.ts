@@ -1,8 +1,15 @@
 import { count, desc, max, min, sql } from 'drizzle-orm';
 import type { DatastoreContext } from '../types';
 
+type OperationHandlerInput = {
+  empty?: never;
+};
+
+type AgentIdListSource = string | null;
+
 export function threadsListOperation(ctx: DatastoreContext) {
-  return async function handler(_input: Record<string, never> = {}) {
+  return async function handler(input: OperationHandlerInput) {
+    void input;
     const cells = ctx.schema.agentConversationCellsTable;
     const rows = await ctx.database
       .select({
@@ -28,7 +35,7 @@ export function threadsListOperation(ctx: DatastoreContext) {
   };
 }
 
-function parseAgentIds(value: string | null): string[] {
+function parseAgentIds(value: AgentIdListSource): string[] {
   if (value === null || value.length === 0) {
     return [];
   }

@@ -1,13 +1,11 @@
 import type { AgentExitHookResult } from '../../agent';
 import { AgentCapability, AgentExitHook, EarlyExit } from '../../agent';
 import { Cell } from '../../thread';
-import type { PebbleAgentTaskListUpdateTrace, TaskListUpdateTask } from '../../traces';
-
-type TaskListUpdateData = PebbleAgentTaskListUpdateTrace['data'];
-
+import type { TaskListUpdateTask } from '../../traces';
 import { ProgressiveTaskListTaskAlreadyTerminalError } from './progressive-task-list-task-already-terminal-error';
 import { ProgressiveTaskListTaskBlockedError } from './progressive-task-list-task-blocked-error';
 import { ProgressiveTaskListTaskNotFoundError } from './progressive-task-list-task-not-found-error';
+import type { TaskListUpdateData } from './progressive-task-list-trace-types';
 import { buildMarkTaskCompleteTool } from './tools/mark-task-complete/handler';
 import { buildMarkTaskInvalidTool } from './tools/mark-task-invalid/handler';
 import type {

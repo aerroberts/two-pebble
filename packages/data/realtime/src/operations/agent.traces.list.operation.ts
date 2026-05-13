@@ -2,6 +2,7 @@ import type { ListAgentTracesInput } from '../states/agent-traces/types';
 import type { RealtimeEmitResponse, RealtimeOperationContext } from '../types';
 
 const PAGE_SIZE = 500;
+type ListAgentTracesResult = RealtimeEmitResponse<'listAgentTraces'>;
 
 export function listAgentTracesOperation(ctx: RealtimeOperationContext) {
   return async function listAgentTraces(input: ListAgentTracesInput) {
@@ -13,7 +14,7 @@ export function listAgentTracesOperation(ctx: RealtimeOperationContext) {
     try {
       let next = ctx.datastore.state.agentTraces;
       let offset = 0;
-      let lastResult: RealtimeEmitResponse<'listAgentTraces'> | undefined;
+      let lastResult: ListAgentTracesResult | undefined;
       while (true) {
         const result = await ctx.datastore.emit('listAgentTraces', {
           agentId: input.agentId,

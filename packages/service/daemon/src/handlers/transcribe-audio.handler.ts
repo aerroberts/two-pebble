@@ -7,6 +7,7 @@ import type { DaemonHandlerContext } from '../types';
 type TranscribeAudioOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'transcribeAudio'>;
 type TranscribeAudioPayload = TranscribeAudioOperation['request'];
 type TranscribeAudioResponse = TranscribeAudioOperation['response'];
+type ProviderOutput = object;
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: TranscribeAudioPayload): Promise<TranscribeAudioResponse> {
@@ -43,7 +44,7 @@ export function handler(ctx: DaemonHandlerContext) {
   };
 }
 
-function buildTranscriptionErrorMessage(message: string | undefined, providerOutput: object): string {
+function buildTranscriptionErrorMessage(message: string | undefined, providerOutput: ProviderOutput): string {
   const head = message ?? 'Transcription failed';
   let serialized: string;
   try {

@@ -1,40 +1,34 @@
 import type { Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
-import { generateBranchName } from '@two-pebble/names';
-import type { Agent, PebbleJsonRecord } from '@two-pebble/pebble';
-import { Cell } from '@two-pebble/pebble';
+import type { Agent } from '@two-pebble/pebble';
+import { Cell, PebbleAgent } from '@two-pebble/pebble';
+import { installCapabilityRunners } from '@two-pebble/pebble/capabilities';
 import type { AgentRegistryServiceContext, DaemonBridge } from '../types';
-import { createWorktreeForRepository } from '../utils/worktrees/create-worktree';
 import { recordConversationCell, recordModelCall, recordPriceLineItem } from './agent-recording';
 import { resolveBuildInput } from './agent-registry-build-input';
+import { emitWorktreeInitializedTrace, resolveLaunchWorkspace } from './agent-registry-launch-workspace';
+import { installAgentPersistenceListeners, installSubAgentListeners } from './agent-registry-listeners';
 import { rehydrateAgent } from './agent-registry-rehydrate';
 import { persistAgentMetadata, persistAgentStatus } from './agent-registry-status';
-import {
-  ensureSubAgent,
-  recordSubAgentTrace,
-  recordSubAgentUsage,
-  type SubAgentCreatePromiseMap,
-  stopSubAgent,
-} from './agent-registry-sub-agents';
+import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
 import type {
-  EmitWorktreeInitializedInput,
+  ActiveAgentSnapshot,
+  AgentListenerContext,
   LaunchAgentInput,
-  NextAgentTraceOrderId,
   PersistAgentStatusInput,
   RecordConversationCellInput,
   RecordModelCallInput,
   RecordPriceLineItemInput,
   RecordTraceInput,
-  ResolvedLaunchWorkspace,
-  ResolveLaunchWorkspaceInput,
   RunAgentInput,
 } from './agent-registry-types';
+import { recordAgentTrace } from './agent-registry-traces';
+import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
-import { parseWorkspaceConfig } from './parse-workspace-config';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
+import { DaemonSignalRunner } from './signal-runner/daemon-signal-runner';
 import {
   attachParentLinkCapability,
-  deliverInitialSpawnMessage,
   installFreshLaunchAgent,
   installSubAgentRunner,
 } from './sub-agent/runner-installer';
@@ -42,10 +36,6 @@ import type { AgentTerminateInput } from './sub-agent/runner-types';
 import { SubAgentCoordinator } from './sub-agent/sub-agent-coordinator';
 import { installTaskBoardRunner } from './task-board-runner/install';
 import type { TaskBoardService } from './task-board-service';
-
-interface ResumeMetadataProvider {
-  getResumeMetadata(): PebbleJsonRecord;
-}
 
 /**
  * Owns the lifecycle of every active runtime agent the daemon is managing.
@@ -142,6 +132,7 @@ export class AgentRegistryService {
     const bridge = this.multicastBridge;
     const record = await this.datastore.agent.read({ id: agentId });
     const runtimeAgent = await rehydrateAgent({ agentId, bridge, datastore: this.datastore, logger: this.logger });
+    this.installSignalRunner(runtimeAgent, agentId);
     installTaskBoardRunner({ agent: runtimeAgent, bridge, logger: this.logger, taskBoards: this.taskBoards });
     let inferenceProfileId: string | undefined;
     let integrationId: string | undefined;
@@ -194,8 +185,9 @@ export class AgentRegistryService {
       orderId += 1;
       return orderId;
     };
-    this.attachAgentPersistenceListeners(input, nextOrderId);
-    this.attachSubAgentListeners(input, nextOrderId);
+    const context = this.buildListenerContext();
+    installAgentPersistenceListeners({ context, input, nextOrderId });
+    installSubAgentListeners({ context, input, nextOrderId });
     this.activeAgents.set(input.agentId, input.agent);
     const resumeMetadata = readResumeMetadata(input.agent);
     if (Object.keys(resumeMetadata).length > 0) {
@@ -224,12 +216,26 @@ export class AgentRegistryService {
    * once per tick. The returned array is a snapshot — mutating it has no
    * effect on the registry's internal map.
    */
-  public snapshotActiveAgents(): { agentId: string; agent: Agent }[] {
-    const snapshot: { agentId: string; agent: Agent }[] = [];
+  public snapshotActiveAgents(): ActiveAgentSnapshot[] {
+    const snapshot: ActiveAgentSnapshot[] = [];
     for (const [agentId, agent] of this.activeAgents.entries()) {
       snapshot.push({ agentId, agent });
     }
     return snapshot;
+  }
+
+  /**
+   * Wakes an agent when all currently-open signals have resolved.
+   * Used by signal delivery paths so a waiting PebbleAgent can resume
+   * immediately after inbound signal state changes.
+   */
+  public async wakeIfSignalsReady(agentId: string): Promise<void> {
+    const open = await this.datastore.agent.signals.listOpenForAgent({ agentId });
+    if (open.items.length > 0) return;
+    const received = await this.datastore.agent.signals.listReceivedForAgent({ agentId });
+    if (received.items.length === 0) return;
+    const agent = await this.rehydrate(agentId);
+    if (agent instanceof PebbleAgent) agent.resumeFromSignal();
   }
 
   /**
@@ -256,7 +262,13 @@ export class AgentRegistryService {
     const registry = await this.datastore.agentRegistries.read({ id: input.agentRegistryId });
     const buildInput = await resolveBuildInput(this.datastore, { registry });
 
-    const launchWorkspace = await this.resolveLaunchWorkspace({ bridge, registry });
+    const launchWorkspace = await resolveLaunchWorkspace({
+      bridge,
+      datastore: this.datastore,
+      logger: this.logger,
+      multicastBridge: this.multicastBridge,
+      registry,
+    });
     const description = buildInput.description;
     const agent = await this.datastore.agent.create({
       agentRegistryId: registry.id,
@@ -268,9 +280,10 @@ export class AgentRegistryService {
     bridge.emit('agentRecorded', agent);
 
     if (launchWorkspace.worktree !== undefined) {
-      await this.emitWorktreeInitializedTrace({
+      await emitWorktreeInitializedTrace({
         agentId: agent.id,
         bridge,
+        datastore: this.datastore,
         worktree: launchWorkspace.worktree,
       });
     }
@@ -306,51 +319,9 @@ export class AgentRegistryService {
     return { id: agent.id };
   }
 
-  private async resolveLaunchWorkspace(input: ResolveLaunchWorkspaceInput): Promise<ResolvedLaunchWorkspace> {
-    const config = parseWorkspaceConfig({ logger: this.logger, registry: input.registry });
-    if (config.kind === 'none' && input.registry.kind === 'framework') {
-      throw new Error('framework agents cannot launch with workspace kind "none"');
-    }
-    if (config.kind === 'none') {
-      const workspace = await this.datastore.workspaces.create({ path: '', worktreeId: null });
-      input.bridge.emit('workspaceUpdated', workspace);
-      return { workspace };
-    }
-    if (config.kind === 'absolute') {
-      const workspace = await this.datastore.workspaces.create({ path: config.path, worktreeId: null });
-      input.bridge.emit('workspaceUpdated', workspace);
-      return { workspace };
-    }
-
-    const repository = await this.datastore.repositories.read({ id: config.repositoryId });
-    const branch = `agent/${generateBranchName()}`;
-    const worktree = await createWorktreeForRepository(
-      { multicastBridge: this.multicastBridge, datastore: this.datastore, logger: this.logger },
-      { branch, repositoryId: repository.id },
-    );
-    const workspace = await this.datastore.workspaces.create({ path: worktree.path, worktreeId: worktree.id });
-    input.bridge.emit('workspaceUpdated', workspace);
-    return { workspace, worktree };
-  }
-
-  private async emitWorktreeInitializedTrace(input: EmitWorktreeInitializedInput) {
-    const record = await this.datastore.agent.traces.record({
-      agentId: input.agentId,
-      data: {
-        branch: input.worktree.branch,
-        path: input.worktree.path,
-        repositoryId: input.worktree.repositoryId,
-        worktreeId: input.worktree.id,
-      },
-      id: crypto.randomUUID(),
-      orderId: 0,
-      type: 'worktree-initialized',
-    });
-    input.bridge.emit('agentTraceRecorded', record);
-  }
-
   private async runAgent(input: RunAgentInput) {
     this.registerActiveAgent(input);
+    this.installSignalRunner(input.agent, input.agentId);
     installTaskBoardRunner({
       agent: input.agent,
       bridge: this.multicastBridge,
@@ -371,99 +342,32 @@ export class AgentRegistryService {
         specs: parseCapabilitySpecs(input.registry.capabilities, this.logger),
       });
     }
-    if (input.parentAgentId !== undefined && coordinator !== undefined) {
-      const childAgentId = input.agentId;
-      await deliverInitialSpawnMessage({
-        childAgentId,
-        coordinator,
-        message: input.message,
-        parentAgentId: input.parentAgentId,
-      });
-      return;
-    }
+    if (input.parentAgentId !== undefined) return;
     input.agent.sendMessage([Cell.text(input.message)]);
   }
 
-  private attachAgentPersistenceListeners(input: RunAgentInput, nextOrderId: NextAgentTraceOrderId) {
-    input.agent.on('status', ({ status }) => {
-      void this.persistAgentStatus({ agentId: input.agentId, bridge: input.bridge, status });
-    });
-    input.agent.on('metadata', (metadata) => {
-      void persistAgentMetadata({
-        agentId: input.agentId,
-        bridge: input.bridge,
+  private installSignalRunner(agent: Agent, agentId: string): void {
+    installCapabilityRunners(agent, {
+      signal: new DaemonSignalRunner({
+        agentId,
         datastore: this.datastore,
-        logger: this.logger,
-        metadata,
-      });
-    });
-    input.agent.on('trace', (trace) => {
-      this.recordTrace({
-        agentId: input.agentId,
-        bridge: input.bridge,
-        orderId: nextOrderId(),
-        trace,
-        workspaceId: input.workspaceId,
-      }).catch((error) => {
-        this.logger.warn('daemon agent trace write failed', { agentId: input.agentId, error });
-      });
-    });
-    const inferenceProfileId = input.inferenceProfileId;
-    const integrationId = input.integrationId;
-    input.agent.on('modelCall', (call) => {
-      this.recordModelCall({
-        agentId: input.agentId,
-        bridge: input.bridge,
-        call,
-        ...(inferenceProfileId === undefined ? {} : { inferenceProfileId }),
-        ...(integrationId === undefined ? {} : { integrationId }),
-      }).catch((error) => {
-        this.logger.warn('daemon agent model call write failed', { agentId: input.agentId, error });
-      });
-    });
-    input.agent.on('threadMessage', (cell) => {
-      this.recordConversationCell({ agentId: input.agentId, cell }).catch((error) => {
-        this.logger.warn('daemon agent conversation cell write failed', { agentId: input.agentId, error });
-      });
-    });
-    input.agent.on('lineItem', (lineItem) => {
-      this.recordPriceLineItem({
-        agentId: input.agentId,
-        bridge: input.bridge,
-        lineItem,
-        ...(inferenceProfileId === undefined ? {} : { inferenceProfileId }),
-        ...(integrationId === undefined ? {} : { integrationId }),
-      }).catch((error) => {
-        this.logger.warn('daemon agent price line item write failed', { agentId: input.agentId, error });
-      });
+        wake: (targetAgentId) => this.wakeIfSignalsReady(targetAgentId),
+      }),
     });
   }
 
-  private attachSubAgentListeners(input: RunAgentInput, nextOrderId: NextAgentTraceOrderId) {
-    const ctx = { datastore: this.datastore, pending: this.subAgentCreatePromises };
-    const { agent, agentId, bridge, workspaceId } = input;
-    const logger = this.logger;
-    const warn = (message: string, error: Error) => logger.warn(message, { agentId, error });
-    agent.on('subAgentStart', (event) => {
-      ensureSubAgent(ctx, { bridge, event, parentAgentId: agentId, workspaceId }).catch((error) =>
-        warn('daemon sub-agent create failed', error),
-      );
-    });
-    agent.on('subAgentTrace', (event) => {
-      recordSubAgentTrace(ctx, { bridge, event, orderId: nextOrderId(), parentAgentId: agentId, workspaceId }).catch(
-        (error) => warn('daemon sub-agent trace write failed', error),
-      );
-    });
-    agent.on('subAgentUsage', (event) => {
-      recordSubAgentUsage(ctx, { bridge, event, parentAgentId: agentId, usage: event.usage, workspaceId }).catch(
-        (error) => warn('daemon sub-agent usage write failed', error),
-      );
-    });
-    agent.on('subAgentStop', (event) => {
-      stopSubAgent(ctx, { bridge, event, parentAgentId: agentId, workspaceId }).catch((error) =>
-        warn('daemon sub-agent stop failed', error),
-      );
-    });
+  private buildListenerContext(): AgentListenerContext {
+    return {
+      datastore: this.datastore,
+      logger: this.logger,
+      pending: this.subAgentCreatePromises,
+      taskBoards: this.taskBoards,
+      persistAgentStatus: (input) => this.persistAgentStatus(input),
+      recordConversationCell: (input) => this.recordConversationCell(input),
+      recordModelCall: (input) => this.recordModelCall(input),
+      recordPriceLineItem: (input) => this.recordPriceLineItem(input),
+      recordTrace: (input) => this.recordTrace(input),
+    };
   }
 
   private async persistAgentStatus(input: PersistAgentStatusInput): Promise<void> {
@@ -477,27 +381,7 @@ export class AgentRegistryService {
   }
 
   private async recordTrace(input: RecordTraceInput) {
-    if (input.trace.type === 'sub-agent-invoke') {
-      await ensureSubAgent(
-        { datastore: this.datastore, pending: this.subAgentCreatePromises },
-        {
-          bridge: input.bridge,
-          event: {
-            agentInstanceId: input.trace.data.agentInstanceId,
-            agentTemplateId: input.trace.data.agentTemplateId,
-          },
-          parentAgentId: input.agentId,
-          workspaceId: input.workspaceId,
-        },
-      );
-    }
-    const record = await this.datastore.agent.traces.record({
-      ...input.trace,
-      agentId: input.agentId,
-      id: crypto.randomUUID(),
-      orderId: input.orderId,
-    });
-    input.bridge.emit('agentTraceRecorded', record);
+    await recordAgentTrace({ ...input, datastore: this.datastore, pending: this.subAgentCreatePromises });
   }
 
   private async recordModelCall(input: RecordModelCallInput) {
@@ -511,11 +395,4 @@ export class AgentRegistryService {
   private async recordPriceLineItem(input: RecordPriceLineItemInput) {
     await recordPriceLineItem(this.datastore, input);
   }
-}
-
-function readResumeMetadata(agent: Agent): PebbleJsonRecord {
-  if ('getResumeMetadata' in agent && typeof agent.getResumeMetadata === 'function') {
-    return (agent as Agent & ResumeMetadataProvider).getResumeMetadata();
-  }
-  return {};
 }

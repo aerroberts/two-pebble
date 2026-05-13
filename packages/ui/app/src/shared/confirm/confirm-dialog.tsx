@@ -1,4 +1,4 @@
-import { Button, Modal, ModalActions, ModalBody } from '@two-pebble/components';
+import { AppBox, Button, Modal, ModalActions, ModalBody } from '@two-pebble/components';
 import type { ConfirmController } from './use-confirm';
 
 interface ConfirmDialogProps {
@@ -12,7 +12,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
   return (
     <Modal open={controller.isOpen} onClose={controller.cancel} title={request?.title}>
       <ModalBody>
-        <p className="text-sm text-content">{request?.message}</p>
+        <AppBox as="p" variant="delete-title">{request?.message}</AppBox>
         <ModalActions>
           <Button onClick={controller.cancel}>Cancel</Button>
           <Button variant="primary" onClick={controller.accept}>

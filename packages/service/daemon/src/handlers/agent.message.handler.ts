@@ -28,7 +28,7 @@ export function handler(ctx: DaemonHandlerContext) {
       .then((agent) => {
         agent.sendMessage([cell]);
       })
-      .catch((error: unknown) => {
+      .catch((error) => {
         const message = error instanceof Error ? error.message : String(error);
         ctx.logger.warn('agent message rehydration failed', { agentId: payload.agentId, error: message });
       });

@@ -1,4 +1,5 @@
 import type { ModelUsage, PricingLineItem, StaticPricing } from './types';
+import { isEmptyUsage } from './model-usage-guards';
 
 /**
  * Static price calculator for registered model pricing.
@@ -145,14 +146,4 @@ export class PriceCalculator {
     }
     return Array.from(allModels);
   }
-}
-
-function isEmptyUsage(usage: ModelUsage): boolean {
-  return (
-    usage.inputTokensReadUncached === undefined &&
-    usage.inputTokensReadCached === undefined &&
-    usage.inputTokensWriteCached === undefined &&
-    usage.outputTokensGenerated === undefined &&
-    usage.outputTokensThinking === undefined
-  );
 }

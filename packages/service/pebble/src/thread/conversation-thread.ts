@@ -22,7 +22,7 @@ export class ConversationThread {
    * Callers own id generation so browser and server runtimes can choose safely.
    * Existing cells are used as the starting append-only history.
    */
-  public constructor(input: ConversationThreadInput = {}) {
+  public constructor(input: ConversationThreadInput) {
     this.threadId = input.threadId ?? `thread-${crypto.randomUUID()}`;
     this.cells = input.cells ?? [];
     this.nextCellOrderId = this.cells.reduce((max, cell) => Math.max(max, cell.orderId), 0);

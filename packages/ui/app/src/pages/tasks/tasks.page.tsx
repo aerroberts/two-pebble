@@ -1,4 +1,4 @@
-import { Button, Header, IconButton, ListLayout, PageLayout, Surface } from '@two-pebble/components';
+import { AppRevealIconButton, Button, Header, ListLayout, PageLayout, Surface } from '@two-pebble/components';
 import { useTasksPageState } from './use-tasks-page-state';
 
 export function TasksPage() {
@@ -25,12 +25,12 @@ export function TasksPage() {
           onClick: () => state.navigate(`/tasks/${board.id}`),
           title: board.name,
           trailingAccessory: (
-            <IconButton
+            <AppRevealIconButton
               aria-label={`Delete ${board.name}`}
               icon="trash-2"
               variant="secondary"
               onClick={() => void state.deleteBoard(board.id)}
-              className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              reveal
             />
           ),
         }))}

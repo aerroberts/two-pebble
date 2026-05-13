@@ -26,6 +26,16 @@ describe('feature: operation agent.read', () => {
   });
 });
 
+describe('feature: operation agent.rename', () => {
+  test('happy: renames an agent by id', async () => {
+    const datastore = await useDatastoreForTesting();
+    const agent = await datastore.agent.create(firstAgentInput);
+    const renamed = await datastore.agent.rename({ id: agent.id, name: 'Renamed Agent' });
+    await datastore.close();
+    expect(renamed.name).toBe('Renamed Agent');
+  });
+});
+
 describe('feature: operation agent.create', () => {
   test('happy: creates an idle agent', async () => {
     const datastore = await useDatastoreForTesting();

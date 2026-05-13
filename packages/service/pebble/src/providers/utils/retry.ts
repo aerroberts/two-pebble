@@ -21,6 +21,8 @@ export interface WithRetriesOptions {
   sleep?: (ms: number) => Promise<void>;
 }
 
+type RetrySleep = (ms: number) => Promise<void>;
+
 const DEFAULT_MAX_ATTEMPTS = 5;
 const DEFAULT_INITIAL_DELAY_MS = 5000;
 const DEFAULT_MAX_DELAY_MS = 30_000;
@@ -35,20 +37,20 @@ const DEFAULT_MAX_DELAY_MS = 30_000;
  */
 export async function withRetries<T extends RetryableResult>(
   attempt: () => Promise<T>,
-  onException: (error: unknown) => T,
-  options: WithRetriesOptions = {},
+  onException: (error: ProviderException) => T,
+  options: WithRetriesOptions,
 ): Promise<T> {
   const maxAttempts = options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS;
   const initialDelayMs = options.initialDelayMs ?? DEFAULT_INITIAL_DELAY_MS;
   const maxDelayMs = options.maxDelayMs ?? DEFAULT_MAX_DELAY_MS;
-  const sleep = options.sleep ?? defaultSleep;
+  const sleep: RetrySleep = options.sleep ?? defaultSleep;
 
   let lastResult: T;
   for (let i = 1; i <= maxAttempts; i += 1) {
     try {
       lastResult = await attempt();
     } catch (error) {
-      lastResult = onException(error);
+      lastResult = onException(error instanceof Error ? error : String(error));
     }
     if (lastResult.status !== 'error' || lastResult.retryable !== true || i === maxAttempts) {
       return lastResult;
@@ -62,3 +64,4 @@ export async function withRetries<T extends RetryableResult>(
 function defaultSleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+import type { ProviderException } from '../types';

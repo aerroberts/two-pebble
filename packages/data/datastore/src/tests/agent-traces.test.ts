@@ -18,6 +18,17 @@ describe('feature: operation agent.traces.list', () => {
   });
 });
 
+describe('feature: operation agent.traces.list-by-type', () => {
+  test('happy: lists traces for one agent and type', async () => {
+    const datastore = await useDatastoreForTesting();
+    const agent = await datastore.agent.create(traceListAgentInput);
+    await datastore.agent.traces.record({ ...traceListInput, agentId: agent.id });
+    const list = await datastore.agent.traces.listByType({ agentId: agent.id, type: traceListInput.type });
+    await datastore.close();
+    expect(list.items).toHaveLength(1);
+  });
+});
+
 describe('feature: operation agent.traces.record', () => {
   test('happy: records an ordered trace', async () => {
     const datastore = await useDatastoreForTesting();

@@ -7,23 +7,16 @@ import { TaskBoardAccessCapability } from './task-board-access/task-board-access
 import { TurnCounterCapability } from './turn-counter/turn-counter-capability';
 import { WorkspaceAccessCapability } from './workspace-access/workspace-access-capability';
 
-export type CapabilityFactory = () => AgentCapability<PebbleJsonValue>;
-
-export const knownCapabilityIds = [
-  'parent-link',
-  'progressive-task-list',
-  'sub-agent',
-  'task-board-access',
-  'workspace-access',
-  'counter',
-] as const;
-
 /**
  * Capabilties are serialized to disk and have to be reinitialized on each agent run.
  * This allows for a capability to be reinitialized with the same config on each agent run.
  */
 export class CapabilityRegistry {
-  // Construct a new capability instance
+  /**
+   * Constructs a new capability instance for a serialized id.
+   * The registry keeps persisted ids decoupled from concrete classes so
+   * daemon rehydration can rebuild capabilities from datastore config.
+   */
   public newCapability(id: string): AgentCapability<PebbleJsonValue> {
     if (id === 'parent-link') return new ParentLinkCapability() as AgentCapability<PebbleJsonValue>;
     if (id === 'progressive-task-list') return new ProgressiveTaskListCapability() as AgentCapability<PebbleJsonValue>;
@@ -34,10 +27,4 @@ export class CapabilityRegistry {
 
     throw new Error(`Unknown capability id: "${id}"`);
   }
-}
-
-export const capabilityRegistry = new CapabilityRegistry();
-
-export function buildCapability(id: string): AgentCapability<PebbleJsonValue> {
-  return capabilityRegistry.newCapability(id);
 }

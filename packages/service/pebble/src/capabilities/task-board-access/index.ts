@@ -1,1 +1,2 @@
-export { TaskBoardAccessCapability, type TaskBoardAccessCapabilityConfig } from './task-board-access-capability';
+export { TaskBoardAccessCapability } from './task-board-access-capability';
+export type { TaskBoardAccessCapabilityConfig } from './task-board-access-types';

@@ -1,4 +1,4 @@
-import type { SpeechInput, SpeechResult } from './types';
+import type { ProviderException, SpeechInput, SpeechResult } from './types';
 import { withRetries } from './utils/retry';
 
 /**
@@ -34,7 +34,7 @@ export abstract class SpeechProvider {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private exceptionToResult(error: unknown, callId: string, startedAt: number): SpeechResult {
+  private exceptionToResult(error: ProviderException, callId: string, startedAt: number): SpeechResult {
     return {
       id: callId,
       startedAt,

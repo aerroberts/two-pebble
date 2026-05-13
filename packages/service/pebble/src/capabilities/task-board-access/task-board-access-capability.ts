@@ -1,42 +1,35 @@
-import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../agent';
 import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import { getCapabilityRunners } from '../runners';
 import { renderBoardTree } from './describe-board';
+import { boardSchema, createTaskSchema, setStatusSchema } from './task-board-access-schemas';
+import type { TaskBoardAccessCapabilityConfig } from './task-board-access-types';
 
-export interface TaskBoardAccessCapabilityConfig {
-  boardId?: string;
-}
-
-const boardSchema = z.object({
-  boardId: z.string().optional(),
-});
-
-const createTaskSchema = z.object({
-  boardId: z.string().optional(),
-  name: z.string(),
-  description: z.string().optional(),
-  poolId: z.string().nullable().optional(),
-  dependsOn: z.array(z.string()).optional(),
-});
-
-const setStatusSchema = z.object({
-  boardId: z.string().optional(),
-  taskId: z.string(),
-  status: z.enum(['working', 'waiting', 'success', 'failure']),
-  reason: z.string(),
-});
-
+/**
+ * Capability that exposes task-board operations to a Pebble agent.
+ * It delegates all state changes to the installed task-board runner and
+ * renders board snapshots as compact text for model context.
+ */
 export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCapabilityConfig> {
   public readonly id = 'task-board-access';
   public readonly description = 'Lets an agent read and update task boards.';
   private readonly boardIdSlot = this.useState<string>('boardId', '');
 
+  /**
+   * Stores the default board id from capability config.
+   * Individual tool calls may override it, but a configured board keeps
+   * model tool calls concise.
+   */
   public override initialize(config: TaskBoardAccessCapabilityConfig): void {
     if (typeof config.boardId === 'string') this.boardIdSlot.set(config.boardId);
   }
 
+  /**
+   * Registers task-board tools for describe, create, and status updates.
+   * The tools are intentionally thin wrappers around the daemon-owned
+   * runner so durable board state stays in one place.
+   */
   public override hookOnRegister(_config: TaskBoardAccessCapabilityConfig) {
     return {
       tools: [

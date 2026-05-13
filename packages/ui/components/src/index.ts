@@ -173,6 +173,16 @@ export type {
 } from './components/layout/sidebar-layout/types';
 export { Surface, type SurfaceProps } from './components/layout/surface/surface';
 export {
+  AppBox,
+  AppButton,
+  AppIconSwap,
+  AppRevealIconButton,
+  AppSidebarItemFrame,
+  AppSpinningIcon,
+  AppTextarea,
+  VoiceWaveformDisplay,
+} from './components/layout/app-ui/app-ui';
+export {
   WorkbenchHeader,
   type WorkbenchHeaderProps,
 } from './components/layout/workbench-header/workbench-header';

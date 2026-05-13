@@ -1,5 +1,7 @@
 import {
   Header,
+  AppBox,
+  AppButton,
   PageLayout,
   Section,
   Select,
@@ -46,18 +48,6 @@ const FILTER_DIMENSIONS = [
 type FilterDimension = (typeof FILTER_DIMENSIONS)[number];
 type FilterKey = FilterDimension['key'];
 
-const RANGE_BUTTON_ACTIVE = 'rounded-md bg-surface-active px-2 py-1 text-xs font-medium text-content';
-const RANGE_BUTTON_IDLE = 'rounded-md px-2 py-1 text-xs text-content-muted hover:bg-surface-hover';
-const CHART_HEADER_ROW = 'flex items-baseline gap-6 border-b border-border px-4 py-3';
-const FILTER_GRID = 'grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3';
-const FILTER_FIELD = 'flex flex-col gap-1';
-const FILTER_LABEL = 'text-xs font-medium text-content-muted';
-const CONTROLS_ROW = 'flex items-center gap-3';
-const RANGE_BUTTONS = 'flex gap-1';
-const KPI_LABEL = 'text-xs text-content-muted';
-const KPI_VALUE = 'text-lg font-semibold text-content';
-const ERROR_TEXT = 'text-xs text-content-muted';
-
 interface FilterFieldProps {
   dimension: FilterDimension;
   options: { value: string; label: string }[];
@@ -67,8 +57,8 @@ interface FilterFieldProps {
 
 function FilterField(props: FilterFieldProps) {
   return (
-    <div className={FILTER_FIELD}>
-      <label className={FILTER_LABEL}>{props.dimension.label}</label>
+    <AppBox variant="filter-field">
+      <AppBox as="label" variant="filter-label">{props.dimension.label}</AppBox>
       <Select
         options={props.options}
         value={props.value ?? '__all__'}
@@ -78,7 +68,7 @@ function FilterField(props: FilterFieldProps) {
         disabled={props.options.length <= 1}
         onChange={props.onChange}
       />
-    </div>
+    </AppBox>
   );
 }
 
@@ -221,37 +211,37 @@ export function PricingExplorerPage() {
       <Section
         title="Chart"
         actionItems={
-          <div className={CONTROLS_ROW}>
+          <AppBox variant="controls-row">
             <Select options={METRIC_OPTIONS} value={metric} onChange={(value) => setMetric(value as MetricKey)} />
-            <div className={RANGE_BUTTONS}>
+            <AppBox variant="range-buttons">
               {RANGE_OPTIONS.map((option) => (
-                <button
+                <AppButton
                   key={option.id}
                   type="button"
                   onClick={() => setRangeId(option.id)}
-                  className={option.id === rangeId ? RANGE_BUTTON_ACTIVE : RANGE_BUTTON_IDLE}
+                  variant={option.id === rangeId ? 'range-active' : 'range-idle'}
                 >
                   {option.label}
-                </button>
+                </AppButton>
               ))}
-            </div>
-          </div>
+            </AppBox>
+          </AppBox>
         }
       >
         <Surface>
-          <div className={CHART_HEADER_ROW}>
+          <AppBox variant="chart-header-row">
             <div>
-              <div className={KPI_LABEL}>Total in window</div>
-              <div className={KPI_VALUE}>{totalLabel}</div>
+              <AppBox variant="kpi-label">Total in window</AppBox>
+              <AppBox variant="kpi-value">{totalLabel}</AppBox>
             </div>
             <div>
-              <div className={KPI_LABEL}>Samples</div>
-              <div className={KPI_VALUE}>{totals.samples.toLocaleString()}</div>
+              <AppBox variant="kpi-label">Samples</AppBox>
+              <AppBox variant="kpi-value">{totals.samples.toLocaleString()}</AppBox>
             </div>
-          </div>
-          <div className="p-4">
+          </AppBox>
+          <AppBox variant="chart-body">
             {status === 'error' ? (
-              <p className={ERROR_TEXT}>Failed to load metric data.</p>
+              <AppBox as="p" variant="muted-xs">Failed to load metric data.</AppBox>
             ) : (
               <StackedTimelineBarChart
                 points={points}
@@ -262,13 +252,13 @@ export function PricingExplorerPage() {
                 emptyMessage={status === 'loading' ? 'Loading metric data.' : 'No samples in this window.'}
               />
             )}
-          </div>
+          </AppBox>
         </Surface>
       </Section>
 
       <Section title="Filters">
         <Surface>
-          <div className={FILTER_GRID}>
+          <AppBox variant="filter-grid">
             {FILTER_DIMENSIONS.map((dimension) => (
               <FilterField
                 key={dimension.key}
@@ -285,7 +275,7 @@ export function PricingExplorerPage() {
                 }
               />
             ))}
-          </div>
+          </AppBox>
         </Surface>
       </Section>
     </PageLayout>

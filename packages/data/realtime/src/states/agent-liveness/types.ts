@@ -3,6 +3,8 @@ import type { LoadableRegistry } from '../../loadable';
 
 export type AgentLivenessRecord = AgentLivenessEvent['payload'];
 
+export type AgentLivenessHookResult = AgentLivenessRecord | null;
+
 export interface AgentLivenessState {
   agentLiveness: LoadableRegistry<AgentLivenessRecord>;
   daemonBootId: string | null;

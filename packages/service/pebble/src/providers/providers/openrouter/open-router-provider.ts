@@ -1,5 +1,7 @@
 import type { CellContent, DataCells } from '../../../thread/cells/index';
 import type { ConversationThread, ConversationTurn } from '../../../thread/index';
+import type { ToolInputRecord } from '../../../agent/tools/tool-input';
+import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
 import { ModelProvider } from '../../model-provider';
 import { collectNativeToolDefinitions } from '../../native-tools';
 import type { ProviderOutputBlock, ProviderResult } from '../../types';
@@ -103,7 +105,7 @@ export class OpenRouterProvider extends ModelProvider {
     const request: OpenRouterProviderRequest = {
       model: this.modelId,
       messages: thread.serialize().flatMap((turn) => this.buildMessages(turn)),
-      stop: [ModelProvider.END_TURN_STOP_TOKEN],
+      stop: [END_TURN_STOP_TOKEN],
     };
     if (tools.length > 0) request.tools = tools;
     return request;
@@ -181,8 +183,8 @@ export class OpenRouterProvider extends ModelProvider {
     for (const cell of turn.cells) {
       if (cell.type === 'toolResult') {
         flushUserText();
-        const text = (cell.content.content as { type: string; content: unknown }[])
-          .map((inner) => this.renderTextCell(inner as CellContent))
+        const text = cell.content.content
+          .map((inner) => this.renderTextCell(inner))
           .filter((rendered) => rendered.length > 0)
           .join('\n\n');
         messages.push({
@@ -293,7 +295,7 @@ export class OpenRouterProvider extends ModelProvider {
     return output;
   }
 
-  private parseToolPayload(input: OpenRouterToolPayloadInput): object {
+  private parseToolPayload(input: OpenRouterToolPayloadInput): ToolInputRecord {
     if (input === undefined || input.length === 0) {
       return {};
     }
@@ -301,7 +303,7 @@ export class OpenRouterProvider extends ModelProvider {
     try {
       const parsed = JSON.parse(input) as object | string | number | boolean | null;
       if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-        return parsed;
+        return parsed as ToolInputRecord;
       }
 
       return { value: parsed };

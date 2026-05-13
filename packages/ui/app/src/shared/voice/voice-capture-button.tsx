@@ -1,6 +1,5 @@
-import { Icon, IconButton } from '@two-pebble/components';
+import { AppBox, AppButton, Icon, IconButton, VoiceWaveformDisplay } from '@two-pebble/components';
 import { useVoiceCapture, type VoiceCaptureStatus } from './use-voice-capture';
-import { VoiceWaveform } from './voice-waveform';
 
 interface VoiceCaptureButtonProps {
   onTranscript: (text: string) => void;
@@ -16,31 +15,31 @@ export function VoiceCaptureButton(props: VoiceCaptureButtonProps) {
 
   if (capture.status === 'recording') {
     return (
-      <div className="inline-flex items-center gap-1 rounded-sm bg-accent px-2 text-accent-content">
-        <button
+      <AppBox variant="voice-pill">
+        <AppButton
           aria-label="Stop recording"
-          className="inline-flex h-7 cursor-pointer items-center gap-2 transition-colors hover:opacity-80"
           disabled={capture.disabled}
           onClick={capture.onClick}
           title="Stop recording"
           type="button"
+          variant="voice-record"
         >
-          <VoiceWaveform analyser={capture.analyser} className="h-4 w-12" />
+          <VoiceWaveformDisplay analyser={capture.analyser} />
           <Icon name="square" color="text-current" />
-        </button>
+        </AppButton>
         {capture.canSubmit ? (
-          <button
+          <AppButton
             aria-label="Stop recording and send"
-            className="inline-flex h-7 cursor-pointer items-center px-1 transition-colors hover:opacity-80"
             disabled={capture.disabled}
             onClick={capture.onSubmitClick}
             title="Stop recording and send"
             type="button"
+            variant="voice-submit"
           >
             <Icon name="send" color="text-current" />
-          </button>
+          </AppButton>
         ) : null}
-      </div>
+      </AppBox>
     );
   }
 

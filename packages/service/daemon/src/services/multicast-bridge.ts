@@ -1,4 +1,4 @@
-import type { DaemonBridge } from '../types';
+import type { DaemonBridge, DaemonOutboundEventName, DaemonOutboundPayload } from '../types';
 
 /**
  * Bridge-shaped fan-out used by daemon-owned services (the liveness
@@ -15,17 +15,18 @@ export class MulticastBridge {
     this.targets = targets;
   }
 
-  public emit(event: string, payload: unknown): void {
+  /**
+   * Emits an outbound daemon event to every connected bridge.
+   * Closed or already-disconnected bridge targets are skipped so one
+   * stale client cannot block realtime fan-out to active clients.
+   */
+  public emit<TName extends DaemonOutboundEventName>(event: TName, payload: DaemonOutboundPayload<TName>): void {
     for (const target of this.targets) {
       try {
-        (target.emit as (e: string, p: unknown) => void)(event, payload);
+        target.emit(event as never, payload as never);
       } catch {
         // Drop emits to a closed bridge silently; disconnection is handled elsewhere.
       }
     }
   }
-}
-
-export function asDaemonBridge(multicast: MulticastBridge): DaemonBridge {
-  return multicast as unknown as DaemonBridge;
 }

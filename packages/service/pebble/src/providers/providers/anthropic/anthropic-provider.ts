@@ -1,10 +1,12 @@
-import type { CellContent } from '../../../thread/cells/index';
 import type { ConversationThread, ConversationTurn } from '../../../thread/index';
+import type { ToolInputRecord } from '../../../agent/tools/tool-input';
+import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
 import { ModelProvider } from '../../model-provider';
 import { collectNativeToolDefinitions } from '../../native-tools';
 import type { ProviderOutputBlock, ProviderResult } from '../../types';
 import { isRetryableProviderStatus } from '../../utils/retry';
 import { buildAnthropicPriceLineItems } from './pricing';
+import { renderTextCellAnthropic } from './render-text-cell';
 import type {
   AnthropicContentBlock,
   AnthropicMessageResponse,
@@ -102,7 +104,7 @@ export class AnthropicProvider extends ModelProvider {
       max_tokens: this.maxTokens,
       messages: turns.map((turn) => this.buildMessage(turn)),
       model: this.modelId,
-      stop_sequences: [ModelProvider.END_TURN_STOP_TOKEN],
+      stop_sequences: [END_TURN_STOP_TOKEN],
     };
     if (tools.length > 0) request.tools = tools;
     return request;
@@ -139,8 +141,8 @@ export class AnthropicProvider extends ModelProvider {
       }
       if (cell.type === 'toolResult') {
         flushText();
-        const text = (cell.content.content as { type: string; content: unknown }[])
-          .map((inner) => renderInnerForAnthropic(inner))
+        const text = cell.content.content
+          .map((inner) => renderTextCellAnthropic(inner))
           .filter((rendered) => rendered.length > 0)
           .join('\n\n');
         const block: AnthropicProviderContentBlock = {
@@ -191,40 +193,11 @@ export class AnthropicProvider extends ModelProvider {
     return { type: 'text', text: JSON.stringify(block) };
   }
 
-  private toobject(input: AnthropicToolPayloadInput): object {
+  private toobject(input: AnthropicToolPayloadInput): ToolInputRecord {
     if (typeof input === 'object' && input !== null && !Array.isArray(input)) {
       return input;
     }
 
     return { value: input ?? null };
   }
-}
-
-function renderTextCellAnthropic(cell: CellContent): string {
-  switch (cell.type) {
-    case 'codeBlock':
-      return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
-    case 'data':
-      return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
-    case 'header1':
-      return `# ${cell.content.text}`;
-    case 'header2':
-      return `## ${cell.content.text}`;
-    case 'text':
-      return cell.content.text;
-    case 'audio':
-      return cell.content.transcript == null || cell.content.transcript.length === 0
-        ? '[audio]'
-        : `[audio: ${cell.content.transcript}]`;
-    case 'image':
-      return `[image](data:image/*;base64,${cell.content.base64Data})`;
-    case 'toolRegistration':
-    case 'toolUse':
-    case 'toolResult':
-      return '';
-  }
-}
-
-function renderInnerForAnthropic(inner: { type: string; content: unknown }): string {
-  return renderTextCellAnthropic(inner as CellContent);
 }

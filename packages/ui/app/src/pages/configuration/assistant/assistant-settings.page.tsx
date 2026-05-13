@@ -46,8 +46,11 @@ export function AssistantSettingsPage() {
 }
 
 type AgentRegistryLike = { id: string; name: string };
+interface AgentRegistryOptionsInput {
+  values(): AgentRegistryLike[];
+}
 
-function buildAgentRegistryOptions(registries: { values(): AgentRegistryLike[] }): SelectOption[] {
+function buildAgentRegistryOptions(registries: AgentRegistryOptionsInput): SelectOption[] {
   const matching = registries
     .values()
     .sort((left, right) => left.name.localeCompare(right.name))

@@ -1,13 +1,10 @@
-export interface ToolResultInnerCell {
-  type: string;
-  content: unknown;
-}
+import type { DataCells } from '../types';
 
 export interface ToolResultCellInput {
   callId: string;
   toolId: string;
   success: boolean;
-  content: ToolResultInnerCell[];
+  content: DataCells;
   error?: string | null;
 }
 

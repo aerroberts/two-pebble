@@ -1,5 +1,5 @@
 import type { ConversationThread } from '../thread/index';
-import type { ProviderResult } from './types';
+import type { ModelProviderExceptionInput, ProviderResult } from './types';
 import { withRetries } from './utils/retry';
 
 /**
@@ -7,14 +7,6 @@ import { withRetries } from './utils/retry';
  * Providers share thread serialization while owning transport details.
  */
 export abstract class ModelProvider {
-  /**
-   * Sentinel string the agent emits to signal end-of-turn. Chat providers
-   * pass it as a stop sequence so the upstream API halts as soon as the
-   * model writes it, sparing a token-by-token tail. Lives on the abstract
-   * base because it is part of the agent ↔ provider contract.
-   */
-  public static readonly END_TURN_STOP_TOKEN = 'END_TURN';
-
   public abstract readonly providerId: string;
   public abstract readonly modelId: string;
   /**
@@ -32,7 +24,7 @@ export abstract class ModelProvider {
     const startedAt = Date.now();
     const result = await withRetries<ProviderResult>(
       () => this.invokeProvider(thread, modelCallId),
-      (error) => this.exceptionToResult(error, modelCallId, thread, startedAt),
+      (error) => this.exceptionToResult({ error, modelCallId, thread, startedAt }),
       { sleep: (ms) => this.sleep(ms) },
     );
     return this.finalizeResult(thread, result, modelCallId);
@@ -52,25 +44,20 @@ export abstract class ModelProvider {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private exceptionToResult(
-    error: unknown,
-    modelCallId: string,
-    thread: ConversationThread,
-    startedAt: number,
-  ): ProviderResult {
+  private exceptionToResult(input: ModelProviderExceptionInput): ProviderResult {
     return {
-      id: modelCallId,
-      startedAt,
+      id: input.modelCallId,
+      startedAt: input.startedAt,
       completedAt: Date.now(),
       modelId: this.modelId,
       provider: this.providerId,
       status: 'error',
-      error: error instanceof Error ? error.message : String(error),
+      error: input.error instanceof Error ? input.error.message : String(input.error),
       retryable: true,
       prices: [],
       providerInput: {},
       providerOutput: {},
-      threadCellPointer: thread.cursor,
+      threadCellPointer: input.thread.cursor,
       output: [],
     };
   }

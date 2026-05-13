@@ -1,7 +1,9 @@
+import type { ToolInput } from '../../../agent/tools/tool-input';
+
 export interface ToolUseCellInput {
   callId: string;
   toolId: string;
-  input: unknown;
+  input: ToolInput;
 }
 
 export function toolUse(input: ToolUseCellInput) {

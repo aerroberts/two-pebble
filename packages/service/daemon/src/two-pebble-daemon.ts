@@ -2,15 +2,17 @@ import path from 'node:path';
 import { Datastore } from '@two-pebble/datastore';
 import { FileSyncSink, logger, PrettySink, TeeSink } from '@two-pebble/logger';
 import { metrics } from '@two-pebble/metrics';
-import type { AgentLivenessEvent } from '@two-pebble/protocol';
 import { WsBridgeServer } from '@two-pebble/ws-bridge';
 import { registerDaemonHandlers } from './register-daemon-handlers';
 import { AgentRegistryService } from './services/agent-registry-service';
 import { LivenessReconciler } from './services/liveness-reconciler';
-import { asDaemonBridge, MulticastBridge } from './services/multicast-bridge';
+import { asDaemonBridge } from './services/multicast-bridge-cast';
+import { MulticastBridge } from './services/multicast-bridge';
 import { TaskBoardService } from './services/task-board-service';
 import type {
+  AgentLivenessPayload,
   DaemonBridge,
+  DaemonFetchResponse,
   DaemonHandlerContext,
   DaemonOperationHandler,
   DaemonOperationName,
@@ -158,7 +160,7 @@ export class TwoPebbleDaemon {
     logger.info('ws server closed');
   }
 
-  private broadcastLiveness(payload: AgentLivenessEvent['payload']): void {
+  private broadcastLiveness(payload: AgentLivenessPayload): void {
     for (const bridge of this.bridges) {
       try {
         bridge.emit('agentLiveness', payload);
@@ -182,7 +184,7 @@ export class TwoPebbleDaemon {
           dimensions: entry.dimensions,
           timestamp: entry.timestamp,
         })
-        .catch((error: unknown) => {
+        .catch((error) => {
           logger.warn('metric write failed', { error: error instanceof Error ? error : String(error) });
         });
     });
@@ -237,7 +239,7 @@ export class TwoPebbleDaemon {
     }
   }
 
-  private async fetch(request: Request): Promise<Response | undefined> {
+  private async fetch(request: Request): Promise<DaemonFetchResponse> {
     const url = new URL(request.url);
     if (url.pathname === '/health') {
       return Response.json({ state: 'ready' });

@@ -82,9 +82,9 @@ export function attachParentLinkCapability(input: AttachParentLinkInput): void {
     }),
   });
   if (input.mode === 'fresh') {
-    input.agent.registerCapability(buildCapability('parent-link'), {});
+    input.agent.registerCapability(buildCapability('parent-link'), { parentAgentId: input.parentAgentId });
   } else {
-    input.agent.hydrateCapability(buildCapability('parent-link'), {}, new Map());
+    input.agent.hydrateCapability(buildCapability('parent-link'), { parentAgentId: input.parentAgentId }, new Map());
   }
 }
 

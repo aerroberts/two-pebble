@@ -1,5 +1,7 @@
 import {
   Header,
+  AppBox,
+  AppButton,
   PageLayout,
   Section,
   Select,
@@ -39,16 +41,6 @@ type GroupByKey = (typeof GROUP_BY_OPTIONS)[number]['key'];
 
 const METRIC_NAME = 'pricing.total';
 const MAX_SERIES = 12;
-
-const CONTROLS_ROW = 'flex items-center gap-3';
-const RANGE_BUTTONS = 'flex gap-1';
-const RANGE_BUTTON_ACTIVE = 'rounded-md bg-surface-active px-2 py-1 text-xs font-medium text-content';
-const RANGE_BUTTON_IDLE = 'rounded-md px-2 py-1 text-xs text-content-muted hover:bg-surface-hover';
-const CHART_HEADER_ROW = 'flex items-baseline gap-6 border-b border-border px-4 py-3';
-const KPI_LABEL = 'text-xs text-content-muted';
-const KPI_VALUE = 'text-lg font-semibold text-content';
-const CHART_BODY = 'p-4';
-const ERROR_TEXT = 'text-xs text-content-muted';
 
 export function PricingOverviewPage() {
   const datastore = useRealtimeDatastore();
@@ -181,41 +173,41 @@ export function PricingOverviewPage() {
       <Section
         title="Spend"
         actionItems={
-          <div className={CONTROLS_ROW}>
+          <AppBox variant="controls-row">
             <Select
               options={GROUP_BY_OPTIONS.map((option) => ({ value: option.key, label: option.label }))}
               value={groupBy}
               onChange={(value) => setGroupBy(value as GroupByKey)}
             />
-            <div className={RANGE_BUTTONS}>
+            <AppBox variant="range-buttons">
               {RANGE_OPTIONS.map((option) => (
-                <button
+                <AppButton
                   key={option.id}
                   type="button"
                   onClick={() => setRangeId(option.id)}
-                  className={option.id === rangeId ? RANGE_BUTTON_ACTIVE : RANGE_BUTTON_IDLE}
+                  variant={option.id === rangeId ? 'range-active' : 'range-idle'}
                 >
                   {option.label}
-                </button>
+                </AppButton>
               ))}
-            </div>
-          </div>
+            </AppBox>
+          </AppBox>
         }
       >
         <Surface>
-          <div className={CHART_HEADER_ROW}>
+          <AppBox variant="chart-header-row">
             <div>
-              <div className={KPI_LABEL}>Total in window</div>
-              <div className={KPI_VALUE}>${totalSum.toFixed(2)}</div>
+              <AppBox variant="kpi-label">Total in window</AppBox>
+              <AppBox variant="kpi-value">${totalSum.toFixed(2)}</AppBox>
             </div>
             <div>
-              <div className={KPI_LABEL}>Series</div>
-              <div className={KPI_VALUE}>{series.length}</div>
+              <AppBox variant="kpi-label">Series</AppBox>
+              <AppBox variant="kpi-value">{series.length}</AppBox>
             </div>
-          </div>
-          <div className={CHART_BODY}>
+          </AppBox>
+          <AppBox variant="chart-body">
             {status === 'error' ? (
-              <p className={ERROR_TEXT}>Failed to load pricing data.</p>
+              <AppBox as="p" variant="muted-xs">Failed to load pricing data.</AppBox>
             ) : (
               <StackedTimelineBarChart
                 points={points}
@@ -226,7 +218,7 @@ export function PricingOverviewPage() {
                 emptyMessage={status === 'loading' ? 'Loading pricing data.' : 'No samples in this window.'}
               />
             )}
-          </div>
+          </AppBox>
         </Surface>
       </Section>
     </PageLayout>

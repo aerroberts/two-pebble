@@ -1,19 +1,15 @@
 import type { PebbleAgent } from '../agent/agents/pebble-agent';
 import { AgentExitHook } from '../agent/hooks/agent-exit-hook';
 import { EarlyExit } from '../agent/hooks/early-exit';
+import type { AgentSignal, RegisterSignalInput, ResolveSignalInput, SendSignalInput } from '../agent/signal-runner';
 import type { PebbleJsonValue } from '../types';
 import type { CapabilityState, RegisterHookResult } from './agent-capability.types';
+import { getCapabilityRunners } from './runners';
 
 /**
- * Groups tools, instructions, and lifecycle hooks. Capabilities are the unit
- * an agent can register or remove. Subclasses declare their own state slots
- * with `useState`; on rehydrate the agent replays the latest snapshot per
- * slot through `restoreSlots` so durable state survives a daemon restart.
- *
- * The optional `TConfig` parameter narrows the shape `initialize` expects
- * so subclasses can take a typed config object instead of `PebbleJsonValue`.
- * The launch path passes a parsed JSON record sourced from the registry
- * row; the runtime contract is "config must JSON-roundtrip", same as state.
+ * Base class for Pebble runtime capabilities.
+ * Capabilities own model-facing tools, per-capability state slots, and
+ * lifecycle hooks that plug into PebbleAgent turns.
  */
 export abstract class AgentCapability<TConfig = PebbleJsonValue> {
   // The id for the capability, two capabilities with the same id are not allowed
@@ -29,15 +25,18 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
   private readonly state = new Map<string, PebbleJsonValue>();
 
   /**
-   * Binds this capability to its owning agent. The agent calls this once
-   * before either initialize (fresh) or restoreSlots (rehydrate) runs.
+   * Binds the capability to the owning agent.
+   * Called before registration hooks so capability implementations can
+   * access agent services while building tools or context.
    */
   public attach(agent: PebbleAgent): void {
     this.agent = agent;
   }
 
   /**
-   * Replays restored slots over the capability's declared defaults.
+   * Replays durable state into this capability.
+   * Used on rehydrate before hooks run so slots expose the latest
+   * persisted values.
    */
   public restoreState(state: Map<string, PebbleJsonValue>): void {
     for (const [name, value] of state) {
@@ -45,10 +44,20 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
     }
   }
 
+  /**
+   * Restores persisted state slots.
+   * Kept as the slot-oriented public name while delegating to the same
+   * state replay mechanism.
+   */
   public restoreSlots(state: Map<string, PebbleJsonValue>): void {
     this.restoreState(state);
   }
 
+  /**
+   * Initializes a fresh capability from registry config.
+   * Rehydrated capabilities skip this path and receive persisted slot
+   * state instead.
+   */
   public initialize(_config: TConfig): void {}
 
   /**
@@ -69,6 +78,13 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
    * adapt instructions, or otherwise prepare the thread for the next call.
    */
   public hookBeforeAgentTurn(): void {}
+
+  /**
+   * Receives durable signal data addressed to this capability.
+   * Override when a capability participates in parent/child or external
+   * signal flows.
+   */
+  public hookOnSignal(_signal: AgentSignal): void {}
 
   /**
    * Decides whether the agent may exit. Returning a denial forces another
@@ -122,5 +138,35 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
         setter(next);
       },
     };
+  }
+
+  protected async registerSignal(input: Omit<RegisterSignalInput, 'capabilityId'>): Promise<string> {
+    const signalId = await this.requireSignalRunner().register({ ...input, capabilityId: this.id });
+    this.agent.emit('trace', {
+      type: 'signal-registered',
+      data: {
+        capabilityId: this.id,
+        description: input.description,
+        kind: 'awaited',
+        name: input.name,
+        signalId,
+        status: 'open',
+      },
+    });
+    return signalId;
+  }
+
+  protected async sendSignal(input: SendSignalInput): Promise<void> {
+    await this.requireSignalRunner().send(input);
+  }
+
+  protected async resolveSignal(input: ResolveSignalInput): Promise<void> {
+    await this.requireSignalRunner().resolve(input);
+  }
+
+  private requireSignalRunner() {
+    const runner = getCapabilityRunners(this.agent).signal;
+    if (runner === undefined) throw new Error('signal runner is not installed.');
+    return runner;
   }
 }

@@ -1,6 +1,6 @@
 import { LoadingPage, NotConnectedPage } from '@two-pebble/components';
 import { useRealtimeConnection } from '@two-pebble/realtime';
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { AgentsAppShell } from './layouts/agents-app-shell';
 import { ConfigurationAppShell } from './layouts/configuration-app-shell';
 import { DeveloperAppShell } from './layouts/developer-app-shell';
@@ -25,7 +25,7 @@ import { VoiceSettingsPage } from './pages/configuration/voice/voice-settings.pa
 import { DaemonLogPage } from './pages/developer/daemon-logs/daemon-log.page';
 import { DaemonLogsPage } from './pages/developer/daemon-logs/daemon-logs.page';
 import { DatabaseSettingsPage } from './pages/developer/database/database-settings.page';
-import { DeveloperThreadPage } from './pages/developer/threads/thread.page';
+import { DeveloperThreadPage } from './pages/developer/threads/developer-thread-page';
 import { ThreadsPage } from './pages/developer/threads/threads.page';
 import { MetricDetailPage } from './pages/metrics/metric-detail.page';
 import { MetricsExplorerPage } from './pages/metrics/metrics-explorer.page';
@@ -34,6 +34,7 @@ import { PricingOverviewPage } from './pages/metrics/pricing-overview.page';
 import { ModelCallDetailPage } from './pages/model-call-detail/model-call-detail.page';
 import { TaskBoardPage } from './pages/task-board/task-board.page';
 import { TasksPage } from './pages/tasks/tasks.page';
+import { RedirectToDeveloperThread } from './redirect-to-developer-thread';
 
 export function App() {
   const connection = useRealtimeConnection();
@@ -294,15 +295,4 @@ export function App() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
-}
-
-function RedirectToDeveloperThread() {
-  const params = useParams();
-  const threadId = params.threadId ?? '';
-  if (threadId.length === 0) {
-    return <Navigate to="/developer/threads" replace />;
-  }
-  const base = `/developer/threads/${encodeURIComponent(threadId)}`;
-  const target = params.orderId === undefined ? base : `${base}/${params.orderId}`;
-  return <Navigate to={target} replace />;
 }

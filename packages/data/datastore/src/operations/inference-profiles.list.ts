@@ -1,6 +1,6 @@
 import { count } from 'drizzle-orm';
 import type { DatastoreContext } from '../types';
-import { attachInferenceProfileProviders } from './inference-profiles-utils';
+import { attachInferenceProfileProviders } from '../operation-support/inference-profiles-utils';
 
 type OperationHandlerInput = {
   limit: number;

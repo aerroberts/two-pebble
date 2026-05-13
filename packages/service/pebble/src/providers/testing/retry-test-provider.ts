@@ -1,8 +1,7 @@
 import type { ConversationThread } from '../../thread';
 import { ModelProvider } from '../model-provider';
 import type { ProviderResult } from '../types';
-
-type ScriptStep = ProviderResult | { throw: Error };
+import type { ScriptStep } from './retry-test-provider-types';
 
 /**
  * Provides deterministic retry responses for model provider tests.
