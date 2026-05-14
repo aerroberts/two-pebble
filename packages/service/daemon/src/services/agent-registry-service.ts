@@ -4,24 +4,15 @@ import type { Agent } from '@two-pebble/pebble';
 import { Cell, PebbleAgent } from '@two-pebble/pebble';
 import { installCapabilityRunners } from '@two-pebble/pebble/capabilities';
 import type { AgentRegistryServiceContext, DaemonBridge } from '../types';
-import { recordConversationCell, recordModelCall, recordPriceLineItem } from './agent-recording';
 import { resolveBuildInput } from './agent-registry-build-input';
 import { emitWorktreeInitializedTrace, resolveLaunchWorkspace } from './agent-registry-launch-workspace';
+import { buildAgentListenerContext } from './agent-registry-listener-context';
 import { installAgentPersistenceListeners, installSubAgentListeners } from './agent-registry-listeners';
 import { rehydrateAgent } from './agent-registry-rehydrate';
-import { interruptStaleRunningAgents, persistAgentMetadata, persistAgentStatus } from './agent-registry-status';
+import { repairBlockedSubAgentAskSignal, repairBlockedSubAgentAskSignals } from './agent-registry-signal-repair';
+import { interruptStaleRunningAgents, persistAgentMetadata } from './agent-registry-status';
 import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
-import { recordAgentTrace } from './agent-registry-traces';
-import type {
-  AgentListenerContext,
-  LaunchAgentInput,
-  PersistAgentStatusInput,
-  RecordConversationCellInput,
-  RecordModelCallInput,
-  RecordPriceLineItemInput,
-  RecordTraceInput,
-  RunAgentInput,
-} from './agent-registry-types';
+import type { LaunchAgentInput, RunAgentInput } from './agent-registry-types';
 import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
@@ -85,6 +76,7 @@ export class AgentRegistryService {
    */
   public async hydrate(): Promise<void> {
     await interruptStaleRunningAgents({ datastore: this.datastore, logger: this.logger });
+    await repairBlockedSubAgentAskSignals({ agentRegistry: this, datastore: this.datastore });
   }
 
   /**
@@ -201,7 +193,13 @@ export class AgentRegistryService {
       orderId += 1;
       return orderId;
     };
-    const context = this.buildListenerContext();
+    const context = buildAgentListenerContext({
+      activeAgents: this.activeAgents,
+      datastore: this.datastore,
+      logger: this.logger,
+      pending: this.subAgentCreatePromises,
+      taskBoards: this.taskBoards,
+    });
     installAgentPersistenceListeners({ context, input, nextOrderId });
     installSubAgentListeners({ context, input, nextOrderId });
     this.activeAgents.set(input.agentId, input.agent);
@@ -229,6 +227,7 @@ export class AgentRegistryService {
    * immediately after inbound signal state changes.
    */
   public async wakeIfSignalsReady(agentId: string): Promise<void> {
+    await repairBlockedSubAgentAskSignal({ agentId, datastore: this.datastore });
     const open = await this.datastore.agent.signals.listOpenForAgent({ agentId });
     if (open.items.length > 0) {
       return;
@@ -358,40 +357,5 @@ export class AgentRegistryService {
         wake: (targetAgentId) => this.wakeIfSignalsReady(targetAgentId),
       }),
     });
-  }
-
-  private buildListenerContext(): AgentListenerContext {
-    return {
-      datastore: this.datastore,
-      logger: this.logger,
-      pending: this.subAgentCreatePromises,
-      taskBoards: this.taskBoards,
-      persistAgentStatus: (input) => this.persistAgentStatus(input),
-      recordConversationCell: (input) => this.recordConversationCell(input),
-      recordModelCall: (input) => this.recordModelCall(input),
-      recordPriceLineItem: (input) => this.recordPriceLineItem(input),
-      recordTrace: (input) => this.recordTrace(input),
-    };
-  }
-  private async persistAgentStatus(input: PersistAgentStatusInput): Promise<void> {
-    await persistAgentStatus({
-      ...input,
-      activeAgents: this.activeAgents,
-      datastore: this.datastore,
-      logger: this.logger,
-      taskBoards: this.taskBoards,
-    });
-  }
-  private async recordTrace(input: RecordTraceInput) {
-    await recordAgentTrace({ ...input, datastore: this.datastore, pending: this.subAgentCreatePromises });
-  }
-  private async recordModelCall(input: RecordModelCallInput) {
-    await recordModelCall(this.datastore, input);
-  }
-  private async recordConversationCell(input: RecordConversationCellInput) {
-    await recordConversationCell(this.datastore, input);
-  }
-  private async recordPriceLineItem(input: RecordPriceLineItemInput) {
-    await recordPriceLineItem(this.datastore, input);
   }
 }

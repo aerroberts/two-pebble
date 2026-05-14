@@ -1,6 +1,8 @@
 import type { AgentSignal } from '../../agent';
 import { AgentExitHook, NativeTool, ToolResponse } from '../../agent';
+import type { DataCells } from '../../thread';
 import { Cell } from '../../thread';
+import type { ParentMessageDirection } from '../../traces';
 import { AgentCapability } from '../agent-capability';
 import { notifyParentSchema, parentMessageSchema, readParentMessagesSchema } from './parent-link-schemas';
 import { objectData, stringField } from './parent-link-signal-data';
@@ -43,45 +45,12 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
           description: 'Send a message to the parent agent.',
           name: 'notify-parent-agent',
           schema: notifyParentSchema,
-        }).onInvoke(async (input) => {
-          const data = {
-            childAgentId: this.agent.agentId,
-            message: input.message,
-            type: 'child-message' as const,
-          };
-          await this.sendSignal({
-            agentId: this.parentAgentId(),
-            capabilityId: 'sub-agent',
-            data,
-            description: 'Child agent sent a message to its parent.',
-            name: input.expectsReply === true ? 'Sub-agent ask' : 'Sub-agent message',
-          });
-          return ToolResponse.success([Cell.text('Sent message to parent.')]);
-        }),
+        }).onInvoke((input) => this.notifyParent(input.message, input.expectsReply === true)),
         new NativeTool({
           description: 'Ask the parent agent a question and wait for its reply.',
           name: 'ask-parent-agent',
           schema: parentMessageSchema,
-        }).onInvoke(async (input) => {
-          const signalId = await this.registerSignal({
-            description: 'Wait for parent agent to answer.',
-            name: 'Parent response',
-          });
-          const data = {
-            childAgentId: this.agent.agentId,
-            message: input.message,
-            responseSignalId: signalId,
-            type: 'ask-parent' as const,
-          };
-          await this.sendSignal({
-            agentId: this.parentAgentId(),
-            capabilityId: 'sub-agent',
-            data,
-            description: 'Child agent asked its parent for a response.',
-            name: 'Sub-agent ask',
-          });
-          return ToolResponse.success([Cell.text('Asked parent agent and waiting for a response.')]);
-        }),
+        }).onInvoke((input) => this.askParent(input.message)),
         new NativeTool({
           description: 'Read queued parent messages without waiting.',
           name: 'read-parent-agent-messages',
@@ -127,7 +96,9 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     if (type === 'parent-message') {
       const message = stringField(data, 'message');
       if (message !== undefined) {
-        this.agent.addUserContext('Parent Agent Message', [Cell.text(message)]);
+        const content = [Cell.text(message)];
+        this.traceParentMessage('message', content, undefined);
+        this.agent.addUserContext('Parent Agent Message', content);
       }
       return;
     }
@@ -145,11 +116,13 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
         return;
       }
       this.pendingParentResponseSlot.set({ parentAgentId, parentCapabilityId, responseSignalId });
-      this.agent.addUserContext('Parent Agent Ask', [
+      const content = [
         Cell.header2('Parent Agent Ask'),
         Cell.text(message),
         Cell.text('Respond with respond-to-parent-agent before exiting.'),
-      ]);
+      ];
+      this.traceParentMessage('ask', content, parentAgentId);
+      this.agent.addUserContext('Parent Agent Ask', content);
       return;
     }
     if (type === 'parent-response') {
@@ -157,7 +130,17 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
       if (message === undefined) {
         return;
       }
-      this.agent.addUserContext('Parent Agent Response', [Cell.header2('Parent Agent Response'), Cell.text(message)]);
+      const parentAgentId = stringField(data, 'parentAgentId');
+      const parentCapabilityId = stringField(data, 'parentCapabilityId');
+      const responseSignalId = stringField(data, 'responseSignalId');
+      if (parentAgentId !== undefined && parentCapabilityId !== undefined && responseSignalId !== undefined) {
+        this.pendingParentResponseSlot.set({ parentAgentId, parentCapabilityId, responseSignalId });
+      } else {
+        this.pendingParentResponseSlot.set(null);
+      }
+      const content = [Cell.header2('Parent Agent Response'), Cell.text(message)];
+      this.traceParentMessage('response', content, parentAgentId);
+      this.agent.addUserContext('Parent Agent Response', content);
     }
   }
 
@@ -183,5 +166,86 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
       return parentAgentId;
     }
     throw new Error('parent-link capability does not know its parent agent yet.');
+  }
+
+  private async notifyParent(message: string, expectsReply: boolean) {
+    if (expectsReply) {
+      return this.askParent(message);
+    }
+    await this.sendSignal({
+      agentId: this.parentAgentId(),
+      capabilityId: 'sub-agent',
+      data: {
+        childAgentId: this.agent.agentId,
+        message,
+        type: 'child-message',
+      },
+      description: 'Child agent sent a message to its parent.',
+      name: 'Sub-agent message',
+    });
+    return ToolResponse.success([Cell.text('Sent message to parent.')]);
+  }
+
+  private async askParent(message: string) {
+    const signalId = await this.registerSignal({
+      description: 'Wait for parent agent to answer.',
+      name: 'Parent response',
+    });
+    const pending = this.pendingParentResponseSlot.value;
+    if (pending !== null) {
+      await this.resolvePendingParentAsk(message, signalId, pending);
+      this.pendingParentResponseSlot.set(null);
+      return ToolResponse.success([Cell.text('Asked parent agent through the pending response signal and waiting.')]);
+    }
+    await this.sendAskParentSignal(message, signalId);
+    return ToolResponse.success([Cell.text('Asked parent agent and waiting for a response.')]);
+  }
+
+  private async sendAskParentSignal(message: string, responseSignalId: string): Promise<void> {
+    await this.sendSignal({
+      agentId: this.parentAgentId(),
+      capabilityId: 'sub-agent',
+      data: {
+        childAgentId: this.agent.agentId,
+        message,
+        responseSignalId,
+        type: 'ask-parent',
+      },
+      description: 'Child agent asked its parent for a response.',
+      name: 'Sub-agent ask',
+    });
+  }
+
+  private async resolvePendingParentAsk(
+    message: string,
+    responseSignalId: string,
+    pending: PendingParentResponse,
+  ): Promise<void> {
+    await this.resolveSignal({
+      agentId: pending.parentAgentId,
+      capabilityId: pending.parentCapabilityId,
+      data: {
+        childAgentId: this.agent.agentId,
+        message,
+        responseSignalId,
+        type: 'ask-parent',
+      },
+      signalId: pending.responseSignalId,
+    });
+  }
+
+  private traceParentMessage(
+    direction: ParentMessageDirection,
+    content: DataCells,
+    parentAgentId: string | undefined,
+  ): void {
+    this.agent.emit('trace', {
+      type: 'parent-message',
+      data: {
+        content,
+        direction,
+        ...(parentAgentId === undefined ? {} : { parentAgentId }),
+      },
+    });
   }
 }

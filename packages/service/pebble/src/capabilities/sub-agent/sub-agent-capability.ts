@@ -66,12 +66,28 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     }).onInvoke(async (input) => {
       const runner = this.requireRunner();
       const childAgentId = await runner.spawn(input);
+      const signalId = await this.registerSignal({
+        description: `Wait for ${childAgentId} to answer.`,
+        name: 'Sub-agent response',
+      });
       this.childrenSlot.set([
         ...this.childrenSlot.value,
-        { agentId: childAgentId, referenceName: input.referenceName },
+        { agentId: childAgentId, referenceName: input.referenceName, responseSignalId: signalId },
       ]);
+      await this.sendParentSignal({
+        childAgentId,
+        data: {
+          message: input.message,
+          parentAgentId: this.agent.agentId,
+          parentCapabilityId: this.id,
+          responseSignalId: signalId,
+          type: 'respond-parent',
+        },
+        description: 'Parent agent asked this child for a startup response.',
+        name: 'Parent ask',
+      });
       this.traceSubAgentInvoke(childAgentId, input.referenceName, input.message);
-      return ToolResponse.success([Cell.text(`Spawned ${childAgentId}.`)]);
+      return ToolResponse.success([Cell.text(`Spawned ${childAgentId} and waiting for its response.`)]);
     });
   }
 
@@ -89,13 +105,14 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       name: 'send-sub-agent-message',
       schema: sendSubAgentSchema,
     }).onInvoke(async (input) => {
+      const childAgentId = this.resolveChildAgentId(input.childAgentId);
       await this.sendParentSignal({
-        childAgentId: input.childAgentId,
+        childAgentId,
         data: { message: input.message, type: 'parent-message' },
         description: 'Parent agent sent a one-way message.',
         name: 'Parent message',
       });
-      return ToolResponse.success([Cell.text(`Sent message to ${input.childAgentId}.`)]);
+      return ToolResponse.success([Cell.text(`Sent message to ${childAgentId}.`)]);
     });
   }
 
@@ -105,17 +122,18 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       name: 'ask-sub-agent',
       schema: askSubAgentSchema,
     }).onInvoke(async (input) => {
+      const childAgentId = this.resolveChildAgentId(input.childAgentId);
       const signalId = await this.registerSignal({
-        description: `Wait for ${input.childAgentId} to answer.`,
+        description: `Wait for ${childAgentId} to answer.`,
         name: 'Sub-agent response',
       });
       this.childrenSlot.set(
         this.childrenSlot.value.map((child) =>
-          child.agentId === input.childAgentId ? { ...child, responseSignalId: signalId } : child,
+          child.agentId === childAgentId ? { ...child, responseSignalId: signalId } : child,
         ),
       );
       await this.sendParentSignal({
-        childAgentId: input.childAgentId,
+        childAgentId,
         data: {
           message: input.message,
           parentAgentId: this.agent.agentId,
@@ -127,10 +145,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
         name: 'Parent ask',
       });
       const referenceName =
-        this.childrenSlot.value.find((child) => child.agentId === input.childAgentId)?.referenceName ??
-        input.childAgentId;
-      this.traceSubAgentInvoke(input.childAgentId, referenceName, input.message);
-      return ToolResponse.success([Cell.text(`Asked ${input.childAgentId} and waiting for its response.`)]);
+        this.childrenSlot.value.find((child) => child.agentId === childAgentId)?.referenceName ?? childAgentId;
+      this.traceSubAgentInvoke(childAgentId, referenceName, input.message);
+      return ToolResponse.success([Cell.text(`Asked ${childAgentId} and waiting for its response.`)]);
     });
   }
 
@@ -139,9 +156,12 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       description: 'Read queued child messages without waiting.',
       name: 'read-sub-agent-messages',
       schema: childAgentSchema,
-    }).onInvoke(() =>
-      ToolResponse.success([Cell.text('No queued child messages. Signal responses resume the agent.')]),
-    );
+    }).onInvoke((input) => {
+      const childAgentId = this.resolveChildAgentId(input.childAgentId);
+      return ToolResponse.success([
+        Cell.text(`No queued child messages for ${childAgentId}. Signal responses resume the agent.`),
+      ]);
+    });
   }
 
   private respondTool() {
@@ -150,24 +170,41 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       name: 'respond-to-child-agent',
       schema: sendSubAgentSchema,
     }).onInvoke(async (input) => {
-      const pending = this.pendingChildQuestionsSlot.value.find((item) => item.childAgentId === input.childAgentId);
+      const childAgentId = this.resolveChildAgentId(input.childAgentId);
+      const pending = this.pendingChildQuestionsSlot.value.find((item) => item.childAgentId === childAgentId);
       if (pending === undefined) {
         return ToolResponse.error('No child question pending.', [Cell.text('No child question pending.')]);
       }
+      const continuationSignalId = pending.continueAfterResponse
+        ? await this.registerSignal({
+            description: `Wait for ${childAgentId} to answer.`,
+            name: 'Sub-agent response',
+          })
+        : undefined;
       await this.resolveSignal({
-        agentId: input.childAgentId,
+        agentId: childAgentId,
         capabilityId: 'parent-link',
         data: {
           message: input.message,
           parentAgentId: this.agent.agentId,
+          parentCapabilityId: this.id,
           type: 'parent-response',
+          ...(continuationSignalId === undefined ? {} : { responseSignalId: continuationSignalId }),
         },
         signalId: pending.responseSignalId,
       });
       this.pendingChildQuestionsSlot.set(
         this.pendingChildQuestionsSlot.value.filter((item) => item.responseSignalId !== pending.responseSignalId),
       );
-      return ToolResponse.success([Cell.text(`Sent response to ${input.childAgentId}.`)]);
+      if (continuationSignalId !== undefined) {
+        this.childrenSlot.set(
+          this.childrenSlot.value.map((child) =>
+            child.agentId === childAgentId ? { ...child, responseSignalId: continuationSignalId } : child,
+          ),
+        );
+        return ToolResponse.success([Cell.text(`Sent response to ${childAgentId} and waiting for its follow-up.`)]);
+      }
+      return ToolResponse.success([Cell.text(`Sent response to ${childAgentId}.`)]);
     });
   }
 
@@ -177,8 +214,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       name: 'kill-sub-agent',
       schema: killSubAgentSchema,
     }).onInvoke(async (input) => {
-      await this.requireRunner().kill(input);
-      return ToolResponse.success([Cell.text(`Stopped ${input.childAgentId}.`)]);
+      const childAgentId = this.resolveChildAgentId(input.childAgentId);
+      await this.requireRunner().kill({ childAgentId, reason: input.reason });
+      return ToolResponse.success([Cell.text(`Stopped ${childAgentId}.`)]);
     });
   }
 
@@ -214,6 +252,11 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
           output: [Cell.text(message)],
         },
       });
+      this.childrenSlot.set(
+        this.childrenSlot.value.map((child) =>
+          child.agentId === childAgentId ? { agentId: child.agentId, referenceName: child.referenceName } : child,
+        ),
+      );
       this.agent.addUserContext('Sub-agent Response', [Cell.header2('Sub-agent Response'), Cell.text(message)]);
       return;
     }
@@ -236,7 +279,15 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       if (childAgentId === undefined || message === undefined || responseSignalId === undefined) {
         return;
       }
-      this.pendingChildQuestionsSlot.set([...this.pendingChildQuestionsSlot.value, { childAgentId, responseSignalId }]);
+      this.childrenSlot.set(
+        this.childrenSlot.value.map((child) =>
+          child.agentId === childAgentId ? { agentId: child.agentId, referenceName: child.referenceName } : child,
+        ),
+      );
+      this.pendingChildQuestionsSlot.set([
+        ...this.pendingChildQuestionsSlot.value,
+        { childAgentId, continueAfterResponse: signal.kind === 'awaited', responseSignalId },
+      ]);
       this.agent.addUserContext('Sub-agent Ask', [
         Cell.header2(`Sub-agent Ask: ${childAgentId}`),
         Cell.text(message),
@@ -263,6 +314,19 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       throw new Error('sub-agent runner is not installed.');
     }
     return runner;
+  }
+
+  private resolveChildAgentId(input: string): string {
+    const exact = this.childrenSlot.value.find((child) => child.agentId === input);
+    if (exact !== undefined) {
+      return exact.agentId;
+    }
+    const prefixed = input.includes(':') ? input : `agents:${input}`;
+    const matched = this.childrenSlot.value.find((child) => child.agentId === prefixed);
+    if (matched !== undefined) {
+      return matched.agentId;
+    }
+    throw new Error(`Unknown child agent id: ${input}`);
   }
 
   private async sendParentSignal(input: ParentSignalInput): Promise<void> {

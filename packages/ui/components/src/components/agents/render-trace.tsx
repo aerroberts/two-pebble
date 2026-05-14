@@ -9,6 +9,7 @@ import { ConversationThreadSnapshotTrace } from './conversation-thread-snapshot'
 import { ModelCallFailureTrace } from './model-call-failure';
 import { ModelCallStartTrace } from './model-call-start';
 import { ModelCallSuccessTrace } from './model-call-success';
+import { ParentMessageTrace } from './parent-message';
 import { StateSnapshotTrace } from './state-snapshot';
 import { SubAgentTrace } from './sub-agent';
 import { SystemMessageTrace } from './system-message';
@@ -47,6 +48,8 @@ export function renderAgentTrace(trace: AgentTraceRecord, options: AgentTraceRen
       return <ModelCallStartTrace trace={trace} />;
     case 'model-call-success':
       return <ModelCallSuccessTrace trace={trace} onModelCallClick={options.onModelCallClick} />;
+    case 'parent-message':
+      return <ParentMessageTrace trace={trace} />;
     case 'state-snapshot':
       return <StateSnapshotTrace trace={trace} />;
     case 'sub-agent':

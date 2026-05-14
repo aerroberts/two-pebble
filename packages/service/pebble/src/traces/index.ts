@@ -10,6 +10,7 @@ export type { PebbleAgentConversationThreadSnapshotTrace } from './agent-traces/
 export type { PebbleAgentModelCallFailureTrace } from './agent-traces/model-call-failure';
 export type { PebbleAgentModelCallStartTrace } from './agent-traces/model-call-start';
 export type { PebbleAgentModelCallSuccessTrace } from './agent-traces/model-call-success';
+export type { ParentMessageDirection, PebbleAgentParentMessageTrace } from './agent-traces/parent-message';
 export type { PebbleAgentStateSnapshotTrace } from './agent-traces/state-snapshot';
 export type { PebbleAgentSubAgentTrace } from './agent-traces/sub-agent';
 export type { PebbleAgentSubAgentFailureTrace } from './agent-traces/sub-agent-failure';

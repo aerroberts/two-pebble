@@ -9,11 +9,11 @@ export function readReferences(config: SubAgentCapabilityConfig): SubAgentRefere
 
 export function spawnToolDescription(references: SubAgentReference[]): string {
   if (references.length === 0) {
-    return 'Spawn a child agent by configured reference name and send its initial message. No sub-agent references are currently configured.';
+    return 'Spawn a child agent by configured reference name and wait for its response. No sub-agent references are currently configured.';
   }
 
   const referenceList = references.map(referenceDescription).join('; ');
-  return `Spawn a child agent by configured reference name and send its initial message. Valid reference names: ${referenceList}`;
+  return `Spawn a child agent by configured reference name and wait for its response. Valid reference names: ${referenceList}`;
 }
 
 function referenceDescription(reference: SubAgentReference): string {

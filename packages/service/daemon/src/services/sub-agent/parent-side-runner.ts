@@ -40,10 +40,6 @@ export class ParentSideRunner implements SubAgentRunner {
       message: input.message,
       parentAgentId: this.ctx.parentAgentId,
     });
-    await this.ctx.coordinator.deliver({
-      recipientAgentId: launched.id,
-      message: this.message(input.message, { label: 'Parent Agent Ask', expectsReply: true }),
-    });
     return launched.id;
   }
 

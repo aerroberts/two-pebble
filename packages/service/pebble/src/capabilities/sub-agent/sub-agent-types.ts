@@ -8,6 +8,7 @@ export interface ChildRecord {
 
 export interface PendingChildQuestion {
   childAgentId: string;
+  continueAfterResponse?: boolean;
   responseSignalId: string;
 }
 
