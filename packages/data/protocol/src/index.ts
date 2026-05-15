@@ -1,6 +1,7 @@
 export * from './daemon-protocol';
 export type { AgentLivenessEvent } from './protocol/agent.liveness';
 export type { AgentSignalWireRecord } from './protocol/agent.signals.list';
+export type { DocumentRecord } from './protocol/documents.list';
 export type { MetricNameSummary } from './protocol/metrics.list-names';
 export type { MetricVariant } from './protocol/metrics.list-variants';
 export type { MetricAggregateBucket } from './protocol/metrics.query-aggregated';

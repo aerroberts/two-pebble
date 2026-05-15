@@ -35,6 +35,11 @@ import { handler as listDebugLogsHandler } from './handlers/debug.logs.list.hand
 import { handler as openDebugLogHandler } from './handlers/debug.logs.open.handler';
 import { handler as openDebugLogsDirectoryHandler } from './handlers/debug.logs.open-directory.handler';
 import { handler as readDebugLogHandler } from './handlers/debug.logs.read.handler';
+import { handler as createDocumentHandler } from './handlers/documents.create.handler';
+import { handler as deleteDocumentHandler } from './handlers/documents.delete.handler';
+import { handler as listDocumentsHandler } from './handlers/documents.list.handler';
+import { handler as readDocumentHandler } from './handlers/documents.read.handler';
+import { handler as updateDocumentHandler } from './handlers/documents.update.handler';
 import { handler as generateSpeechHandler } from './handlers/generate-speech.handler';
 import { handler as createInferenceProfileHandler } from './handlers/inference-profiles.create.handler';
 import { handler as deleteInferenceProfileHandler } from './handlers/inference-profiles.delete.handler';
@@ -144,6 +149,11 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('createRepository', createRepositoryHandler(context));
   register('updateRepository', updateRepositoryHandler(context));
   register('deleteRepository', deleteRepositoryHandler(context));
+  register('listDocuments', listDocumentsHandler(context));
+  register('createDocument', createDocumentHandler(context));
+  register('readDocument', readDocumentHandler(context));
+  register('updateDocument', updateDocumentHandler(context));
+  register('deleteDocument', deleteDocumentHandler(context));
   register('listWorktrees', listWorktreesHandler(context));
   register('createWorktree', createWorktreeHandler(context));
   register('deleteWorktree', deleteWorktreeHandler(context));

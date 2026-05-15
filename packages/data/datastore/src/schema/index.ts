@@ -6,6 +6,7 @@ export { agentTracesTable } from './agent.traces.table';
 export { agentRegistriesTable } from './agent-registries.table';
 export { agentsTable } from './agents.table';
 export { appSettingsTable } from './app-settings.table';
+export { documentsTable } from './documents.table';
 export { inferenceProfilesTable } from './inference-profiles.table';
 export { integrationsTable } from './integrations.table';
 export { metricsTable } from './metrics.table';

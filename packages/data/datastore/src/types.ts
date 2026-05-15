@@ -20,6 +20,7 @@ import type {
   agentsTable,
   agentTracesTable,
   appSettingsTable,
+  documentsTable,
   inferenceProfilesTable,
   integrationsTable,
   metricsTable,
@@ -85,6 +86,7 @@ export interface DatastoreSchema extends Record<string, object> {
   agentTracesTable: typeof agentTracesTable;
   agentsTable: typeof agentsTable;
   appSettingsTable: typeof appSettingsTable;
+  documentsTable: typeof documentsTable;
   inferenceProfilesTable: typeof inferenceProfilesTable;
   integrationsTable: typeof integrationsTable;
   metricsTable: typeof metricsTable;
@@ -176,6 +178,14 @@ export interface RepositoryRecord {
   name: string;
   path: string;
   baseBranch: string;
+}
+
+export interface DocumentRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  name: string;
+  content: string;
 }
 
 export interface WorktreeRecord {

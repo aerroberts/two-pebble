@@ -18,6 +18,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@two-pebble/datatypes": "workspace:*",
     "@two-pebble/pebble": "workspace:*",
     "@two-pebble/protocol": "workspace:*",
     "@two-pebble/ws-bridge": "workspace:*",

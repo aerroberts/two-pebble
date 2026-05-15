@@ -106,6 +106,18 @@ export type {
   DebugLogRecord,
   DebugLogsState,
 } from './states/debug-logs/types';
+export { useDocument } from './states/documents/hooks/use-document.hook';
+export { useDocumentMutations } from './states/documents/hooks/use-document-mutations.hook';
+export { useDocuments } from './states/documents/hooks/use-documents.hook';
+export type {
+  CreateDocumentInput,
+  CreateDocumentResponse,
+  DeleteDocumentInput,
+  DocumentRecord,
+  DocumentsState,
+  ReadDocumentInput,
+  UpdateDocumentInput,
+} from './states/documents/types';
 export { useCreateInferenceProfile } from './states/inference-profiles/hooks/use-create-inference-profile.hook';
 export { useDeleteInferenceProfile } from './states/inference-profiles/hooks/use-delete-inference-profile.hook';
 export { useInferenceProfiles } from './states/inference-profiles/hooks/use-inference-profiles.hook';

@@ -45,6 +45,13 @@ import type { DebugLogsOpenOperation } from './protocol/debug.logs.open';
 import type { DebugLogsOpenDirectoryOperation } from './protocol/debug.logs.open-directory';
 import type { DebugLogsReadOperation } from './protocol/debug.logs.read';
 import type { DebugLogUpdatedEvent } from './protocol/debug.logs.updated';
+import type { CreateDocumentOperation } from './protocol/documents.create';
+import type { DeleteDocumentOperation } from './protocol/documents.delete';
+import type { DocumentDeletedEvent } from './protocol/documents.deleted';
+import type { DocumentsListOperation } from './protocol/documents.list';
+import type { ReadDocumentOperation } from './protocol/documents.read';
+import type { UpdateDocumentOperation } from './protocol/documents.update';
+import type { DocumentUpdatedEvent } from './protocol/documents.updated';
 import type { GenerateSpeechOperation } from './protocol/generate-speech';
 import type { InferenceProfilesCreateOperation } from './protocol/inference-profiles.create';
 import type { InferenceProfilesDeleteOperation } from './protocol/inference-profiles.delete';
@@ -170,6 +177,11 @@ export type DaemonOperations = [
   RepositoriesCreateOperation,
   RepositoriesUpdateOperation,
   RepositoriesDeleteOperation,
+  DocumentsListOperation,
+  CreateDocumentOperation,
+  ReadDocumentOperation,
+  UpdateDocumentOperation,
+  DeleteDocumentOperation,
   WorktreesListOperation,
   WorktreesCreateOperation,
   WorktreesDeleteOperation,
@@ -220,6 +232,8 @@ export type DaemonEvents = [
   ThirdPartyAgentInstallsDeletedEvent,
   RepositoriesUpdatedEvent,
   RepositoriesDeletedEvent,
+  DocumentUpdatedEvent,
+  DocumentDeletedEvent,
   WorktreesUpdatedEvent,
   WorkspacesUpdatedEvent,
   AgentRegistriesUpdatedEvent,

@@ -33,6 +33,11 @@ import { listDebugLogsOperation } from './operations/debug.logs.list.operation';
 import { openDebugLogOperation } from './operations/debug.logs.open.operation';
 import { openDebugLogsDirectoryOperation } from './operations/debug.logs.open-directory.operation';
 import { readDebugLogOperation } from './operations/debug.logs.read.operation';
+import { createDocumentOperation } from './operations/documents.create.operation';
+import { deleteDocumentOperation } from './operations/documents.delete.operation';
+import { listDocumentsOperation } from './operations/documents.list.operation';
+import { readDocumentOperation } from './operations/documents.read.operation';
+import { updateDocumentOperation } from './operations/documents.update.operation';
 import { generateSpeechOperation } from './operations/generate-speech.operation';
 import { createInferenceProfileOperation } from './operations/inference-profiles.create.operation';
 import { deleteInferenceProfileOperation } from './operations/inference-profiles.delete.operation';
@@ -94,6 +99,7 @@ import { listenToAgentTraces } from './states/agent-traces/listen';
 import { listenToAgents } from './states/agents/listen';
 import { listenToAppSettings } from './states/app-settings/listen';
 import { listenToDebugLogs } from './states/debug-logs/listen';
+import { listenToDocuments } from './states/documents/listen';
 import { listenToInferenceProfiles } from './states/inference-profiles/listen';
 import { listenToIntegrations } from './states/integrations/listen';
 import { listenToRepositories } from './states/repositories/listen';
@@ -204,6 +210,20 @@ export class RealtimeDatastore {
       delete: deleteRepositoryOperation({ datastore: this }),
       list: listRepositoriesOperation({ datastore: this }),
       update: updateRepositoryOperation({ datastore: this }),
+    };
+  }
+
+  /**
+   * Returns document operations bound to this realtime datastore.
+   * Documents are cached as serialized TipTap JSON records.
+   */
+  public get documents() {
+    return {
+      create: createDocumentOperation({ datastore: this }),
+      delete: deleteDocumentOperation({ datastore: this }),
+      list: listDocumentsOperation({ datastore: this }),
+      read: readDocumentOperation({ datastore: this }),
+      update: updateDocumentOperation({ datastore: this }),
     };
   }
 
@@ -570,6 +590,7 @@ export class RealtimeDatastore {
     listenToAgents({ datastore: this });
     listenToAppSettings({ datastore: this });
     listenToDebugLogs({ datastore: this });
+    listenToDocuments({ datastore: this });
     listenToInferenceProfiles({ datastore: this });
     listenToIntegrations({ datastore: this });
     listenToThirdPartyAgentInstalls({ datastore: this });

@@ -131,6 +131,12 @@ function renderSidebarContent(
           label="Tasks"
           onClick={() => navigate('/tasks')}
         />
+        <SidebarOption
+          active={pathname.startsWith('/documents')}
+          icon="file-text"
+          label="Documents"
+          onClick={() => navigate('/documents')}
+        />
       </SidebarSection>
     </>
   );
@@ -153,7 +159,12 @@ function isHomeActive(pathname: string): boolean {
   if (pathname === '/') {
     return true;
   }
-  return pathname.startsWith('/agents') || pathname.startsWith('/threads') || pathname.startsWith('/tasks');
+  return (
+    pathname.startsWith('/agents') ||
+    pathname.startsWith('/threads') ||
+    pathname.startsWith('/tasks') ||
+    pathname.startsWith('/documents')
+  );
 }
 
 function getPageName(pathname: string): string {

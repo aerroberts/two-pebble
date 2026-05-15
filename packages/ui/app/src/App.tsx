@@ -22,6 +22,8 @@ import { ThemeSettingsPage } from './pages/configuration/theme/theme-settings.pa
 import { ThirdPartyAgentSettingsPage } from './pages/configuration/third-party-agents/third-party-agent-settings.page';
 import { ThirdPartyAgentsPage } from './pages/configuration/third-party-agents/third-party-agents.page';
 import { VoiceSettingsPage } from './pages/configuration/voice/voice-settings.page';
+import { DocumentEditorPage } from './pages/documents/document-editor.page';
+import { DocumentsPage } from './pages/documents/documents.page';
 import { MetricDetailPage } from './pages/metrics/metric-detail.page';
 import { MetricsExplorerPage } from './pages/metrics/metrics-explorer.page';
 import { PricingExplorerPage } from './pages/metrics/pricing-explorer.page';
@@ -102,6 +104,22 @@ export function App() {
           element={
             <MainAppShell>
               <TaskBoardPage />
+            </MainAppShell>
+          }
+        />
+        <Route
+          path="/documents"
+          element={
+            <MainAppShell>
+              <DocumentsPage />
+            </MainAppShell>
+          }
+        />
+        <Route
+          path="/documents/:documentId"
+          element={
+            <MainAppShell>
+              <DocumentEditorPage />
             </MainAppShell>
           }
         />

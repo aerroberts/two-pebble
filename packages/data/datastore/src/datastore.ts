@@ -13,6 +13,7 @@ import {
   bindIntegrationOperationGroup,
   bindThirdPartyAgentInstallOperationGroup,
 } from './operation-groups/configuration-operation-group';
+import { bindDocumentOperationGroup } from './operation-groups/documents-operation-group';
 import {
   bindMetricOperationGroup,
   bindRepositoryOperationGroup,
@@ -135,6 +136,14 @@ export class Datastore {
    */
   public get repositories() {
     return bindRepositoryOperationGroup(this.operationBinder());
+  }
+
+  /**
+   * Returns document persistence handlers.
+   * Document content is serialized TipTap JSON; callers parse at the edge.
+   */
+  public get documents() {
+    return bindDocumentOperationGroup(this.operationBinder());
   }
 
   /**
