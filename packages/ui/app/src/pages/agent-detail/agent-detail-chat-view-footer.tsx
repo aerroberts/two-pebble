@@ -8,7 +8,7 @@ interface AgentDetailChatViewFooterProps {
   chatDraft: string;
   chatSending: boolean;
   onChatDraftChange: (value: string) => void;
-  onChatSubmit: () => void;
+  onChatSubmit: (override?: string) => void;
   onStop: () => void;
   stopping: boolean;
 }
@@ -20,7 +20,7 @@ export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps)
     const next = joinTranscript(props.chatDraft, text);
     props.onChatDraftChange(next);
     if (next.trim().length > 0 && !props.chatSending) {
-      props.onChatSubmit();
+      props.onChatSubmit(next);
     }
   };
   return (

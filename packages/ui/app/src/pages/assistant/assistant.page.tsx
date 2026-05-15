@@ -103,7 +103,7 @@ export function AssistantPage() {
                 const next = joinTranscript(state.chatDraft, text);
                 state.setChatDraft(next);
                 if (next.trim().length > 0 && state.registryId !== null && !state.chatSending) {
-                  void state.sendChatMessage();
+                  void state.sendChatMessage(next);
                 }
               }}
             />

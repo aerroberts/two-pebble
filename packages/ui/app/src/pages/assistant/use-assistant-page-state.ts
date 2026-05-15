@@ -50,8 +50,9 @@ export function useAssistantPageState() {
     });
   };
 
-  const sendChatMessage = async () => {
-    const trimmed = chatDraft.trim();
+  const sendChatMessage = async (override?: string) => {
+    const source = override ?? chatDraft;
+    const trimmed = source.trim();
     if (trimmed.length === 0 || registryId === null) {
       return;
     }
