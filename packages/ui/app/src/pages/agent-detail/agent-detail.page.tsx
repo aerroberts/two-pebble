@@ -42,20 +42,7 @@ export function AgentDetailPage() {
     }
   };
 
-  const requestFailWaitingAgent = async () => {
-    const ok = await confirm.confirm({
-      title: 'Mark waiting agent as failed',
-      message:
-        'Stop this waiting agent and transition it to failed? Owned tasks will be released and dependent workflows will see the failure event.',
-      confirmLabel: 'Mark failed',
-    });
-    if (ok) {
-      await state.failAgentRun();
-    }
-  };
-
   const showFreshStart = state.liveness?.state === 'reconnecting';
-  const showFailWaiting = state.agent?.status === 'waiting';
 
   const header = (
     <Header
@@ -64,11 +51,6 @@ export function AgentDetailPage() {
           {showFreshStart ? (
             <Button disabled={state.restarting} leftIcon="refresh-cw" onClick={() => void requestFreshStart()}>
               {state.restarting ? 'Restarting' : 'Fresh start'}
-            </Button>
-          ) : null}
-          {showFailWaiting ? (
-            <Button disabled={state.failing} leftIcon="circle-x" onClick={() => void requestFailWaitingAgent()}>
-              {state.failing ? 'Failing' : 'Mark failed'}
             </Button>
           ) : null}
           {state.agent?.parentAgentId ? (
