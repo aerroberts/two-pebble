@@ -32,9 +32,9 @@ export function TraceBodyCell(props: TraceBodyCellProps) {
   const className = props.embedded
     ? 'w-full min-w-0 overflow-hidden bg-surface'
     : framed
-      ? 'w-full min-w-0 overflow-hidden rounded-md border border-border/70 bg-surface'
-      : 'w-full min-w-0 overflow-hidden rounded-md border border-border/60 bg-surface';
-  const dividerClassName = 'bg-surface-alt/45 py-px';
+      ? 'w-full min-w-0 overflow-hidden rounded-md border border-border bg-surface'
+      : 'w-full min-w-0 overflow-hidden rounded-md border border-border bg-surface';
+  const dividerClassName = 'bg-surface-alt py-px';
 
   return (
     <div className={className}>
@@ -49,7 +49,7 @@ export function TraceBodyCell(props: TraceBodyCellProps) {
       {props.footer !== undefined && (
         <>
           <div className={dividerClassName}>
-            <div className="border-t border-border/50" />
+            <div className="border-t border-border" />
           </div>
           <TraceBodyCellSection
             compact={!framed}

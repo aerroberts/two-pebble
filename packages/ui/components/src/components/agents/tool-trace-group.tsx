@@ -18,7 +18,7 @@ export function ToolTraceGroup(props: ToolTraceGroupProps) {
           <span className="truncate text-sm font-medium text-content">{formatToolGroupTitle(props.traces.length)}</span>
         </div>
       </div>
-      <div className="ml-7 overflow-hidden rounded-md border border-border/60 bg-surface divide-y divide-border/50">
+      <div className="ml-7 overflow-hidden rounded-md border border-border bg-surface divide-y divide-border">
         {props.traces.map((trace) => (
           <ToolTraceGroupRow key={trace.id} trace={trace} />
         ))}
@@ -40,7 +40,7 @@ function ToolTraceGroupRow(props: ToolTraceGroupRowProps) {
 
   return (
     <details className="group">
-      <summary className="flex cursor-pointer list-none items-center gap-2 bg-surface px-3 py-2 transition-colors hover:bg-surface-hover/45 [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-2 bg-surface px-3 py-2 transition-colors hover:bg-surface-hover [&::-webkit-details-marker]:hidden">
         <Icon name={toolTraceIcon(data.source)} className="shrink-0 text-content-muted" />
         <span className="min-w-0 truncate text-sm font-medium text-content">{data.toolId}</span>
         {metadata === undefined ? null : (
@@ -61,7 +61,7 @@ function ToolTraceGroupRow(props: ToolTraceGroupRowProps) {
         )}
         <Icon name="ChevronDown" className="shrink-0 text-content-muted transition-transform group-open:rotate-180" />
       </summary>
-      <div className="border-t border-border/50 bg-surface-alt/45">
+      <div className="border-t border-border bg-surface-alt">
         <TraceBodyCell type="json" data={data.input} maxHeight={160} framed={false} embedded footer={output} />
       </div>
     </details>

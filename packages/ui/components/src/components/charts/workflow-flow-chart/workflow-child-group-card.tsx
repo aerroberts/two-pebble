@@ -14,7 +14,7 @@ export function WorkflowChildGroupCard(props: WorkflowChildGroupCardProps) {
   const top = props.parentPos.y + NODE_HEIGHT + CHILD_GAP_FROM_PARENT;
   return (
     <div
-      className="absolute rounded border border-border/70 bg-surface"
+      className="absolute rounded border border-border bg-surface"
       style={{ left: props.parentPos.x, top, width: NODE_WIDTH }}
     >
       <div className="flex flex-col divide-y divide-border">

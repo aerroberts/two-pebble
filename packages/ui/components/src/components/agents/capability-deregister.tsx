@@ -16,7 +16,7 @@ export function CapabilityDeregisterTrace(props: TraceComponentProps<'capability
             {props.trace.data.toolDeregistrations.map((tool) => (
               <span
                 key={`${tool.type}:${tool.name}`}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border/50 bg-surface px-2 py-1 font-mono text-[11px] leading-none text-content-muted"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2 py-1 font-mono text-[11px] leading-none text-content-muted"
               >
                 <Icon name={toolTraceIcon(tool.type)} className="size-3 shrink-0" />
                 {tool.name}
