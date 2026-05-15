@@ -8,6 +8,7 @@ type OperationHandlerInput = {
   assistantAgentRegistryId: string | null;
   assistantAgentId: string | null;
   assistantFabEnabled: boolean;
+  assistantCommandKEnabled: boolean;
 };
 
 export function appSettingsUpdateOperation(ctx: DatastoreContext) {
@@ -28,6 +29,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
           assistantAgentRegistryId: input.assistantAgentRegistryId,
           assistantAgentId: input.assistantAgentId,
           assistantFabEnabled: input.assistantFabEnabled,
+          assistantCommandKEnabled: input.assistantCommandKEnabled,
         })
         .returning()
         .get();
@@ -42,6 +44,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         assistantAgentRegistryId: input.assistantAgentRegistryId,
         assistantAgentId: input.assistantAgentId,
         assistantFabEnabled: input.assistantFabEnabled,
+        assistantCommandKEnabled: input.assistantCommandKEnabled,
       })
       .where(eq(ctx.schema.appSettingsTable.id, APP_SETTINGS_SINGLETON_ID))
       .returning()

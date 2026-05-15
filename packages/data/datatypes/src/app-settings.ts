@@ -9,4 +9,6 @@ export interface AppSettings {
   assistantAgentId: string | null;
   /** Show the global Assistant mic FAB in the main app shell. */
   assistantFabEnabled: boolean;
+  /** Enable Command-K global shortcut to open the assistant speech overlay. */
+  assistantCommandKEnabled: boolean;
 }

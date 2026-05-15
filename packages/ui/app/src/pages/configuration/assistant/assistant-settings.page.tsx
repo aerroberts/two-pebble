@@ -38,6 +38,7 @@ export function AssistantSettingsPage() {
       assistantAgentRegistryId: nextRegistryId,
       assistantAgentId: registryChanged ? null : settings.assistantAgentId,
       assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
     });
   };
 
@@ -51,6 +52,7 @@ export function AssistantSettingsPage() {
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
       assistantFabEnabled: next,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
     });
   };
 
