@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Checkbox,
   Header,
   IconButton,
@@ -27,12 +28,27 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { formatAutomationInterval, formatTimestamp, nextDueAt } from '../automation-format';
 
-const intervalOptions = [
-  { label: 'Manual', value: 'manual' },
-  { label: 'Minutes', value: 'minutes' },
-  { label: 'Hours', value: 'hours' },
-  { label: 'Days', value: 'days' },
+interface ScheduleOption {
+  value: string;
+  label: string;
+  intervalUnit: AutomationIntervalUnit;
+  intervalValue: number;
+}
+
+const scheduleOptions: ScheduleOption[] = [
+  { value: 'manual', label: 'Manual', intervalUnit: 'manual', intervalValue: 1 },
+  { value: '1:hours', label: 'Every 1 hour', intervalUnit: 'hours', intervalValue: 1 },
+  { value: '4:hours', label: 'Every 4 hours', intervalUnit: 'hours', intervalValue: 4 },
+  { value: '1:days', label: 'Every 1 day', intervalUnit: 'days', intervalValue: 1 },
 ];
+
+function toScheduleValue(intervalUnit: AutomationIntervalUnit, intervalValue: number): string {
+  if (intervalUnit === 'manual') {
+    return 'manual';
+  }
+  const match = scheduleOptions.find((o) => o.intervalUnit === intervalUnit && o.intervalValue === intervalValue);
+  return match?.value ?? 'manual';
+}
 
 const reportColumns: TableColumn<HeartbeatReport & { tickAt: number }>[] = [
   { id: 'tickAt', header: 'Tick', cell: (row) => formatTimestamp(row.tickAt) },
@@ -160,22 +176,17 @@ export function AutomationDetailPage() {
             onChange={(event) => setDraft({ ...draft, message: event.target.value })}
             value={draft.message}
           />
-          <Select
-            fullWidth
-            label="Interval"
-            onChange={(value) => setDraft({ ...draft, intervalUnit: value as AutomationIntervalUnit })}
-            options={intervalOptions}
-            value={draft.intervalUnit}
+          <ButtonGroup
+            label="Schedule"
+            onChange={(value) => {
+              const option = scheduleOptions.find((o) => o.value === value);
+              if (option) {
+                setDraft({ ...draft, intervalUnit: option.intervalUnit, intervalValue: option.intervalValue });
+              }
+            }}
+            options={scheduleOptions}
+            value={toScheduleValue(draft.intervalUnit, draft.intervalValue)}
           />
-          {draft.intervalUnit === 'manual' ? null : (
-            <Input
-              label="Interval value"
-              min={1}
-              onChange={(event) => setDraft({ ...draft, intervalValue: Number(event.target.value) })}
-              type="number"
-              value={draft.intervalValue}
-            />
-          )}
           <Checkbox
             checked={draft.enabled}
             label="Enabled"

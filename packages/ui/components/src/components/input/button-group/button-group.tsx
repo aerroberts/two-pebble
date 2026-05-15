@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export interface ButtonGroupOption {
   value: string;
   label: string;
@@ -7,11 +9,12 @@ export interface ButtonGroupOption {
 export interface ButtonGroupProps {
   options: ButtonGroupOption[];
   value: string;
+  label?: ReactNode;
   onChange?: (value: string) => void;
 }
 
 export function ButtonGroup(props: ButtonGroupProps) {
-  return (
+  const groupElement = (
     <div className="inline-flex h-7 self-start overflow-hidden rounded-md border border-border">
       {props.options.map((option, index) => {
         const isSelected = option.value === props.value;
@@ -39,4 +42,15 @@ export function ButtonGroup(props: ButtonGroupProps) {
       })}
     </div>
   );
+
+  if (props.label) {
+    return (
+      <div className="flex flex-col gap-0.5 py-1.5">
+        <span className="text-[12px] font-medium leading-4 text-content">{props.label}</span>
+        {groupElement}
+      </div>
+    );
+  }
+
+  return groupElement;
 }
