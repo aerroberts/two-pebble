@@ -73,6 +73,16 @@ export function VoiceCaptureButton(props: VoiceCaptureButtonProps) {
     );
   }
 
+  if (capture.status === 'transcribing') {
+    return (
+      <AppBox variant="voice-pill" aria-label={ariaLabel}>
+        <span className="inline-flex items-center px-2" aria-hidden="true">
+          <VoiceWaveformDisplay analyser={null} pulse />
+        </span>
+      </AppBox>
+    );
+  }
+
   return (
     <IconButton
       aria-label={ariaLabel}
