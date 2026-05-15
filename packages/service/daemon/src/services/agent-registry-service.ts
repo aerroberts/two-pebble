@@ -5,6 +5,7 @@ import type { Agent } from '@two-pebble/pebble';
 import { Cell, FrameworkAgent, PebbleAgent } from '@two-pebble/pebble';
 import { installCapabilityRunners } from '@two-pebble/pebble/capabilities';
 import type { AgentRegistryServiceContext, DaemonBridge } from '../types';
+import { attachAgentNaming } from './agent-naming/attach-agent-naming';
 import { resolveBuildInput } from './agent-registry-build-input';
 import { emitWorktreeInitializedTrace, resolveLaunchWorkspace } from './agent-registry-launch-workspace';
 import { buildAgentListenerContext } from './agent-registry-listener-context';
@@ -202,6 +203,13 @@ export class AgentRegistryService {
     }
     const runtimeAgent = await rehydrateAgent({ agentId, bridge, datastore: this.datastore, logger: this.logger });
     this.installSignalRunner(runtimeAgent, agentId);
+    attachAgentNaming({
+      agent: runtimeAgent,
+      agentId,
+      datastore: this.datastore,
+      mode: 'rehydrate',
+      multicastBridge: this.multicastBridge,
+    });
     installTaskBoardRunner({ agent: runtimeAgent, bridge, logger: this.logger, taskBoards: this.taskBoards });
     let inferenceProfileId: string | undefined;
     let integrationId: string | undefined;
@@ -434,6 +442,13 @@ export class AgentRegistryService {
   private async runAgent(input: RunAgentInput) {
     this.registerActiveAgent(input);
     this.installSignalRunner(input.agent, input.agentId);
+    attachAgentNaming({
+      agent: input.agent,
+      agentId: input.agentId,
+      datastore: this.datastore,
+      mode: 'fresh',
+      multicastBridge: this.multicastBridge,
+    });
     installTaskBoardRunner({
       agent: input.agent,
       bridge: this.multicastBridge,

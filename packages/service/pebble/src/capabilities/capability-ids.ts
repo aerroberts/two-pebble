@@ -1,4 +1,5 @@
 export const knownCapabilityIds = [
+  'agent-naming',
   'parent-link',
   'progressive-task-list',
   'sub-agent',

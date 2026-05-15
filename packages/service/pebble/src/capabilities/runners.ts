@@ -1,9 +1,11 @@
 import type { Agent } from '../agent/agent';
+import type { AgentNamingRunner } from '../agent/agent-naming-runner';
 import type { SignalRunner } from '../agent/signal-runner';
 import type { ParentLinkRunner, SubAgentRunner } from '../agent/sub-agent-runners';
 import type { TaskBoardRunner } from '../agent/task-board-runner';
 
 interface CapabilityRunners {
+  agentNaming?: AgentNamingRunner;
   parentLink?: ParentLinkRunner;
   signal?: SignalRunner;
   subAgent?: SubAgentRunner;

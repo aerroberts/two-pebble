@@ -1,5 +1,6 @@
 import type { AgentCapability } from '../agent';
 import type { PebbleJsonValue } from '../types';
+import { AgentNamingCapability } from './agent-naming/agent-naming-capability';
 import { ParentLinkCapability } from './parent-link/parent-link-capability';
 import { ProgressiveTaskListCapability } from './progressive-task-list/progressive-task-list-capability';
 import { SubAgentCapability } from './sub-agent/sub-agent-capability';
@@ -39,6 +40,9 @@ export class CapabilityRegistry {
     }
     if (id === 'counter') {
       return new TurnCounterCapability() as AgentCapability<PebbleJsonValue>;
+    }
+    if (id === 'agent-naming') {
+      return new AgentNamingCapability() as AgentCapability<PebbleJsonValue>;
     }
 
     throw new Error(`Unknown capability id: "${id}"`);

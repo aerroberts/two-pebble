@@ -1,6 +1,7 @@
 export { AgentCapability } from '../capabilities/agent-capability';
 export type { CapabilityState, RegisterHookResult } from '../capabilities/agent-capability.types';
 export { Agent } from './agent';
+export type { AgentNamingRunner } from './agent-naming-runner';
 export { FrameworkAgent } from './agents/framework-agent';
 export { PebbleAgent } from './agents/pebble-agent';
 export { AgentExitHook } from './hooks/agent-exit-hook';
