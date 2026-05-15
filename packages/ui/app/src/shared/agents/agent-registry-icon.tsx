@@ -6,6 +6,8 @@ import type {
   ThirdPartyAgentInstallRecord,
 } from '@two-pebble/realtime';
 
+type MaybeInstall = ThirdPartyAgentInstallRecord | null;
+
 /**
  * Picks the provider icon for an agent registry option in a dropdown.
  *
@@ -35,7 +37,7 @@ export function agentRegistryIcon(
   return <ProviderLogo provider={profile.provider} size="xs" />;
 }
 
-export function frameworkIcon(install: ThirdPartyAgentInstallRecord | null): JSX.Element {
+export function frameworkIcon(install: MaybeInstall): JSX.Element {
   if (install?.frameworkId === 'codex') {
     return <CodexLogo size="xs" />;
   }

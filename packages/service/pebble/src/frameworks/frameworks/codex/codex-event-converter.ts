@@ -11,7 +11,11 @@ import { type ConvertedCodexEvent, convertThreadEvent } from './codex-trace-mapp
  * applied downstream in `normalizeCodexModelId`.
  */
 export class CodexEventConverter {
-  /** Translates a single SDK thread event into Pebble events. */
+  /**
+   * Translates a single SDK thread event into Pebble events. Delegates to
+   * the pure `convertThreadEvent` helper so trace shape can be unit tested
+   * without spinning up the SDK process.
+   */
   public convertEvent(event: ThreadEvent, modelId: string | undefined): ConvertedCodexEvent[] {
     return convertThreadEvent(event, modelId);
   }

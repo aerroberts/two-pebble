@@ -4,7 +4,12 @@ import type { DataCells } from '../../../thread/types';
 import { ThirdPartyAgentFramework } from '../../third-party-agent-framework';
 import type { AgentFrameworkSubmitMessageInput } from '../../types';
 import { CodexEventConverter } from './codex-event-converter';
-import type { CodexAgentOptions, CodexThreadOptions } from './codex-runtime';
+import type {
+  CodexAgentOptions,
+  CodexThreadOptions,
+  InputStreamResolver,
+  ThreadEventDispatchResult,
+} from './codex-runtime';
 import type { ConvertedCodexEvent } from './codex-trace-mapping';
 import { cellToString } from './utils/cell-to-string';
 import { readResumeThreadId } from './utils/resume-metadata';
@@ -24,7 +29,7 @@ export class CodexAgent extends ThirdPartyAgentFramework {
   private threadId: string | undefined;
   private thread: Thread | undefined;
   private pendingInputs: string[] = [];
-  private inputResolver: (() => void) | undefined = undefined;
+  private inputResolver: InputStreamResolver | undefined = undefined;
   private inputClosed = false;
   private warm = false;
   private iteratorSettled = true;
@@ -146,7 +151,7 @@ export class CodexAgent extends ThirdPartyAgentFramework {
     return { alive, lastActivityAt: this.lastSdkEventAt, hint };
   }
 
-  private handleThreadEvent(event: ThreadEvent): { turnFailure?: string } {
+  private handleThreadEvent(event: ThreadEvent): ThreadEventDispatchResult {
     let turnFailure: string | undefined;
     for (const converted of this.converter.convertEvent(event, this.modelId)) {
       if (converted.kind === 'turn-failure') {
