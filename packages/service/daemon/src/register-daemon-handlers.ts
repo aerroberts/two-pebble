@@ -96,6 +96,7 @@ import { handler as updateTaskDescriptionHandler } from './handlers/tasks.update
 import { handler as createThirdPartyAgentInstallHandler } from './handlers/third-party-agent-installs.create.handler';
 import { handler as deleteThirdPartyAgentInstallHandler } from './handlers/third-party-agent-installs.delete.handler';
 import { handler as detectClaudeCodeInstallHandler } from './handlers/third-party-agent-installs.detect-claude-code.handler';
+import { handler as detectCodexInstallHandler } from './handlers/third-party-agent-installs.detect-codex.handler';
 import { handler as listThirdPartyAgentInstallsHandler } from './handlers/third-party-agent-installs.list.handler';
 import { handler as updateThirdPartyAgentInstallHandler } from './handlers/third-party-agent-installs.update.handler';
 import { handler as readThreadSnapshotHandler } from './handlers/thread.snapshot.read.handler';
@@ -193,6 +194,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('updateThirdPartyAgentInstall', updateThirdPartyAgentInstallHandler(context));
   register('deleteThirdPartyAgentInstall', deleteThirdPartyAgentInstallHandler(context));
   register('detectClaudeCodeInstall', detectClaudeCodeInstallHandler(context));
+  register('detectCodexInstall', detectCodexInstallHandler(context));
   register('getDaemonStatus', getDaemonStatusHandler(context));
   register('listTaskBoards', listTaskBoardsHandler(context));
   register('createTaskBoard', createTaskBoardHandler(context));

@@ -1,5 +1,10 @@
 import { Button, IconButton, Input, Section, Select, Surface } from '@two-pebble/components';
-import type { AgentRegistryRecord, InferenceProfileRecord, LoadableRegistry } from '@two-pebble/realtime';
+import type {
+  AgentRegistryRecord,
+  InferenceProfileRecord,
+  LoadableRegistry,
+  ThirdPartyAgentInstallRecord,
+} from '@two-pebble/realtime';
 import { agentRegistryIcon } from '../../../../shared/agents/agent-registry-icon';
 import type { SubAgentReferenceInput } from '../capabilities/types';
 
@@ -7,6 +12,7 @@ export interface SubAgentsSectionProps {
   references: SubAgentReferenceInput[];
   registryOptions: AgentRegistryRecord[];
   inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>;
   onChange: (references: SubAgentReferenceInput[]) => void;
 }
 
@@ -72,7 +78,7 @@ export function SubAgentsSection(props: SubAgentsSectionProps) {
             fullWidth
             label="Agent"
             onChange={(value) => handleUpdate(index, { agentRegistryId: value })}
-            options={buildRegistryOptions(props.registryOptions, props.inferenceProfiles)}
+            options={buildRegistryOptions(props.registryOptions, props.inferenceProfiles, props.installs)}
             placeholder="Select agent"
             value={reference.agentRegistryId}
           />
@@ -88,9 +94,13 @@ export function SubAgentsSection(props: SubAgentsSectionProps) {
   );
 }
 
-function buildRegistryOptions(registries: AgentRegistryRecord[], profiles: LoadableRegistry<InferenceProfileRecord>) {
+function buildRegistryOptions(
+  registries: AgentRegistryRecord[],
+  profiles: LoadableRegistry<InferenceProfileRecord>,
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>,
+) {
   return registries.map((registry) => ({
-    icon: agentRegistryIcon(registry, profiles),
+    icon: agentRegistryIcon(registry, profiles, installs),
     label: registry.name.length > 0 ? registry.name : registry.id,
     value: registry.id,
   }));

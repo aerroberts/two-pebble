@@ -11,6 +11,7 @@ import {
   useTaskDeliverables,
   useTaskEvents,
   useTaskTemplateMutations,
+  useThirdPartyAgentInstalls,
 } from '@two-pebble/realtime';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -41,6 +42,7 @@ export function useTaskBoardPageState() {
   const templateMutations = useTaskTemplateMutations();
   const agentRegistries = useAgentRegistries();
   const inferenceProfiles = useInferenceProfiles();
+  const installs = useThirdPartyAgentInstalls();
   const agents = useAgents();
   const board = taskBoards.getItem(boardId)?.value ?? null;
   const [boardNameDraft, setBoardNameDraft] = useState('');
@@ -102,6 +104,7 @@ export function useTaskBoardPageState() {
   return {
     agentRegistries: agentRegistries.values(),
     inferenceProfiles,
+    installs,
     board,
     boardId,
     boardNameDraft,

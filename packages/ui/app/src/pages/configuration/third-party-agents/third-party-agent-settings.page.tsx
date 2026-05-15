@@ -40,7 +40,7 @@ export function ThirdPartyAgentSettingsPage() {
             label="Executable path"
             onBlur={state.updateExecutablePath}
             onChange={(event) => state.setExecutablePath(event.target.value)}
-            placeholder="/usr/local/bin/claude"
+            placeholder={state.install.value.frameworkId === 'codex' ? '/usr/local/bin/codex' : '/usr/local/bin/claude'}
             value={state.executablePath}
           />
           <Row gap="sm">

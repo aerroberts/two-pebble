@@ -33,6 +33,21 @@ export function registerAnthropicPricing(calculator: PriceCalculator) {
     outputTokensGeneratedPPM: 30.0,
   });
 
+  // Claude Sonnet 4.6
+  calculator.registerPricing('anthropic/claude-sonnet-4-6', {
+    inputTokensReadUncachedPPM: 3.0,
+    inputTokensReadCachedPPM: 0.3,
+    inputTokensWriteCachedPPM: 3.75,
+    outputTokensGeneratedPPM: 15.0,
+  });
+  calculator.registerPricing('anthropic/claude-sonnet-4-6', {
+    inputTokensTier: 200_001,
+    inputTokensReadUncachedPPM: 6.0,
+    inputTokensReadCachedPPM: 0.6,
+    inputTokensWriteCachedPPM: 7.5,
+    outputTokensGeneratedPPM: 30.0,
+  });
+
   // Claude Sonnet 4
   calculator.registerPricing('anthropic/claude-sonnet-4-20250514', {
     inputTokensReadUncachedPPM: 3.0,

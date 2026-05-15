@@ -1,6 +1,7 @@
 import {
   useDeleteThirdPartyAgentInstall,
   useDetectClaudeCode,
+  useDetectCodex,
   useThirdPartyAgentInstalls,
   useUpdateThirdPartyAgentInstall,
 } from '@two-pebble/realtime';
@@ -20,6 +21,7 @@ export function useThirdPartyAgentSettingsPageState() {
   const deleteInstall = useDeleteThirdPartyAgentInstall();
   const updateInstall = useUpdateThirdPartyAgentInstall();
   const detectClaudeCodeInstall = useDetectClaudeCode();
+  const detectCodexInstall = useDetectCodex();
 
   useEffect(() => {
     if (install?.value !== null && install?.value !== undefined) {
@@ -62,25 +64,30 @@ export function useThirdPartyAgentSettingsPageState() {
   };
 
   const detectAndFillPath = async () => {
+    if (install?.value === null || install?.value === undefined) {
+      return;
+    }
+    const isCodex = install.value.frameworkId === 'codex';
     setActionError('');
     setDetecting(true);
     try {
-      const result = await detectClaudeCodeInstall();
+      const result = isCodex ? await detectCodexInstall() : await detectClaudeCodeInstall();
       if (!result.detected) {
-        setActionError('Could not find a `claude` executable on PATH. Install Claude Code first.');
+        const cli = isCodex ? '`codex`' : '`claude`';
+        const product = isCodex ? 'OpenAI Codex' : 'Claude Code';
+        setActionError(`Could not find a ${cli} executable on PATH. Install ${product} first.`);
         return;
       }
       setExecutablePath(result.executablePath);
-      if (install?.value !== null && install?.value !== undefined) {
-        void updateInstall({
-          data: { executablePath: result.executablePath },
-          frameworkId: install.value.frameworkId,
-          id: installId,
-          name: install.value.name,
-        });
-      }
+      void updateInstall({
+        data: { executablePath: result.executablePath },
+        frameworkId: install.value.frameworkId,
+        id: installId,
+        name: install.value.name,
+      });
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Could not detect Claude Code.');
+      const product = isCodex ? 'OpenAI Codex' : 'Claude Code';
+      setActionError(error instanceof Error ? error.message : `Could not detect ${product}.`);
     } finally {
       setDetecting(false);
     }

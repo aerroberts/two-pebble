@@ -3,9 +3,11 @@ import {
   type AgentRegistryRecord,
   type InferenceProfileRecord,
   type LoadableRegistry,
+  type ThirdPartyAgentInstallRecord,
   useAgentRegistries,
   useAppSettings,
   useInferenceProfiles,
+  useThirdPartyAgentInstalls,
   useUpdateAppSettings,
 } from '@two-pebble/realtime';
 import { agentRegistryIcon } from '../../../shared/agents/agent-registry-icon';
@@ -16,9 +18,10 @@ export function AssistantSettingsPage() {
   const appSettings = useAppSettings();
   const agentRegistries = useAgentRegistries();
   const inferenceProfiles = useInferenceProfiles();
+  const installs = useThirdPartyAgentInstalls();
   const updateAppSettings = useUpdateAppSettings();
 
-  const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries, inferenceProfiles);
+  const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries, inferenceProfiles, installs);
   const settings = appSettings.value;
   const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantFabEnabled = settings?.assistantFabEnabled ?? false;
@@ -87,12 +90,13 @@ export function AssistantSettingsPage() {
 function buildAgentRegistryOptions(
   registries: LoadableRegistry<AgentRegistryRecord>,
   profiles: LoadableRegistry<InferenceProfileRecord>,
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>,
 ): SelectOption[] {
   const matching = registries
     .values()
     .sort((left, right) => left.name.localeCompare(right.name))
     .map((registry) => ({
-      icon: agentRegistryIcon(registry, profiles),
+      icon: agentRegistryIcon(registry, profiles, installs),
       label: registry.name.length > 0 ? registry.name : 'Untitled agent',
       value: registry.id,
     }));
