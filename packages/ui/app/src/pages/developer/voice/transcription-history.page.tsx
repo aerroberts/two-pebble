@@ -120,7 +120,8 @@ function toHistoryEntry(
   thread: ThreadSummaryRecord,
   cells: ThreadSnapshotCellRecord[],
 ): TranscriptionHistoryEntry | null {
-  const transcriptCell = cells.find((cell) => cell.label === 'transcript') ?? cells.find((cell) => cell.role === 'assistant');
+  const transcriptCell =
+    cells.find((cell) => cell.label === 'transcript') ?? cells.find((cell) => cell.role === 'assistant');
   const text = transcriptCell === undefined ? '' : extractText(transcriptCell.content);
   if (text.trim().length === 0) {
     return null;

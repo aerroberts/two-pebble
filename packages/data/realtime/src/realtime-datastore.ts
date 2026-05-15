@@ -23,9 +23,9 @@ import { createAgentRegistryOperation } from './operations/agent-registries.crea
 import { deleteAgentRegistryOperation } from './operations/agent-registries.delete.operation';
 import { listAgentRegistriesOperation } from './operations/agent-registries.list.operation';
 import { updateAgentRegistryOperation } from './operations/agent-registries.update.operation';
-import { sendAssistantMessageOperation } from './operations/assistant.message.operation';
 import { readAppSettingsOperation } from './operations/app-settings.read.operation';
 import { updateAppSettingsOperation } from './operations/app-settings.update.operation';
+import { sendAssistantMessageOperation } from './operations/assistant.message.operation';
 import { createAutomationOperation } from './operations/automations.create.operation';
 import { deleteAutomationOperation } from './operations/automations.delete.operation';
 import { listAutomationsOperation } from './operations/automations.list.operation';
