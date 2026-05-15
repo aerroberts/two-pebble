@@ -36,7 +36,9 @@
       "rules": ["@rule/react-jsx-style"],
       "paths": [
         "src/App.tsx",
+        "src/layouts/assistant-command-k.tsx",
         "src/layouts/assistant-fab.tsx",
+        "src/shared/agent-input/agent-input.tsx",
         "src/shared/voice/voice-capture-button.tsx",
         "src/pages/agent-detail/agent-detail-chat-view-footer.tsx",
         "src/pages/assistant/assistant-direct-input.tsx",
