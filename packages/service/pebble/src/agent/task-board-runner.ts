@@ -97,6 +97,32 @@ export interface TaskBoardEventRecord {
   agentName?: string;
 }
 
+export type TaskDeliverablePayload = { type: 'text'; content: string } | { type: 'pr_url'; url: string };
+
+export interface TaskBoardDeliverable {
+  id: string;
+  taskId: string;
+  name: string;
+  description: string;
+  type: 'text' | 'pr_url';
+  orderIndex: number;
+}
+
+export interface TaskBoardDeliverableSubmission {
+  id: string;
+  taskId: string;
+  deliverableId: string;
+  payload: TaskDeliverablePayload;
+  submittedAt: number;
+}
+
+export interface TaskBoardSubmitDeliverableInput {
+  agentId: string;
+  taskId: string;
+  deliverableId: string;
+  payload: TaskDeliverablePayload;
+}
+
 export interface TaskBoardRunner {
   describeBoard(boardId: string): Promise<TaskBoardSnapshot>;
   createTask(input: TaskBoardCreateTaskInput): Promise<{ id: string }>;
@@ -110,4 +136,7 @@ export interface TaskBoardRunner {
   addDependency(input: TaskBoardDependencyInput): Promise<void>;
   deleteDependency(input: TaskBoardDependencyInput): Promise<void>;
   listTaskEvents(boardId: string, taskId: string): Promise<TaskBoardEventRecord[]>;
+  listTaskDeliverables(input: { taskId: string }): Promise<TaskBoardDeliverable[]>;
+  listTaskDeliverableSubmissions(input: { taskId: string }): Promise<TaskBoardDeliverableSubmission[]>;
+  submitDeliverable(input: TaskBoardSubmitDeliverableInput): Promise<TaskBoardDeliverableSubmission>;
 }

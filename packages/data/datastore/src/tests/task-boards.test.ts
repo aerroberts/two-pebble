@@ -132,6 +132,75 @@ describe('feature: operation tasks.update', () => {
     await datastore.close();
     expect(updated.status).toBe('working');
   });
+
+  test('happy: update stamps template metadata', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { taskId } = await seedBoardWithOneTask(datastore);
+    const updated = await datastore.taskBoards.tasks.update({
+      id: taskId,
+      templateId: 'template-1',
+      additionalContext: 'Extra instructions',
+    });
+    await datastore.close();
+    expect(updated.templateId).toBe('template-1');
+    expect(updated.additionalContext).toBe('Extra instructions');
+  });
+});
+
+describe('feature: operation task-templates', () => {
+  test('happy: template and deliverables persist for a board', async () => {
+    const datastore = await useDatastoreForTesting();
+    const board = await datastore.taskBoards.create({ name: 'A' });
+    const template = await datastore.taskBoards.templates.create({
+      boardId: board.id,
+      name: 'Bug fix',
+      prompt: 'Include reproduction steps.',
+    });
+    await datastore.taskBoards.templates.deliverables.create({
+      templateId: template.id,
+      name: 'Summary',
+      type: 'text',
+      orderIndex: 0,
+    });
+    const templates = await datastore.taskBoards.templates.list({ boardId: board.id });
+    const deliverables = await datastore.taskBoards.templates.deliverables.list({ templateId: template.id });
+    await datastore.close();
+    expect(templates.items.map((item) => item.name)).toEqual(['Bug fix']);
+    expect(deliverables.items.map((item) => item.name)).toEqual(['Summary']);
+  });
+});
+
+describe('feature: operation task-deliverable-submissions.upsert', () => {
+  test('happy: upsert replaces payload for one task deliverable', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { taskId } = await seedBoardWithOneTask(datastore);
+    const deliverable = await datastore.taskBoards.deliverables.create({
+      taskId,
+      name: 'PR',
+      type: 'pr_url',
+      orderIndex: 0,
+    });
+    await datastore.taskBoards.deliverableSubmissions.upsert({
+      taskId,
+      deliverableId: deliverable.id,
+      payload: JSON.stringify({ type: 'pr_url', url: 'https://example.com/one' }),
+      submittedAt: 1,
+    });
+    await datastore.taskBoards.deliverableSubmissions.upsert({
+      taskId,
+      deliverableId: deliverable.id,
+      payload: JSON.stringify({ type: 'pr_url', url: 'https://example.com/two' }),
+      submittedAt: 2,
+    });
+    const submissions = await datastore.taskBoards.deliverableSubmissions.list({ taskId });
+    await datastore.close();
+    expect(submissions.items.length).toBe(1);
+    expect(JSON.parse(submissions.items[0]?.payload ?? '{}')).toEqual({
+      type: 'pr_url',
+      url: 'https://example.com/two',
+    });
+    expect(submissions.items[0]?.submittedAt).toBe(2);
+  });
 });
 
 describe('feature: operation tasks.rename', () => {

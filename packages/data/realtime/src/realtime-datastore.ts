@@ -58,6 +58,8 @@ import { createTaskBoardOperation } from './operations/task-boards.create.operat
 import { deleteTaskBoardOperation } from './operations/task-boards.delete.operation';
 import { listTaskBoardsOperation } from './operations/task-boards.list.operation';
 import { updateTaskBoardOperation } from './operations/task-boards.update.operation';
+import { listTaskDeliverableSubmissionsOperation } from './operations/task-deliverable-submissions.list.operation';
+import { listTaskDeliverablesOperation } from './operations/task-deliverables.list.operation';
 import { createTaskDependencyOperation } from './operations/task-dependencies.create.operation';
 import { deleteTaskDependencyOperation } from './operations/task-dependencies.delete.operation';
 import { listTaskDependenciesOperation } from './operations/task-dependencies.list.operation';
@@ -68,6 +70,14 @@ import { listTaskEventsOperation } from './operations/task-events.list.operation
 import { createTaskPoolOperation } from './operations/task-pools.create.operation';
 import { deleteTaskPoolOperation } from './operations/task-pools.delete.operation';
 import { listTaskPoolsOperation } from './operations/task-pools.list.operation';
+import { createTaskTemplateDeliverableOperation } from './operations/task-template-deliverables.create.operation';
+import { deleteTaskTemplateDeliverableOperation } from './operations/task-template-deliverables.delete.operation';
+import { listTaskTemplateDeliverablesOperation } from './operations/task-template-deliverables.list.operation';
+import { updateTaskTemplateDeliverableOperation } from './operations/task-template-deliverables.update.operation';
+import { createTaskTemplateOperation } from './operations/task-templates.create.operation';
+import { deleteTaskTemplateOperation } from './operations/task-templates.delete.operation';
+import { listTaskTemplatesOperation } from './operations/task-templates.list.operation';
+import { updateTaskTemplateOperation } from './operations/task-templates.update.operation';
 import { createTaskOperation } from './operations/tasks.create.operation';
 import { delegateTaskOperation } from './operations/tasks.delegate.operation';
 import { deleteTaskOperation } from './operations/tasks.delete.operation';
@@ -340,6 +350,33 @@ export class RealtimeDatastore {
       list: listTaskDispatchSettingsOperation({ datastore: this }),
       read: readTaskDispatchSettingsOperation({ datastore: this }),
       update: updateTaskDispatchSettingsOperation({ datastore: this }),
+    };
+  }
+
+  public get taskTemplates() {
+    return {
+      create: createTaskTemplateOperation({ datastore: this }),
+      delete: deleteTaskTemplateOperation({ datastore: this }),
+      list: listTaskTemplatesOperation({ datastore: this }),
+      update: updateTaskTemplateOperation({ datastore: this }),
+      deliverables: {
+        create: createTaskTemplateDeliverableOperation({ datastore: this }),
+        delete: deleteTaskTemplateDeliverableOperation({ datastore: this }),
+        list: listTaskTemplateDeliverablesOperation({ datastore: this }),
+        update: updateTaskTemplateDeliverableOperation({ datastore: this }),
+      },
+    };
+  }
+
+  public get taskDeliverables() {
+    return {
+      list: listTaskDeliverablesOperation({ datastore: this }),
+    };
+  }
+
+  public get taskDeliverableSubmissions() {
+    return {
+      list: listTaskDeliverableSubmissionsOperation({ datastore: this }),
     };
   }
 

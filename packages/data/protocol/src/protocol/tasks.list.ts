@@ -6,6 +6,8 @@ export interface ProtocolTaskRecord {
   poolId: string | null;
   name: string;
   description: string;
+  templateId: string | null;
+  additionalContext: string;
   ownerId: string | null;
   status: 'pending' | 'working' | 'waiting' | 'success' | 'failure';
   effectiveStatus: 'blocked' | 'open' | 'working' | 'waiting' | 'success' | 'failure';

@@ -49,4 +49,30 @@ export function listenToTasks(ctx: RealtimeOperationContext): void {
       taskEvents: ctx.datastore.state.taskEvents.withItem(record.id, record, 'ready'),
     });
   });
+  client.listen('taskTemplateUpdated', (record) => {
+    ctx.datastore.patch({ taskTemplates: ctx.datastore.state.taskTemplates.withItem(record.id, record, 'ready') });
+  });
+  client.listen('taskTemplateDeleted', (deleted) => {
+    ctx.datastore.patch({ taskTemplates: ctx.datastore.state.taskTemplates.withoutItem(deleted.id) });
+  });
+  client.listen('taskTemplateDeliverableUpdated', (record) => {
+    ctx.datastore.patch({
+      taskTemplateDeliverables: ctx.datastore.state.taskTemplateDeliverables.withItem(record.id, record, 'ready'),
+    });
+  });
+  client.listen('taskTemplateDeliverableDeleted', (deleted) => {
+    ctx.datastore.patch({
+      taskTemplateDeliverables: ctx.datastore.state.taskTemplateDeliverables.withoutItem(deleted.id),
+    });
+  });
+  client.listen('taskDeliverableUpdated', (record) => {
+    ctx.datastore.patch({
+      taskDeliverables: ctx.datastore.state.taskDeliverables.withItem(record.id, record, 'ready'),
+    });
+  });
+  client.listen('taskDeliverableSubmissionRecorded', (record) => {
+    ctx.datastore.patch({
+      taskDeliverableSubmissions: ctx.datastore.state.taskDeliverableSubmissions.withItem(record.id, record, 'ready'),
+    });
+  });
 }

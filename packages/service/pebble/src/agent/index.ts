@@ -49,6 +49,7 @@ export type {
   TaskBoardSetOwnedTaskStatusInput,
   TaskBoardSetTaskStatusInput,
   TaskBoardSnapshot,
+  TaskBoardSubmitDeliverableInput,
   TaskBoardTaskNode,
   TaskBoardUpdateTaskDescriptionInput,
   TaskStatus,

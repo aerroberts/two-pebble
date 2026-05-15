@@ -2,12 +2,16 @@ import {
   type ProtocolTaskRecord,
   useAgentRegistries,
   useAgents,
+  useBoardTaskTemplates,
   useInferenceProfiles,
   useRealtimeDatastore,
   useTaskBoardContents,
   useTaskBoardMutations,
   useTaskBoards,
+  useTaskDeliverableSubmissions,
+  useTaskDeliverables,
   useTaskEvents,
+  useTaskTemplateMutations,
 } from '@two-pebble/realtime';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -16,7 +20,7 @@ type TaskBoardView = 'graph' | 'list' | 'settings';
 type ActionRunner = () => Promise<void>;
 type PoolId = string | null;
 type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure';
-type CreateTaskAfterInput = { poolId: PoolId; name?: string };
+type CreateTaskAfterInput = { poolId: PoolId; name?: string; templateId?: string | null };
 type SelectedTaskRecord = ProtocolTaskRecord | null;
 type OwnerAgentResult = AgentLike | null;
 
@@ -53,7 +57,9 @@ export function useTaskBoardPageState() {
   const navigate = useNavigate();
   const taskBoards = useTaskBoards();
   const contents = useTaskBoardContents({ boardId });
+  const taskTemplates = useBoardTaskTemplates({ boardId });
   const mutations = useTaskBoardMutations();
+  const templateMutations = useTaskTemplateMutations();
   const agentRegistries = useAgentRegistries();
   const inferenceProfiles = useInferenceProfiles();
   const agents = useAgents();
@@ -75,6 +81,8 @@ export function useTaskBoardPageState() {
     return contents.tasks.find((task) => task.id === selectedTaskId) ?? null;
   }, [contents.tasks, selectedTaskId]);
   const taskEventsState = useTaskEvents({ taskId: selectedTask?.id ?? '' });
+  const selectedTaskDeliverablesState = useTaskDeliverables({ taskId: selectedTask?.id ?? '' });
+  const selectedTaskDeliverableSubmissionsState = useTaskDeliverableSubmissions({ taskId: selectedTask?.id ?? '' });
   useEffect(() => {
     if (board !== null) {
       setBoardNameDraft(board.name);
@@ -209,6 +217,9 @@ export function useTaskBoardPageState() {
     setView,
     taskDescriptionDraft,
     taskEvents: taskEventsState.events,
+    taskTemplates: taskTemplates.templates,
+    selectedTaskDeliverables: selectedTaskDeliverablesState.deliverables,
+    selectedTaskDeliverableSubmissions: selectedTaskDeliverableSubmissionsState.submissions,
     taskNameDraft,
     tasks: contents.tasks,
     view,
@@ -294,6 +305,7 @@ export function useTaskBoardPageState() {
           poolId: input.poolId,
           name: input.name ?? '',
           dependsOn: [],
+          templateId: input.templateId ?? null,
         });
         return result.id;
       } catch (failure) {
@@ -322,6 +334,42 @@ export function useTaskBoardPageState() {
     saveDispatchSettings: (input: DispatchSettingsUpdateInput) =>
       handle(async () => {
         await saveDispatchSettings(input);
+      }),
+    createTaskTemplate: (input: { name: string; prompt?: string }) =>
+      handle(async () => {
+        await templateMutations.createTemplate({ boardId, name: input.name, prompt: input.prompt ?? '' });
+      }),
+    updateTaskTemplate: (input: { id: string; name?: string; prompt?: string }) =>
+      handle(async () => {
+        await templateMutations.updateTemplate(input);
+      }),
+    deleteTaskTemplate: (id: string) =>
+      handle(async () => {
+        await templateMutations.deleteTemplate({ id });
+      }),
+    createTaskTemplateDeliverable: (input: {
+      templateId: string;
+      name: string;
+      description?: string;
+      type: 'text' | 'pr_url';
+      orderIndex?: number;
+    }) =>
+      handle(async () => {
+        await templateMutations.createDeliverable(input);
+      }),
+    updateTaskTemplateDeliverable: (input: {
+      id: string;
+      name?: string;
+      description?: string;
+      type?: 'text' | 'pr_url';
+      orderIndex?: number;
+    }) =>
+      handle(async () => {
+        await templateMutations.updateDeliverable(input);
+      }),
+    deleteTaskTemplateDeliverable: (id: string) =>
+      handle(async () => {
+        await templateMutations.deleteDeliverable({ id });
       }),
   };
 }

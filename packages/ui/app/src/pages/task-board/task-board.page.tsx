@@ -76,6 +76,8 @@ export function TaskBoardPage() {
       onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
       delegateAgents={state.agentRegistries.map((registry) => toDelegateOption(registry, state.inferenceProfiles))}
       delegateDisabled={state.delegating}
+      deliverables={state.selectedTaskDeliverables}
+      submissions={state.selectedTaskDeliverableSubmissions}
     />
   ) : null;
 
@@ -122,9 +124,12 @@ export function TaskBoardPage() {
             selectedTaskId={state.selectedTaskId ?? undefined}
             onSelectTask={toggleSelect}
             onRenameTask={(id: string, name: string) => void state.renameTaskFromList(id, name)}
-            onCreateTaskAfter={(input) => state.createTaskAfter({ poolId: input.poolId, name: input.name })}
+            onCreateTaskAfter={(input) =>
+              state.createTaskAfter({ poolId: input.poolId, name: input.name, templateId: input.templateId })
+            }
             onDeleteTask={(id: string) => void state.deleteTaskFromList(id)}
             emptyState="No tasks yet."
+            templateOptions={state.taskTemplates.map((template) => ({ value: template.id, label: template.name }))}
           />
         ) : (
           <TaskBoardSettingsView
@@ -140,6 +145,13 @@ export function TaskBoardPage() {
             agentRegistries={state.agentRegistries}
             inferenceProfiles={state.inferenceProfiles}
             onSaveDispatchSettings={(input) => void state.saveDispatchSettings(input)}
+            templates={state.taskTemplates}
+            onCreateTemplate={(input) => void state.createTaskTemplate(input)}
+            onUpdateTemplate={(input) => void state.updateTaskTemplate(input)}
+            onDeleteTemplate={(id) => void state.deleteTaskTemplate(id)}
+            onCreateTemplateDeliverable={(input) => void state.createTaskTemplateDeliverable(input)}
+            onUpdateTemplateDeliverable={(input) => void state.updateTaskTemplateDeliverable(input)}
+            onDeleteTemplateDeliverable={(id) => void state.deleteTaskTemplateDeliverable(id)}
           />
         )}
       </WorkbenchPageLayout>

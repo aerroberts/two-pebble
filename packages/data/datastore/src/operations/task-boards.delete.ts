@@ -18,7 +18,31 @@ export function taskBoardsDeleteOperation(ctx: DatastoreContext) {
         .delete(ctx.schema.taskEventsTable)
         .where(inArray(ctx.schema.taskEventsTable.taskId, taskIds))
         .run();
+      await ctx.database
+        .delete(ctx.schema.taskDeliverableSubmissionsTable)
+        .where(inArray(ctx.schema.taskDeliverableSubmissionsTable.taskId, taskIds))
+        .run();
+      await ctx.database
+        .delete(ctx.schema.taskDeliverablesTable)
+        .where(inArray(ctx.schema.taskDeliverablesTable.taskId, taskIds))
+        .run();
     }
+    const templateRows = await ctx.database
+      .select({ id: ctx.schema.taskTemplatesTable.id })
+      .from(ctx.schema.taskTemplatesTable)
+      .where(eq(ctx.schema.taskTemplatesTable.boardId, input.id))
+      .all();
+    const templateIds = templateRows.map((row) => row.id);
+    if (templateIds.length > 0) {
+      await ctx.database
+        .delete(ctx.schema.taskTemplateDeliverablesTable)
+        .where(inArray(ctx.schema.taskTemplateDeliverablesTable.templateId, templateIds))
+        .run();
+    }
+    await ctx.database
+      .delete(ctx.schema.taskTemplatesTable)
+      .where(eq(ctx.schema.taskTemplatesTable.boardId, input.id))
+      .run();
     await ctx.database
       .delete(ctx.schema.taskDependenciesTable)
       .where(eq(ctx.schema.taskDependenciesTable.boardId, input.id))

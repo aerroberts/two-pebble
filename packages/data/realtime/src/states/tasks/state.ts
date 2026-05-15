@@ -2,10 +2,14 @@ import { LoadableRegistry } from '../../loadable';
 import type {
   ProtocolTaskRecord,
   TaskBoardRecord,
+  TaskDeliverableRecord,
+  TaskDeliverableSubmissionRecord,
   TaskDependencyRecord,
   TaskEventRecord,
   TaskPoolRecord,
   TasksState,
+  TaskTemplateDeliverableRecord,
+  TaskTemplateRecord,
 } from './types';
 
 export function createTasksState(): TasksState {
@@ -15,5 +19,9 @@ export function createTasksState(): TasksState {
     tasks: new LoadableRegistry<ProtocolTaskRecord>(),
     taskDependencies: new LoadableRegistry<TaskDependencyRecord>(),
     taskEvents: new LoadableRegistry<TaskEventRecord>(),
+    taskTemplates: new LoadableRegistry<TaskTemplateRecord>(),
+    taskTemplateDeliverables: new LoadableRegistry<TaskTemplateDeliverableRecord>(),
+    taskDeliverables: new LoadableRegistry<TaskDeliverableRecord>(),
+    taskDeliverableSubmissions: new LoadableRegistry<TaskDeliverableSubmissionRecord>(),
   };
 }

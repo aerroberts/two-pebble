@@ -23,6 +23,7 @@ import type {
   RecordUndelegationInput,
   SetTaskStatusAsAgentInput,
   SetTaskStatusInput,
+  SubmitDeliverableAsAgentInput,
   SyncTasksFromAgentInput,
   SyncTasksFromAgentResult,
   TaskBoardServiceContext,
@@ -202,11 +203,20 @@ export class TaskBoardService {
         throw new Error(`task pool "${poolId}" not found on board "${input.boardId}"`);
       }
     }
+    const template =
+      input.templateId === undefined || input.templateId === null
+        ? null
+        : await this.datastore.taskBoards.templates.read({ id: input.templateId });
+    const templateDeliverables =
+      input.templateId === undefined || input.templateId === null
+        ? []
+        : (await this.datastore.taskBoards.templates.deliverables.list({ templateId: input.templateId })).items;
     const record = await this.datastore.taskBoards.tasks.create({
       boardId: input.boardId,
       poolId,
       name: input.name,
       description: input.description,
+      templateId: input.templateId ?? null,
       status: 'pending',
     });
     const { events } = await this.runMutation(
@@ -220,8 +230,55 @@ export class TaskBoardService {
         engine.addTask({ id: record.id, poolId: poolId ?? undefined, dependsOn: input.dependsOn });
       },
     );
+    let persisted = record;
+    if (template !== null) {
+      for (const templateDeliverable of templateDeliverables) {
+        await this.datastore.taskBoards.deliverables.create({
+          taskId: record.id,
+          name: templateDeliverable.name,
+          description: templateDeliverable.description,
+          type: templateDeliverable.type,
+          orderIndex: templateDeliverable.orderIndex,
+        });
+      }
+      persisted = await this.datastore.taskBoards.tasks.update({
+        id: record.id,
+        templateId: input.templateId,
+        additionalContext: template.prompt,
+      });
+    }
     const engine = this.requireEngine(input.boardId);
-    return { result: toProtocolTask(record, engine), events };
+    return { result: toProtocolTask(persisted, engine), events };
+  }
+
+  public async listTaskDeliverables(taskId: string) {
+    return this.datastore.taskBoards.deliverables.list({ taskId });
+  }
+
+  public async listTaskDeliverableSubmissions(taskId: string) {
+    const { items } = await this.datastore.taskBoards.deliverableSubmissions.list({ taskId });
+    return { items: items.map((row) => ({ ...row, payload: JSON.parse(row.payload) })) };
+  }
+
+  public async submitDeliverableAsAgent(input: SubmitDeliverableAsAgentInput) {
+    const task = await this.findTask(input.taskId);
+    if (task.ownerId !== input.agentId) {
+      throw new TaskOwnershipError(input.taskId, input.agentId, task.ownerId);
+    }
+    const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId: input.taskId });
+    const deliverable = deliverables.find((entry) => entry.id === input.deliverableId);
+    if (deliverable === undefined) {
+      throw new Error(`task deliverable "${input.deliverableId}" not found on task "${input.taskId}"`);
+    }
+    if (deliverable.type !== input.payload.type) {
+      throw new Error(`deliverable "${input.deliverableId}" expects payload type "${deliverable.type}"`);
+    }
+    const row = await this.datastore.taskBoards.deliverableSubmissions.upsert({
+      taskId: input.taskId,
+      deliverableId: input.deliverableId,
+      payload: JSON.stringify(input.payload),
+    });
+    return { ...row, payload: input.payload };
   }
 
   /**
@@ -232,23 +289,15 @@ export class TaskBoardService {
    * `setTaskStatus` directly and remain unrestricted by ownership.
    */
   public async setTaskStatusAsAgent(input: SetTaskStatusAsAgentInput): Promise<TaskMutationOutcome> {
-    const { items: boards } = await this.datastore.taskBoards.list({});
-    for (const board of boards) {
-      const { items: tasks } = await this.datastore.taskBoards.tasks.list({ boardId: board.id });
-      const found = tasks.find((task) => task.id === input.taskId);
-      if (found === undefined) {
-        continue;
-      }
-      if (found.ownerId !== input.agentId) {
-        throw new TaskOwnershipError(input.taskId, input.agentId, found.ownerId);
-      }
-      return this.setTaskStatus(board.id, {
-        id: input.taskId,
-        status: input.status,
-        reason: input.reason,
-      });
+    const found = await this.findTask(input.taskId);
+    if (found.ownerId !== input.agentId) {
+      throw new TaskOwnershipError(input.taskId, input.agentId, found.ownerId);
     }
-    throw new Error(`task "${input.taskId}" not found`);
+    return this.setTaskStatus(found.boardId, {
+      id: input.taskId,
+      status: input.status,
+      reason: input.reason,
+    });
   }
 
   /**
@@ -434,5 +483,17 @@ export class TaskBoardService {
       throw new Error(`task board "${boardId}" not loaded`);
     }
     return engine;
+  }
+
+  private async findTask(taskId: string) {
+    const { items: boards } = await this.datastore.taskBoards.list({});
+    for (const board of boards) {
+      const { items: tasks } = await this.datastore.taskBoards.tasks.list({ boardId: board.id });
+      const found = tasks.find((task) => task.id === taskId);
+      if (found !== undefined) {
+        return found;
+      }
+    }
+    throw new Error(`task "${taskId}" not found`);
   }
 }

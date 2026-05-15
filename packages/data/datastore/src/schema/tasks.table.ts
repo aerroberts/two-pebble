@@ -17,6 +17,10 @@ export const tasksTable = customTable('tasks', {
   name: text('name').notNull(),
   // Free-form description shown in the detail panel.
   description: text('description').notNull().default(''),
+  // Template this task was created from, kept as an informational pointer.
+  templateId: text('template_id'),
+  // Prompt context copied from the template at task creation.
+  additionalContext: text('additional_context').notNull().default(''),
   // Agent currently responsible for this task, or null when unassigned.
   ownerId: text('owner_id'),
   // Persisted stored status from the tasks engine.

@@ -11,6 +11,7 @@ import type {
   TaskBoardSetOwnedTaskStatusInput,
   TaskBoardSetTaskStatusInput,
   TaskBoardSnapshot,
+  TaskBoardSubmitDeliverableInput,
   TaskBoardUpdateTaskDescriptionInput,
 } from '@two-pebble/pebble';
 import type { DaemonBridge } from '../../types';
@@ -67,6 +68,10 @@ export class DaemonTaskBoardRunner implements TaskBoardRunner {
     });
     this.broadcastEvents(events);
     this.bridge.emit('taskUpdated', result);
+    const deliverables = await this.taskBoards.listTaskDeliverables(result.id);
+    for (const deliverable of deliverables.items) {
+      this.bridge.emit('taskDeliverableUpdated', deliverable);
+    }
     return { id: result.id };
   }
 
@@ -217,6 +222,22 @@ export class DaemonTaskBoardRunner implements TaskBoardRunner {
   public async listTaskEvents(_boardId: string, taskId: string): Promise<TaskBoardEventRecord[]> {
     const events = await this.taskBoards.listTaskEvents(taskId);
     return events.map((event) => toRunnerEvent(event));
+  }
+
+  public async listTaskDeliverables(input: { taskId: string }) {
+    const { items } = await this.taskBoards.listTaskDeliverables(input.taskId);
+    return items;
+  }
+
+  public async listTaskDeliverableSubmissions(input: { taskId: string }) {
+    const { items } = await this.taskBoards.listTaskDeliverableSubmissions(input.taskId);
+    return items;
+  }
+
+  public async submitDeliverable(input: TaskBoardSubmitDeliverableInput) {
+    const submission = await this.taskBoards.submitDeliverableAsAgent(input);
+    this.bridge.emit('taskDeliverableSubmissionRecorded', submission);
+    return submission;
   }
 
   private broadcastEvents(events: TaskEventBroadcastRecord[]): void {

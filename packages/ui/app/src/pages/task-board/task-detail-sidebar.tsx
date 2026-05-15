@@ -20,12 +20,26 @@ export interface TaskDetailSidebarOwnerAgent {
   name: string;
 }
 
+export interface TaskDetailSidebarDeliverable {
+  id: string;
+  name: string;
+  description: string;
+  type: 'text' | 'pr_url';
+}
+
+export interface TaskDetailSidebarDeliverableSubmission {
+  deliverableId: string;
+  payload: { type: 'text'; content: string } | { type: 'pr_url'; url: string };
+}
+
 export interface TaskDetailSidebarProps {
   task: TaskDetailSidebarTask;
   ownerAgent: TaskDetailSidebarOwnerAgent | null;
   descriptionDraft: string;
   delegateAgents: SelectOption[];
   delegateDisabled: boolean;
+  deliverables: TaskDetailSidebarDeliverable[];
+  submissions: TaskDetailSidebarDeliverableSubmission[];
   onDescriptionChange: (value: string) => void;
   onDescriptionSave: () => void;
   onDelegate: (agentRegistryId: string) => void;
@@ -72,7 +86,45 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         placeholder="Describe this task"
         value={props.descriptionDraft}
       />
+      {props.deliverables.length > 0 ? (
+        <div className="flex flex-col gap-2 pt-3">
+          <AppBox variant="muted-xs">Deliverables</AppBox>
+          {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
+        </div>
+      ) : null}
     </>
+  );
+}
+
+function renderDeliverableRow(
+  deliverable: TaskDetailSidebarDeliverable,
+  submissions: TaskDetailSidebarDeliverableSubmission[],
+): ReactNode {
+  const submission = submissions.find((entry) => entry.deliverableId === deliverable.id) ?? null;
+  return (
+    <div key={deliverable.id} className="flex items-start gap-2 rounded-md border border-border bg-surface-neutral p-2">
+      <TaskStatusIcon status={submission === null ? 'waiting' : 'success'} size="sm" />
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-xs font-medium text-content">{deliverable.name}</div>
+        {deliverable.description.length > 0 ? (
+          <div className="truncate text-xs text-content-muted">{deliverable.description}</div>
+        ) : null}
+        {submission === null ? (
+          <div className="text-xs text-content-muted">Pending</div>
+        ) : submission.payload.type === 'pr_url' ? (
+          <a
+            className="block truncate text-xs text-accent underline-offset-2 hover:underline"
+            href={submission.payload.url}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {submission.payload.url}
+          </a>
+        ) : (
+          <div className="truncate text-xs text-content-muted">{submission.payload.content}</div>
+        )}
+      </div>
+    </div>
   );
 }
 
