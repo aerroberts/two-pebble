@@ -281,6 +281,13 @@
       "when": 1781899200000,
       "tag": "0039_heartbeat_automations",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1781985600000,
+      "tag": "0040_drop_task_dispatch_settings",
+      "breakpoints": true
     }
   ]
 }

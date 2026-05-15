@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import type { TaskStatusIconStatus } from '../task-status-icon/types';
 import type { TaskListPool, TaskListTask } from './task-list';
 
@@ -9,8 +8,6 @@ export interface TaskListTaskNode {
   kind: 'task';
   name: string;
   status: TaskStatusIconStatus;
-  /** Forwarded from {@link TaskListTask.concurrencyIndicator}. */
-  concurrencyIndicator: ReactNode;
 }
 
 export interface TaskListPoolNode {
@@ -66,7 +63,6 @@ function buildLevel(
       kind: 'task',
       name: task.name,
       status: task.status,
-      concurrencyIndicator: task.concurrencyIndicator ?? null,
     });
   }
   return nodes;

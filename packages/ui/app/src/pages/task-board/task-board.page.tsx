@@ -136,19 +136,12 @@ export function TaskBoardPage() {
           />
         ) : (
           <TaskBoardSettingsView
-            boardId={state.boardId}
             boardNameDraft={state.boardNameDraft}
             onBoardNameChange={(value: string) => state.setBoardNameDraft(value)}
             onBoardNameSave={() => void state.saveBoardName()}
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
             onDeleteBoard={() => void state.deleteBoard()}
-            boardDispatchSettings={state.boardDispatchSettings}
-            poolDispatchSettings={state.poolDispatchSettings}
-            agentRegistries={state.agentRegistries}
-            inferenceProfiles={state.inferenceProfiles}
-            installs={state.installs}
-            onSaveDispatchSettings={(input) => void state.saveDispatchSettings(input)}
             templates={state.taskTemplates}
             onCreateTemplate={(input) => void state.createTaskTemplate(input)}
             onUpdateTemplate={(input) => void state.updateTaskTemplate(input)}

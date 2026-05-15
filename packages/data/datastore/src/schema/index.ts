@@ -17,7 +17,6 @@ export { taskBoardsTable } from './task-boards.table';
 export { taskDeliverableSubmissionsTable } from './task-deliverable-submissions.table';
 export { taskDeliverablesTable } from './task-deliverables.table';
 export { taskDependenciesTable } from './task-dependencies.table';
-export { taskDispatchSettingsTable } from './task-dispatch-settings.table';
 export { taskEventsTable } from './task-events.table';
 export { taskPoolsTable } from './task-pools.table';
 export { taskTemplateDeliverablesTable } from './task-template-deliverables.table';

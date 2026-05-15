@@ -54,8 +54,6 @@
         "src/services/automation-service/automation-service.ts",
         "src/services/heartbeat-service/heartbeat-listener.ts",
         "src/services/heartbeat-service/heartbeat-service.ts",
-        "src/services/task-board-dispatch-listener/dispatch-logic.ts",
-        "src/services/task-board-dispatch-listener/task-board-dispatch-listener.ts",
         "src/services/task-board-runner/daemon-task-board-runner.ts",
         "src/services/task-board-service.ts"
       ],

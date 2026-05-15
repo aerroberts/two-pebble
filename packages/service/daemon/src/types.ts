@@ -13,7 +13,6 @@ import type { AgentRegistryService } from './services/agent-registry-service';
 import type { AutomationService } from './services/automation-service';
 import type { HeartbeatService } from './services/heartbeat-service';
 import type { LivenessReconciler } from './services/liveness-reconciler';
-import type { TaskBoardDispatchService } from './services/task-board-dispatch-listener';
 import type { TaskBoardService } from './services/task-board-service';
 
 export type DaemonBridge = Bridge<DaemonProtocol>;
@@ -56,7 +55,6 @@ export interface DaemonRuntimeContext {
   logsDirectoryPath: string;
   multicastBridge: DaemonBridge;
   port: number;
-  taskBoardDispatch: TaskBoardDispatchService;
   taskBoards: TaskBoardService;
   livenessReconciler?: LivenessReconciler;
 }

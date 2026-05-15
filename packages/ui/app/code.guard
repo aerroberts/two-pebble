@@ -11,14 +11,6 @@
       "justification": "Task board page state still owns multi-step state orchestration; keep the current behavior stable while CI begins enforcing the rest of the repo."
     },
     {
-      "rules": ["@rule/file-length"],
-      "paths": [
-        "src/pages/task-board/task-board-settings-view.tsx",
-        "src/pages/task-board/use-task-board-page-state.ts"
-      ],
-      "justification": "Task board settings and state picked up legacy dispatch UI flows from main; split them in a focused UI cleanup after CI starts enforcing the baseline."
-    },
-    {
       "rules": ["@rule/definition-length", "@rule/typescript-function-shape"],
       "paths": ["src/pages/agent-detail/use-agent-detail-page-state.ts"],
       "justification": "Agent detail state still has legacy optional inputs and a large reducer-like flow that should be split separately from CI enablement."

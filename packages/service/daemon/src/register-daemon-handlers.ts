@@ -72,9 +72,6 @@ import { handler as listTaskDeliverablesHandler } from './handlers/task-delivera
 import { handler as createTaskDependencyHandler } from './handlers/task-dependencies.create.handler';
 import { handler as deleteTaskDependencyHandler } from './handlers/task-dependencies.delete.handler';
 import { handler as listTaskDependenciesHandler } from './handlers/task-dependencies.list.handler';
-import { handler as listTaskDispatchSettingsHandler } from './handlers/task-dispatch-settings.list.handler';
-import { handler as readTaskDispatchSettingsHandler } from './handlers/task-dispatch-settings.read.handler';
-import { handler as updateTaskDispatchSettingsHandler } from './handlers/task-dispatch-settings.update.handler';
 import { handler as listTaskEventsHandler } from './handlers/task-events.list.handler';
 import { handler as createTaskPoolHandler } from './handlers/task-pools.create.handler';
 import { handler as deleteTaskPoolHandler } from './handlers/task-pools.delete.handler';
@@ -218,9 +215,6 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('createTaskDependency', createTaskDependencyHandler(context));
   register('deleteTaskDependency', deleteTaskDependencyHandler(context));
   register('listTaskEvents', listTaskEventsHandler(context));
-  register('readTaskDispatchSettings', readTaskDispatchSettingsHandler(context));
-  register('listTaskDispatchSettings', listTaskDispatchSettingsHandler(context));
-  register('updateTaskDispatchSettings', updateTaskDispatchSettingsHandler(context));
   register('listTaskTemplates', listTaskTemplatesHandler(context));
   register('createTaskTemplate', createTaskTemplateHandler(context));
   register('readTaskTemplate', readTaskTemplateHandler(context));

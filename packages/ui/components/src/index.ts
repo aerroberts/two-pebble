@@ -232,11 +232,6 @@ export {
 } from './components/states/not-connected-page/not-connected-page';
 export { NotFoundPage, type NotFoundPageProps } from './components/states/not-found-page/not-found-page';
 export {
-  ConcurrencyIndicator,
-  type ConcurrencyIndicatorProps,
-  type ConcurrencyIntensity,
-} from './components/tasks/concurrency-indicator/concurrency-indicator';
-export {
   TaskGraph,
   type TaskGraphInput,
   type TaskGraphInputDependency,

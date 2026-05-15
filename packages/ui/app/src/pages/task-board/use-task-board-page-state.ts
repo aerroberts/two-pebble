@@ -4,7 +4,6 @@ import {
   useAgents,
   useBoardTaskTemplates,
   useInferenceProfiles,
-  useRealtimeDatastore,
   useTaskBoardContents,
   useTaskBoardMutations,
   useTaskBoards,
@@ -14,7 +13,7 @@ import {
   useTaskTemplateMutations,
   useThirdPartyAgentInstalls,
 } from '@two-pebble/realtime';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 type TaskBoardView = 'graph' | 'list' | 'settings';
@@ -29,26 +28,6 @@ interface AgentLike {
   id: string;
   name: string;
 }
-
-export type DispatchScopeKind = 'board' | 'pool';
-export type DispatchMode = 'manual' | 'automatic';
-
-export interface DispatchSettingsValue {
-  concurrency: number;
-  dispatchMode: DispatchMode;
-  autoAgentRegistryId: string | null;
-}
-
-export interface DispatchSettingsUpdateInput extends DispatchSettingsValue {
-  scopeKind: DispatchScopeKind;
-  scopeId: string;
-}
-
-export const DEFAULT_DISPATCH_SETTINGS: DispatchSettingsValue = {
-  concurrency: 0,
-  dispatchMode: 'manual',
-  autoAgentRegistryId: null,
-};
 
 export type { SettableTaskStatus, TaskBoardView };
 
@@ -65,10 +44,7 @@ export function useTaskBoardPageState() {
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const agents = useAgents();
-  const datastore = useRealtimeDatastore();
   const board = taskBoards.getItem(boardId)?.value ?? null;
-  const [boardDispatchSettings, setBoardDispatchSettings] = useState<DispatchSettingsValue>(DEFAULT_DISPATCH_SETTINGS);
-  const [poolDispatchSettings, setPoolDispatchSettings] = useState<Record<string, DispatchSettingsValue>>({});
   const [boardNameDraft, setBoardNameDraft] = useState('');
   const [taskNameDraft, setTaskNameDraft] = useState('');
   const [taskDescriptionDraft, setTaskDescriptionDraft] = useState('');
@@ -90,55 +66,6 @@ export function useTaskBoardPageState() {
       setBoardNameDraft(board.name);
     }
   }, [board]);
-
-  useEffect(() => {
-    if (boardId.length === 0) {
-      return;
-    }
-    let cancelled = false;
-    void datastore.taskDispatchSettings
-      .read({ scopeKind: 'board', scopeId: boardId })
-      .then((result) => {
-        if (cancelled || result.settings === null) {
-          return;
-        }
-        setBoardDispatchSettings({
-          concurrency: result.settings.concurrency,
-          dispatchMode: result.settings.dispatchMode,
-          autoAgentRegistryId: result.settings.autoAgentRegistryId,
-        });
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [boardId, datastore]);
-
-  useEffect(() => {
-    let cancelled = false;
-    void datastore.taskDispatchSettings
-      .list()
-      .then((result) => {
-        if (cancelled) {
-          return;
-        }
-        const next: Record<string, DispatchSettingsValue> = {};
-        for (const item of result.items) {
-          if (item.scopeKind === 'pool') {
-            next[item.scopeId] = {
-              concurrency: item.concurrency,
-              dispatchMode: item.dispatchMode,
-              autoAgentRegistryId: item.autoAgentRegistryId,
-            };
-          }
-        }
-        setPoolDispatchSettings(next);
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [datastore]);
 
   useEffect(() => {
     if (selectedTask === null) {
@@ -174,28 +101,6 @@ export function useTaskBoardPageState() {
     }
   };
 
-  const saveDispatchSettings = useCallback(
-    async (input: DispatchSettingsUpdateInput) => {
-      const result = await datastore.taskDispatchSettings.update({
-        scopeKind: input.scopeKind,
-        scopeId: input.scopeId,
-        concurrency: input.concurrency,
-        dispatchMode: input.dispatchMode,
-        autoAgentRegistryId: input.autoAgentRegistryId,
-      });
-      const next: DispatchSettingsValue = {
-        concurrency: result.settings.concurrency,
-        dispatchMode: result.settings.dispatchMode,
-        autoAgentRegistryId: result.settings.autoAgentRegistryId,
-      };
-      if (input.scopeKind === 'board') {
-        setBoardDispatchSettings(next);
-      } else {
-        setPoolDispatchSettings((current) => ({ ...current, [input.scopeId]: next }));
-      }
-    },
-    [datastore],
-  );
   return {
     agentRegistries: agentRegistries.values(),
     inferenceProfiles,
@@ -331,12 +236,6 @@ export function useTaskBoardPageState() {
         }
         await mutations.deleteBoard({ id: board.id });
         navigate('/tasks');
-      }),
-    boardDispatchSettings,
-    poolDispatchSettings,
-    saveDispatchSettings: (input: DispatchSettingsUpdateInput) =>
-      handle(async () => {
-        await saveDispatchSettings(input);
       }),
     createTaskTemplate: (input: { name: string; prompt?: string }) =>
       handle(async () => {

@@ -29,9 +29,6 @@
       "rules": ["@rule/typescript-function-shape"],
       "paths": [
         "src/operations/documents.list.operation.ts",
-        "src/operations/task-dispatch-settings.list.operation.ts",
-        "src/operations/task-dispatch-settings.update.operation.ts",
-        "src/operations/task-dispatch-settings.read.operation.ts",
         "src/operations/task-deliverable-submissions.list.operation.ts",
         "src/operations/task-deliverables.list.operation.ts",
         "src/operations/task-template-deliverables.create.operation.ts",
