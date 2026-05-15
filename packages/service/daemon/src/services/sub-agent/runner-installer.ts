@@ -44,6 +44,7 @@ interface AttachParentLinkInput {
 interface AttachFrameworkParentLinkInput {
   agent: Agent;
   agentId: string;
+  agentRegistry: AgentRegistryService;
   datastore: Datastore;
   logger: Logger;
   parentAgentId: string;
@@ -108,6 +109,7 @@ export function attachFrameworkParentLinkBridge(input: AttachFrameworkParentLink
   if (!(input.agent instanceof FrameworkAgent)) {
     return;
   }
+  const agentRegistry = input.agentRegistry;
   const datastore = input.datastore;
   const logger = input.logger;
   const parentAgentId = input.parentAgentId;
@@ -115,6 +117,7 @@ export function attachFrameworkParentLinkBridge(input: AttachFrameworkParentLink
   input.agent.on('finalMessage', (event) => {
     void resolveFrameworkResponse({
       agentId,
+      agentRegistry,
       content: event.content,
       datastore,
       logger,
@@ -125,6 +128,7 @@ export function attachFrameworkParentLinkBridge(input: AttachFrameworkParentLink
 
 interface ResolveFrameworkResponseInput {
   agentId: string;
+  agentRegistry: AgentRegistryService;
   content: DataCells;
   datastore: Datastore;
   logger: Logger;
@@ -152,6 +156,11 @@ async function resolveFrameworkResponse(input: ResolveFrameworkResponseInput): P
       id: input.agentId,
       parentResponseSignalId: null,
     });
+    // The signal is in `received` state now; the parent has to be woken so
+    // the waiting agent rehydrates, consumes the response in `hookOnSignal`,
+    // and transitions the signal from `received` → `resolved`. Without this
+    // wake the parent stays stuck in `waiting` indefinitely.
+    await input.agentRegistry.wakeIfSignalsReady(input.parentAgentId);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     input.logger.warn('framework parent-link resolve failed', { agentId: input.agentId, error: message });
@@ -199,6 +208,7 @@ export function installFreshLaunchAgent(input: InstallFreshAgentInput): void {
     attachFrameworkParentLinkBridge({
       agent: input.agent,
       agentId: input.agentId,
+      agentRegistry: input.agentRegistry,
       datastore: input.datastore,
       logger: input.logger,
       parentAgentId: input.parentAgentId,

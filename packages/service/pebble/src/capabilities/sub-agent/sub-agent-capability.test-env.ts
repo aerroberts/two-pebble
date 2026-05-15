@@ -43,12 +43,13 @@ export function expectResearcherSpawnRegistration(): void {
   expect(registration).toMatchObject({
     type: 'toolRegistration',
     content: {
-      description:
-        'Spawn a child agent by configured reference name and wait for its response. Valid reference names: researcher - Finds relevant implementation context.',
       name: 'spawn-sub-agent',
       toolType: 'native',
     },
   });
+  const description = (registration as { content: { description: string } } | undefined)?.content.description ?? '';
+  expect(description).toContain('Valid reference names: researcher - Finds relevant implementation context.');
+  expect(description).toContain('Framework children');
   expect(registration).toHaveProperty('content.inputSchema.properties.referenceName.enum', ['researcher']);
 }
 

@@ -1,4 +1,5 @@
 import { Cell, type DataCells } from '../../thread';
+import { describeLifecycle } from './sub-agent-lifecycle';
 import type { ChildRecord, SubAgentReference } from './sub-agent-types';
 
 export function listSubAgentsCells(references: SubAgentReference[], children: ChildRecord[]): DataCells {
@@ -21,7 +22,7 @@ function childCells(children: ChildRecord[]): DataCells {
   if (children.length === 0) {
     return [Cell.text('No spawned child agents.')];
   }
-  return children.map((child) => Cell.text(`${child.agentId} (${child.referenceName})`));
+  return children.map((child) => Cell.text(`${child.agentId} (${child.referenceName}) — ${describeLifecycle(child)}`));
 }
 
 function referenceDescription(reference: SubAgentReference): string {

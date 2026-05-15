@@ -5,6 +5,7 @@ import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import { getCapabilityRunners } from '../runners';
 import { listSubAgentsCells } from './sub-agent-cells';
+import { describeLifecycle, LIFECYCLE_PRIMER, NEXT_ACTION_GUIDE } from './sub-agent-lifecycle';
 import { readReferences, spawnToolDescription } from './sub-agent-references';
 import {
   askSubAgentSchema,
@@ -16,6 +17,7 @@ import {
 } from './sub-agent-schemas';
 import { objectData, stringField } from './sub-agent-signal-data';
 import type {
+  ChildLifecycle,
   ChildRecord,
   ParentSignalInput,
   PendingChildQuestion,
@@ -33,6 +35,39 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   public readonly description = 'Lets a Pebble agent spawn and message child agents.';
   private readonly childrenSlot = this.useState<ChildRecord[]>('children', []);
   private readonly pendingChildQuestionsSlot = this.useState<PendingChildQuestion[]>('pending-child-questions', []);
+
+  /**
+   * Injects a one-time orientation cell explaining the sub-agent lifecycle.
+   * Without this primer small models tend to treat framework children as
+   * always-on background workers and loop "asking" them for updates that
+   * will never come. Only runs on fresh launch; rehydration replays
+   * earlier user-context cells so we do not duplicate the message.
+   */
+  public override initialize(_config: SubAgentCapabilityConfig): void {
+    this.agent.addUserContext('Sub-agent Lifecycle Primer', [
+      Cell.header2('Sub-agent Lifecycle Primer'),
+      Cell.text(LIFECYCLE_PRIMER),
+    ]);
+  }
+
+  /**
+   * Adds a 'Sub-agent Status' cell at the start of every turn when at
+   * least one child has been spawned. Models that look only at the latest
+   * context (rather than rebuilding history) get an honest snapshot of
+   * every child's current state, with prescriptive next-action wording.
+   */
+  public override hookBeforeAgentTurn(): void {
+    const children = this.childrenSlot.value;
+    if (children.length === 0) {
+      return;
+    }
+    const lines = children.map((child) => `- ${child.agentId} (${child.referenceName}) — ${describeLifecycle(child)}`);
+    this.agent.addUserContext('Sub-agent Status', [
+      Cell.header2('Sub-agent Status'),
+      Cell.text(lines.join('\n')),
+      Cell.text(NEXT_ACTION_GUIDE),
+    ]);
+  }
 
   /**
    * Registers child-agent tools for the parent agent.
@@ -72,7 +107,12 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       });
       this.childrenSlot.set([
         ...this.childrenSlot.value,
-        { agentId: childAgentId, referenceName: input.referenceName, responseSignalId: signalId },
+        {
+          agentId: childAgentId,
+          referenceName: input.referenceName,
+          lifecycle: 'awaiting-reply',
+          responseSignalId: signalId,
+        },
       ]);
       await this.sendParentSignal({
         childAgentId,
@@ -101,7 +141,8 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   private sendTool() {
     return new NativeTool({
-      description: 'Send a one-way message to a child agent.',
+      description:
+        'Send a one-way message to a child agent. The child receives it but is NOT required to respond. Do NOT use this when you actually need a reply — use ask-sub-agent instead.',
       name: 'send-sub-agent-message',
       schema: sendSubAgentSchema,
     }).onInvoke(async (input) => {
@@ -118,7 +159,8 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   private askTool() {
     return new NativeTool({
-      description: 'Ask a child agent a question and wait for its reply.',
+      description:
+        "Ask an existing child agent for a reply. Wakes the child (if it is currently idle after a prior reply) and waits for its next response. The response arrives as a 'Sub-agent Response' context cell in a future turn — until then, no new response exists. Use this for follow-up rounds on the same child.",
       name: 'ask-sub-agent',
       schema: askSubAgentSchema,
     }).onInvoke(async (input) => {
@@ -129,7 +171,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       });
       this.childrenSlot.set(
         this.childrenSlot.value.map((child) =>
-          child.agentId === childAgentId ? { ...child, responseSignalId: signalId } : child,
+          child.agentId === childAgentId
+            ? { ...child, lifecycle: 'awaiting-reply' as ChildLifecycle, responseSignalId: signalId }
+            : child,
         ),
       );
       await this.sendParentSignal({
@@ -153,13 +197,16 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   private readTool() {
     return new NativeTool({
-      description: 'Read queued child messages without waiting.',
+      description:
+        "Returns nothing useful. Awaited responses from children arrive automatically as 'Sub-agent Response' context cells — you do not have to poll. Listed only for completeness.",
       name: 'read-sub-agent-messages',
       schema: childAgentSchema,
     }).onInvoke((input) => {
       const childAgentId = this.resolveChildAgentId(input.childAgentId);
       return ToolResponse.success([
-        Cell.text(`No queued child messages for ${childAgentId}. Signal responses resume the agent.`),
+        Cell.text(
+          `No queued messages for ${childAgentId}. Responses arrive automatically as 'Sub-agent Response' context cells in a later turn — do not poll. Check the 'Sub-agent Status' cell for the child's current state.`,
+        ),
       ]);
     });
   }
@@ -199,23 +246,40 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       if (continuationSignalId !== undefined) {
         this.childrenSlot.set(
           this.childrenSlot.value.map((child) =>
-            child.agentId === childAgentId ? { ...child, responseSignalId: continuationSignalId } : child,
+            child.agentId === childAgentId
+              ? { ...child, lifecycle: 'awaiting-reply' as ChildLifecycle, responseSignalId: continuationSignalId }
+              : child,
           ),
         );
         return ToolResponse.success([Cell.text(`Sent response to ${childAgentId} and waiting for its follow-up.`)]);
       }
+      this.childrenSlot.set(
+        this.childrenSlot.value.map((child) =>
+          child.agentId === childAgentId
+            ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'idle-after-reply' }
+            : child,
+        ),
+      );
       return ToolResponse.success([Cell.text(`Sent response to ${childAgentId}.`)]);
     });
   }
 
   private killTool() {
     return new NativeTool({
-      description: 'Stop a child agent.',
+      description:
+        'Stop a child agent. Use only when you want to permanently abandon a child — once stopped it cannot be resumed. Spawn a fresh child to continue similar work.',
       name: 'kill-sub-agent',
       schema: killSubAgentSchema,
     }).onInvoke(async (input) => {
       const childAgentId = this.resolveChildAgentId(input.childAgentId);
       await this.requireRunner().kill({ childAgentId, reason: input.reason });
+      this.childrenSlot.set(
+        this.childrenSlot.value.map((child) =>
+          child.agentId === childAgentId
+            ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'killed' }
+            : child,
+        ),
+      );
       return ToolResponse.success([Cell.text(`Stopped ${childAgentId}.`)]);
     });
   }
@@ -254,7 +318,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       });
       this.childrenSlot.set(
         this.childrenSlot.value.map((child) =>
-          child.agentId === childAgentId ? { agentId: child.agentId, referenceName: child.referenceName } : child,
+          child.agentId === childAgentId
+            ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'idle-after-reply' }
+            : child,
         ),
       );
       this.agent.addUserContext('Sub-agent Response', [Cell.header2('Sub-agent Response'), Cell.text(message)]);
@@ -281,7 +347,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       }
       this.childrenSlot.set(
         this.childrenSlot.value.map((child) =>
-          child.agentId === childAgentId ? { agentId: child.agentId, referenceName: child.referenceName } : child,
+          child.agentId === childAgentId
+            ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'awaiting-our-response' }
+            : child,
         ),
       );
       this.pendingChildQuestionsSlot.set([

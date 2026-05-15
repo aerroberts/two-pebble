@@ -76,10 +76,41 @@ export class AgentRegistryService {
   /**
    * Audits durable lifecycle state at daemon boot. A runtime agent cannot
    * survive process restart, so any persisted running row is interrupted.
+   * After repair, sweeps every waiting/idle agent to wake any whose signals
+   * are already satisfied — catches deadlocks where a child finished and
+   * delivered a response while the daemon was down (or while a pre-fix
+   * code path bypassed the wake).
    */
   public async hydrate(): Promise<void> {
     await interruptStaleRunningAgents({ datastore: this.datastore, logger: this.logger });
     await repairBlockedSubAgentAskSignals({ agentRegistry: this, datastore: this.datastore });
+    await this.wakeAgentsWithSatisfiedSignals();
+  }
+
+  /**
+   * Walks waiting/idle agents and asks each one whether its open-signal set
+   * is empty and a received signal is ready to consume. `wakeIfSignalsReady`
+   * is a no-op for agents that aren't ready, so this is a cheap, idempotent
+   * sweep — safe to run on every boot.
+   */
+  private async wakeAgentsWithSatisfiedSignals(): Promise<void> {
+    const { items } = await this.datastore.agent.list({ limit: 1000, offset: 0 });
+    const candidates = items.filter((row) => row.status === 'waiting' || row.status === 'idle');
+    let woken = 0;
+    for (const agent of candidates) {
+      try {
+        const before = await this.datastore.agent.read({ id: agent.id });
+        await this.wakeIfSignalsReady(agent.id);
+        const after = await this.datastore.agent.read({ id: agent.id });
+        if (before.status !== after.status) {
+          woken += 1;
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn('hydrate wake audit failed', { agentId: agent.id, error: message });
+      }
+    }
+    this.logger.info('hydrate wake audit complete', { scanned: candidates.length, woken });
   }
 
   /**
@@ -232,6 +263,7 @@ export class AgentRegistryService {
         attachFrameworkParentLinkBridge({
           agent: runtimeAgent,
           agentId,
+          agentRegistry: this,
           datastore: this.datastore,
           logger: this.logger,
           parentAgentId: record.parentAgentId,
