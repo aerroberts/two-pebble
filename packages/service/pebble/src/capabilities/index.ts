@@ -1,3 +1,4 @@
+export { AgentNamingCapability } from './agent-naming/agent-naming-capability';
 export {
   buildCapability,
   capabilityRegistry,

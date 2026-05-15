@@ -1,5 +1,11 @@
 import type { Agent } from '@two-pebble/pebble';
-import { FrameworkAgent, PebbleAgent, ProviderFactory, renderAgentNamingInstruction } from '@two-pebble/pebble';
+import {
+  FrameworkAgent,
+  PebbleAgent,
+  ProviderFactory,
+  renderAgentNamingInstruction,
+  renderPebbleAgentNamingInstruction,
+} from '@two-pebble/pebble';
 import { ClaudeCodeAgent } from '@two-pebble/pebble/frameworks';
 import type { BuildLaunchAgentInput } from './agent-registry-types';
 
@@ -37,7 +43,7 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
     description: input.description,
     name: input.registry.name,
     provider,
-    systemPrompt: input.registry.systemPrompt,
+    systemPrompt: composePebbleSystemPrompt(input.agentId, input.registry.systemPrompt),
     workspacePath: input.workspacePath,
     ...(input.restoredThread === undefined ? {} : { restoredThread: input.restoredThread }),
   });
@@ -45,6 +51,14 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
 
 function composeFrameworkSystemPrompt(agentId: string, registrySystemPrompt: string): string {
   const naming = renderAgentNamingInstruction(agentId);
+  if (registrySystemPrompt.length === 0) {
+    return naming;
+  }
+  return `${naming}\n\n${registrySystemPrompt}`;
+}
+
+function composePebbleSystemPrompt(agentId: string, registrySystemPrompt: string): string {
+  const naming = renderPebbleAgentNamingInstruction(agentId);
   if (registrySystemPrompt.length === 0) {
     return naming;
   }
