@@ -2,6 +2,7 @@ import {
   ButtonGroup,
   DataPanelLayout,
   EditableHeading,
+  type SelectOption,
   TaskGraph,
   type TaskGraphInput,
   TaskList,
@@ -22,6 +23,7 @@ import { Navigate } from 'react-router-dom';
 import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
 import { TaskBoardSettingsView } from './task-board-settings-view';
 import { TaskDetailSidebar } from './task-detail-sidebar';
+import { TaskListAccessory } from './task-list-accessory';
 import { type TaskBoardView, useTaskBoardPageState } from './use-task-board-page-state';
 
 const VIEW_OPTIONS = [
@@ -49,6 +51,10 @@ export function TaskBoardPage() {
     [state.tasks, state.pools, state.dependencies],
   );
   const listTasks = useMemo(() => sortTasksForList(state.tasks), [state.tasks]);
+  const delegateOptions = useMemo<SelectOption[]>(
+    () => state.agentRegistries.map((registry) => toDelegateOption(registry, state.inferenceProfiles, state.installs)),
+    [state.agentRegistries, state.inferenceProfiles, state.installs],
+  );
 
   if (state.boardId.length === 0) {
     return <Navigate replace to="/tasks" />;
@@ -75,9 +81,7 @@ export function TaskBoardPage() {
       onDelegate={(agentRegistryId: string) => void state.delegateSelectedTask(agentRegistryId)}
       onUndelegate={() => void state.undelegateSelectedTask()}
       onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
-      delegateAgents={state.agentRegistries.map((registry) =>
-        toDelegateOption(registry, state.inferenceProfiles, state.installs),
-      )}
+      delegateAgents={delegateOptions}
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
       submissions={state.selectedTaskDeliverableSubmissions}
@@ -133,6 +137,24 @@ export function TaskBoardPage() {
             onDeleteTask={(id: string) => void state.deleteTaskFromList(id)}
             emptyState="No tasks yet."
             templateOptions={state.taskTemplates.map((template) => ({ value: template.id, label: template.name }))}
+            renderTaskAccessory={(taskId) => {
+              const task = state.tasks.find((entry) => entry.id === taskId);
+              if (task === undefined) {
+                return null;
+              }
+              const owner = state.findOwnerAgent(task.ownerId);
+              return (
+                <TaskListAccessory
+                  task={task}
+                  ownerName={owner?.name ?? null}
+                  delegateOptions={delegateOptions}
+                  delegating={state.delegating}
+                  onDelegate={(agentRegistryId) => void state.delegateTaskById(taskId, agentRegistryId)}
+                  onUndelegate={() => void state.undelegateTaskById(taskId)}
+                  onStatusChange={(status) => void state.setTaskStatusById(taskId, status)}
+                />
+              );
+            }}
           />
         ) : (
           <TaskBoardSettingsView

@@ -225,6 +225,29 @@ export function useTaskBoardPageState() {
       handle(async () => {
         await mutations.deleteTask({ id });
       }),
+    delegateTaskById: (taskId: string, agentRegistryId: string) =>
+      handle(async () => {
+        setDelegating(true);
+        try {
+          await mutations.delegateTask({ taskId, agentRegistryId });
+        } finally {
+          setDelegating(false);
+        }
+      }),
+    undelegateTaskById: (taskId: string) =>
+      handle(async () => {
+        await mutations.undelegateTask({ taskId });
+      }),
+    setTaskStatusById: (taskId: string, status: SettableTaskStatus) =>
+      handle(async () => {
+        await mutations.setTaskStatus({ id: taskId, status, reason: `manual: set to ${status}` });
+      }),
+    findOwnerAgent: (ownerId: string | null) => {
+      if (ownerId === null) {
+        return null;
+      }
+      return agents.values().find((entry) => entry.id === ownerId) ?? null;
+    },
     deletePool: (poolId: string) =>
       handle(async () => {
         await mutations.deletePool({ id: poolId });
