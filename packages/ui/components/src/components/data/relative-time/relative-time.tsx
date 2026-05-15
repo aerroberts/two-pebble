@@ -26,7 +26,7 @@ export function RelativeTime(props: RelativeTimeProps) {
 
   if (date === null || typeof date === 'undefined') {
     return (
-      <span className="inline-flex rounded-sm px-2 py-1 text-xs text-content-muted" {...timeProps}>
+      <span className="inline-flex rounded-md px-2 py-1 text-xs text-content-muted" {...timeProps}>
         —
       </span>
     );
@@ -34,7 +34,7 @@ export function RelativeTime(props: RelativeTimeProps) {
 
   if (!parsedDate) {
     return (
-      <span className="inline-flex rounded-sm px-2 py-1 text-xs text-content-muted" {...timeProps}>
+      <span className="inline-flex rounded-md px-2 py-1 text-xs text-content-muted" {...timeProps}>
         Invalid date
       </span>
     );
@@ -49,8 +49,8 @@ export function RelativeTime(props: RelativeTimeProps) {
   });
   const relativeValue = formatRelativeTime(parsedDate.getTime(), now);
   const className = silent
-    ? 'inline-flex items-center rounded-sm px-1.5 py-0.5 text-sm text-content'
-    : 'inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-sm text-content transition-colors hover:bg-accent/[0.08]';
+    ? 'inline-flex items-center rounded-md px-1.5 py-0.5 text-sm text-content'
+    : 'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm text-content transition-colors hover:bg-accent/[0.08]';
 
   if (silent) {
     return (

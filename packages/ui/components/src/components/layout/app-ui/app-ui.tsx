@@ -101,7 +101,7 @@ const BOX_CLASSES: Record<AppBoxVariant, string> = {
   'task-detail-actions': 'shrink-0',
   'task-detail-header': 'flex items-start justify-between gap-3 pb-3',
   'task-detail-title': 'min-w-0 flex-1 truncate text-sm font-medium text-content',
-  'voice-pill': 'inline-flex items-center gap-1 rounded-sm bg-accent px-2 text-accent-content',
+  'voice-pill': 'inline-flex items-center gap-1 rounded-md bg-accent px-2 text-accent-content',
 };
 
 const BUTTON_CLASSES: Record<AppButtonVariant, string> = {

@@ -13,7 +13,7 @@ export function InputArea(props: InputAreaProps) {
     <label className={wrapperClass}>
       {label ? <span className="text-[12px] font-medium leading-4 text-content">{label}</span> : null}
       <div
-        className={`flex rounded-sm border border-border bg-surface transition-colors focus-within:border-accent ${disabledClass}`}
+        className={`flex rounded-md border border-border bg-surface transition-colors focus-within:border-accent ${disabledClass}`}
       >
         <textarea
           className="h-full w-full min-h-[5rem] bg-transparent px-2 py-1.5 text-[12px] font-medium leading-4 text-content outline-none placeholder:text-content-muted resize-y"

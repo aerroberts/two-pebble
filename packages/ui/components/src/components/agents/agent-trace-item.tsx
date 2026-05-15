@@ -56,7 +56,7 @@ export function AgentTraceItem(props: AgentTraceItemProps) {
       {props.onClick ? (
         <button
           type="button"
-          className="w-full cursor-pointer rounded-sm text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+          className="w-full cursor-pointer rounded-md text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           onClick={props.onClick}
         >
           {summary}

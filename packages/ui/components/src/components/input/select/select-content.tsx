@@ -13,7 +13,7 @@ const drawerItemClass =
   'cursor-pointer rounded-md px-3 py-3 text-[13px] font-medium leading-5 text-content outline-none data-[highlighted]:bg-surface-hover data-[state=checked]:bg-accent/[0.12] data-[state=checked]:text-accent';
 
 const popoverItemClass =
-  'cursor-pointer rounded-sm px-2 py-1.5 text-[12px] font-medium leading-4 text-content outline-none data-[highlighted]:bg-surface-hover data-[state=checked]:bg-accent/[0.12] data-[state=checked]:text-accent';
+  'cursor-pointer rounded-md px-2 py-1.5 text-[12px] font-medium leading-4 text-content outline-none data-[highlighted]:bg-surface-hover data-[state=checked]:bg-accent/[0.12] data-[state=checked]:text-accent';
 
 export function SelectContent(props: SelectContentProps) {
   const [isMobile, setIsMobile] = useState(false);
@@ -29,7 +29,7 @@ export function SelectContent(props: SelectContentProps) {
   const useDrawer = props.mobilePresentation === 'drawer' && isMobile;
   const contentClassName = useDrawer
     ? 'fixed inset-x-0 bottom-0 z-[1100] max-h-[70vh] overflow-hidden rounded-t-lg border border-border bg-surface pb-2 shadow-modal transition-[opacity,transform] duration-200 data-[state=open]:translate-y-0 data-[state=closed]:translate-y-4 data-[state=closed]:opacity-0'
-    : 'z-[1100] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-sm border border-border bg-surface pb-1 shadow-lg';
+    : 'z-[1100] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-border bg-surface pb-1 shadow-lg';
   const viewportClassName = useDrawer ? 'min-h-0 p-2' : 'min-h-0 p-1';
   const itemClassName = useDrawer ? drawerItemClass : popoverItemClass;
 

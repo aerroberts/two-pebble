@@ -30,7 +30,7 @@ export function CodeBlock(props: CodeBlockProps) {
   };
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-sm border border-border bg-surface">
+    <div className="w-full min-w-0 overflow-hidden rounded-md border border-border bg-surface">
       {props.title ? (
         <div className="flex items-center justify-between bg-surface px-3 py-1.5">
           <span className="truncate font-mono text-xs text-content-muted">{props.title}</span>

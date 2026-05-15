@@ -24,7 +24,7 @@ export function Input(props: InputProps) {
     <label className={wrapperClass}>
       {label ? <span className="text-[12px] font-medium leading-4 text-content">{label}</span> : null}
       <div
-        className={`flex h-7 items-center rounded-sm border border-border bg-surface transition-colors focus-within:border-accent ${disabledClass}`}
+        className={`flex h-7 items-center rounded-md border border-border bg-surface transition-colors focus-within:border-accent ${disabledClass}`}
       >
         {leadingIcon ? (
           <div className="pl-2.5 text-content-muted [&_svg]:h-3.5 [&_svg]:w-3.5">

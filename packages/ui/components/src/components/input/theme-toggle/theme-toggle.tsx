@@ -27,7 +27,7 @@ export function ThemeToggle(props: ThemeToggleProps) {
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-sm border border-border bg-border">
+    <div className="w-full overflow-hidden rounded-md border border-border bg-border">
       <div className="grid grid-cols-4 gap-px">
         {themes.map((item) => {
           const selected = item.name === theme;

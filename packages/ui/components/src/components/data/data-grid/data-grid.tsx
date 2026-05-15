@@ -38,7 +38,7 @@ export function DataGrid(props: DataGridProps) {
   const emptyCellKeys = Array.from({ length: emptyCount }, (_, index) => `empty-col-${entries.length + index}`);
 
   return (
-    <div className="w-full overflow-hidden rounded-sm bg-surface">
+    <div className="w-full overflow-hidden rounded-md bg-surface">
       <div style={gridStyle}>
         {entries.map(([label, value]) => {
           return (
