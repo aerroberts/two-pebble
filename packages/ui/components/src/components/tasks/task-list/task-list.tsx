@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../../content/icon/icon';
 import { Select, type SelectOption } from '../../input/select/select';
 import { TaskStatusIcon } from '../task-status-icon/task-status-icon';
@@ -36,6 +36,14 @@ export interface TaskListProps {
   onCreateTaskAfter?: (input: TaskListCreateAfterInput) => Promise<string | undefined>;
   onDeleteTask?: (taskId: string) => void;
   templateOptions?: SelectOption[];
+  /**
+   * Optional trailing accessory rendered to the right of each task row.
+   * Used by the task board page to embed delegation + status controls
+   * inline so users can drive task state without opening the detail
+   * sidebar. The accessory only renders when this prop is provided —
+   * usages without controls (e.g. read-only embeds) stay unchanged.
+   */
+  renderTaskAccessory?: (taskId: string) => ReactNode;
 }
 
 export function TaskList(props: TaskListProps) {
@@ -131,6 +139,7 @@ export function TaskList(props: TaskListProps) {
           onDeleteEmpty={handleDeleteEmpty}
           onEnter={handleEnter}
           onMoveFocus={moveFocus}
+          renderTaskAccessory={props.renderTaskAccessory}
         />
       ))}
       {canCreate ? (
@@ -170,6 +179,7 @@ interface TaskListNodeRowProps {
   onDeleteEmpty: (taskId: string) => void;
   onEnter: (taskId: string) => void;
   onMoveFocus: (taskId: string, offset: number) => void;
+  renderTaskAccessory: ((taskId: string) => ReactNode) | undefined;
 }
 
 function TaskListNodeRow(props: TaskListNodeRowProps) {
@@ -188,6 +198,7 @@ function TaskListNodeRow(props: TaskListNodeRowProps) {
         onMoveFocus={props.onMoveFocus}
         onRenameTask={props.onRenameTask}
         onSelectTask={props.onSelectTask}
+        renderTaskAccessory={props.renderTaskAccessory}
       />
     );
   }
@@ -218,6 +229,7 @@ function TaskListNodeRow(props: TaskListNodeRowProps) {
               onDeleteEmpty={props.onDeleteEmpty}
               onEnter={props.onEnter}
               onMoveFocus={props.onMoveFocus}
+              renderTaskAccessory={props.renderTaskAccessory}
             />
           ))}
         </ul>
@@ -236,6 +248,7 @@ interface TaskListCellRowProps {
   onDeleteEmpty: (taskId: string) => void;
   onEnter: (taskId: string) => void;
   onMoveFocus: (taskId: string, offset: number) => void;
+  renderTaskAccessory: ((taskId: string) => ReactNode) | undefined;
 }
 
 function TaskListCellRow(props: TaskListCellRowProps) {
@@ -290,6 +303,7 @@ function TaskListCellRow(props: TaskListCellRowProps) {
     }
   };
 
+  const accessory = props.renderTaskAccessory?.(node.id);
   return (
     <li>
       <div
@@ -301,7 +315,7 @@ function TaskListCellRow(props: TaskListCellRowProps) {
         <input
           ref={setRef}
           aria-label="Task name"
-          className="flex-1 truncate bg-transparent font-heading font-normal tracking-[0.08em] text-current outline-none"
+          className="min-w-0 flex-1 truncate bg-transparent font-heading font-normal tracking-[0.08em] text-current outline-none"
           onBlur={commitRename}
           onChange={(event) => setDraft(event.target.value)}
           onFocus={() => props.onSelectTask?.(node.id)}
@@ -309,6 +323,7 @@ function TaskListCellRow(props: TaskListCellRowProps) {
           placeholder="Untitled"
           value={draft}
         />
+        {accessory ? <div className="flex shrink-0 items-center gap-1.5">{accessory}</div> : null}
       </div>
     </li>
   );
