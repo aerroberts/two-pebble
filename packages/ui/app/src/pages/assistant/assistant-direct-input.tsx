@@ -118,7 +118,12 @@ export function AssistantDirectInputControl(props: AssistantDirectInputControlPr
         />
         <div className="mt-2 flex justify-end gap-2">
           <IconButton aria-label="Close text input" icon="x" onClick={handleCancelText} variant="secondary" />
-          <IconButton aria-label="Send message" disabled={sendDisabled} icon="send" onClick={() => void handleSubmit()} />
+          <IconButton
+            aria-label="Send message"
+            disabled={sendDisabled}
+            icon="send"
+            onClick={() => void handleSubmit()}
+          />
         </div>
       </div>
     </div>

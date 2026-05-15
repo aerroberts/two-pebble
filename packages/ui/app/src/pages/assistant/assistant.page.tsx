@@ -1,9 +1,9 @@
 import {
   AgentRunningIndicator,
   AgentTrace,
-  Button,
   ChatPageLayout,
   Header,
+  IconButton,
   InputArea,
   PageLayout,
   Row,
@@ -170,13 +170,27 @@ export function AssistantPage() {
 
   const resetControl =
     state.agentId === null ? null : (
-      <Button leftIcon="refresh-cw" onClick={() => void requestReset()}>
-        Reset context
-      </Button>
+      <IconButton
+        aria-label="Reset Assistant context"
+        icon="refresh-cw"
+        onClick={() => void requestReset()}
+        title="Reset Assistant context"
+        variant="secondary"
+      />
     );
 
+  const headerActions = (
+    <Row gap="sm">
+      {tabs}
+      {resetControl}
+    </Row>
+  );
+
   const header = (
-    <Header actionItems={tabs} subtitle="Talk to your saved Assistant agent. The conversation persists across visits.">
+    <Header
+      actionItems={headerActions}
+      subtitle="Talk to your saved Assistant agent. The conversation persists across visits."
+    >
       Assistant
     </Header>
   );
@@ -228,11 +242,6 @@ export function AssistantPage() {
                 sendChatMessage={sendDirectMessage}
                 setChatDraft={state.setChatDraft}
               />
-              {resetControl !== null ? (
-                <div className="mt-3 flex justify-center">
-                  <Row gap="sm">{resetControl}</Row>
-                </div>
-              ) : null}
             </div>
           </div>
 
@@ -286,7 +295,6 @@ export function AssistantPage() {
             }
           }}
         />
-        {resetControl}
       </Row>
     </div>
   );
