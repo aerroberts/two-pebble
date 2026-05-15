@@ -105,13 +105,21 @@ function renderSidebarContent(
   return (
     <>
       <SidebarSection title={<TwoPebbleLogo withText text={getPageName(pathname)} />} />
-      <SidebarSection title="Two Pebble">
+      <SidebarSection title="Home">
+        <SidebarOption
+          active={pathname === '/'}
+          icon="layout-dashboard"
+          label="Overview"
+          onClick={() => navigate('/')}
+        />
         <SidebarOption
           active={pathname.startsWith('/assistant')}
           icon="messages-square"
           label="Assistant"
           onClick={() => navigate('/assistant')}
         />
+      </SidebarSection>
+      <SidebarSection title="System">
         <SidebarOption
           active={pathname.startsWith('/agents') || pathname.startsWith('/threads')}
           badge={
@@ -141,7 +149,7 @@ function renderSidebarContent(
             ) : undefined
           }
           icon="list-checks"
-          label="Tasks"
+          label="Agent Tasks"
           onClick={() => navigate('/tasks')}
         />
         <SidebarOption
@@ -179,6 +187,7 @@ function isHomeActive(pathname: string): boolean {
     return true;
   }
   return (
+    pathname.startsWith('/assistant') ||
     pathname.startsWith('/agents') ||
     pathname.startsWith('/threads') ||
     pathname.startsWith('/tasks') ||
