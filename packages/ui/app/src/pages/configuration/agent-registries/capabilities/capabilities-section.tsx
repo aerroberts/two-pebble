@@ -47,22 +47,20 @@ function CapabilityRow(props: CapabilityRowProps) {
   const handleAttach = () => props.onSetCapabilityConfig(capability.id, capability.defaultConfig);
   const handleRemove = () => props.onRemoveCapability(capability.id);
   const handleChange = (next: CapabilityConfigValue) => props.onSetCapabilityConfig(capability.id, next);
+  const actionButton = attached ? (
+    <Button leftIcon="x" onClick={handleRemove} type="button" variant="secondary">
+      Remove
+    </Button>
+  ) : (
+    <Button leftIcon="plus" onClick={handleAttach} type="button" variant="primary">
+      Add
+    </Button>
+  );
+  // Once a capability is attached the description is just visual noise —
+  // the user already knows what they turned on. Showing only the inline
+  // editor (if any) keeps the attached state compact and focused.
   return (
-    <Section
-      actionItems={
-        attached ? (
-          <Button leftIcon="x" onClick={handleRemove} type="button" variant="secondary">
-            Remove
-          </Button>
-        ) : (
-          <Button leftIcon="plus" onClick={handleAttach} type="button" variant="primary">
-            Add
-          </Button>
-        )
-      }
-      title={capability.title}
-    >
-      <Surface>{capability.description}</Surface>
+    <Section actionItems={actionButton} subtitle={capability.description} title={capability.title}>
       {attached && capability.Editor ? <capability.Editor config={config} onChange={handleChange} /> : null}
     </Section>
   );
