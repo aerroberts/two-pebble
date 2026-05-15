@@ -2,6 +2,7 @@ import type { PebbleAgent } from '../agent/agents/pebble-agent';
 import { AgentExitHook } from '../agent/hooks/agent-exit-hook';
 import { EarlyExit } from '../agent/hooks/early-exit';
 import type { AgentSignal, RegisterSignalInput, ResolveSignalInput, SendSignalInput } from '../agent/signal-runner';
+import type { AgentStatus } from '../agent/types';
 import type { PebbleJsonValue } from '../types';
 import type { CapabilityState, RegisterHookResult } from './agent-capability.types';
 import { getCapabilityRunners } from './runners';
@@ -101,6 +102,15 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
   public hookOnEarlyExit() {
     return EarlyExit.notPossible('Default: capability may have actions, default to no early exit');
   }
+
+  /**
+   * Notifies the capability that the owning agent's lifecycle status has
+   * changed. Fires after the status has been recorded and the agent's
+   * `'status'` event has been emitted. Lets capabilities react to
+   * pause/resume edges (e.g. running → waiting → running) without each one
+   * wiring its own emitter listener.
+   */
+  public hookOnAgentStatusChange(_prev: AgentStatus, _next: AgentStatus): void {}
 
   /**
    * Declares a named state slot with a default value. Returns a handle

@@ -1,9 +1,18 @@
-import { AppBox, AppTextarea, Button, Select, type SelectOption } from '@two-pebble/components';
+import {
+  AppBox,
+  AppTextarea,
+  Button,
+  Select,
+  type SelectOption,
+  TaskStatusIcon,
+  type TaskStatusIconStatus,
+} from '@two-pebble/components';
 import type { ReactNode } from 'react';
 
 export interface TaskDetailSidebarTask {
   id: string;
   name: string;
+  status: TaskStatusIconStatus;
 }
 
 export interface TaskDetailSidebarOwnerAgent {
@@ -24,12 +33,21 @@ export interface TaskDetailSidebarProps {
   onOpenAgent: (agentId: string) => void;
 }
 
+const STATUS_LABEL: Record<TaskStatusIconStatus, string> = {
+  blocked: 'Blocked',
+  open: 'Open',
+  working: 'Working',
+  waiting: 'Waiting',
+  success: 'Done',
+  failure: 'Failed',
+};
+
 /**
- * Read-only detail view rendered into the right-hand task panel. The task
- * name is rendered as plain text — editing happens in the list view. The
- * panel keeps to a tight column: name on the left, delegate control on
- * the right, and a minimalist description textarea below. No status,
- * dependencies, blocks, or event log here.
+ * Detail view rendered into the right-hand task panel. The task name is
+ * rendered as plain text — editing happens in the list view. The panel
+ * keeps to a tight column: name on the left, delegate control on the
+ * right, a status + ownership row below that, and a minimalist
+ * description textarea at the bottom.
  */
 export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
   return (
@@ -40,6 +58,13 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         </AppBox>
         <AppBox variant="task-detail-actions">{renderDelegateControl(props)}</AppBox>
       </AppBox>
+      <AppBox variant="controls-row">
+        <AppBox variant="controls-row">
+          <TaskStatusIcon status={props.task.status} size="sm" />
+          <span>{STATUS_LABEL[props.task.status]}</span>
+        </AppBox>
+        {props.ownerAgent !== null ? renderOwnerSummary(props) : null}
+      </AppBox>
       <AppTextarea
         ariaLabel="Task description"
         onBlur={props.onDescriptionSave}
@@ -48,6 +73,21 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         value={props.descriptionDraft}
       />
     </>
+  );
+}
+
+function renderOwnerSummary(props: TaskDetailSidebarProps): ReactNode {
+  const owner = props.ownerAgent;
+  if (owner === null) {
+    return null;
+  }
+  return (
+    <AppBox variant="controls-row">
+      <span>Owned by</span>
+      <Button leftIcon="bot" onClick={() => props.onOpenAgent(owner.id)} variant="secondary">
+        {owner.name}
+      </Button>
+    </AppBox>
   );
 }
 

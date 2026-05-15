@@ -1,4 +1,5 @@
 import type { Datastore } from '@two-pebble/datastore';
+import { Events } from '@two-pebble/events';
 import type { Logger } from '@two-pebble/logger';
 import type { Agent } from '@two-pebble/pebble';
 import { Cell, PebbleAgent } from '@two-pebble/pebble';
@@ -12,7 +13,7 @@ import { rehydrateAgent } from './agent-registry-rehydrate';
 import { repairBlockedSubAgentAskSignal, repairBlockedSubAgentAskSignals } from './agent-registry-signal-repair';
 import { interruptStaleRunningAgents, persistAgentMetadata } from './agent-registry-status';
 import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
-import type { LaunchAgentInput, RunAgentInput } from './agent-registry-types';
+import type { AgentRegistryServiceEventMap, LaunchAgentInput, RunAgentInput } from './agent-registry-types';
 import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
@@ -43,6 +44,13 @@ export class AgentRegistryService {
   private readonly pendingRehydrations = new Map<string, Promise<Agent>>();
   private coordinator: SubAgentCoordinator | undefined;
 
+  /**
+   * In-process emitter the dispatcher subscribes to so it can react to
+   * agent lifecycle edges (terminal status frees a slot; running occupies
+   * one). Status changes routed through `persistAgentStatus` fire here.
+   */
+  public readonly events = new Events<AgentRegistryServiceEventMap>();
+
   public constructor(context: AgentRegistryServiceContext) {
     this.datastore = context.datastore;
     this.logger = context.logger;
@@ -68,6 +76,7 @@ export class AgentRegistryService {
     this.deactivate(input.agentId);
     const updated = await this.datastore.agent.setStatus({ id: input.agentId, status: 'offline' });
     this.multicastBridge.emit('agentRecorded', updated);
+    this.events.emit('agentStatusChanged', { agentId: input.agentId, status: 'offline' });
   }
 
   /**
@@ -105,6 +114,7 @@ export class AgentRegistryService {
     this.deactivate(agentId);
     const updated = await this.datastore.agent.setStatus({ id: agentId, status: 'interrupted' });
     this.multicastBridge.emit('agentRecorded', updated);
+    this.events.emit('agentStatusChanged', { agentId, status: 'interrupted' });
     this.logger.warn('agent interrupted', { agentId, reason });
   }
 
@@ -199,6 +209,9 @@ export class AgentRegistryService {
       logger: this.logger,
       pending: this.subAgentCreatePromises,
       taskBoards: this.taskBoards,
+      onStatusPersisted: (agentId, status) => {
+        this.events.emit('agentStatusChanged', { agentId, status });
+      },
     });
     installAgentPersistenceListeners({ context, input, nextOrderId });
     installSubAgentListeners({ context, input, nextOrderId });
@@ -310,6 +323,7 @@ export class AgentRegistryService {
       message: input.message,
       registry,
       ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
+      ...(input.extraCapabilities === undefined ? {} : { extraCapabilities: input.extraCapabilities }),
       ...profileIds,
       workspaceId: launchWorkspace.workspace.id,
     }).catch((error) => {
@@ -332,6 +346,9 @@ export class AgentRegistryService {
     let coordinator: SubAgentCoordinator | undefined;
     if (input.registry !== undefined) {
       coordinator = this.getCoordinator();
+      const registrySpecs = parseCapabilitySpecs(input.registry.capabilities, this.logger);
+      const combinedSpecs =
+        input.extraCapabilities === undefined ? registrySpecs : [...registrySpecs, ...input.extraCapabilities];
       installFreshLaunchAgent({
         agent: input.agent,
         agentId: input.agentId,
@@ -340,7 +357,7 @@ export class AgentRegistryService {
         coordinator,
         logger: this.logger,
         ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
-        specs: parseCapabilitySpecs(input.registry.capabilities, this.logger),
+        specs: combinedSpecs,
       });
     }
     if (input.parentAgentId !== undefined) {

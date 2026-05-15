@@ -56,6 +56,13 @@ export interface TaskBoardSetTaskStatusInput {
   reason: string;
 }
 
+export interface TaskBoardSetOwnedTaskStatusInput {
+  agentId: string;
+  taskId: string;
+  status: SettableTaskStatus;
+  reason: string;
+}
+
 export interface TaskBoardDeleteTaskInput {
   boardId: string;
   taskId: string;
@@ -96,6 +103,7 @@ export interface TaskBoardRunner {
   renameTask(input: TaskBoardRenameTaskInput): Promise<void>;
   updateTaskDescription(input: TaskBoardUpdateTaskDescriptionInput): Promise<void>;
   setTaskStatus(input: TaskBoardSetTaskStatusInput): Promise<void>;
+  setOwnedTaskStatus(input: TaskBoardSetOwnedTaskStatusInput): Promise<void>;
   deleteTask(input: TaskBoardDeleteTaskInput): Promise<void>;
   createPool(input: TaskBoardCreatePoolInput): Promise<{ id: string }>;
   deletePool(input: TaskBoardDeletePoolInput): Promise<void>;

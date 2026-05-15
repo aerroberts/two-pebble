@@ -59,7 +59,11 @@ export function TaskBoardPage() {
 
   const detailPanel = state.selectedTask ? (
     <TaskDetailSidebar
-      task={{ id: state.selectedTask.id, name: state.selectedTask.name }}
+      task={{
+        id: state.selectedTask.id,
+        name: state.selectedTask.name,
+        status: state.selectedTask.effectiveStatus,
+      }}
       ownerAgent={state.selectedOwnerAgent}
       descriptionDraft={state.taskDescriptionDraft}
       onDescriptionChange={(value: string) => state.setTaskDescriptionDraft(value)}
@@ -121,12 +125,17 @@ export function TaskBoardPage() {
           />
         ) : (
           <TaskBoardSettingsView
+            boardId={state.boardId}
             boardNameDraft={state.boardNameDraft}
             onBoardNameChange={(value: string) => state.setBoardNameDraft(value)}
             onBoardNameSave={() => void state.saveBoardName()}
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
             onDeleteBoard={() => void state.deleteBoard()}
+            boardDispatchSettings={state.boardDispatchSettings}
+            poolDispatchSettings={state.poolDispatchSettings}
+            agentRegistries={state.agentRegistries.map((entry) => ({ id: entry.id, name: entry.name }))}
+            onSaveDispatchSettings={(input) => void state.saveDispatchSettings(input)}
           />
         )}
       </WorkbenchPageLayout>

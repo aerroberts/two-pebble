@@ -9,6 +9,10 @@ import type { Logger } from '@two-pebble/logger';
 import type { TaskEventRecord as ProtocolTaskEventRecord, ProtocolTaskRecord } from '@two-pebble/protocol';
 import type { SettableTaskStatus } from '@two-pebble/tasks';
 
+export type TaskBoardServiceEventMap = {
+  boardChanged: [{ boardId: string }];
+};
+
 export interface TaskBoardServiceContext {
   datastore: Datastore;
   logger: Logger;
@@ -40,6 +44,13 @@ export interface CreateTaskInput {
 
 export interface SetTaskStatusInput {
   id: string;
+  status: SettableTaskStatus;
+  reason: string;
+}
+
+export interface SetTaskStatusAsAgentInput {
+  taskId: string;
+  agentId: string;
   status: SettableTaskStatus;
   reason: string;
 }

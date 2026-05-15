@@ -9,14 +9,30 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     const task = await findTask(ctx, payload.taskId);
     const registry = await ctx.datastore.agentRegistries.read({ id: payload.agentRegistryId });
-    const message = buildDelegateMessage(task.name, task.description ?? '');
+    const taskDescription = task.description ?? '';
     const launched = await ctx.agentRegistry.launch({
       agentRegistryId: payload.agentRegistryId,
-      message,
+      message: 'Please complete the assigned task.',
+      extraCapabilities: [
+        {
+          id: 'task-lifecycle',
+          config: {
+            taskId: task.id,
+            boardId: task.boardId,
+            taskName: task.name,
+            taskDescription,
+          },
+        },
+      ],
     });
     const taskAssignedTrace = await ctx.datastore.agent.traces.record({
       agentId: launched.id,
-      data: { taskId: task.id, taskName: task.name, boardId: task.boardId },
+      data: {
+        taskId: task.id,
+        taskName: task.name,
+        taskDescription,
+        boardId: task.boardId,
+      },
       id: crypto.randomUUID(),
       orderId: 0,
       type: 'task-assigned',
@@ -69,12 +85,4 @@ async function findTask(ctx: DaemonHandlerContext, taskId: string): Promise<Mini
     }
   }
   throw new Error(`task "${taskId}" not found`);
-}
-
-function buildDelegateMessage(name: string, description: string): string {
-  const lines = [`Please do this task: ${name}`];
-  if (description.trim().length > 0) {
-    lines.push('', description);
-  }
-  return lines.join('\n');
 }

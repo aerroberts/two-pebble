@@ -9,6 +9,7 @@ import { LivenessReconciler } from './services/liveness-reconciler';
 import { MulticastBridge } from './services/multicast-bridge';
 import { asDaemonBridge } from './services/multicast-bridge-cast';
 import { TaskBoardService } from './services/task-board-service';
+import { TaskDispatcherService } from './services/task-dispatcher';
 import type {
   AgentLivenessPayload,
   DaemonBridge,
@@ -36,6 +37,7 @@ export class TwoPebbleDaemon {
   private datastore?: Datastore;
   private server?: DaemonServer;
   private reconciler?: LivenessReconciler;
+  private taskDispatcher?: TaskDispatcherService;
 
   public constructor(input: TwoPebbleDaemonInput) {
     logger.useSink(
@@ -85,6 +87,14 @@ export class TwoPebbleDaemon {
     });
     await agentRegistry.hydrate();
     await taskBoards.hydrate();
+    const taskDispatcher = new TaskDispatcherService({
+      agentRegistry,
+      bridge: multicastBridge,
+      datastore: this.datastore,
+      logger,
+      taskBoards,
+    });
+    this.taskDispatcher = taskDispatcher;
     this.context = {
       agentRegistry,
       databaseFilePath,
@@ -94,7 +104,9 @@ export class TwoPebbleDaemon {
       multicastBridge,
       port: this.server.port,
       taskBoards,
+      taskDispatcher,
     };
+    await taskDispatcher.start();
     this.server.onClientConnected((bridge) => this.connect(bridge));
     this.server.onClientDisconnected((bridge) => this.disconnect(bridge));
     this.reconciler = new LivenessReconciler({
@@ -159,6 +171,7 @@ export class TwoPebbleDaemon {
   public async close(): Promise<void> {
     logger.info('ws server closing');
     metrics.shutdown();
+    this.taskDispatcher?.stop();
     this.reconciler?.stop();
     this.server?.close();
     if (this.datastore !== undefined) {

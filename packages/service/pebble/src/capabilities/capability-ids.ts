@@ -3,6 +3,7 @@ export const knownCapabilityIds = [
   'progressive-task-list',
   'sub-agent',
   'task-board-access',
+  'task-lifecycle',
   'workspace-access',
   'counter',
 ] as const;

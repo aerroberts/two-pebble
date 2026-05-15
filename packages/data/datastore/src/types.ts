@@ -26,6 +26,7 @@ import type {
   repositoriesTable,
   taskBoardsTable,
   taskDependenciesTable,
+  taskDispatchSettingsTable,
   taskEventsTable,
   taskPoolsTable,
   tasksTable,
@@ -90,6 +91,7 @@ export interface DatastoreSchema extends Record<string, object> {
   repositoriesTable: typeof repositoriesTable;
   taskBoardsTable: typeof taskBoardsTable;
   taskDependenciesTable: typeof taskDependenciesTable;
+  taskDispatchSettingsTable: typeof taskDispatchSettingsTable;
   taskEventsTable: typeof taskEventsTable;
   taskPoolsTable: typeof taskPoolsTable;
   tasksTable: typeof tasksTable;
@@ -259,6 +261,20 @@ export interface TaskDependencyRecord {
   boardId: string;
   fromId: string;
   toId: string;
+}
+
+export type TaskDispatchScopeKind = 'board' | 'pool';
+export type TaskDispatchMode = 'manual' | 'automatic';
+
+export interface TaskDispatchSettingsRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  scopeKind: TaskDispatchScopeKind;
+  scopeId: string;
+  concurrency: number;
+  dispatchMode: TaskDispatchMode;
+  autoAgentRegistryId: string | null;
 }
 
 export interface TaskEventRecord {

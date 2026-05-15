@@ -1,7 +1,8 @@
 import type { Datastore } from '@two-pebble/datastore';
+import { Events } from '@two-pebble/events';
 import type { Logger } from '@two-pebble/logger';
 import type { ProtocolTaskRecord } from '@two-pebble/protocol';
-import { TaskBoard } from '@two-pebble/tasks';
+import { TaskBoard, TaskOwnershipError } from '@two-pebble/tasks';
 import { rowToProtocolEvent } from './task-board-event-mapping';
 import { toProtocolTask } from './task-board-protocol-task';
 import { hydrateTaskBoard } from './task-board-service-hydration';
@@ -20,10 +21,12 @@ import type {
   RecordDelegationInput,
   RecordedTaskEvent,
   RecordUndelegationInput,
+  SetTaskStatusAsAgentInput,
   SetTaskStatusInput,
   SyncTasksFromAgentInput,
   SyncTasksFromAgentResult,
   TaskBoardServiceContext,
+  TaskBoardServiceEventMap,
   TaskMutationOutcome,
 } from './task-board-service-types';
 
@@ -37,6 +40,13 @@ export class TaskBoardService {
   private readonly datastore: Datastore;
   private readonly logger: Logger;
   private readonly engines = new Map<string, TaskBoard>();
+
+  /**
+   * In-process event emitter consumed by the dispatcher. Fires
+   * `boardChanged` after every state mutation that could shift the dispatch
+   * picture (new task, status change, ownership change, pool added, etc.).
+   */
+  public readonly events = new Events<TaskBoardServiceEventMap>();
 
   public constructor(context: TaskBoardServiceContext) {
     this.datastore = context.datastore;
@@ -63,6 +73,7 @@ export class TaskBoardService {
   public async createBoard(input: CreateBoardInput) {
     const record = await this.datastore.taskBoards.create({ name: input.name });
     this.engines.set(record.id, new TaskBoard(record.id));
+    this.events.emit('boardChanged', { boardId: record.id });
     return record;
   }
 
@@ -89,7 +100,9 @@ export class TaskBoardService {
    * track ownership so no engine call is needed.
    */
   public async setTaskOwner(id: string, ownerId: OwnerId) {
-    return this.datastore.taskBoards.tasks.setOwner({ id, ownerId });
+    const record = await this.datastore.taskBoards.tasks.setOwner({ id, ownerId });
+    this.events.emit('boardChanged', { boardId: record.boardId });
+    return record;
   }
 
   /**
@@ -209,6 +222,33 @@ export class TaskBoardService {
     );
     const engine = this.requireEngine(input.boardId);
     return { result: toProtocolTask(record, engine), events };
+  }
+
+  /**
+   * Owner-aware status mutation used by agent-initiated paths.
+   * Resolves the task across boards, asserts `task.ownerId === agentId`, then
+   * delegates to `setTaskStatus`. Throws `TaskOwnershipError` on mismatch so
+   * the tool layer can surface a precise reason. UI paths continue to call
+   * `setTaskStatus` directly and remain unrestricted by ownership.
+   */
+  public async setTaskStatusAsAgent(input: SetTaskStatusAsAgentInput): Promise<TaskMutationOutcome> {
+    const { items: boards } = await this.datastore.taskBoards.list({});
+    for (const board of boards) {
+      const { items: tasks } = await this.datastore.taskBoards.tasks.list({ boardId: board.id });
+      const found = tasks.find((task) => task.id === input.taskId);
+      if (found === undefined) {
+        continue;
+      }
+      if (found.ownerId !== input.agentId) {
+        throw new TaskOwnershipError(input.taskId, input.agentId, found.ownerId);
+      }
+      return this.setTaskStatus(board.id, {
+        id: input.taskId,
+        status: input.status,
+        reason: input.reason,
+      });
+    }
+    throw new Error(`task "${input.taskId}" not found`);
   }
 
   /**
@@ -379,6 +419,7 @@ export class TaskBoardService {
       });
       events.push(rowToProtocolEvent(row));
     }
+    this.events.emit('boardChanged', { boardId: context.boardId });
     return { result, events };
   }
 

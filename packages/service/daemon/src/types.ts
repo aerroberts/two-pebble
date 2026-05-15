@@ -12,6 +12,7 @@ import type {
 import type { AgentRegistryService } from './services/agent-registry-service';
 import type { LivenessReconciler } from './services/liveness-reconciler';
 import type { TaskBoardService } from './services/task-board-service';
+import type { TaskDispatcherService } from './services/task-dispatcher';
 
 export type DaemonBridge = Bridge<DaemonProtocol>;
 
@@ -52,6 +53,7 @@ export interface DaemonRuntimeContext {
   multicastBridge: DaemonBridge;
   port: number;
   taskBoards: TaskBoardService;
+  taskDispatcher: TaskDispatcherService;
   livenessReconciler?: LivenessReconciler;
 }
 

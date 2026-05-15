@@ -7,6 +7,10 @@ import { taskBoardsUpdateOperation } from '../operations/task-boards.update';
 import { taskDependenciesCreateOperation } from '../operations/task-dependencies.create';
 import { taskDependenciesDeleteOperation } from '../operations/task-dependencies.delete';
 import { taskDependenciesListOperation } from '../operations/task-dependencies.list';
+import { taskDispatchSettingsDeleteOperation } from '../operations/task-dispatch-settings.delete';
+import { taskDispatchSettingsListOperation } from '../operations/task-dispatch-settings.list';
+import { taskDispatchSettingsReadOperation } from '../operations/task-dispatch-settings.read';
+import { taskDispatchSettingsUpsertOperation } from '../operations/task-dispatch-settings.upsert';
 import { taskEventsListOperation } from '../operations/task-events.list';
 import { taskEventsRecordOperation } from '../operations/task-events.record';
 import { taskPoolsCreateOperation } from '../operations/task-pools.create';
@@ -58,6 +62,12 @@ export function bindTaskBoardOperationGroup(bind: DatastoreOperationBinder) {
     events: {
       list: bind(taskEventsListOperation, 'task-events.list'),
       record: bind(taskEventsRecordOperation, 'task-events.record'),
+    },
+    dispatchSettings: {
+      delete: bind(taskDispatchSettingsDeleteOperation, 'task-dispatch-settings.delete'),
+      list: bind(taskDispatchSettingsListOperation, 'task-dispatch-settings.list'),
+      read: bind(taskDispatchSettingsReadOperation, 'task-dispatch-settings.read'),
+      upsert: bind(taskDispatchSettingsUpsertOperation, 'task-dispatch-settings.upsert'),
     },
   };
 }

@@ -12,6 +12,7 @@ import type {
   PebbleAgentRestoredThread,
   PebbleAgentTrace,
   PebbleJsonRecord,
+  PebbleJsonValue,
   PricingLineItem,
   ProviderResult,
   SubAgentLifecycleEvent,
@@ -23,6 +24,15 @@ import type { DaemonBridge } from '../types';
 import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
 import type { TaskBoardService } from './task-board-service';
 
+export interface ExtraCapabilitySpec {
+  id: string;
+  config: PebbleJsonValue;
+}
+
+export type AgentRegistryServiceEventMap = {
+  agentStatusChanged: [{ agentId: string; status: AgentLifecycleStatus }];
+};
+
 export interface LaunchAgentInput {
   agentRegistryId: string;
   message: string;
@@ -33,6 +43,12 @@ export interface LaunchAgentInput {
    * the registry-declared capability list.
    */
   parentAgentId?: string;
+  /**
+   * Optional capability specs to attach in addition to whatever the
+   * registry row declares. Used by the dispatcher and delegate handler to
+   * bind `task-lifecycle` to a specific task at launch time.
+   */
+  extraCapabilities?: ExtraCapabilitySpec[];
 }
 
 export interface ResolvedLaunchWorkspace {
@@ -78,6 +94,12 @@ export interface RunAgentInput {
   inferenceProfileId?: string;
   integrationId?: string;
   workspaceId: string;
+  /**
+   * Carried from `LaunchAgentInput` so the fresh-launch installer can
+   * concat these onto the registry-declared spec list before capabilities
+   * are attached.
+   */
+  extraCapabilities?: ExtraCapabilitySpec[];
 }
 
 export type NextAgentTraceOrderId = () => number;

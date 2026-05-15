@@ -6,6 +6,11 @@ export type { MetricVariant } from './protocol/metrics.list-variants';
 export type { MetricAggregateBucket } from './protocol/metrics.query-aggregated';
 export type { TaskBoardRecord } from './protocol/task-boards.list';
 export type { TaskDependencyRecord } from './protocol/task-dependencies.list';
+export type {
+  TaskDispatchSettingsMode,
+  TaskDispatchSettingsRecord,
+  TaskDispatchSettingsScopeKind,
+} from './protocol/task-dispatch-settings.read';
 export type { TaskPoolRecord } from './protocol/task-pools.list';
 export type { ProtocolTaskRecord } from './protocol/tasks.list';
 export type {

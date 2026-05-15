@@ -32,6 +32,12 @@ interface PersistStatusInput extends PersistAgentStatusInput {
   logger: Logger;
   activeAgents: Map<string, Agent>;
   taskBoards: TaskBoardService;
+  /**
+   * Optional hook called after the new status row is persisted. Used by
+   * the registry service to fan the change out to in-process subscribers
+   * such as the task dispatcher.
+   */
+  onStatusPersisted?: (agentId: string, status: PersistAgentStatusInput['status']) => void;
 }
 
 /**
@@ -48,6 +54,7 @@ export async function persistAgentStatus(input: PersistStatusInput): Promise<voi
     const updated = await input.datastore.agent.setStatus({ id: input.agentId, status: input.status });
     updatedName = updated.name;
     input.bridge.emit('agentRecorded', updated);
+    input.onStatusPersisted?.(input.agentId, input.status);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     input.logger.warn('agent status write failed', { agentId: input.agentId, error: message });

@@ -18,6 +18,7 @@
   "dependencies": {
     "@two-pebble/datastore": "workspace:*",
     "@two-pebble/datatypes": "workspace:*",
+    "@two-pebble/events": "workspace:*",
     "@two-pebble/logger": "workspace:*",
     "@two-pebble/metrics": "workspace:*",
     "@two-pebble/names": "workspace:*",

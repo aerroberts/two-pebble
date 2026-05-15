@@ -8,6 +8,7 @@ import type {
   TaskBoardEventRecord,
   TaskBoardRenameTaskInput,
   TaskBoardRunner,
+  TaskBoardSetOwnedTaskStatusInput,
   TaskBoardSetTaskStatusInput,
   TaskBoardSnapshot,
   TaskBoardUpdateTaskDescriptionInput,
@@ -109,6 +110,27 @@ export class DaemonTaskBoardRunner implements TaskBoardRunner {
     this.broadcastEvents(events);
     this.bridge.emit('taskUpdated', result);
     const refreshed = await this.taskBoards.listTasks(input.boardId);
+    for (const task of refreshed) {
+      this.bridge.emit('taskUpdated', task);
+    }
+  }
+
+  /**
+   * Sets task status from an agent context, asserting the caller owns the
+   * task. Throws `TaskOwnershipError` from the underlying service when the
+   * caller is not the owner so the calling tool surfaces the mismatch to
+   * the model.
+   */
+  public async setOwnedTaskStatus(input: TaskBoardSetOwnedTaskStatusInput): Promise<void> {
+    const { result, events } = await this.taskBoards.setTaskStatusAsAgent({
+      taskId: input.taskId,
+      agentId: input.agentId,
+      status: input.status,
+      reason: input.reason,
+    });
+    this.broadcastEvents(events);
+    this.bridge.emit('taskUpdated', result);
+    const refreshed = await this.taskBoards.listTasks(result.boardId);
     for (const task of refreshed) {
       this.bridge.emit('taskUpdated', task);
     }

@@ -45,6 +45,7 @@ export type {
   TaskBoardPoolNode,
   TaskBoardRenameTaskInput,
   TaskBoardRunner,
+  TaskBoardSetOwnedTaskStatusInput,
   TaskBoardSetTaskStatusInput,
   TaskBoardSnapshot,
   TaskBoardTaskNode,

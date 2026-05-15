@@ -14,6 +14,10 @@ interface BuildAgentListenerContextInput {
   logger: Logger;
   pending: SubAgentCreatePromiseMap;
   taskBoards: TaskBoardService;
+  onStatusPersisted?: (
+    agentId: string,
+    status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed',
+  ) => void;
 }
 
 /**
@@ -32,6 +36,7 @@ export function buildAgentListenerContext(input: BuildAgentListenerContextInput)
         datastore: input.datastore,
         logger: input.logger,
         taskBoards: input.taskBoards,
+        ...(input.onStatusPersisted === undefined ? {} : { onStatusPersisted: input.onStatusPersisted }),
       }),
     recordConversationCell: (cellInput) => recordConversationCell(input.datastore, cellInput),
     recordModelCall: (callInput) => recordModelCall(input.datastore, callInput),

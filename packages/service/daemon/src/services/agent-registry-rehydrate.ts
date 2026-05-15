@@ -8,6 +8,7 @@ import { buildLaunchAgent } from './build-launch-agent';
 import {
   attachRehydratedPebbleCapabilities,
   type CapabilityRehydrateSlots,
+  type CapabilitySpec,
   parseCapabilitySpecs,
 } from './register-pebble-capabilities';
 
@@ -102,14 +103,39 @@ export async function rehydrateAgent(input: RehydrateAgentInput): Promise<Agent>
   const agent = buildLaunchAgent(buildInput);
   if (agent instanceof PebbleAgent) {
     const slots = await loadCapabilitySlots({ agentId: record.id, datastore: input.datastore });
+    const registrySpecs = parseCapabilitySpecs(registry.capabilities, input.logger);
+    const lifecycleSpecs = await resolveTaskLifecycleSpecs({ agentId: record.id, datastore: input.datastore });
     attachRehydratedPebbleCapabilities({
       agent,
-      capabilities: parseCapabilitySpecs(registry.capabilities, input.logger),
+      capabilities: [...registrySpecs, ...lifecycleSpecs],
       logger: input.logger,
       slots,
     });
   }
   return agent;
+}
+
+interface ResolveTaskLifecycleSpecsInput {
+  agentId: string;
+  datastore: Datastore;
+}
+
+/**
+ * Rebuilds the `task-lifecycle` capability spec for an agent on rehydrate by
+ * looking up tasks the agent still owns. The capability slot state (taskId,
+ * boardId, completed) is restored from state-snapshot traces, so the config
+ * passed here is only structurally required by hydrateCapability.
+ */
+async function resolveTaskLifecycleSpecs(input: ResolveTaskLifecycleSpecsInput): Promise<CapabilitySpec[]> {
+  const { items: boards } = await input.datastore.taskBoards.list({});
+  for (const board of boards) {
+    const { items: tasks } = await input.datastore.taskBoards.tasks.list({ boardId: board.id });
+    const owned = tasks.find((task) => task.ownerId === input.agentId);
+    if (owned !== undefined) {
+      return [{ id: 'task-lifecycle', config: { taskId: owned.id, boardId: board.id } }];
+    }
+  }
+  return [];
 }
 
 async function resolveBuildParams(input: ResolveBuildParamsInput): Promise<ResolveBuildParamsResult> {

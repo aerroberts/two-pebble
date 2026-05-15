@@ -12,6 +12,7 @@ export { metricsTable } from './metrics.table';
 export { repositoriesTable } from './repositories.table';
 export { taskBoardsTable } from './task-boards.table';
 export { taskDependenciesTable } from './task-dependencies.table';
+export { taskDispatchSettingsTable } from './task-dispatch-settings.table';
 export { taskEventsTable } from './task-events.table';
 export { taskPoolsTable } from './task-pools.table';
 export { tasksTable } from './tasks.table';

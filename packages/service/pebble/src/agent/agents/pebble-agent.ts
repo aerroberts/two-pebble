@@ -10,6 +10,7 @@ import type { AgentSignal } from '../signal-runner';
 import type { AgentTool } from '../tools/agent-tool';
 import type { ToolInput, ToolInputRecord } from '../tools/tool-input';
 import type {
+  AgentStatus,
   AgentToolRegistration,
   InvokeModelResult,
   PebbleAgentConfig,
@@ -173,6 +174,29 @@ export class PebbleAgent extends Agent {
       this.agentTools.splice(toolIndex, 1);
     }
     this.thread.pushUser(`Tool Deregistration: ${tool.id}`, ...Event.toolDeregistration({ name: tool.id, reason }));
+  }
+
+  /**
+   * Notifies every registered capability of a lifecycle status edge after
+   * the base class records the change and emits the `'status'` event.
+   * Capabilities use this to mirror agent state onto external resources
+   * (e.g. flipping an owned task to `waiting` when the agent pauses).
+   * Errors thrown by a capability hook are swallowed so a misbehaving
+   * capability cannot crash the status path that emitted them.
+   */
+  protected override changeStatus(status: AgentStatus, message: string): void {
+    const previous = this.getStatus();
+    super.changeStatus(status, message);
+    if (previous === status) {
+      return;
+    }
+    for (const capability of this.capabilities) {
+      try {
+        capability.hookOnAgentStatusChange(previous, status);
+      } catch {
+        // Capability hook failures must not break the status pipeline.
+      }
+    }
   }
 
   /**

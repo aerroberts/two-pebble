@@ -75,6 +75,12 @@ import type { TaskDependenciesCreateOperation } from './protocol/task-dependenci
 import type { TaskDependenciesDeleteOperation } from './protocol/task-dependencies.delete';
 import type { TaskDependenciesListOperation } from './protocol/task-dependencies.list';
 import type { TaskDependencyDeletedEvent, TaskDependencyUpdatedEvent } from './protocol/task-dependencies.updated';
+import type {
+  TaskDispatchSettingsListOperation,
+  TaskDispatchSettingsReadOperation,
+} from './protocol/task-dispatch-settings.read';
+import type { TaskDispatchSettingsUpdateOperation } from './protocol/task-dispatch-settings.update';
+import type { TaskDispatchSettingsUpdatedEvent } from './protocol/task-dispatch-settings.updated';
 import type { TaskEventsListOperation } from './protocol/task-events.list';
 import type { TaskEventRecordedEvent } from './protocol/task-events.recorded';
 import type { TaskPoolsCreateOperation } from './protocol/task-pools.create';
@@ -189,6 +195,9 @@ export type DaemonOperations = [
   TaskDependenciesCreateOperation,
   TaskDependenciesDeleteOperation,
   TaskEventsListOperation,
+  TaskDispatchSettingsReadOperation,
+  TaskDispatchSettingsListOperation,
+  TaskDispatchSettingsUpdateOperation,
   MetricsListNamesOperation,
   MetricsListVariantsOperation,
   MetricsQueryAggregatedOperation,
@@ -223,6 +232,7 @@ export type DaemonEvents = [
   TaskDependencyUpdatedEvent,
   TaskDependencyDeletedEvent,
   TaskEventRecordedEvent,
+  TaskDispatchSettingsUpdatedEvent,
 ];
 
 export interface ClientProtocol

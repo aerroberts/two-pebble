@@ -10,4 +10,6 @@ export { getCapabilityRunners, installCapabilityRunners } from './runners';
 export { SubAgentCapability } from './sub-agent';
 export type { TaskBoardAccessCapabilityConfig } from './task-board-access';
 export { TaskBoardAccessCapability } from './task-board-access';
+export type { TaskLifecycleCapabilityConfig } from './task-lifecycle';
+export { TaskLifecycleCapability } from './task-lifecycle';
 export { resolveWorkspacePath, WorkspaceAccessCapability } from './workspace-access';

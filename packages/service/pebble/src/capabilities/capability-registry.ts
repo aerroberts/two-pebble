@@ -4,6 +4,7 @@ import { ParentLinkCapability } from './parent-link/parent-link-capability';
 import { ProgressiveTaskListCapability } from './progressive-task-list/progressive-task-list-capability';
 import { SubAgentCapability } from './sub-agent/sub-agent-capability';
 import { TaskBoardAccessCapability } from './task-board-access/task-board-access-capability';
+import { TaskLifecycleCapability } from './task-lifecycle/task-lifecycle-capability';
 import { TurnCounterCapability } from './turn-counter/turn-counter-capability';
 import { WorkspaceAccessCapability } from './workspace-access/workspace-access-capability';
 
@@ -29,6 +30,9 @@ export class CapabilityRegistry {
     }
     if (id === 'task-board-access') {
       return new TaskBoardAccessCapability() as AgentCapability<PebbleJsonValue>;
+    }
+    if (id === 'task-lifecycle') {
+      return new TaskLifecycleCapability() as AgentCapability<PebbleJsonValue>;
     }
     if (id === 'workspace-access') {
       return new WorkspaceAccessCapability();
