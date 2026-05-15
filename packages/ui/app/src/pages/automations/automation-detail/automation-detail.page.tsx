@@ -176,19 +176,17 @@ export function AutomationDetailPage() {
             onChange={(event) => setDraft({ ...draft, message: event.target.value })}
             value={draft.message}
           />
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-content-secondary">Schedule</span>
-            <ButtonGroup
-              onChange={(value) => {
-                const option = scheduleOptions.find((o) => o.value === value);
-                if (option) {
-                  setDraft({ ...draft, intervalUnit: option.intervalUnit, intervalValue: option.intervalValue });
-                }
-              }}
-              options={scheduleOptions}
-              value={toScheduleValue(draft.intervalUnit, draft.intervalValue)}
-            />
-          </div>
+          <ButtonGroup
+            label="Schedule"
+            onChange={(value) => {
+              const option = scheduleOptions.find((o) => o.value === value);
+              if (option) {
+                setDraft({ ...draft, intervalUnit: option.intervalUnit, intervalValue: option.intervalValue });
+              }
+            }}
+            options={scheduleOptions}
+            value={toScheduleValue(draft.intervalUnit, draft.intervalValue)}
+          />
           <Checkbox
             checked={draft.enabled}
             label="Enabled"

@@ -93,14 +93,12 @@ export function AutomationsNewPage() {
             value={agentRegistryId}
           />
           <InputArea label="Message" onChange={(event) => setMessage(event.target.value)} value={message} />
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-content-secondary">Schedule</span>
-            <ButtonGroup
-              onChange={handleScheduleChange}
-              options={scheduleOptions}
-              value={toScheduleValue(intervalUnit, intervalValue)}
-            />
-          </div>
+          <ButtonGroup
+            label="Schedule"
+            onChange={handleScheduleChange}
+            options={scheduleOptions}
+            value={toScheduleValue(intervalUnit, intervalValue)}
+          />
           <Checkbox checked={enabled} label="Enabled" onChange={(event) => setEnabled(event.target.checked)} />
           <Button disabled={saveDisabled} leftIcon="save" onClick={() => void handleSave()}>
             {saving ? 'Saving' : 'Create automation'}
