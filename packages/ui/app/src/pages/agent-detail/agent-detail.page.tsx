@@ -18,18 +18,6 @@ export function AgentDetailPage() {
     return <Navigate to="/agents" replace />;
   }
 
-  const requestStop = async () => {
-    const ok = await confirm.confirm({
-      title: 'Stop agent',
-      message:
-        'Stop this agent? Any pending follow-up messages will be discarded. The agent will return to idle and can be resumed.',
-      confirmLabel: 'Stop',
-    });
-    if (ok) {
-      await state.stopAgentRun();
-    }
-  };
-
   const requestFreshStart = async () => {
     const ok = await confirm.confirm({
       title: 'Fresh start',
@@ -75,13 +63,10 @@ export function AgentDetailPage() {
         footer={
           <>
             <AgentDetailChatViewFooter
-              agentStatus={state.agent?.status ?? 'idle'}
               chatDraft={state.chatDraft}
               chatSending={state.chatSending}
               onChatDraftChange={state.setChatDraft}
               onChatSubmit={(override) => void state.sendChatMessage(override)}
-              onStop={() => void requestStop()}
-              stopping={state.stopping}
             />
             <ConfirmDialog controller={confirm} />
           </>
@@ -95,9 +80,11 @@ export function AgentDetailPage() {
           liveness={state.liveness}
           onAgentClick={state.openAgent}
           onModelCallClick={state.openModelCall}
+          onStop={() => void state.stopAgentRun()}
           onTaskClick={state.openTask}
           onThreadSnapshotClick={state.openThreadSnapshot}
           onWorktreeOpenClick={state.openWorktree}
+          stopping={state.stopping}
           traces={state.traces}
         />
       </ChatPageLayout>

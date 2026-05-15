@@ -25,6 +25,8 @@ interface AgentDetailChatViewBodyProps {
   liveness: AgentRunningIndicatorProps['liveness'];
   onAgentClick: (agentId: string) => void;
   onModelCallClick: (modelCallId: string) => void;
+  onStop?: () => void;
+  stopping?: boolean;
   onTaskClick: (boardId: string, taskId: string) => void;
   onThreadSnapshotClick: (threadCursor: string) => void;
   onWorktreeOpenClick: (worktreeId: string) => void;
@@ -50,7 +52,12 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
           traces={chatTraces}
         />
       ) : null}
-      <AgentRunningIndicator status={props.agentStatus} liveness={props.liveness} />
+      <AgentRunningIndicator
+        liveness={props.liveness}
+        onStop={props.onStop}
+        status={props.agentStatus}
+        stopping={props.stopping}
+      />
       {props.chatError.length > 0 ? <Surface>{props.chatError}</Surface> : null}
     </Section>
   );

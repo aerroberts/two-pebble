@@ -1,4 +1,5 @@
 import { Icon } from '../content/icon/icon';
+import { IconButton } from '../input/icon-button/icon-button';
 
 export type AgentRunningIndicatorStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
 export type AgentLivenessDisplayState = 'running' | 'stalled' | 'reconnecting' | 'idle';
@@ -12,12 +13,20 @@ export interface AgentRunningIndicatorProps {
     lastError?: string;
     hint?: string;
   } | null;
+  /** When provided, renders an inline ghost stop button at the end of the status line. */
+  onStop?: () => void;
+  /** Disables the stop button while a stop is in progress. */
+  stopping?: boolean;
 }
 
 /**
  * Bottom-of-chat status pill. Running is live daemon state; waiting and
  * interrupted are durable lifecycle states that should not use spinner
  * language.
+ *
+ * When `onStop` is provided, an inline ghost stop button appears at the end
+ * of the "Agent is working" status line. Clicking it immediately stops the
+ * agent with no confirmation modal.
  */
 export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
   if (props.status === 'waiting') {
@@ -77,6 +86,17 @@ export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
         Agent is working
         {ageSeconds !== null ? ` — last activity ${ageSeconds}s ago` : '…'}
       </span>
+      {props.onStop ? (
+        <IconButton
+          aria-label="Stop agent"
+          className="ml-auto"
+          disabled={props.stopping}
+          icon="square"
+          title={props.stopping ? 'Stopping…' : 'Stop agent'}
+          variant="secondary"
+          onClick={props.onStop}
+        />
+      ) : null}
     </div>
   );
 }
