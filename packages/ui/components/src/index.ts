@@ -114,6 +114,12 @@ export { FileIcon, type FileIconProps } from './components/content/icon/file-ico
 export { Icon, type IconProps } from './components/content/icon/icon';
 export { Section, type SectionProps } from './components/content/section/section';
 export { Status, type StatusProps, type StatusState, type StatusVariant } from './components/content/status/status';
+export {
+  AutomationIndicator,
+  type AutomationIndicatorProps,
+  type AutomationIndicatorState,
+  type AutomationIndicatorVariant,
+} from './components/data/automation-indicator/automation-indicator';
 export { CopyableValue, type CopyableValueProps } from './components/data/copyable-value/copyable-value';
 export { DataGrid, type DataGridProps } from './components/data/data-grid/data-grid';
 export { DataValue, type DataValueProps } from './components/data/data-value/data-value';

@@ -1,33 +1,37 @@
-import { AppBox, AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection } from '@two-pebble/components';
+import {
+  AppBox,
+  AutomationIndicator,
+  type AutomationIndicatorState,
+  AuxiliarySidebarLayout,
+  Sidebar,
+  SidebarOption,
+  SidebarSection,
+} from '@two-pebble/components';
 import { type AutomationRecord, useAutomations } from '@two-pebble/realtime';
-import { CircleSlash, MousePointerClick } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { formatCadenceLabel } from '../pages/automations/automation-format';
 import type { AppShellProps } from './app-shell-props';
 import { MainAppShell } from './main-app-shell';
 
-function AutomationBadge({ automation }: { automation: AutomationRecord }) {
-  if (!automation.enabled) {
-    return (
-      <span className="inline-flex items-center opacity-40" title="Disabled">
-        <CircleSlash size={12} />
-      </span>
-    );
-  }
-  if (automation.intervalUnit === 'manual') {
-    return (
-      <span className="inline-flex items-center" title="Manual">
-        <MousePointerClick size={12} />
-      </span>
-    );
-  }
+interface AutomationBadgeProps {
+  automation: AutomationRecord;
+}
+
+function AutomationBadge(props: AutomationBadgeProps) {
+  const automation = props.automation;
+  const state: AutomationIndicatorState = !automation.enabled
+    ? 'disabled'
+    : automation.intervalUnit === 'manual'
+      ? 'manual'
+      : 'scheduled';
+
   return (
-    <span
-      className="font-mono text-[10px] font-semibold"
-      title={`Every ${automation.intervalValue} ${automation.intervalUnit}`}
-    >
-      {formatCadenceLabel(automation)}
-    </span>
+    <AutomationIndicator
+      state={state}
+      variant="badge"
+      cadenceLabel={formatCadenceLabel(automation)}
+      cadenceTitle={`Every ${automation.intervalValue} ${automation.intervalUnit}`}
+    />
   );
 }
 
