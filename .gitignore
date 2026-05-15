@@ -11,3 +11,4 @@ packages/pebble/daemon/var
 .data
 packages/data/datastore/.test
 docs
+.claude
