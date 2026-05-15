@@ -119,6 +119,52 @@ export class AgentRegistryService {
   }
 
   /**
+   * Handles a manual stop request from a user. Forwards the request to the
+   * runtime agent when it implements `stop`, flips the durable record to
+   * `idle`, broadcasts the status change so the dispatcher frees its slot,
+   * and syncs any tasks the agent still owns so they leave terminal limbo.
+   *
+   * Unlike a natural completion, the runtime is not allowed to linger:
+   * the hot registry entry is dropped regardless of whether the framework
+   * acknowledged the stop, mirroring `interrupt` / `terminate`. The status
+   * hook chain (`agentRecorded` emit, `agentStatusChanged` emit, task
+   * resync) runs in one place so manual stops fire the same downstream
+   * effects as automated terminations.
+   */
+  public async stopManual(agentId: string, reason: string): Promise<void> {
+    const active = this.activeAgents.get(agentId);
+    if (active !== undefined && 'stop' in active && typeof active.stop === 'function') {
+      try {
+        await (active as Agent & { stop(reason: string): Promise<void> }).stop(reason);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn('runtime stop failed', { agentId, error: message });
+      }
+    }
+    this.deactivate(agentId);
+    const updated = await this.datastore.agent.setStatus({ id: agentId, status: 'idle' });
+    this.multicastBridge.emit('agentRecorded', updated);
+    this.events.emit('agentStatusChanged', { agentId, status: 'idle' });
+    try {
+      const sync = await this.taskBoards.syncOwnedTasksFromAgentStatus({
+        agentId,
+        agentStatus: 'idle',
+        reason: `auto: agent ${updated.name} stopped (${reason})`,
+      });
+      for (const event of sync.events) {
+        this.multicastBridge.emit('taskEventRecorded', event);
+      }
+      for (const task of sync.tasks) {
+        this.multicastBridge.emit('taskUpdated', task);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn('task status sync from stopped agent failed', { agentId, error: message });
+    }
+    this.logger.info('agent stopped', { agentId, reason });
+  }
+
+  /**
    * Returns the active runtime agent for an id, rebuilding it from durable
    * state if no live instance is cached. Concurrent calls for the same id
    * are coalesced so the framework adapter is only constructed once per miss.
