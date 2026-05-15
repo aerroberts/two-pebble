@@ -72,6 +72,14 @@ interface AppRevealIconButtonProps extends IconButtonProps {
 interface VoiceWaveformDisplayProps {
   analyser: AnalyserNode | null;
   barCount?: number;
+  /**
+   * When true and `analyser` is null, the bars run a synthetic sine pulse so
+   * the same waveform serves as a transcription "loading" indicator. The
+   * pulse is a slow shimmer (~1.4s period) staggered across bars — distinct
+   * enough from live audio that recording vs. transcribing is still
+   * unambiguous, but reusing the visual language of the live waveform.
+   */
+  pulse?: boolean;
 }
 
 const DEFAULT_BAR_COUNT = 7;
@@ -188,12 +196,23 @@ export function VoiceWaveformDisplay(props: VoiceWaveformDisplayProps) {
   const barCount = props.barCount ?? DEFAULT_BAR_COUNT;
   const barRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const bars = useBarKeys(barCount);
+  const pulse = props.pulse === true && props.analyser === null;
 
   useEffect(() => {
     const analyser = props.analyser;
     if (analyser === null) {
-      resetBars(barRefs.current);
-      return;
+      if (!pulse) {
+        resetBars(barRefs.current);
+        return;
+      }
+      const start = performance.now();
+      let frame = 0;
+      const tick = () => {
+        pulseBars({ barCount, barRefs: barRefs.current, elapsedMs: performance.now() - start });
+        frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(frame);
     }
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
     const buckets = buildSpeechBuckets(dataArray.length, barCount, analyser.context.sampleRate, analyser.fftSize);
@@ -206,7 +225,7 @@ export function VoiceWaveformDisplay(props: VoiceWaveformDisplayProps) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [props.analyser, barCount]);
+  }, [props.analyser, barCount, pulse]);
 
   return (
     <div aria-hidden className="flex h-4 w-12 items-center justify-center gap-[2px]">
@@ -253,6 +272,29 @@ function resetBars(bars: Array<HTMLSpanElement | null>) {
   for (const bar of bars) {
     if (bar !== null) {
       bar.style.height = `${IDLE_BAR_HEIGHT_PERCENT}%`;
+    }
+  }
+}
+
+interface PulseBarsInput {
+  barCount: number;
+  barRefs: Array<HTMLSpanElement | null>;
+  elapsedMs: number;
+}
+
+const PULSE_PERIOD_MS = 1400;
+const PULSE_BAR_STAGGER_MS = 90;
+const PULSE_MIN_HEIGHT_PERCENT = 24;
+const PULSE_MAX_HEIGHT_PERCENT = 78;
+
+function pulseBars(input: PulseBarsInput) {
+  for (let i = 0; i < input.barCount; i += 1) {
+    const phase = ((input.elapsedMs - i * PULSE_BAR_STAGGER_MS) / PULSE_PERIOD_MS) * Math.PI * 2;
+    const amplitude = (Math.sin(phase) + 1) / 2;
+    const heightPercent = PULSE_MIN_HEIGHT_PERCENT + amplitude * (PULSE_MAX_HEIGHT_PERCENT - PULSE_MIN_HEIGHT_PERCENT);
+    const bar = input.barRefs[i];
+    if (bar !== null && bar !== undefined) {
+      bar.style.height = `${heightPercent}%`;
     }
   }
 }
