@@ -1,4 +1,4 @@
-import { Header, PageLayout, Section, Select, type SelectOption, Surface } from '@two-pebble/components';
+import { Checkbox, Header, PageLayout, Section, Select, type SelectOption, Surface } from '@two-pebble/components';
 import { useAgentRegistries, useAppSettings, useUpdateAppSettings } from '@two-pebble/realtime';
 
 const NONE_VALUE = '__none__';
@@ -11,6 +11,7 @@ export function AssistantSettingsPage() {
   const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries);
   const settings = appSettings.value;
   const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
+  const assistantFabEnabled = settings?.assistantFabEnabled ?? false;
 
   const onAssistantAgentChange = (value: string) => {
     if (settings === null) {
@@ -23,6 +24,20 @@ export function AssistantSettingsPage() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: nextRegistryId,
       assistantAgentId: registryChanged ? null : settings.assistantAgentId,
+      assistantFabEnabled: settings.assistantFabEnabled,
+    });
+  };
+
+  const onAssistantFabChange = (next: boolean) => {
+    if (settings === null) {
+      return;
+    }
+    void updateAppSettings({
+      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
+      defaultSpeechProfileId: settings.defaultSpeechProfileId,
+      assistantAgentRegistryId: settings.assistantAgentRegistryId,
+      assistantAgentId: settings.assistantAgentId,
+      assistantFabEnabled: next,
     });
   };
 
@@ -40,6 +55,18 @@ export function AssistantSettingsPage() {
               assistantAgentOptions.length <= 1 ? 'Create an agent in the agent registry first' : 'Select agent'
             }
             value={assistantAgentRegistryId}
+          />
+        </Surface>
+      </Section>
+      <Section
+        subtitle="Show a floating mic button in the main app shell so the Assistant is reachable from any page."
+        title="Quick access"
+      >
+        <Surface>
+          <Checkbox
+            checked={assistantFabEnabled}
+            label="Show floating Assistant button"
+            onChange={(event) => onAssistantFabChange(event.target.checked)}
           />
         </Surface>
       </Section>

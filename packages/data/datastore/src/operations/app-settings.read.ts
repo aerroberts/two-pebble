@@ -28,6 +28,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       defaultSpeechProfileId: null,
       assistantAgentRegistryId: null,
       assistantAgentId: null,
+      assistantFabEnabled: false,
     };
     return fallback;
   };

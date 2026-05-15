@@ -1,4 +1,4 @@
-import { text } from 'drizzle-orm/sqlite-core';
+import { integer, text } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
@@ -18,6 +18,9 @@ export const appSettingsTable = customTable('app_settings', {
 
   // Current agent instance id that the Assistant page reuses across visits.
   assistantAgentId: text('assistant_agent_id'),
+
+  // Toggle for the global Assistant mic FAB rendered in the main app shell.
+  assistantFabEnabled: integer('assistant_fab_enabled', { mode: 'boolean' }).notNull().default(false),
 });
 
 export const APP_SETTINGS_SINGLETON_ID = 'singleton';

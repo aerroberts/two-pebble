@@ -56,6 +56,7 @@ export function useAssistantPageState() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: nextAgentId,
+      assistantFabEnabled: settings.assistantFabEnabled,
     });
   };
 

@@ -12,6 +12,7 @@ export async function writeFullAppSettings() {
     defaultSpeechProfileId: 'profile-2',
     assistantAgentRegistryId: 'registry-1',
     assistantAgentId: 'agent-1',
+    assistantFabEnabled: false,
   });
   await datastore.close();
   return updated;
@@ -29,12 +30,14 @@ export async function clearAssistantAgentSetting() {
     defaultSpeechProfileId: null,
     assistantAgentRegistryId: 'registry-1',
     assistantAgentId: 'agent-1',
+    assistantFabEnabled: false,
   });
   const cleared = await datastore.appSettings.update({
     defaultTranscriptionProfileId: null,
     defaultSpeechProfileId: null,
     assistantAgentRegistryId: 'registry-1',
     assistantAgentId: null,
+    assistantFabEnabled: false,
   });
   await datastore.close();
   return cleared;

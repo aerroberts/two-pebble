@@ -7,4 +7,6 @@ export interface AppSettings {
   assistantAgentRegistryId: string | null;
   /** Current agent instance id that the Assistant page reuses across visits. */
   assistantAgentId: string | null;
+  /** Show the global Assistant mic FAB in the main app shell. */
+  assistantFabEnabled: boolean;
 }
