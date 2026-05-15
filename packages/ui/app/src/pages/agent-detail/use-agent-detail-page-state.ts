@@ -5,6 +5,7 @@ import {
   useAgentPriceLineItems,
   useAgents,
   useAgentTraces,
+  useFailAgent,
   useFreshStartAgent,
   useOpenWorktree,
   useSendAgentMessage,
@@ -33,9 +34,11 @@ export function useAgentDetailPageState() {
   const [chatSending, setChatSending] = useState(false);
   const sendAgentMessage = useSendAgentMessage();
   const stopAgent = useStopAgent();
+  const failAgent = useFailAgent();
   const freshStartAgent = useFreshStartAgent();
   const liveness = useAgentLiveness(agentId);
   const [stopping, setStopping] = useState(false);
+  const [failing, setFailing] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const descendantAgentIds = useMemo(() => readDescendantAgentIds(agentId, agents.values()), [agentId, agents]);
   const waterfallAgentIds = useMemo(
@@ -179,6 +182,21 @@ export function useAgentDetailPageState() {
     }
   };
 
+  const failAgentRun = async () => {
+    if (agentId.length === 0) {
+      return;
+    }
+    setFailing(true);
+    setChatError('');
+    try {
+      await failAgent({ id: agentId });
+    } catch (failure) {
+      setChatError(failure instanceof Error ? failure.message : String(failure));
+    } finally {
+      setFailing(false);
+    }
+  };
+
   return {
     agent,
     agentId,
@@ -198,6 +216,8 @@ export function useAgentDetailPageState() {
     sendChatMessage,
     stopAgentRun,
     stopping,
+    failAgentRun,
+    failing,
     freshStartAgentRun,
     restarting,
     liveness,
