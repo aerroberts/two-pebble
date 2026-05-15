@@ -16,7 +16,7 @@ const SIZE_CLASS: Record<EditableHeadingSize, string> = {
 
 export function EditableHeading(props: EditableHeadingProps) {
   const size = props.size ?? 'md';
-  const className = `w-full min-w-0 bg-transparent font-heading font-normal uppercase leading-7 text-content outline-none placeholder:text-content-muted focus:text-accent ${SIZE_CLASS[size]}`;
+  const className = `w-full min-w-0 bg-transparent font-heading font-normal capitalize leading-7 text-content outline-none placeholder:text-content-muted focus:text-accent ${SIZE_CLASS[size]}`;
   return (
     <input
       aria-label={props.ariaLabel}

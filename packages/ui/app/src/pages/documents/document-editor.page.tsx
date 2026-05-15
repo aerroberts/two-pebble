@@ -1,4 +1,4 @@
-import { Button, EditableHeading, Header, PageLayout, Section, Surface, TipTapEditor } from '@two-pebble/components';
+import { EditableHeading, Header, IconButton, PageLayout, Surface, TipTapEditor } from '@two-pebble/components';
 import { Navigate } from 'react-router-dom';
 import { useDocumentEditorPageState } from './use-document-editor-page-state';
 
@@ -11,7 +11,17 @@ export function DocumentEditorPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>
+      <Header
+        actionItems={
+          <IconButton
+            aria-label="Delete document"
+            icon="trash-2"
+            onClick={() => void state.deleteDocument()}
+            type="button"
+            variant="secondary"
+          />
+        }
+      >
         <EditableHeading
           ariaLabel="Document name"
           onBlur={() => void state.saveName()}
@@ -31,18 +41,6 @@ export function DocumentEditorPage() {
           onBlur={(content) => void state.saveContent(content)}
         />
       )}
-      <Section title="Danger Zone">
-        <div className="rounded-md border border-danger/30 bg-danger-soft p-3">
-          <Button
-            className="border-danger bg-danger text-danger-content hover:bg-danger"
-            leftIcon="trash-2"
-            onClick={() => void state.deleteDocument()}
-            type="button"
-          >
-            Delete
-          </Button>
-        </div>
-      </Section>
     </PageLayout>
   );
 }
