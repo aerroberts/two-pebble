@@ -1,9 +1,15 @@
 import { AppBox, AppButton, Icon, IconButton, VoiceWaveformDisplay } from '@two-pebble/components';
+import { useEffect } from 'react';
 import { useVoiceCapture, type VoiceCaptureStatus } from './use-voice-capture';
 
 interface VoiceCaptureButtonProps {
   onTranscript: (text: string) => void;
   onSubmitTranscript?: (text: string) => void;
+  /**
+   * Notified each time the capture status changes. Parent pages use this to gate
+   * sibling controls (e.g. gray out the input box while recording).
+   */
+  onStatusChange?: (status: VoiceCaptureStatus) => void;
 }
 
 export function VoiceCaptureButton(props: VoiceCaptureButtonProps) {
@@ -12,6 +18,11 @@ export function VoiceCaptureButton(props: VoiceCaptureButtonProps) {
     ...(props.onSubmitTranscript === undefined ? {} : { onSubmitTranscript: props.onSubmitTranscript }),
   });
   const ariaLabel = ariaLabelForStatus(capture.status, capture.disabledReason);
+  const onStatusChange = props.onStatusChange;
+
+  useEffect(() => {
+    onStatusChange?.(capture.status);
+  }, [capture.status, onStatusChange]);
 
   if (capture.status === 'recording') {
     return (

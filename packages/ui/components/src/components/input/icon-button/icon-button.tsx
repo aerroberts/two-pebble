@@ -27,7 +27,7 @@ export function IconButton(props: IconButtonProps) {
     variant === 'secondary'
       ? 'bg-transparent text-content hover:bg-surface-hover'
       : 'bg-accent text-accent-content hover:bg-accent-hover';
-  const disabledClass = disabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer';
+  const disabledClass = disabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer hover:scale-105 active:scale-95';
 
   const isNumericSize = typeof size === 'number';
   const sizeClass = isNumericSize ? '' : sizePresetClasses[size];
@@ -37,7 +37,7 @@ export function IconButton(props: IconButtonProps) {
   const iconPx = isNumericSize ? Math.round(size * 0.5) : undefined;
 
   const classes =
-    `inline-flex items-center justify-center rounded-md transition-colors ${sizeClass} ${variantClass} ${disabledClass} ${className ?? ''}`.trim();
+    `inline-flex items-center justify-center rounded-md transition-[background-color,color,transform,opacity] duration-150 ease-out ${sizeClass} ${variantClass} ${disabledClass} ${className ?? ''}`.trim();
 
   return (
     <button type="button" className={classes} disabled={disabled} style={numericStyle} {...rest}>
