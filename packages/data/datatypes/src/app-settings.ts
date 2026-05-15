@@ -7,8 +7,8 @@ export interface AppSettings {
   assistantAgentRegistryId: string | null;
   /** Current agent instance id that the Assistant page reuses across visits. */
   assistantAgentId: string | null;
-  /** Show the global Assistant mic FAB in the main app shell. */
-  assistantFabEnabled: boolean;
   /** Enable Command-K global shortcut to open the assistant speech overlay. */
   assistantCommandKEnabled: boolean;
+  /** When the Command-K overlay opens, auto-start the mic instead of showing the text+voice composer. */
+  assistantCommandKVoiceModeEnabled: boolean;
 }

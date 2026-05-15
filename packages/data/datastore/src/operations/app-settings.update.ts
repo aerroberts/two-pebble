@@ -7,8 +7,8 @@ type OperationHandlerInput = {
   defaultSpeechProfileId: string | null;
   assistantAgentRegistryId: string | null;
   assistantAgentId: string | null;
-  assistantFabEnabled: boolean;
   assistantCommandKEnabled: boolean;
+  assistantCommandKVoiceModeEnabled: boolean;
 };
 
 export function appSettingsUpdateOperation(ctx: DatastoreContext) {
@@ -28,8 +28,8 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
           defaultSpeechProfileId: input.defaultSpeechProfileId,
           assistantAgentRegistryId: input.assistantAgentRegistryId,
           assistantAgentId: input.assistantAgentId,
-          assistantFabEnabled: input.assistantFabEnabled,
           assistantCommandKEnabled: input.assistantCommandKEnabled,
+          assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
         })
         .returning()
         .get();
@@ -43,8 +43,8 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         defaultSpeechProfileId: input.defaultSpeechProfileId,
         assistantAgentRegistryId: input.assistantAgentRegistryId,
         assistantAgentId: input.assistantAgentId,
-        assistantFabEnabled: input.assistantFabEnabled,
         assistantCommandKEnabled: input.assistantCommandKEnabled,
+        assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
       })
       .where(eq(ctx.schema.appSettingsTable.id, APP_SETTINGS_SINGLETON_ID))
       .returning()

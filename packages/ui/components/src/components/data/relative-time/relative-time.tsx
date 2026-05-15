@@ -9,10 +9,12 @@ import { formatRelativeTime, getValidDate } from './relative-time-utils';
 export interface RelativeTimeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children' | 'className'> {
   date: Date | number | string | null | undefined;
   silent?: boolean;
+  /** Suppress the trailing Info icon while keeping the tooltip + hover styling. */
+  hideIcon?: boolean;
 }
 
 export function RelativeTime(props: RelativeTimeProps) {
-  const { date, silent = false, ...timeProps } = props;
+  const { date, silent = false, hideIcon = false, ...timeProps } = props;
   const [now, setNow] = useState(() => Date.now());
   const parsedDate = useMemo(() => getValidDate(date), [date]);
 
@@ -64,7 +66,7 @@ export function RelativeTime(props: RelativeTimeProps) {
     <Tooltip data={{ Date: absoluteValue, Relative: relativeValue }}>
       <span className={className} {...timeProps}>
         {relativeValue}
-        <Info className="size-3 shrink-0 text-content-muted" aria-hidden="true" />
+        {hideIcon ? null : <Info className="size-3 shrink-0 text-content-muted" aria-hidden="true" />}
       </span>
     </Tooltip>
   );

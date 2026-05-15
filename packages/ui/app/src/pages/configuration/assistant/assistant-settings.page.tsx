@@ -24,7 +24,8 @@ export function AssistantSettingsPage() {
   const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries, inferenceProfiles, installs);
   const settings = appSettings.value;
   const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
-  const assistantFabEnabled = settings?.assistantFabEnabled ?? false;
+  const assistantCommandKEnabled = settings?.assistantCommandKEnabled ?? false;
+  const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
 
   const onAssistantAgentChange = (value: string) => {
     if (settings === null) {
@@ -37,12 +38,12 @@ export function AssistantSettingsPage() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: nextRegistryId,
       assistantAgentId: registryChanged ? null : settings.assistantAgentId,
-      assistantFabEnabled: settings.assistantFabEnabled,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
+      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
     });
   };
 
-  const onAssistantFabChange = (next: boolean) => {
+  const onAssistantCommandKChange = (next: boolean) => {
     if (settings === null) {
       return;
     }
@@ -51,8 +52,22 @@ export function AssistantSettingsPage() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
-      assistantFabEnabled: next,
+      assistantCommandKEnabled: next,
+      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+    });
+  };
+
+  const onAssistantCommandKVoiceModeChange = (next: boolean) => {
+    if (settings === null) {
+      return;
+    }
+    void updateAppSettings({
+      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
+      defaultSpeechProfileId: settings.defaultSpeechProfileId,
+      assistantAgentRegistryId: settings.assistantAgentRegistryId,
+      assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
+      assistantCommandKVoiceModeEnabled: next,
     });
   };
 
@@ -75,15 +90,18 @@ export function AssistantSettingsPage() {
           />
         </Surface>
       </Section>
-      <Section
-        subtitle="Show a floating mic button in the main app shell so the Assistant is reachable from any page."
-        title="Quick access"
-      >
+      <Section subtitle="Open the Assistant overlay with Cmd+K (or Ctrl+K) from anywhere." title="Keyboard shortcut">
         <Surface>
           <Checkbox
-            checked={assistantFabEnabled}
-            label="Show floating Assistant button"
-            onChange={(event) => onAssistantFabChange(event.target.checked)}
+            checked={assistantCommandKEnabled}
+            label="Enable Cmd+K assistant shortcut"
+            onChange={(event) => onAssistantCommandKChange(event.target.checked)}
+          />
+          <Checkbox
+            checked={assistantCommandKVoiceModeEnabled}
+            disabled={!assistantCommandKEnabled}
+            label="Start in voice mode (auto-records when opened)"
+            onChange={(event) => onAssistantCommandKVoiceModeChange(event.target.checked)}
           />
         </Surface>
       </Section>

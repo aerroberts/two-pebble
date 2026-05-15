@@ -3,17 +3,14 @@ import {
   AgentTrace,
   ChatPageLayout,
   Header,
-  InputArea,
   PageLayout,
-  Row,
   Section,
   Surface,
   TabSelect,
 } from '@two-pebble/components';
 import { useMemo, useState } from 'react';
+import { AgentInput } from '../../shared/agent-input/agent-input';
 import { useSpeakText } from '../../shared/voice/use-speak-text';
-import type { VoiceCaptureStatus } from '../../shared/voice/use-voice-capture';
-import { VoiceCaptureButton } from '../../shared/voice/voice-capture-button';
 import { AssistantDirectInputControl } from './assistant-direct-input';
 import { useAssistantPageState } from './use-assistant-page-state';
 
@@ -81,9 +78,6 @@ export function AssistantPage() {
   // hero (centered) ↔ compact (bottom) layout transition.
   const [hasSubmittedThisVisit, setHasSubmittedThisVisit] = useState(false);
   const [viewMode, setViewMode] = useState<AssistantViewMode>('direct');
-  const [voiceStatus, setVoiceStatus] = useState<VoiceCaptureStatus>('idle');
-  const isRecording = voiceStatus === 'recording';
-  const sendDisabled = state.chatSending || state.chatDraft.trim().length === 0 || state.registryId === null;
   const chatTraces = useMemo(
     () => state.agentTraces.filter((trace) => !CHAT_HIDDEN_TRACE_TYPES.has(trace.type)),
     [state.agentTraces],
@@ -198,7 +192,6 @@ export function AssistantPage() {
               <AssistantDirectInputControl
                 chatDraft={state.chatDraft}
                 chatSending={state.chatSending}
-                onVoiceStatusChange={setVoiceStatus}
                 registryId={state.registryId}
                 sendChatMessage={sendDirectMessage}
                 setChatDraft={state.setChatDraft}
@@ -220,57 +213,20 @@ export function AssistantPage() {
     );
   }
 
-  const chatInputArea = (
-    <InputArea
-      aria-label="Assistant message"
-      disabled={state.chatSending || isRecording}
-      onChange={(event) => state.setChatDraft(event.target.value)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-          event.preventDefault();
-          if (!sendDisabled) {
-            void state.sendChatMessage();
-          }
-        }
-      }}
+  const chatInput = (
+    <AgentInput
+      ariaLabel="Assistant message"
+      disabled={state.chatSending}
+      onChange={state.setChatDraft}
+      onSubmit={(text) => void state.sendChatMessage(text)}
       placeholder="Talk to your Assistant — Enter to send, Shift+Enter for newline"
+      submitDisabled={state.registryId === null}
       value={state.chatDraft}
     />
   );
 
-  const chatInputControls = (
-    <div
-      className={`flex transition-[justify-content] duration-200 ease-out ${
-        isRecording ? 'justify-center' : 'justify-start'
-      }`}
-    >
-      <Row gap="sm">
-        <VoiceCaptureButton
-          onStatusChange={setVoiceStatus}
-          onTranscript={(text) => state.setChatDraft(joinTranscript(state.chatDraft, text))}
-          onSubmitTranscript={(text) => {
-            const next = joinTranscript(state.chatDraft, text);
-            state.setChatDraft(next);
-            if (next.trim().length > 0 && state.registryId !== null && !state.chatSending) {
-              void state.sendChatMessage(next);
-            }
-          }}
-        />
-      </Row>
-    </div>
-  );
-
   return (
-    <ChatPageLayout
-      header={header}
-      pinScrollToBottom
-      footer={
-        <>
-          {chatInputArea}
-          {chatInputControls}
-        </>
-      }
-    >
+    <ChatPageLayout header={header} pinScrollToBottom footer={chatInput}>
       <Section>
         {state.agentId === null ? (
           <Surface>Send a message below to start a new Assistant session.</Surface>
@@ -292,16 +248,6 @@ export function AssistantPage() {
       </Section>
     </ChatPageLayout>
   );
-}
-
-function joinTranscript(existing: string, transcript: string): string {
-  if (transcript.length === 0) {
-    return existing;
-  }
-  if (existing.length === 0) {
-    return transcript;
-  }
-  return existing.endsWith(' ') ? `${existing}${transcript}` : `${existing} ${transcript}`;
 }
 
 function findLastUserMessageIndex<T extends { type: string; orderId: number }>(

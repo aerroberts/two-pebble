@@ -28,8 +28,8 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       defaultSpeechProfileId: null,
       assistantAgentRegistryId: null,
       assistantAgentId: null,
-      assistantFabEnabled: false,
       assistantCommandKEnabled: false,
+      assistantCommandKVoiceModeEnabled: false,
     };
     return fallback;
   };

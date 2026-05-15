@@ -3,25 +3,23 @@
 import { useToast } from '@two-pebble/components';
 import { useAppSettings, useLaunchAgent, useSendAgentMessage, useUpdateAppSettings } from '@two-pebble/realtime';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { VoiceCaptureButton } from '../shared/voice/voice-capture-button';
+import { AgentInput } from '../shared/agent-input/agent-input';
 
 /**
- * Global Command-K assistant speech overlay.
+ * Global Command-K assistant overlay.
  *
  * Activated by pressing Cmd+K (or Ctrl+K on Windows/Linux) anywhere in the
- * app when `appSettings.assistantCommandKEnabled` is true. A small centered
- * overlay appears immediately, the mic auto-starts, and on transcript
- * submission the message is dispatched to the persisted Assistant agent. A
- * toast confirms the send; the user stays on the current page.
+ * app when `appSettings.assistantCommandKEnabled` is true. The overlay opens
+ * centered with a soft backdrop blur and renders the unified `AgentInput`
+ * composer (textarea with a mic switch on the right). When
+ * `assistantCommandKVoiceModeEnabled` is also on, the overlay opens straight
+ * into voice mode and starts recording immediately. Either way, submitting
+ * dispatches the message to the persisted Assistant agent and dismisses the
+ * overlay; the user stays on the current page and a toast confirms.
  *
- * The overlay closes on Escape, on backdrop click, or after a transcript is
- * submitted. While open, the rest of the UI has a soft backdrop blur and
- * dim overlay so the assistant input stands out without being a full
- * blocking modal.
- *
- * Focus management: the overlay container receives focus on open so keyboard
- * events are captured; Escape handling is attached to the document so it
- * works even if the VoiceCaptureButton internals hold focus.
+ * The overlay closes on Escape, on backdrop click, or after the message is
+ * sent. Focus is moved into the overlay container on open so keyboard events
+ * are captured even when the composer hasn't claimed focus yet.
  */
 export function AssistantCommandK() {
   const appSettings = useAppSettings();
@@ -30,16 +28,18 @@ export function AssistantCommandK() {
   const sendAgentMessage = useSendAgentMessage();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState('');
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const settings = appSettings.value;
   const enabled = settings?.assistantCommandKEnabled ?? false;
+  const startInVoiceMode = settings?.assistantCommandKVoiceModeEnabled ?? false;
 
   const close = useCallback(() => {
     setOpen(false);
+    setDraft('');
   }, []);
 
-  // Global keydown: open on Cmd/Ctrl+K, close on Escape.
   useEffect(() => {
     if (!enabled) {
       return;
@@ -61,7 +61,6 @@ export function AssistantCommandK() {
     };
   }, [enabled, open, close]);
 
-  // Move focus into the overlay when it opens.
   useEffect(() => {
     if (open) {
       const frame = requestAnimationFrame(() => {
@@ -98,8 +97,8 @@ export function AssistantCommandK() {
             defaultSpeechProfileId: settings.defaultSpeechProfileId,
             assistantAgentRegistryId: settings.assistantAgentRegistryId,
             assistantAgentId: launched.id,
-            assistantFabEnabled: settings.assistantFabEnabled,
             assistantCommandKEnabled: settings.assistantCommandKEnabled,
+            assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
           });
         }
       } else {
@@ -114,15 +113,12 @@ export function AssistantCommandK() {
 
   return (
     <>
-      {/* Backdrop: soft blur + dim; not a full block — user can still see context. */}
       <div aria-hidden="true" className="fixed inset-0 z-[900] bg-black/40 backdrop-blur-sm" onClick={close} />
-
-      {/* Overlay container: small, centered, above the backdrop. */}
       <div
         ref={containerRef}
-        aria-label="Assistant voice input"
+        aria-label="Assistant input"
         aria-modal="true"
-        className="fixed top-[30%] left-1/2 z-[901] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface-raised px-6 py-5 shadow-modal focus:outline-none"
+        className="-translate-x-1/2 -translate-y-1/2 fixed top-[30%] left-1/2 z-[901] w-[min(36rem,calc(100%-2rem))] rounded-xl bg-surface-raised px-6 py-5 shadow-modal focus:outline-none"
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault();
@@ -132,17 +128,17 @@ export function AssistantCommandK() {
         role="dialog"
         tabIndex={-1}
       >
-        <p className="mb-4 text-center text-sm font-medium text-content-muted">Speak your Assistant command</p>
-        <div className="flex justify-center">
-          <VoiceCaptureButton
-            buttonSize="md"
-            buttonVariant="primary"
-            onSubmitTranscript={(text) => void sendToAssistant(text)}
-            onTranscript={(text) => void sendToAssistant(text)}
-            submitOnly
-          />
-        </div>
-        <p className="mt-4 text-center text-xs text-content-muted">Press Esc to cancel</p>
+        <p className="mb-3 text-center font-medium text-content-muted text-sm">Send to your Assistant</p>
+        <AgentInput
+          ariaLabel="Assistant message"
+          initialMode={startInVoiceMode ? 'voice' : 'text'}
+          onChange={setDraft}
+          onSubmit={(text) => void sendToAssistant(text)}
+          placeholder="Type or speak — Enter to send"
+          submitDisabled={registryId === null}
+          value={draft}
+        />
+        <p className="mt-3 text-center text-content-muted text-xs">Press Esc to cancel</p>
       </div>
     </>
   );
