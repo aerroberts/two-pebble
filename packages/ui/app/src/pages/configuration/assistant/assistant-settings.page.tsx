@@ -92,17 +92,19 @@ export function AssistantSettingsPage() {
       </Section>
       <Section subtitle="Open the Assistant overlay with Cmd+K (or Ctrl+K) from anywhere." title="Keyboard shortcut">
         <Surface>
-          <Checkbox
-            checked={assistantCommandKEnabled}
-            label="Enable Cmd+K assistant shortcut"
-            onChange={(event) => onAssistantCommandKChange(event.target.checked)}
-          />
-          <Checkbox
-            checked={assistantCommandKVoiceModeEnabled}
-            disabled={!assistantCommandKEnabled}
-            label="Start in voice mode (auto-records when opened)"
-            onChange={(event) => onAssistantCommandKVoiceModeChange(event.target.checked)}
-          />
+          <div className="flex flex-col gap-2">
+            <Checkbox
+              checked={assistantCommandKEnabled}
+              label="Enable Cmd+K assistant shortcut"
+              onChange={(event) => onAssistantCommandKChange(event.target.checked)}
+            />
+            <Checkbox
+              checked={assistantCommandKVoiceModeEnabled}
+              disabled={!assistantCommandKEnabled}
+              label="Start in voice mode (auto-records when opened)"
+              onChange={(event) => onAssistantCommandKVoiceModeChange(event.target.checked)}
+            />
+          </div>
         </Surface>
       </Section>
     </PageLayout>

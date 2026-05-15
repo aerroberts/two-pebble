@@ -35,20 +35,31 @@ export interface AgentInputProps {
  * Unified agent message composer.
  *
  * Default layout is a single textarea with a small mic icon button anchored
- * to its top-right. Clicking the mic collapses the textarea and slides a
- * centered voice button into its place; finishing the voice turn appends the
- * transcript to the draft and returns to text mode. Surfaces that want to
- * skip the text step entirely can mount with `initialMode='voice'`, which
- * starts the mic immediately on first paint.
+ * to its top-right. Clicking the mic fades the textarea out and slides the
+ * recording pill into the center of the same container — the mic visually
+ * migrates to the middle and the surface morphs into a waveform. Finishing
+ * the voice turn appends the transcript to the draft and returns to text
+ * mode. Surfaces that want to skip the text step entirely can mount with
+ * `initialMode='voice'`, which starts the mic immediately on first paint.
  */
 export function AgentInput(props: AgentInputProps) {
   const initialMode = props.initialMode ?? 'text';
   const [mode, setMode] = useState<'text' | 'voice'>(initialMode);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  // Tracks whether the current voice session has actually entered recording.
+  // The VoiceCaptureButton emits `idle` on mount before its auto-start kicks
+  // in; without this guard we'd immediately flip back to text mode and tear
+  // the button down before recording could begin.
+  const hasRecordedRef = useRef(false);
 
   const handleVoiceStatus = (status: VoiceCaptureStatus) => {
     props.onVoiceStatusChange?.(status);
-    if (status === 'idle' && mode === 'voice') {
+    if (status === 'recording' || status === 'transcribing') {
+      hasRecordedRef.current = true;
+      return;
+    }
+    if (status === 'idle' && hasRecordedRef.current && mode === 'voice') {
+      hasRecordedRef.current = false;
       setMode('text');
     }
   };
@@ -74,8 +85,6 @@ export function AgentInput(props: AgentInputProps) {
     props.onSubmit(props.value);
   };
 
-  // When entering text mode (whether on mount or after a voice turn), focus
-  // the textarea so the user can type immediately.
   useEffect(() => {
     if (mode === 'text') {
       const frame = requestAnimationFrame(() => textareaRef.current?.focus());
@@ -84,20 +93,21 @@ export function AgentInput(props: AgentInputProps) {
     return undefined;
   }, [mode]);
 
-  const showText = mode === 'text';
+  const showVoice = mode === 'voice';
 
   return (
-    <div className="relative flex w-full flex-col">
+    <div className="relative w-full min-h-[5.5rem]">
+      {/* Text mode layer: textarea with a mic-switch button anchored top-right. */}
       <div
-        aria-hidden={!showText}
-        className={`overflow-hidden transition-[max-height,opacity] duration-200 ease-out ${
-          showText ? 'max-h-80 opacity-100' : 'pointer-events-none max-h-0 opacity-0'
+        aria-hidden={showVoice}
+        className={`absolute inset-0 transition-[opacity,transform] duration-200 ease-out ${
+          showVoice ? 'pointer-events-none translate-y-0.5 opacity-0' : 'translate-y-0 opacity-100'
         }`}
       >
-        <div className="relative flex rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
+        <div className="relative flex h-full rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
           <textarea
             aria-label={props.ariaLabel ?? 'Agent input'}
-            className="h-full min-h-[5rem] w-full resize-y bg-transparent py-1.5 pl-2 pr-10 text-[12px] font-medium leading-4 text-content outline-none placeholder:text-content-muted"
+            className="h-full min-h-[5rem] w-full resize-none bg-transparent py-1.5 pl-2 pr-10 text-[12px] font-medium leading-4 text-content outline-none placeholder:text-content-muted"
             disabled={props.disabled}
             onChange={(event) => props.onChange(event.target.value)}
             onKeyDown={(event) => {
@@ -121,13 +131,17 @@ export function AgentInput(props: AgentInputProps) {
           </div>
         </div>
       </div>
+
+      {/* Voice mode layer: centered voice pill that scales in over the same
+          rectangle the textarea occupied, so the mic visually slides from
+          the textarea's top-right to the middle. */}
       <div
-        aria-hidden={showText}
-        className={`flex justify-center transition-[max-height,opacity] duration-200 ease-out ${
-          showText ? 'pointer-events-none max-h-0 opacity-0' : 'max-h-40 opacity-100'
+        aria-hidden={!showVoice}
+        className={`absolute inset-0 flex items-center justify-center transition-[opacity,transform] duration-200 ease-out ${
+          showVoice ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none -translate-y-0.5 scale-95 opacity-0'
         }`}
       >
-        {showText ? null : (
+        {showVoice ? (
           <VoiceCaptureButton
             autoStart
             buttonSize="md"
@@ -135,9 +149,8 @@ export function AgentInput(props: AgentInputProps) {
             onStatusChange={handleVoiceStatus}
             onSubmitTranscript={handleSubmitTranscript}
             onTranscript={handleTranscript}
-            submitOnly
           />
-        )}
+        ) : null}
       </div>
     </div>
   );
