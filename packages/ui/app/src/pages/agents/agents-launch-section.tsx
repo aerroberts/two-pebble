@@ -53,6 +53,13 @@ export function AgentsLaunchSection(props: AgentsLaunchSectionProps) {
             <VoiceCaptureButton
               onStatusChange={setVoiceStatus}
               onTranscript={(text) => props.onMessageChange(joinTranscript(props.message, text))}
+              onSubmitTranscript={(text) => {
+                const next = joinTranscript(props.message, text);
+                props.onMessageChange(next);
+                if (next.trim().length > 0 && props.agentRegistryId.length > 0 && !props.launching) {
+                  props.onLaunchAgent();
+                }
+              }}
             />
             <div
               aria-hidden={isRecording}
