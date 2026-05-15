@@ -27,7 +27,7 @@ const COMPONENTS: Components = {
   },
   pre: (props) => (
     <pre
-      className="bg-surface rounded-md px-3 py-2 overflow-x-auto my-2 font-mono text-sm text-content [&>code]:bg-transparent [&>code]:p-0 [&>code]:rounded-none whitespace-pre-wrap break-words border border-border/60"
+      className="bg-surface rounded-md px-3 py-2 overflow-x-auto my-2 font-mono text-sm text-content [&>code]:bg-transparent [&>code]:p-0 [&>code]:rounded-none whitespace-pre-wrap break-words border border-border"
       {...props}
     />
   ),

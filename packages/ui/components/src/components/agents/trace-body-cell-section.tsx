@@ -30,7 +30,7 @@ export function TraceBodyCellSection(props: TraceBodyCellSectionProps) {
   return (
     <div className="w-full min-w-0">
       {props.label !== undefined && (
-        <div className="border-b border-border/50 bg-surface px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-content-muted">
+        <div className="border-b border-border bg-surface px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-content-muted">
           {props.label}
         </div>
       )}

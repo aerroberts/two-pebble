@@ -52,7 +52,7 @@ export function CodeBlock(props: CodeBlockProps) {
         lineNumbers={props.lineNumbers}
       />
       {props.output !== undefined ? (
-        <div className="border-t border-border/60">
+        <div className="border-t border-border">
           <HighlightedCode
             code={props.output}
             language={props.outputLanguage ?? 'text'}

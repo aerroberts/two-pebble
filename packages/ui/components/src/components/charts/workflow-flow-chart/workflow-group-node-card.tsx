@@ -14,7 +14,7 @@ export function WorkflowGroupNodeCard(props: WorkflowGroupNodeCardProps) {
   const items = props.node.group ?? [];
   return (
     <div
-      className="absolute rounded border border-border/70 bg-surface"
+      className="absolute rounded border border-border bg-surface"
       style={{ left: props.position.x, top: props.position.y, width: NODE_WIDTH }}
     >
       <div className="flex flex-col divide-y divide-border">
