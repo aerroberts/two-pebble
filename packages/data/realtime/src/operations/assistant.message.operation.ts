@@ -1,9 +1,17 @@
+import type { CellContent } from '@two-pebble/pebble';
 import type { AgentRecord, AgentStatus } from '../states/agents/types';
 import type { AppSettingsRecord } from '../states/app-settings/types';
 import type { RealtimeOperationContext } from '../types';
 
 export interface SendAssistantMessageInput {
+  /** Markdown/text fallback for legacy logging and voice workflows. */
   message: string;
+  /**
+   * Structured cells produced by the rich composer. When present, the
+   * daemon delivers these to the agent instead of wrapping `message` as a
+   * single text cell.
+   */
+  cells?: CellContent[];
 }
 
 export interface SendAssistantMessageResult {
@@ -16,7 +24,8 @@ const RELAUNCH_STATUSES = new Set<AgentStatus>(['failed', 'offline']);
 export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
   return async function sendAssistantMessage(input: SendAssistantMessageInput): Promise<SendAssistantMessageResult> {
     const message = input.message.trim();
-    if (message.length === 0) {
+    const cells = input.cells;
+    if (message.length === 0 && (cells === undefined || cells.length === 0)) {
       throw new Error('Assistant message cannot be empty.');
     }
 
@@ -28,7 +37,11 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
 
     const currentAgent = await readCurrentAgent(ctx, settings.assistantAgentId);
     if (currentAgent === null || RELAUNCH_STATUSES.has(currentAgent.status)) {
-      const launched = await ctx.datastore.agent.launch({ agentRegistryId: registryId, message });
+      const launched = await ctx.datastore.agent.launch({
+        agentRegistryId: registryId,
+        message,
+        ...(cells === undefined ? {} : { cells }),
+      });
       await ctx.datastore.appSettings.update({
         defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
         defaultSpeechProfileId: settings.defaultSpeechProfileId,
@@ -40,7 +53,11 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
       return { agentId: launched.id, launched: true };
     }
 
-    await ctx.datastore.agent.sendMessage({ agentId: currentAgent.id, message });
+    await ctx.datastore.agent.sendMessage({
+      agentId: currentAgent.id,
+      message,
+      ...(cells === undefined ? {} : { cells }),
+    });
     return { agentId: currentAgent.id, launched: false };
   };
 }

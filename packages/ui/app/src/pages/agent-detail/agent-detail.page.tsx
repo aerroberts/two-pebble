@@ -63,10 +63,9 @@ export function AgentDetailPage() {
         footer={
           <>
             <AgentDetailChatViewFooter
-              chatDraft={state.chatDraft}
+              agentId={state.agentId}
               chatSending={state.chatSending}
-              onChatDraftChange={state.setChatDraft}
-              onChatSubmit={(override) => void state.sendChatMessage(override)}
+              onChatSubmit={(payload) => void state.sendChatMessage(payload)}
             />
             <ConfirmDialog controller={confirm} />
           </>

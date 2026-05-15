@@ -4,6 +4,8 @@ export { audio } from './cells/audio';
 export { cachePoint } from './cells/cache-point';
 export { codeBlock } from './cells/code-block';
 export { data } from './cells/data';
+export type { DocumentReferenceCellInput } from './cells/document-reference';
+export { documentReference } from './cells/document-reference';
 export { header1 } from './cells/header1';
 export { header2 } from './cells/header2';
 export { image } from './cells/image';

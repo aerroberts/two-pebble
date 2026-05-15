@@ -1,4 +1,5 @@
 import { useToast } from '@two-pebble/components';
+import type { CellContent } from '@two-pebble/pebble';
 import {
   useAgentLiveness,
   useAgents,
@@ -8,12 +9,16 @@ import {
 } from '@two-pebble/realtime';
 import { useMemo, useState } from 'react';
 
+export interface AssistantChatSubmitInput {
+  markdown: string;
+  cells: CellContent[];
+}
+
 export function useAssistantPageState() {
   const appSettings = useAppSettings();
   const sendAssistantMessage = useSendAssistantMessage();
   const agents = useAgents();
   const toaster = useToast();
-  const [chatDraft, setChatDraft] = useState('');
   const [chatError, setChatError] = useState('');
   const [chatSending, setChatSending] = useState(false);
 
@@ -34,20 +39,18 @@ export function useAssistantPageState() {
 
   const settingsLoaded = appSettings.status === 'ready' || settings !== null;
 
-  const sendChatMessage = async (override?: string) => {
-    const source = override ?? chatDraft;
-    const trimmed = source.trim();
-    if (trimmed.length === 0 || registryId === null) {
+  const sendChatMessage = async (input: AssistantChatSubmitInput) => {
+    const markdown = input.markdown.trim();
+    if ((markdown.length === 0 && input.cells.length === 0) || registryId === null) {
       return;
     }
     setChatSending(true);
     setChatError('');
     try {
-      const result = await sendAssistantMessage({ message: trimmed });
+      const result = await sendAssistantMessage({ message: markdown, cells: input.cells });
       if (result.launched && agentId !== null) {
         toaster.toast('Previous Assistant thread had ended; started a new conversation.', 'info');
       }
-      setChatDraft('');
     } catch (failure) {
       setChatError(failure instanceof Error ? failure.message : String(failure));
     } finally {
@@ -59,13 +62,11 @@ export function useAssistantPageState() {
     agent,
     agentId,
     agentTraces,
-    chatDraft,
     chatError,
     chatSending,
     liveness,
     registryId,
     sendChatMessage,
-    setChatDraft,
     settingsLoaded,
     traces,
   };

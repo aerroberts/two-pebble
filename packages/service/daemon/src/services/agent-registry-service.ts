@@ -452,6 +452,7 @@ export class AgentRegistryService {
       agentId: agent.id,
       bridge,
       message: input.message,
+      ...(input.cells === undefined ? {} : { cells: input.cells }),
       registry,
       ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
       ...(input.extraCapabilities === undefined ? {} : { extraCapabilities: input.extraCapabilities }),
@@ -509,7 +510,8 @@ export class AgentRegistryService {
     if (input.parentAgentId !== undefined) {
       return;
     }
-    input.agent.sendMessage([Cell.text(input.message)]);
+    const cells = input.cells !== undefined && input.cells.length > 0 ? input.cells : [Cell.text(input.message)];
+    input.agent.sendMessage(cells);
   }
 
   private installSignalRunner(agent: Agent, agentId: string): void {

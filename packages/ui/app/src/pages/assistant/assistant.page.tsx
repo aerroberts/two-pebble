@@ -9,7 +9,7 @@ import {
   TabSelect,
 } from '@two-pebble/components';
 import { useMemo, useState } from 'react';
-import { AgentInput } from '../../shared/agent-input/agent-input';
+import { AgentInput, type RichComposerSubmitPayload } from '../../shared/agent-input/agent-input';
 import { useSpeakText } from '../../shared/voice/use-speak-text';
 import { AssistantDirectInputControl } from './assistant-direct-input';
 import { useAssistantPageState } from './use-assistant-page-state';
@@ -92,11 +92,11 @@ export function AssistantPage() {
    * the previous turn leaks into view. Capturing at send guarantees the
    * snapshot is current.
    */
-  const sendDirectMessage = async (override?: string) => {
+  const sendDirectMessage = async (payload: RichComposerSubmitPayload) => {
     const latest = state.agentTraces[state.agentTraces.length - 1];
     setDirectTurnAnchor(latest === undefined ? 0 : latest.orderId + 1);
     setHasSubmittedThisVisit(true);
-    await state.sendChatMessage(override);
+    await state.sendChatMessage(payload);
   };
 
   const directTraces = useMemo(() => {
@@ -191,11 +191,9 @@ export function AssistantPage() {
           <div className="flex shrink-0 justify-center px-4 py-2">
             <div className="w-full max-w-xl">
               <AssistantDirectInputControl
-                chatDraft={state.chatDraft}
                 chatSending={state.chatSending}
                 registryId={state.registryId}
                 sendChatMessage={sendDirectMessage}
-                setChatDraft={state.setChatDraft}
               />
             </div>
           </div>
@@ -218,11 +216,10 @@ export function AssistantPage() {
     <AgentInput
       ariaLabel="Assistant message"
       disabled={state.chatSending}
-      onChange={state.setChatDraft}
-      onSubmit={(text) => void state.sendChatMessage(text)}
-      placeholder="Talk to your Assistant — Enter to send, Shift+Enter for newline"
+      draftStorageKey="composer:assistant:chat"
+      onSubmit={(payload) => void state.sendChatMessage(payload)}
+      placeholder="Talk to your Assistant — Enter to send, / for documents"
       submitDisabled={state.registryId === null}
-      value={state.chatDraft}
     />
   );
 

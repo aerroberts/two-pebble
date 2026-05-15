@@ -1,5 +1,6 @@
-import { Header, IconButton, Input, InputArea, PageLayout, Section, Select, Surface } from '@two-pebble/components';
+import { Header, IconButton, Input, PageLayout, Section, Select, Surface } from '@two-pebble/components';
 import { Navigate } from 'react-router-dom';
+import { RichTextFieldHost } from '../../../shared/agent-input/rich-text-field-host';
 import { CapabilitiesSection } from './capabilities/capabilities-section';
 import { SubAgentsSection } from './sub-agents/sub-agents-section';
 import { useAgentRegistrySettingsPageState } from './use-agent-registry-settings-page-state';
@@ -61,10 +62,12 @@ export function AgentRegistrySettingsPage() {
               value={state.inferenceProfileId}
             />
           )}
-          <InputArea
+          <RichTextFieldHost
+            ariaLabel="System prompt"
             label="System prompt"
-            onBlur={state.updateSystemPrompt}
-            onChange={(event) => state.setSystemPrompt(event.target.value)}
+            minHeight={160}
+            onCommit={(payload) => state.updateSystemPrompt(payload.markdown)}
+            placeholder="System prompt — / to reference a document"
             value={state.systemPrompt}
           />
         </Surface>

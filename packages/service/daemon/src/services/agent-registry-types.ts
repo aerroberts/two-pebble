@@ -8,6 +8,7 @@ import type {
 import type { Logger } from '@two-pebble/logger';
 import type {
   Agent,
+  CellContent,
   PebbleAgentConversationCell,
   PebbleAgentRestoredThread,
   PebbleAgentTrace,
@@ -32,6 +33,11 @@ export interface ExtraCapabilitySpec {
 export interface LaunchAgentInput {
   agentRegistryId: string;
   message: string;
+  /**
+   * Structured cells from the rich composer. When present, takes precedence
+   * over `message` for delivering the first turn to the agent.
+   */
+  cells?: CellContent[];
   /**
    * Optional parent agent id. Set when this launch is for a sub-agent
    * spawned by a parent's `SubAgentCapability`. The daemon stores it on
@@ -69,6 +75,12 @@ export interface RunAgentInput {
   agentId: string;
   bridge: DaemonBridge;
   message: string;
+  /**
+   * Structured cells from the rich composer for the initial turn. When
+   * present, the daemon delivers these to the agent instead of wrapping
+   * `message` as a single text cell.
+   */
+  cells?: CellContent[];
   /**
    * Optional registry record. Present on the fresh-launch path so the
    * orchestrator can register Pebble capabilities; absent when re-using

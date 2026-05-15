@@ -1,0 +1,36 @@
+import { describe, expect, test } from 'bun:test';
+import { tipTapDocToCells } from './tiptap-doc-to-cells';
+import {
+  CODE_BLOCK_DOC,
+  EMPTY_PARAGRAPH_DOC,
+  MENTION_DOC,
+  MISSING_ID_MENTION_DOC,
+  PLAIN_PARAGRAPH_DOC,
+} from './tiptap-doc-to-cells.test-fixtures';
+
+describe('feature: tiptap doc to cells', () => {
+  test('happy: collapses a plain paragraph into a single text cell', () => {
+    const cells = tipTapDocToCells(PLAIN_PARAGRAPH_DOC);
+    expect(cells).toEqual([{ type: 'text', content: { text: 'hello world' } }]);
+  });
+
+  test('happy: splits a document mention into its own documentReference cell', () => {
+    const cells = tipTapDocToCells(MENTION_DOC);
+    expect(cells.map((cell) => cell.type)).toEqual(['text', 'documentReference', 'text']);
+    const reference = cells[1];
+    expect(reference?.type === 'documentReference' ? reference.content.documentId : null).toBe('doc-1');
+  });
+
+  test('happy: emits a code block cell with the declared language', () => {
+    const cells = tipTapDocToCells(CODE_BLOCK_DOC);
+    expect(cells).toEqual([{ type: 'codeBlock', content: { language: 'typescript', code: 'const x = 1;' } }]);
+  });
+
+  test('happy: returns an empty array for an empty document', () => {
+    expect(tipTapDocToCells(EMPTY_PARAGRAPH_DOC)).toEqual([]);
+  });
+
+  test('happy: drops document mentions that lack a documentId', () => {
+    expect(tipTapDocToCells(MISSING_ID_MENTION_DOC)).toEqual([]);
+  });
+});

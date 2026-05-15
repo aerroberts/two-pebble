@@ -650,3 +650,42 @@ body {
 [data-rounded-logo] {
   border-radius: 10px;
 }
+
+/* Rich message composer — TipTap editor body */
+.composer-editor .ProseMirror {
+  padding: 6px 40px 6px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--color-content);
+  outline: none;
+}
+
+.composer-editor .ProseMirror:focus {
+  outline: none;
+}
+
+.composer-editor .ProseMirror p {
+  margin: 0;
+}
+
+.composer-editor .ProseMirror p + p {
+  margin-top: 4px;
+}
+
+.composer-editor .ProseMirror pre {
+  background: var(--color-background);
+  padding: 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  overflow-x: auto;
+}
+
+.composer-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--color-content-muted);
+}

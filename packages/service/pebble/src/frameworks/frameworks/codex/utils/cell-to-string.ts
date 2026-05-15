@@ -15,6 +15,8 @@ export function cellToString(cell: CellContent): string {
       return cell.content.code;
     case 'data':
       return JSON.stringify(cell.content.value);
+    case 'documentReference':
+      return `[document: ${cell.content.name} (id: ${cell.content.documentId})]\n${cell.content.contentSnapshot}`;
     case 'image':
       return '';
     case 'audio':

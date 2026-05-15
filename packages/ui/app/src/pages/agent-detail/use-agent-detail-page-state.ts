@@ -1,3 +1,4 @@
+import type { CellContent } from '@two-pebble/pebble';
 import {
   type AgentRecord,
   useAgentCalls,
@@ -28,7 +29,6 @@ export function useAgentDetailPageState() {
   const [searchParams, setSearchParams] = useSearchParams();
   const viewMode = parseAgentDetailViewMode(searchParams.get('view') ?? '');
   const [waterfallScope, setWaterfallScope] = useState<WaterfallScope>('this-agent');
-  const [chatDraft, setChatDraft] = useState('');
   const [chatError, setChatError] = useState('');
   const [chatSending, setChatSending] = useState(false);
   const sendAgentMessage = useSendAgentMessage();
@@ -131,17 +131,15 @@ export function useAgentDetailPageState() {
     navigate(`/tasks/${boardId}?selectedTask=${taskId}`);
   };
 
-  const sendChatMessage = async (override?: string) => {
-    const source = override ?? chatDraft;
-    const trimmed = source.trim();
-    if (trimmed.length === 0 || agentId.length === 0) {
+  const sendChatMessage = async (input: { markdown: string; cells: CellContent[] }) => {
+    const trimmed = input.markdown.trim();
+    if ((trimmed.length === 0 && input.cells.length === 0) || agentId.length === 0) {
       return;
     }
     setChatSending(true);
     setChatError('');
     try {
-      await sendAgentMessage({ agentId, message: trimmed });
-      setChatDraft('');
+      await sendAgentMessage({ agentId, message: trimmed, cells: input.cells });
     } catch (failure) {
       setChatError(failure instanceof Error ? failure.message : String(failure));
     } finally {
@@ -183,7 +181,6 @@ export function useAgentDetailPageState() {
     agent,
     agentId,
     agentTraces,
-    chatDraft,
     chatError,
     chatSending,
     loadingPriceLineItems,
@@ -201,7 +198,6 @@ export function useAgentDetailPageState() {
     freshStartAgentRun,
     restarting,
     liveness,
-    setChatDraft,
     setViewModeFromValue,
     setWaterfallScope,
     traces,

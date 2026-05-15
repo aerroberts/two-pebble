@@ -3,30 +3,24 @@
 import { useToast } from '@two-pebble/components';
 import { useAppSettings, useSendAssistantMessage } from '@two-pebble/realtime';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AgentInput } from '../shared/agent-input/agent-input';
+import { AgentInput, type RichComposerSubmitPayload } from '../shared/agent-input/agent-input';
 
 /**
  * Global Command-K assistant overlay.
  *
  * Activated by pressing Cmd+K (or Ctrl+K on Windows/Linux) anywhere in the
  * app when `appSettings.assistantCommandKEnabled` is true. The overlay opens
- * centered with a soft backdrop blur and renders the unified `AgentInput`
- * composer (textarea with a mic switch on the right). When
- * `assistantCommandKVoiceModeEnabled` is also on, the overlay opens straight
- * into voice mode and starts recording immediately. Either way, submitting
- * dispatches the message to the persisted Assistant agent and dismisses the
- * overlay; the user stays on the current page and a toast confirms.
- *
- * The overlay closes on Escape, on backdrop click, or after the message is
- * sent. Focus is moved into the overlay container on open so keyboard events
- * are captured even when the composer hasn't claimed focus yet.
+ * centered with a soft backdrop blur and renders the rich composer.
+ * When `assistantCommandKVoiceModeEnabled` is also on, the overlay opens
+ * straight into voice mode and starts recording immediately. Submitting
+ * dispatches the message to the persisted Assistant agent and dismisses
+ * the overlay; the user stays on the current page and a toast confirms.
  */
 export function AssistantCommandK() {
   const appSettings = useAppSettings();
   const sendAssistantMessage = useSendAssistantMessage();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState('');
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const settings = appSettings.value;
@@ -35,7 +29,6 @@ export function AssistantCommandK() {
 
   const close = useCallback(() => {
     setOpen(false);
-    setDraft('');
   }, []);
 
   useEffect(() => {
@@ -75,9 +68,9 @@ export function AssistantCommandK() {
 
   const registryId = settings?.assistantAgentRegistryId ?? null;
 
-  const sendToAssistant = async (text: string) => {
-    const trimmed = text.trim();
-    if (trimmed.length === 0) {
+  const sendToAssistant = async (payload: RichComposerSubmitPayload) => {
+    const trimmed = payload.markdown.trim();
+    if (trimmed.length === 0 && payload.cells.length === 0) {
       return;
     }
     close();
@@ -86,7 +79,7 @@ export function AssistantCommandK() {
       return;
     }
     try {
-      const result = await sendAssistantMessage({ message: trimmed });
+      const result = await sendAssistantMessage({ message: trimmed, cells: payload.cells });
       toast(result.launched ? 'Started Assistant and sent message.' : 'Sent to Assistant.', 'success');
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : 'Failed to send.';
@@ -115,11 +108,9 @@ export function AssistantCommandK() {
         <AgentInput
           ariaLabel="Assistant message"
           initialMode={startInVoiceMode ? 'voice' : 'text'}
-          onChange={setDraft}
-          onSubmit={(text) => void sendToAssistant(text)}
-          placeholder="Type or speak — Enter to send"
+          onSubmit={(payload) => void sendToAssistant(payload)}
+          placeholder="Type or speak — Enter to send, / for documents"
           submitDisabled={registryId === null}
-          value={draft}
         />
         <p className="mt-3 text-center text-content-muted text-xs">Press Esc to cancel</p>
       </div>

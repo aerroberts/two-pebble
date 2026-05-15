@@ -1,10 +1,9 @@
-import { AgentInput } from '../../shared/agent-input/agent-input';
+import { AgentInput, type RichComposerSubmitPayload } from '../../shared/agent-input/agent-input';
 
 interface AgentDetailChatViewFooterProps {
-  chatDraft: string;
+  agentId: string;
   chatSending: boolean;
-  onChatDraftChange: (value: string) => void;
-  onChatSubmit: (override?: string) => void;
+  onChatSubmit: (payload: RichComposerSubmitPayload) => void;
 }
 
 export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps) {
@@ -12,10 +11,9 @@ export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps)
     <AgentInput
       ariaLabel="Follow-up message"
       disabled={props.chatSending}
-      onChange={props.onChatDraftChange}
-      onSubmit={(text) => props.onChatSubmit(text)}
-      placeholder="Send a follow-up message — Enter to send, Shift+Enter for newline"
-      value={props.chatDraft}
+      draftStorageKey={`composer:agent-detail:${props.agentId}`}
+      onSubmit={(payload) => props.onChatSubmit(payload)}
+      placeholder="Send a follow-up — Enter to send, / for documents"
     />
   );
 }

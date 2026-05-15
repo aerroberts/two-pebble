@@ -111,11 +111,12 @@ export function useAgentRegistrySettingsPageState() {
     void updateAgentRegistry({ id: registryId, name });
   };
 
-  const updateSystemPrompt = () => {
-    if (registry?.value === null || registry?.value === undefined || systemPrompt === registry.value.systemPrompt) {
+  const updateSystemPrompt = (nextSystemPrompt: string) => {
+    if (registry?.value === null || registry?.value === undefined || nextSystemPrompt === registry.value.systemPrompt) {
       return;
     }
-    void updateAgentRegistry({ id: registryId, systemPrompt });
+    setSystemPrompt(nextSystemPrompt);
+    void updateAgentRegistry({ id: registryId, systemPrompt: nextSystemPrompt });
   };
 
   const updateInferenceProfileId = (value: string) => {

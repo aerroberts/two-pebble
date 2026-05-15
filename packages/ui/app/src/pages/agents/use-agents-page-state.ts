@@ -1,3 +1,4 @@
+import type { RichComposerSubmitPayload } from '@two-pebble/components';
 import {
   useAgentRegistries,
   useInferenceProfiles,
@@ -10,7 +11,6 @@ import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
 
 export function useAgentsPageState() {
   const [agentRegistryId, setAgentRegistryId] = useState('');
-  const [message, setMessage] = useState('');
   const [launching, setLaunching] = useState(false);
   const agentRegistries = useAgentRegistries();
   const inferenceProfiles = useInferenceProfiles();
@@ -24,12 +24,16 @@ export function useAgentsPageState() {
   const launchAgent = useLaunchAgent();
   const navigate = useNavigate();
 
-  const launchSelectedAgent = async () => {
+  const launchSelectedAgent = async (payload: RichComposerSubmitPayload) => {
+    if (agentRegistryId.length === 0) {
+      return;
+    }
     setLaunching(true);
     try {
       const launched = await launchAgent({
         agentRegistryId,
-        message,
+        message: payload.markdown,
+        cells: payload.cells,
       });
       navigate(`/agents/${launched.id}`);
     } finally {
@@ -49,8 +53,6 @@ export function useAgentsPageState() {
     agentRegistryOptions,
     launchSelectedAgent,
     launching,
-    message,
     setAgentRegistryId,
-    setMessage,
   };
 }

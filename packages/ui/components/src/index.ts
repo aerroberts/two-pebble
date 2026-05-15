@@ -152,6 +152,24 @@ export {
 } from './components/input/icon-button-group/icon-button-group';
 export { Input, type InputAction, type InputProps } from './components/input/input/input';
 export { InputArea, type InputAreaProps } from './components/input/input-area/input-area';
+export {
+  clearComposerDraft,
+  DocumentMentionNode,
+  emptyComposerDoc,
+  isComposerDocEmpty,
+  loadComposerDraft,
+  type RichComposerDocument,
+  type RichComposerSlashTrigger,
+  type RichComposerSubmitPayload,
+  RichMessageComposer,
+  type RichMessageComposerProps,
+  type RichMessageComposerVoiceHandlers,
+  RichTextField,
+  type RichTextFieldProps,
+  saveComposerDraft,
+  tipTapDocToCells,
+  tipTapDocToMarkdown,
+} from './components/input/rich-message-composer';
 export { Select, type SelectOption, type SelectProps } from './components/input/select/select';
 export { TabSelect, type TabSelectOption, type TabSelectProps } from './components/input/tab-select/tab-select';
 export { ThemeLoader, type ThemeLoaderProps } from './components/input/theme-toggle/theme-loader';

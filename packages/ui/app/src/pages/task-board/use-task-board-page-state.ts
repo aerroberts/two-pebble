@@ -47,7 +47,6 @@ export function useTaskBoardPageState() {
   const board = taskBoards.getItem(boardId)?.value ?? null;
   const [boardNameDraft, setBoardNameDraft] = useState('');
   const [taskNameDraft, setTaskNameDraft] = useState('');
-  const [taskDescriptionDraft, setTaskDescriptionDraft] = useState('');
   const [view, setView] = useState<TaskBoardView>('graph');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [delegating, setDelegating] = useState(false);
@@ -72,7 +71,6 @@ export function useTaskBoardPageState() {
       return;
     }
     setTaskNameDraft(selectedTask.name);
-    setTaskDescriptionDraft(selectedTask.description);
   }, [selectedTask]);
   const selectedDependencies = useMemo(() => {
     if (selectedTask === null) {
@@ -120,10 +118,8 @@ export function useTaskBoardPageState() {
     selectedTaskId,
     setBoardNameDraft,
     setSelectedTaskId,
-    setTaskDescriptionDraft,
     setTaskNameDraft,
     setView,
-    taskDescriptionDraft,
     taskEvents: taskEventsState.events,
     taskTemplates: taskTemplates.templates,
     selectedTaskDeliverables: selectedTaskDeliverablesState.deliverables,
@@ -153,15 +149,15 @@ export function useTaskBoardPageState() {
         }
         await mutations.renameTask({ id: selectedTask.id, name: trimmed });
       }),
-    saveTaskDescription: () =>
+    saveTaskDescription: (nextDescription: string) =>
       handle(async () => {
         if (selectedTask === null) {
           return;
         }
-        if (taskDescriptionDraft === selectedTask.description) {
+        if (nextDescription === selectedTask.description) {
           return;
         }
-        await mutations.updateTaskDescription({ id: selectedTask.id, description: taskDescriptionDraft });
+        await mutations.updateTaskDescription({ id: selectedTask.id, description: nextDescription });
       }),
     setSelectedTaskStatus: (status: SettableTaskStatus) =>
       handle(async () => {

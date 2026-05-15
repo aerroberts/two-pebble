@@ -36,6 +36,8 @@ function serializeCell(cell: CellContent): string {
       return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
     case 'data':
       return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
+    case 'documentReference':
+      return `[document: ${cell.content.name} (id: ${cell.content.documentId})]\n\n${cell.content.contentSnapshot}`;
     case 'header1':
       return `# ${cell.content.text}`;
     case 'header2':

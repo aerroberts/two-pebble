@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { Cell } from '@two-pebble/pebble';
 import { useSendAssistantMessage } from '../../index';
 import { buildRealtimeContext } from '../../testing/realtime-context.builder';
 import { installProviderFetchForTesting } from '../../testing/support/provider-fetch';
@@ -31,6 +32,34 @@ describe('feature: realtime assistant messages', () => {
       expect(result?.launched).toBe(true);
       expect(result?.agentId).not.toBe(original.id);
       expect(settings.assistantAgentId).toBe(result?.agentId);
+    } finally {
+      await ctx.close();
+      restoreFetch();
+    }
+  });
+
+  test('happy: accepts a structured cells payload alongside the legacy message', async () => {
+    const restoreFetch = installProviderFetchForTesting();
+    const ctx = await buildRealtimeContext({});
+    try {
+      const sendAssistantMessage = await ctx.realtime.renderHook(useSendAssistantMessage);
+      const registry = await setupOpenAiAgentRegistry(ctx.daemon);
+      await ctx.daemon.do('updateAppSettings', {
+        defaultTranscriptionProfileId: null,
+        defaultSpeechProfileId: null,
+        assistantAgentRegistryId: registry.id,
+        assistantAgentId: null,
+        assistantCommandKEnabled: true,
+        assistantCommandKVoiceModeEnabled: false,
+      });
+
+      const result = await sendAssistantMessage.current()({
+        message: 'send me with cells',
+        cells: [Cell.text('send me with cells')],
+      });
+
+      expect(result?.launched).toBe(true);
+      expect(typeof result?.agentId).toBe('string');
     } finally {
       await ctx.close();
       restoreFetch();

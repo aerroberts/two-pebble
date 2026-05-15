@@ -13,10 +13,8 @@ export function AgentsPage() {
         agentRegistryId={state.agentRegistryId}
         agentRegistryOptions={state.agentRegistryOptions}
         launching={state.launching}
-        message={state.message}
         onAgentRegistryIdChange={state.setAgentRegistryId}
-        onLaunchAgent={() => void state.launchSelectedAgent()}
-        onMessageChange={state.setMessage}
+        onLaunchAgent={(payload) => void state.launchSelectedAgent(payload)}
       />
     </PageLayout>
   );

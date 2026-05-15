@@ -20,6 +20,8 @@ function renderCellForTrace(cell: CellContent): unknown {
       return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
     case 'data':
       return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
+    case 'documentReference':
+      return `[document: @${cell.content.name}]`;
     case 'header1':
       return `# ${cell.content.text}`;
     case 'header2':

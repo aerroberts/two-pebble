@@ -2,6 +2,7 @@ import { Cell } from '@two-pebble/pebble';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
 import type { DaemonHandlerContext } from '../types';
+import { resolveDocumentReferenceCells } from './resolve-document-reference-cells';
 
 type SendAgentMessageOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'sendAgentMessage'>;
 type Payload = SendAgentMessageOperation['request'];
@@ -17,10 +18,16 @@ type Payload = SendAgentMessageOperation['request'];
  */
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
-    const cell = Cell.text(payload.message);
+    const rawCells =
+      payload.cells !== undefined && payload.cells.length > 0 ? payload.cells : [Cell.text(payload.message)];
+    const cells = await resolveDocumentReferenceCells({
+      cells: rawCells,
+      datastore: ctx.datastore,
+      logger: ctx.logger,
+    });
     const live = ctx.agentRegistry.get(payload.agentId);
     if (live !== undefined) {
-      live.sendMessage([cell]);
+      live.sendMessage(cells);
       return { id: payload.agentId };
     }
     const record = await ctx.datastore.agent.read({ id: payload.agentId });
@@ -37,7 +44,7 @@ export function handler(ctx: DaemonHandlerContext) {
     void ctx.agentRegistry
       .rehydrate(payload.agentId)
       .then((agent) => {
-        agent.sendMessage([cell]);
+        agent.sendMessage(cells);
       })
       .catch((error) => {
         const message = error instanceof Error ? error.message : String(error);

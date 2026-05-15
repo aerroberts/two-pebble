@@ -190,7 +190,9 @@
       "version": "0.1.0",
       "dependencies": {
         "@two-pebble/components": "workspace:*",
+        "@two-pebble/datatypes": "workspace:*",
         "@two-pebble/names": "workspace:*",
+        "@two-pebble/pebble": "workspace:*",
         "@two-pebble/realtime": "workspace:*",
         "react": "18.3.1",
         "react-dom": "18.3.1",

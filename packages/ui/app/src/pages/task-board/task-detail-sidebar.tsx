@@ -1,6 +1,5 @@
 import {
   AppBox,
-  AppTextarea,
   Button,
   Select,
   type SelectOption,
@@ -8,6 +7,7 @@ import {
   type TaskStatusIconStatus,
 } from '@two-pebble/components';
 import type { ReactNode } from 'react';
+import { RichTextFieldHost } from '../../shared/agent-input/rich-text-field-host';
 
 export interface TaskDetailSidebarTask {
   id: string;
@@ -35,13 +35,12 @@ export interface TaskDetailSidebarDeliverableSubmission {
 export interface TaskDetailSidebarProps {
   task: TaskDetailSidebarTask;
   ownerAgent: TaskDetailSidebarOwnerAgent | null;
-  descriptionDraft: string;
+  description: string;
   delegateAgents: SelectOption[];
   delegateDisabled: boolean;
   deliverables: TaskDetailSidebarDeliverable[];
   submissions: TaskDetailSidebarDeliverableSubmission[];
-  onDescriptionChange: (value: string) => void;
-  onDescriptionSave: () => void;
+  onDescriptionSave: (markdown: string) => void;
   onDelegate: (agentRegistryId: string) => void;
   onUndelegate: () => void;
   onOpenAgent: (agentId: string) => void;
@@ -79,12 +78,12 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         </AppBox>
         {props.ownerAgent !== null ? renderOwnerSummary(props) : null}
       </AppBox>
-      <AppTextarea
+      <RichTextFieldHost
         ariaLabel="Task description"
-        onBlur={props.onDescriptionSave}
-        onChange={(event) => props.onDescriptionChange(event.target.value)}
-        placeholder="Describe this task"
-        value={props.descriptionDraft}
+        minHeight={120}
+        onCommit={(payload) => props.onDescriptionSave(payload.markdown)}
+        placeholder="Describe this task — / to reference a document"
+        value={props.description}
       />
       {props.deliverables.length > 0 ? (
         <div className="flex flex-col gap-2 pt-3">

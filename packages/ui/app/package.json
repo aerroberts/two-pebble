@@ -9,13 +9,15 @@
     "dev": "vite --host 127.0.0.1 --port 5173",
     "guard": "bunx guardrails",
     "lint": "biome check --write .",
-    "test": "bun -e \"console.log('No app tests configured')\"",
-    "test:coverage": "bun -e \"console.log('No app tests configured')\"",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@two-pebble/components": "workspace:*",
+    "@two-pebble/datatypes": "workspace:*",
     "@two-pebble/names": "workspace:*",
+    "@two-pebble/pebble": "workspace:*",
     "@two-pebble/realtime": "workspace:*",
     "react": "18.3.1",
     "react-dom": "18.3.1",

@@ -1,3 +1,4 @@
+import type { CellContent } from '@two-pebble/pebble';
 import type { LoadableRegistry } from '../../loadable';
 
 export interface AgentsState {
@@ -37,11 +38,13 @@ export interface ResumeAgentInput {
 export interface LaunchAgentInput {
   agentRegistryId: string;
   message: string;
+  cells?: CellContent[];
 }
 
 export interface SendAgentMessageInput {
   agentId: string;
   message: string;
+  cells?: CellContent[];
 }
 
 export interface ReadAgentInput {
