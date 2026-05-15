@@ -86,6 +86,7 @@ export function AgentRegistrySettingsPage() {
           />
           <SubAgentsSection
             inferenceProfiles={state.inferenceProfiles}
+            installs={state.installs}
             onChange={state.setSubAgentReferences}
             references={state.subAgentReferences}
             registryOptions={state.otherRegistryOptions}

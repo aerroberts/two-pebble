@@ -133,6 +133,7 @@ import type { ThirdPartyAgentInstallsCreateOperation } from './protocol/third-pa
 import type { ThirdPartyAgentInstallsDeleteOperation } from './protocol/third-party-agent-installs.delete';
 import type { ThirdPartyAgentInstallsDeletedEvent } from './protocol/third-party-agent-installs.deleted';
 import type { ThirdPartyAgentInstallsDetectClaudeCodeOperation } from './protocol/third-party-agent-installs.detect-claude-code';
+import type { ThirdPartyAgentInstallsDetectCodexOperation } from './protocol/third-party-agent-installs.detect-codex';
 import type { ThirdPartyAgentInstallsListOperation } from './protocol/third-party-agent-installs.list';
 import type { ThirdPartyAgentInstallsUpdateOperation } from './protocol/third-party-agent-installs.update';
 import type { ThirdPartyAgentInstallsUpdatedEvent } from './protocol/third-party-agent-installs.updated';
@@ -187,6 +188,7 @@ export type DaemonOperations = [
   ThirdPartyAgentInstallsUpdateOperation,
   ThirdPartyAgentInstallsDeleteOperation,
   ThirdPartyAgentInstallsDetectClaudeCodeOperation,
+  ThirdPartyAgentInstallsDetectCodexOperation,
   AgentRegistriesListOperation,
   AgentRegistriesCreateOperation,
   AgentRegistriesUpdateOperation,

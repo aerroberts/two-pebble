@@ -13,6 +13,7 @@ import type {
   InferenceProfileRecord,
   LoadableRegistry,
   TaskPoolRecord,
+  ThirdPartyAgentInstallRecord,
 } from '@two-pebble/realtime';
 import { useTemplateDeliverables } from '@two-pebble/realtime';
 import { useState } from 'react';
@@ -31,6 +32,7 @@ interface TaskBoardSettingsViewProps {
   poolDispatchSettings: Record<string, DispatchSettingsValue>;
   agentRegistries: AgentRegistryRecord[];
   inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>;
   onSaveDispatchSettings: (input: DispatchSettingsUpdateInput) => void;
   templates: Array<{ id: string; name: string; prompt: string }>;
   onCreateTemplate: (input: { name: string; prompt?: string }) => void;
@@ -80,6 +82,7 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
           <DispatchSettingsEditor
             agentRegistries={props.agentRegistries}
             inferenceProfiles={props.inferenceProfiles}
+            installs={props.installs}
             initial={props.boardDispatchSettings}
             onSave={(value) =>
               props.onSaveDispatchSettings({
@@ -126,6 +129,7 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
               dispatch: props.poolDispatchSettings[pool.id] ?? null,
               agentRegistries: props.agentRegistries,
               inferenceProfiles: props.inferenceProfiles,
+              installs: props.installs,
               onSaveDispatch: (value) =>
                 props.onSaveDispatchSettings({
                   scopeKind: 'pool',
@@ -248,6 +252,7 @@ function TaskTemplateEditor(props: TaskTemplateEditorProps) {
 interface DispatchSettingsEditorProps {
   agentRegistries: AgentRegistryRecord[];
   inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>;
   initial: DispatchSettingsValue;
   onSave: (value: DispatchSettingsValue) => void;
 }
@@ -289,7 +294,7 @@ function DispatchSettingsEditor(props: DispatchSettingsEditorProps) {
         <Select
           placeholder="Pick an agent"
           options={props.agentRegistries.map((entry) => ({
-            icon: agentRegistryIcon(entry, props.inferenceProfiles),
+            icon: agentRegistryIcon(entry, props.inferenceProfiles, props.installs),
             label: entry.name,
             value: entry.id,
           }))}
@@ -316,6 +321,7 @@ interface PoolItemInput {
   dispatch: DispatchSettingsValue | null;
   agentRegistries: AgentRegistryRecord[];
   inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>;
   onSaveDispatch: (value: DispatchSettingsValue) => void;
 }
 
@@ -330,6 +336,7 @@ function toPoolItem(input: PoolItemInput): ListLayoutItem {
           pool={input.pool}
           agentRegistries={input.agentRegistries}
           inferenceProfiles={input.inferenceProfiles}
+          installs={input.installs}
           dispatch={input.dispatch}
           onSave={input.onSaveDispatch}
         />
@@ -345,6 +352,7 @@ interface PoolAutomationToggleProps {
   pool: TaskPoolRecord;
   agentRegistries: AgentRegistryRecord[];
   inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>;
   dispatch: DispatchSettingsValue | null;
   onSave: (value: DispatchSettingsValue) => void;
 }
@@ -374,6 +382,7 @@ function PoolAutomationToggle(props: PoolAutomationToggleProps) {
       <DispatchSettingsEditor
         agentRegistries={props.agentRegistries}
         inferenceProfiles={props.inferenceProfiles}
+        installs={props.installs}
         initial={current}
         onSave={(value) => {
           props.onSave(value);

@@ -26,6 +26,7 @@ export type { AgentTraceRecord } from './components/agents/types';
 export {
   AnthropicLogo,
   ClaudeCodeLogo,
+  CodexLogo,
   GitLogo,
   OllamaLogo,
   OpenAiLogo,

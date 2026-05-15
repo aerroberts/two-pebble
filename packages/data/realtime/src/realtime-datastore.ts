@@ -95,6 +95,7 @@ import { updateTaskDescriptionOperation } from './operations/tasks.update-descri
 import { createThirdPartyAgentInstallOperation } from './operations/third-party-agent-installs.create.operation';
 import { deleteThirdPartyAgentInstallOperation } from './operations/third-party-agent-installs.delete.operation';
 import { detectClaudeCodeInstallOperation } from './operations/third-party-agent-installs.detect-claude-code.operation';
+import { detectCodexInstallOperation } from './operations/third-party-agent-installs.detect-codex.operation';
 import { listThirdPartyAgentInstallsOperation } from './operations/third-party-agent-installs.list.operation';
 import { updateThirdPartyAgentInstallOperation } from './operations/third-party-agent-installs.update.operation';
 import { readThreadSnapshotOperation } from './operations/thread.snapshot.read.operation';
@@ -198,6 +199,7 @@ export class RealtimeDatastore {
       create: createThirdPartyAgentInstallOperation({ datastore: this }),
       delete: deleteThirdPartyAgentInstallOperation({ datastore: this }),
       detectClaudeCode: detectClaudeCodeInstallOperation({ datastore: this }),
+      detectCodex: detectCodexInstallOperation({ datastore: this }),
       list: listThirdPartyAgentInstallsOperation({ datastore: this }),
       update: updateThirdPartyAgentInstallOperation({ datastore: this }),
     };
