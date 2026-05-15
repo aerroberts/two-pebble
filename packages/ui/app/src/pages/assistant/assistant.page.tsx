@@ -124,6 +124,7 @@ export function AssistantPage() {
       // window.
       const latest = state.agentTraces[state.agentTraces.length - 1];
       setDirectTurnAnchor(latest ? latest.orderId + 1 : 0);
+      setHasSubmittedThisVisit(false);
     }
     setViewMode(nextMode);
   };
