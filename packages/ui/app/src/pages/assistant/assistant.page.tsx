@@ -302,6 +302,7 @@ export function AssistantPage() {
   return (
     <ChatPageLayout
       header={header}
+      pinScrollToBottom
       footer={
         <>
           {chatInputArea}

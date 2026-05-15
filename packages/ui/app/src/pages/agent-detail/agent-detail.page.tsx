@@ -71,6 +71,7 @@ export function AgentDetailPage() {
     return (
       <ChatPageLayout
         header={header}
+        pinScrollToBottom
         footer={
           <>
             <AgentDetailChatViewFooter
