@@ -101,7 +101,8 @@ const BOX_CLASSES: Record<AppBoxVariant, string> = {
   'task-detail-actions': 'shrink-0',
   'task-detail-header': 'flex items-start justify-between gap-3 pb-3',
   'task-detail-title': 'min-w-0 flex-1 truncate text-sm font-medium text-content',
-  'voice-pill': 'inline-flex items-center gap-1 rounded-md bg-accent px-2 text-accent-content',
+  'voice-pill':
+    'voice-pill-pop-in inline-flex items-center gap-1 rounded-md bg-accent px-2 text-accent-content shadow-sm transition-[background-color,box-shadow,transform] duration-200 ease-out hover:shadow-md',
 };
 
 const BUTTON_CLASSES: Record<AppButtonVariant, string> = {
@@ -109,8 +110,10 @@ const BUTTON_CLASSES: Record<AppButtonVariant, string> = {
   'range-active': 'rounded-md bg-surface-active px-2 py-1 text-xs font-medium text-content',
   'range-idle': 'rounded-md px-2 py-1 text-xs text-content-muted hover:bg-surface-hover',
   'sidebar-label': 'min-w-0 flex-1 truncate text-left font-heading font-normal tracking-[0.08em]',
-  'voice-record': 'inline-flex h-7 cursor-pointer items-center gap-2 transition-colors hover:opacity-80',
-  'voice-submit': 'inline-flex h-7 cursor-pointer items-center px-1 transition-colors hover:opacity-80',
+  'voice-record':
+    'inline-flex h-7 cursor-pointer items-center gap-2 transition-[opacity,transform,color] duration-150 ease-out hover:opacity-80 active:scale-95',
+  'voice-submit':
+    'inline-flex h-7 cursor-pointer items-center px-1 transition-[opacity,transform,color] duration-150 ease-out hover:opacity-80 active:scale-90',
 };
 
 export function AppBox(props: AppBoxProps) {

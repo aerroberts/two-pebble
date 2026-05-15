@@ -15,6 +15,7 @@ import { useMemo, useRef, useState } from 'react';
 import { ConfirmDialog } from '../../shared/confirm/confirm-dialog';
 import { useConfirm } from '../../shared/confirm/use-confirm';
 import { useSpeakText } from '../../shared/voice/use-speak-text';
+import type { VoiceCaptureStatus } from '../../shared/voice/use-voice-capture';
 import { VoiceCaptureButton } from '../../shared/voice/voice-capture-button';
 import { useAssistantPageState } from './use-assistant-page-state';
 
@@ -48,6 +49,8 @@ export function AssistantPage() {
   // view.
   const [directTurnAnchor, setDirectTurnAnchor] = useState<number>(() => Number.POSITIVE_INFINITY);
   const [viewMode, setViewMode] = useState<AssistantViewMode>('direct');
+  const [voiceStatus, setVoiceStatus] = useState<VoiceCaptureStatus>('idle');
+  const isRecording = voiceStatus === 'recording';
   // Track the agent we anchored against so a context reset re-anchors fresh.
   const anchoredAgentIdRef = useRef<string | null>(null);
 
@@ -134,7 +137,7 @@ export function AssistantPage() {
   const inputArea = (
     <InputArea
       aria-label="Assistant message"
-      disabled={state.chatSending}
+      disabled={state.chatSending || isRecording}
       onChange={(event) => state.setChatDraft(event.target.value)}
       onKeyDown={(event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -150,19 +153,26 @@ export function AssistantPage() {
   );
 
   const inputControls = (
-    <Row gap="sm">
-      <VoiceCaptureButton
-        onTranscript={(text) => state.setChatDraft(joinTranscript(state.chatDraft, text))}
-        onSubmitTranscript={(text) => {
-          const next = joinTranscript(state.chatDraft, text);
-          state.setChatDraft(next);
-          if (next.trim().length > 0 && state.registryId !== null && !state.chatSending) {
-            void state.sendChatMessage(next);
-          }
-        }}
-      />
-      {resetControl}
-    </Row>
+    <div
+      className={`flex transition-[justify-content] duration-200 ease-out ${
+        isRecording ? 'justify-center' : 'justify-start'
+      }`}
+    >
+      <Row gap="sm">
+        <VoiceCaptureButton
+          onStatusChange={setVoiceStatus}
+          onTranscript={(text) => state.setChatDraft(joinTranscript(state.chatDraft, text))}
+          onSubmitTranscript={(text) => {
+            const next = joinTranscript(state.chatDraft, text);
+            state.setChatDraft(next);
+            if (next.trim().length > 0 && state.registryId !== null && !state.chatSending) {
+              void state.sendChatMessage(next);
+            }
+          }}
+        />
+        {resetControl}
+      </Row>
+    </div>
   );
 
   const header = (

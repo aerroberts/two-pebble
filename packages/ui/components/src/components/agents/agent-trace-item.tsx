@@ -32,8 +32,8 @@ export function AgentTraceItem(props: AgentTraceItemProps) {
   const statusIconState = props.status === 'success' ? 'success' : props.status === 'error' ? 'failed' : 'in-progress';
   const boxedClassName =
     props.tone === 'tool'
-      ? 'flex w-full flex-col gap-2 rounded-md bg-accent/[0.045] px-3 py-2 transition-colors hover:bg-accent/[0.07]'
-      : 'flex w-full flex-col gap-2 rounded-md border border-border bg-surface px-3 py-2 transition-colors hover:bg-surface-raised';
+      ? 'flex w-full flex-col gap-2 rounded-md bg-accent/[0.045] px-3 py-2 transition-[background-color,transform,box-shadow] duration-150 ease-out hover:bg-accent/[0.07] hover:-translate-y-px hover:shadow-sm'
+      : 'flex w-full flex-col gap-2 rounded-md border border-border bg-surface px-3 py-2 transition-[background-color,border-color,transform,box-shadow] duration-150 ease-out hover:bg-surface-raised hover:-translate-y-px hover:shadow-sm';
   const containerClassName = props.boxed === true ? boxedClassName : 'flex w-full flex-col gap-2 px-3 py-2';
   const summary = (
     <div className="flex w-full items-center gap-2">
@@ -56,7 +56,7 @@ export function AgentTraceItem(props: AgentTraceItemProps) {
       {props.onClick ? (
         <button
           type="button"
-          className="w-full cursor-pointer rounded-md text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+          className="w-full cursor-pointer rounded-md text-left transition-transform duration-150 ease-out active:scale-[0.99] focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           onClick={props.onClick}
         >
           {summary}
