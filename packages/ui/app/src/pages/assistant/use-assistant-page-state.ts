@@ -98,11 +98,6 @@ export function useAssistantPageState() {
     }
   };
 
-  const resetContext = () => {
-    setChatError('');
-    persistAgentId(null);
-  };
-
   return {
     agent,
     agentId,
@@ -112,7 +107,6 @@ export function useAssistantPageState() {
     chatSending,
     liveness,
     registryId,
-    resetContext,
     sendChatMessage,
     setChatDraft,
     settingsLoaded,
