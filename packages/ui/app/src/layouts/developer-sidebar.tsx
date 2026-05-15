@@ -20,6 +20,12 @@ export function DeveloperSidebar() {
           label="Database"
           onClick={() => navigate('/developer/database')}
         />
+        <SidebarOption
+          active={location.pathname === '/developer/heartbeats'}
+          icon="activity"
+          label="Heartbeats"
+          onClick={() => navigate('/developer/heartbeats')}
+        />
       </SidebarSection>
       <SidebarSection title="Agents">
         <SidebarOption

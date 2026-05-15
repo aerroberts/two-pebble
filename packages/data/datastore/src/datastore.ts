@@ -7,6 +7,10 @@ import { drizzle } from 'drizzle-orm/libsql';
 import type { DatastoreOperationBinder } from './datastore-operation-binder';
 import { bindAgentOperationGroup } from './operation-groups/agent-operation-group';
 import {
+  bindAutomationOperationGroup,
+  bindHeartbeatOperationGroup,
+} from './operation-groups/automation-operation-group';
+import {
   bindAgentRegistryOperationGroup,
   bindAppSettingsOperationGroup,
   bindInferenceProfileOperationGroup,
@@ -109,6 +113,14 @@ export class Datastore {
    */
   public get appSettings() {
     return bindAppSettingsOperationGroup(this.operationBinder());
+  }
+
+  public get automations() {
+    return bindAutomationOperationGroup(this.operationBinder());
+  }
+
+  public get heartbeats() {
+    return bindHeartbeatOperationGroup(this.operationBinder());
   }
 
   /**

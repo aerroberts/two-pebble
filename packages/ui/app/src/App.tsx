@@ -3,12 +3,16 @@ import { useRealtimeConnection } from '@two-pebble/realtime';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { DeveloperRoutes } from './developer-routes';
 import { AgentsAppShell } from './layouts/agents-app-shell';
+import { AutomationsAppShell } from './layouts/automations-app-shell';
 import { ConfigurationAppShell } from './layouts/configuration-app-shell';
 import { MainAppShell } from './layouts/main-app-shell';
 import { MetricsAppShell } from './layouts/metrics-app-shell';
 import { AgentDetailPage } from './pages/agent-detail/agent-detail.page';
 import { AgentsPage } from './pages/agents/agents.page';
 import { AssistantPage } from './pages/assistant/assistant.page';
+import { AutomationDetailPage } from './pages/automations/automation-detail/automation-detail.page';
+import { AutomationsPage } from './pages/automations/automations.page';
+import { AutomationsNewPage } from './pages/automations/automations-new.page';
 import { AgentRegistriesPage } from './pages/configuration/agent-registries/agent-registries.page';
 import { AgentRegistrySettingsPage } from './pages/configuration/agent-registries/agent-registry-settings.page';
 import { AssistantSettingsPage } from './pages/configuration/assistant/assistant-settings.page';
@@ -113,6 +117,30 @@ export function App() {
           <MainAppShell>
             <DocumentEditorPage />
           </MainAppShell>
+        }
+      />
+      <Route
+        path="/automations"
+        element={
+          <AutomationsAppShell>
+            <AutomationsPage />
+          </AutomationsAppShell>
+        }
+      />
+      <Route
+        path="/automations/new"
+        element={
+          <AutomationsAppShell>
+            <AutomationsNewPage />
+          </AutomationsAppShell>
+        }
+      />
+      <Route
+        path="/automations/:automationId"
+        element={
+          <AutomationsAppShell>
+            <AutomationDetailPage />
+          </AutomationsAppShell>
         }
       />
       <Route

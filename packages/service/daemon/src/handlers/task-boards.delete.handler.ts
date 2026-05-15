@@ -7,6 +7,7 @@ type Payload = DeleteTaskBoardOperation['request'];
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
+    ctx.taskBoardDispatch.unregisterBoard(payload.id);
     await ctx.taskBoards.deleteBoard(payload.id);
     ctx.multicastBridge.emit('taskBoardDeleted', { id: payload.id });
     return { id: payload.id };

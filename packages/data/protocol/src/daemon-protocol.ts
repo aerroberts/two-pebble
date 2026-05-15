@@ -35,6 +35,12 @@ import type { AgentRegistriesUpdatedEvent } from './protocol/agent-registries.up
 import type { AppSettingsReadOperation } from './protocol/app-settings.read';
 import type { AppSettingsUpdateOperation } from './protocol/app-settings.update';
 import type { AppSettingsUpdatedEvent } from './protocol/app-settings.updated';
+import type { AutomationsCreateOperation } from './protocol/automations.create';
+import type { AutomationsDeleteOperation } from './protocol/automations.delete';
+import type { AutomationsListOperation } from './protocol/automations.list';
+import type { AutomationsRunNowOperation } from './protocol/automations.run-now';
+import type { AutomationsUpdateOperation } from './protocol/automations.update';
+import type { AutomationDeletedEvent, AutomationUpdatedEvent } from './protocol/automations.updated';
 import type { DaemonStatusOperation } from './protocol/daemon.status';
 import type { DatabaseDescribeOperation } from './protocol/database.describe';
 import type { DatabaseMigrateOperation } from './protocol/database.migrate';
@@ -53,6 +59,8 @@ import type { ReadDocumentOperation } from './protocol/documents.read';
 import type { UpdateDocumentOperation } from './protocol/documents.update';
 import type { DocumentUpdatedEvent } from './protocol/documents.updated';
 import type { GenerateSpeechOperation } from './protocol/generate-speech';
+import type { HeartbeatsListOperation } from './protocol/heartbeats.list';
+import type { HeartbeatRecordedEvent } from './protocol/heartbeats.recorded';
 import type { InferenceProfilesCreateOperation } from './protocol/inference-profiles.create';
 import type { InferenceProfilesDeleteOperation } from './protocol/inference-profiles.delete';
 import type { InferenceProfilesDeletedEvent } from './protocol/inference-profiles.deleted';
@@ -185,6 +193,12 @@ export type DaemonOperations = [
   AgentRegistriesDeleteOperation,
   AppSettingsReadOperation,
   AppSettingsUpdateOperation,
+  AutomationsListOperation,
+  AutomationsCreateOperation,
+  AutomationsUpdateOperation,
+  AutomationsDeleteOperation,
+  AutomationsRunNowOperation,
+  HeartbeatsListOperation,
   TranscribeAudioOperation,
   GenerateSpeechOperation,
   DebugLogsListOperation,
@@ -285,6 +299,9 @@ export type DaemonEvents = [
   TaskTemplateDeliverableDeletedEvent,
   TaskDeliverableUpdatedEvent,
   TaskDeliverableSubmissionRecordedEvent,
+  AutomationUpdatedEvent,
+  AutomationDeletedEvent,
+  HeartbeatRecordedEvent,
 ];
 
 export interface ClientProtocol

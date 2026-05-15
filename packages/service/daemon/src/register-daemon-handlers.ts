@@ -26,6 +26,11 @@ import { handler as listAgentRegistriesHandler } from './handlers/agent-registri
 import { handler as updateAgentRegistryHandler } from './handlers/agent-registries.update.handler';
 import { handler as readAppSettingsHandler } from './handlers/app-settings.read.handler';
 import { handler as updateAppSettingsHandler } from './handlers/app-settings.update.handler';
+import { handler as createAutomationHandler } from './handlers/automations.create.handler';
+import { handler as deleteAutomationHandler } from './handlers/automations.delete.handler';
+import { handler as listAutomationsHandler } from './handlers/automations.list.handler';
+import { handler as runAutomationNowHandler } from './handlers/automations.run-now.handler';
+import { handler as updateAutomationHandler } from './handlers/automations.update.handler';
 import { handler as getDaemonStatusHandler } from './handlers/daemon.status.handler';
 import { handler as describeDatabaseHandler } from './handlers/database.describe.handler';
 import { handler as migrateDatabaseHandler } from './handlers/database.migrate.handler';
@@ -41,6 +46,7 @@ import { handler as listDocumentsHandler } from './handlers/documents.list.handl
 import { handler as readDocumentHandler } from './handlers/documents.read.handler';
 import { handler as updateDocumentHandler } from './handlers/documents.update.handler';
 import { handler as generateSpeechHandler } from './handlers/generate-speech.handler';
+import { handler as listHeartbeatsHandler } from './handlers/heartbeats.list.handler';
 import { handler as createInferenceProfileHandler } from './handlers/inference-profiles.create.handler';
 import { handler as deleteInferenceProfileHandler } from './handlers/inference-profiles.delete.handler';
 import { handler as listInferenceProfilesHandler } from './handlers/inference-profiles.list.handler';
@@ -177,6 +183,12 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('deleteAgentRegistry', deleteAgentRegistryHandler(context));
   register('readAppSettings', readAppSettingsHandler(context));
   register('updateAppSettings', updateAppSettingsHandler(context));
+  register('listAutomations', listAutomationsHandler(context));
+  register('createAutomation', createAutomationHandler(context));
+  register('updateAutomation', updateAutomationHandler(context));
+  register('deleteAutomation', deleteAutomationHandler(context));
+  register('runAutomationNow', runAutomationNowHandler(context));
+  register('listHeartbeats', listHeartbeatsHandler(context));
   register('transcribeAudio', transcribeAudioHandler(context));
   register('generateSpeech', generateSpeechHandler(context));
   register('listThirdPartyAgentInstalls', listThirdPartyAgentInstallsHandler(context));

@@ -22,19 +22,6 @@ export function handler(ctx: DaemonHandlerContext) {
       autoAgentRegistryId: settings.autoAgentRegistryId,
     };
     ctx.multicastBridge.emit('taskDispatchSettingsUpdated', wire);
-    if (payload.scopeKind === 'board') {
-      ctx.taskDispatcher.kickBoard(payload.scopeId);
-    } else {
-      // Pool's board is not on the settings row, so look it up across boards.
-      const { items: boards } = await ctx.datastore.taskBoards.list({});
-      for (const board of boards) {
-        const { items: pools } = await ctx.datastore.taskBoards.pools.list({ boardId: board.id });
-        if (pools.some((pool) => pool.id === payload.scopeId)) {
-          ctx.taskDispatcher.kickBoard(board.id);
-          break;
-        }
-      }
-    }
     return { settings: wire };
   };
 }

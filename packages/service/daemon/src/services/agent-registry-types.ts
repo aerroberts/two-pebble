@@ -29,10 +29,6 @@ export interface ExtraCapabilitySpec {
   config: PebbleJsonValue;
 }
 
-export type AgentRegistryServiceEventMap = {
-  agentStatusChanged: [{ agentId: string; status: AgentLifecycleStatus }];
-};
-
 export interface LaunchAgentInput {
   agentRegistryId: string;
   message: string;

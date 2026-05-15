@@ -1,0 +1,3 @@
+export const HEARTBEAT_TICK_MS = 20_000;
+export const HEARTBEAT_LISTENER_TIMEOUT_MS = 15_000;
+export const HEARTBEAT_RETENTION = 10_000;

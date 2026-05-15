@@ -12,10 +12,6 @@ import type { Logger } from '@two-pebble/logger';
 import type { TaskEventRecord as ProtocolTaskEventRecord, ProtocolTaskRecord } from '@two-pebble/protocol';
 import type { SettableTaskStatus } from '@two-pebble/tasks';
 
-export type TaskBoardServiceEventMap = {
-  boardChanged: [{ boardId: string }];
-};
-
 export interface TaskBoardServiceContext {
   datastore: Datastore;
   logger: Logger;

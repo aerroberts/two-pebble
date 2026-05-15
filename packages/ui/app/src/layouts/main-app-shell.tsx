@@ -137,6 +137,12 @@ function renderSidebarContent(
           label="Documents"
           onClick={() => navigate('/documents')}
         />
+        <SidebarOption
+          active={pathname.startsWith('/automations')}
+          icon="calendar-clock"
+          label="Automations"
+          onClick={() => navigate('/automations')}
+        />
       </SidebarSection>
     </>
   );
@@ -163,7 +169,8 @@ function isHomeActive(pathname: string): boolean {
     pathname.startsWith('/agents') ||
     pathname.startsWith('/threads') ||
     pathname.startsWith('/tasks') ||
-    pathname.startsWith('/documents')
+    pathname.startsWith('/documents') ||
+    pathname.startsWith('/automations')
   );
 }
 
