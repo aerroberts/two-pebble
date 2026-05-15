@@ -19,29 +19,6 @@
   animation: auxiliary-sidebar-slide-in 180ms ease-out both;
 }
 
-@keyframes page-route-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/**
- * Applied to the page wrapper that keys on `location.pathname`. On every
- * route change React remounts the wrapper and the keyframe runs from
- * scratch — old route content unmounts immediately, then the new layout
- * fades up. The sidebar keeps its own slide animation so the two flows
- * read together as a coordinated transition.
- */
-.page-route-fade-in {
-  animation: page-route-fade-in 180ms ease-out both;
-}
-
 @keyframes voice-pill-pop-in {
   from {
     opacity: 0;
