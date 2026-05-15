@@ -7,6 +7,8 @@ import {
   ButtonGroup,
   type PriceChartMode,
   priceChartModeOptions,
+  type PriceLineItemListMode,
+  priceLineItemListModeOptions,
   Section,
   Surface,
 } from '@two-pebble/components';
@@ -22,6 +24,7 @@ export interface AgentDetailPriceViewProps {
 
 export function AgentDetailPriceView(props: AgentDetailPriceViewProps) {
   const [chartMode, setChartMode] = useState<PriceChartMode>('price');
+  const [lineItemsMode, setLineItemsMode] = useState<PriceLineItemListMode>('all');
 
   if (props.loading && props.lineItems.length === 0) {
     return (
@@ -61,9 +64,18 @@ export function AgentDetailPriceView(props: AgentDetailPriceViewProps) {
           />
         </Surface>
       </Section>
-      <Section title="Line Items">
+      <Section
+        title="Line Items"
+        actionItems={
+          <ButtonGroup
+            options={priceLineItemListModeOptions}
+            value={lineItemsMode}
+            onChange={setLineItemsModeFromValue(setLineItemsMode)}
+          />
+        }
+      >
         <Surface>
-          <AgentPriceLineItemList lineItems={props.lineItems} />
+          <AgentPriceLineItemList lineItems={props.lineItems} mode={lineItemsMode} />
         </Surface>
       </Section>
     </>
@@ -75,6 +87,16 @@ type SetPriceChartMode = (mode: PriceChartMode) => void;
 function setPriceChartMode(setMode: SetPriceChartMode) {
   return (value: string) => {
     if (value === 'price' || value === 'quantity') {
+      setMode(value);
+    }
+  };
+}
+
+type SetLineItemsMode = (mode: PriceLineItemListMode) => void;
+
+function setLineItemsModeFromValue(setMode: SetLineItemsMode) {
+  return (value: string) => {
+    if (value === 'all' || value === 'aggregate') {
       setMode(value);
     }
   };

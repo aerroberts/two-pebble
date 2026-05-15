@@ -8,6 +8,8 @@ export {
   type AgentPriceTotalProps,
   type PriceChartMode,
   priceChartModeOptions,
+  type PriceLineItemListMode,
+  priceLineItemListModeOptions,
 } from './components/agents/agent-price-summary';
 export {
   AgentRunningIndicator,

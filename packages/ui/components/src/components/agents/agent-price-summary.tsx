@@ -39,8 +39,11 @@ export interface AgentPriceSummaryProps {
   endTime?: number;
 }
 
+export type PriceLineItemListMode = 'all' | 'aggregate';
+
 export interface AgentPriceLineItemListProps {
   lineItems: AgentPriceSummaryLineItem[];
+  mode?: PriceLineItemListMode;
 }
 
 export interface AgentPriceTotalProps {
@@ -49,7 +52,8 @@ export interface AgentPriceTotalProps {
 
 export function AgentPriceTotal(props: AgentPriceTotalProps) {
   const total = props.lineItems.reduce((sum, item) => sum + item.total, 0);
-  const items = useMemo(() => buildPriceTotalItems(props.lineItems), [props.lineItems]);
+  const colorMap = useMemo(() => buildSeriesColorMap(props.lineItems), [props.lineItems]);
+  const items = useMemo(() => buildPriceTotalItems(props.lineItems, colorMap), [colorMap, props.lineItems]);
 
   return (
     <div className="space-y-3">
@@ -60,9 +64,10 @@ export function AgentPriceTotal(props: AgentPriceTotalProps) {
 }
 
 export function AgentPriceSummary(props: AgentPriceSummaryProps) {
+  const colorMap = useMemo(() => buildSeriesColorMap(props.lineItems), [props.lineItems]);
   const chartData = useMemo(
-    () => buildPriceChartData(props.lineItems, props.chartMode),
-    [props.chartMode, props.lineItems],
+    () => buildPriceChartData(props.lineItems, props.chartMode, colorMap),
+    [props.chartMode, colorMap, props.lineItems],
   );
 
   return (
@@ -84,8 +89,18 @@ export function AgentPriceSummary(props: AgentPriceSummaryProps) {
 }
 
 export function AgentPriceLineItemList(props: AgentPriceLineItemListProps) {
-  return <Table columns={priceLineItemColumns} rows={props.lineItems} getRowKey={getPriceLineItemRowKey} />;
+  const mode = props.mode ?? 'all';
+  const rows = useMemo(
+    () => (mode === 'aggregate' ? aggregatePriceLineItems(props.lineItems) : props.lineItems),
+    [mode, props.lineItems],
+  );
+  return <Table columns={priceLineItemColumns} rows={rows} getRowKey={getPriceLineItemRowKey} />;
 }
+
+export const priceLineItemListModeOptions = [
+  { value: 'all', label: 'All' },
+  { value: 'aggregate', label: 'Aggregate' },
+];
 
 interface ProviderMarkProps {
   provider: string;
@@ -113,33 +128,64 @@ function priceLineItemSeriesId(item: AgentPriceSummaryLineItem): string {
   return `${item.provider}/${item.modelId}${variant}/${item.charge}`;
 }
 
-function buildPriceChartData(lineItems: AgentPriceSummaryLineItem[], mode: PriceChartMode): PriceChartData {
-  const series = buildPriceChartSeries(lineItems);
+function buildPriceChartData(
+  lineItems: AgentPriceSummaryLineItem[],
+  mode: PriceChartMode,
+  colorMap: Map<string, string>,
+): PriceChartData {
+  const series = buildPriceChartSeries(lineItems, colorMap);
   const startTimestamp = Math.min(...lineItems.map((item) => item.timestamp ?? Number.POSITIVE_INFINITY));
   const fallbackStart = Number.isFinite(startTimestamp) ? startTimestamp : 0;
+  // Pass raw values through; the bucket aggregator inside the timeline sums
+  // them per bucket. Rounding individual entries to 2dp here was the bug —
+  // sub-penny charges (typical for per-token rates) round to zero and the
+  // chart loses every series except the biggest accumulator.
   const points = lineItems.map((item, index) => ({
     seriesId: priceLineItemSeriesId(item),
     timestamp: item.timestamp ?? fallbackStart + index,
-    value: mode === 'price' ? roundPrice(item.total) : item.quantity,
+    value: mode === 'price' ? item.total : item.quantity,
   }));
 
   return { points, series };
 }
 
-function roundPrice(value: number) {
-  return Number(value.toFixed(2));
-}
-
-function buildPriceChartSeries(lineItems: AgentPriceSummaryLineItem[]) {
+function buildPriceChartSeries(
+  lineItems: AgentPriceSummaryLineItem[],
+  colorMap: Map<string, string>,
+): StackedTimelineBarChartSeries[] {
   const ids = Array.from(new Set(lineItems.map((item) => priceLineItemSeriesId(item))));
-  return ids.map((id, index) => ({
-    color: chartPaletteColor(index),
+  return ids.map((id) => ({
+    color: colorMap.get(id) ?? chartPaletteColor(0),
     id,
     label: id,
   }));
 }
 
-function buildPriceTotalItems(lineItems: AgentPriceSummaryLineItem[]): ProportionalBarChartItem[] {
+/**
+ * Computes a stable color per series id so both the proportional total bar
+ * and the timeline stack render the same charge in the same color. The
+ * mapping is keyed on total spend descending — the heaviest charge always
+ * gets palette index 0 — and zero-total series are sorted to the end so
+ * they don't burn an early palette slot.
+ */
+function buildSeriesColorMap(lineItems: AgentPriceSummaryLineItem[]): Map<string, string> {
+  const totalsById = new Map<string, number>();
+  for (const item of lineItems) {
+    const id = priceLineItemSeriesId(item);
+    totalsById.set(id, (totalsById.get(id) ?? 0) + item.total);
+  }
+  const ordered = Array.from(totalsById.entries()).sort((a, b) => b[1] - a[1]);
+  const map = new Map<string, string>();
+  ordered.forEach(([id], index) => {
+    map.set(id, chartPaletteColor(index));
+  });
+  return map;
+}
+
+function buildPriceTotalItems(
+  lineItems: AgentPriceSummaryLineItem[],
+  colorMap: Map<string, string>,
+): ProportionalBarChartItem[] {
   const totalsById = new Map<string, number>();
   for (const item of lineItems) {
     const id = priceLineItemSeriesId(item);
@@ -149,11 +195,36 @@ function buildPriceTotalItems(lineItems: AgentPriceSummaryLineItem[]): Proportio
   return Array.from(totalsById.entries())
     .filter(([, value]) => value > 0)
     .sort((a, b) => b[1] - a[1])
-    .map(([label, value], index) => ({
-      color: chartPaletteColor(index),
+    .map(([label, value]) => ({
+      color: colorMap.get(label) ?? chartPaletteColor(0),
       label,
       value,
     }));
+}
+
+/**
+ * Collapses every line item with the same series id into a single row,
+ * summing quantity and total. The rate-per-unit (`price`) and identifier
+ * fields are reused from the first occurrence — all rows that share a
+ * series id share their billing identity. Timestamp is dropped because an
+ * aggregate row spans the whole run.
+ */
+function aggregatePriceLineItems(lineItems: AgentPriceSummaryLineItem[]): AgentPriceSummaryLineItem[] {
+  const aggregatesById = new Map<string, AgentPriceSummaryLineItem>();
+  for (const item of lineItems) {
+    const id = priceLineItemSeriesId(item);
+    const existing = aggregatesById.get(id);
+    if (existing === undefined) {
+      aggregatesById.set(id, { ...item, id, timestamp: undefined });
+      continue;
+    }
+    aggregatesById.set(id, {
+      ...existing,
+      quantity: existing.quantity + item.quantity,
+      total: existing.total + item.total,
+    });
+  }
+  return Array.from(aggregatesById.values()).sort((a, b) => b.total - a.total);
 }
 
 export const priceChartModeOptions = [

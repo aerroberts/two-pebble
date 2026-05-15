@@ -53,17 +53,16 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
   }
 
   /**
-   * Submits one user message into the Claude Code session.
-   * If no session is currently iterating, starts a fresh one and announces
-   * the working state. Otherwise the message is enqueued into the live
-   * input stream and the session continues without a status flip.
+   * Submits one user message into the Claude Code session. Always announces
+   * the working state — for fresh sessions that flip is "we're starting,"
+   * and for warm sessions sitting idle between turns it's "a new turn is
+   * beginning." Only spawns a new `runSession` when there isn't one
+   * iterating; otherwise the existing session picks up the queued message.
    */
   public async submitMessage(input: AgentFrameworkSubmitMessageInput) {
     const wasIdle = !this.warm;
-    if (wasIdle) {
-      this.warm = true;
-      this.emitStatusChange({ status: 'working' });
-    }
+    this.warm = true;
+    this.emitStatusChange({ status: 'working' });
     this.enqueueInput(this.toUserMessage(this.cellsToString(input.input)));
     if (wasIdle) {
       void this.runSession(input);
@@ -143,6 +142,15 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
     const provider = (await this.providerPromise) ?? 'anthropic';
     for (const event of this.converter.convertMessage(message, provider)) {
       this.dispatch(event);
+    }
+    if (message.type === 'result') {
+      // End-of-turn marker from the SDK. The session itself stays warm —
+      // the prompt stream is still open and the SDK iterator keeps pulling
+      // — so the wrapping FrameworkAgent flips to `idle` without tearing
+      // down the Claude Code session. The next `submitMessage` enqueues
+      // another input through the same iterator, which re-emits `working`
+      // and runs the next turn against the same context.
+      this.emitStatusChange({ status: 'idle' });
     }
   }
 
