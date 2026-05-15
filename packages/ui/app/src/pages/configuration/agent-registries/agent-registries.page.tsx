@@ -7,7 +7,9 @@ export function AgentRegistriesPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>Agents</Header>
+      <Header subtitle="Registered agent templates. Pebble agents run inside the daemon with a chosen inference profile; framework agents wrap an external runtime like Claude Code or Codex.">
+        Agents
+      </Header>
       <Section
         actionItems={
           <Row gap="sm">

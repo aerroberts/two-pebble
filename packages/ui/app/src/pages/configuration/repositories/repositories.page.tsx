@@ -7,7 +7,9 @@ export function RepositoriesPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>Repositories</Header>
+      <Header subtitle="Local git repositories the daemon can spin up worktrees in so each agent run can edit code in isolation.">
+        Repositories
+      </Header>
       <Section
         actionItems={
           <Button
