@@ -87,7 +87,7 @@ export function CommandPalette(props: CommandPaletteProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <kbd className="shrink-0 rounded-sm border border-border px-1.5 py-0.5 text-[10px] font-medium text-content-muted">
+            <kbd className="shrink-0 rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium text-content-muted">
               ESC
             </kbd>
           </div>

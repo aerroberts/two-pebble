@@ -10,5 +10,5 @@ export interface SurfaceProps {
  * not need to hand-roll className strings (which the app guard forbids).
  */
 export function Surface(props: SurfaceProps) {
-  return <div className="rounded-sm bg-surface p-4">{props.children}</div>;
+  return <div className="rounded-md bg-surface p-4">{props.children}</div>;
 }

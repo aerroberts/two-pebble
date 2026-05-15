@@ -13,14 +13,14 @@ export interface ListLayoutProps {
 export function ListLayout(props: ListLayoutProps) {
   if (props.items.length === 0) {
     return (
-      <div className="w-full overflow-hidden rounded-sm bg-surface">
+      <div className="w-full overflow-hidden rounded-md bg-surface">
         <div className="px-3 py-4 text-sm text-content-muted">{props.emptyState ?? 'No items available.'}</div>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-sm bg-surface">
+    <div className="w-full overflow-hidden rounded-md bg-surface">
       <div>
         {props.items.map((item, index) => {
           const key = item.key ?? `${typeof item.title === 'string' ? item.title : 'item'}-${index}`;

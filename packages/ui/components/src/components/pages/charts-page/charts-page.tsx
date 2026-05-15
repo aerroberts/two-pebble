@@ -153,21 +153,21 @@ export function ChartsPage() {
       <main className="overflow-auto px-8 py-6">
         <Header subtitle="Runtime signals, flow, and volume across a single agent workspace.">Charts</Header>
         <div className="grid gap-3 md:grid-cols-4">
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <DataValue title="Runs" value="42" />
           </div>
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <DataValue title="Model calls" value="128" />
           </div>
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <DataValue title="Tool calls" value="311" />
           </div>
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <DataValue title="Avg latency" value="820 ms" />
           </div>
         </div>
         <Section title="Timeline">
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <TimelineChart
               defaultRangeLabel="All"
               height={220}
@@ -179,18 +179,18 @@ export function ChartsPage() {
         </Section>
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <Section title="Token Volume">
-            <div className="rounded-sm bg-surface p-4">
+            <div className="rounded-md bg-surface p-4">
               <StackedTimelineBarChart height={240} points={stackedPoints} series={stackedSeries} />
             </div>
           </Section>
           <Section title="Work Split">
-            <div className="rounded-sm bg-surface p-4">
+            <div className="rounded-md bg-surface p-4">
               <ProportionalBarChart items={proportionalItems} />
             </div>
           </Section>
         </div>
         <Section title="Activity">
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <Heatmap
               cellColor={CHART_COLORS.blue}
               data={heatmapData}
@@ -200,12 +200,12 @@ export function ChartsPage() {
           </div>
         </Section>
         <Section title="Flow">
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <SankeyChart stages={sankeyStages} />
           </div>
         </Section>
         <Section title="Workflow">
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <WorkflowFlowChart nodes={workflowNodes} />
           </div>
         </Section>

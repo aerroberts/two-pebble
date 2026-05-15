@@ -12,8 +12,8 @@ const triggerBase =
   'inline-flex h-7 w-full min-w-[12rem] items-center justify-between gap-1.5 px-2 text-left text-[12px] font-medium leading-4 text-content transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-55';
 
 const triggerVariants = {
-  default: 'rounded-sm border border-border bg-surface focus:border-accent',
-  borderless: 'rounded-sm bg-transparent hover:bg-surface-hover',
+  default: 'rounded-md border border-border bg-surface focus:border-accent',
+  borderless: 'rounded-md bg-transparent hover:bg-surface-hover',
 } as const;
 
 export function SearchableSelect(props: SelectProps) {
@@ -143,7 +143,7 @@ export function SearchableSelect(props: SelectProps) {
         ? createPortal(
             <div
               ref={listRef}
-              className="fixed z-[1100] overflow-hidden rounded-sm border border-border bg-surface pb-1 shadow-lg"
+              className="fixed z-[1100] overflow-hidden rounded-md border border-border bg-surface pb-1 shadow-lg"
               style={{ top: rect.top, left: rect.left, width: rect.width }}
             >
               <SearchPanel inputRef={inputRef} value={search} onChange={handleSearchChange} onKeyDown={handleKeyDown} />

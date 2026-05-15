@@ -12,7 +12,7 @@ export interface ButtonGroupProps {
 
 export function ButtonGroup(props: ButtonGroupProps) {
   return (
-    <div className="inline-flex h-7 self-start overflow-hidden rounded-sm border border-border">
+    <div className="inline-flex h-7 self-start overflow-hidden rounded-md border border-border">
       {props.options.map((option, index) => {
         const isSelected = option.value === props.value;
         const selectedClass = isSelected

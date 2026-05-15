@@ -58,7 +58,7 @@ export function Duration(props: DurationProps) {
   return (
     <Tooltip data={tooltipData}>
       <span
-        className={`-mx-1 inline-flex cursor-default items-center gap-1 whitespace-nowrap rounded-sm px-1 py-0.5 transition-colors hover:bg-accent/[0.08] ${sizeClass} ${props.className ?? ''}`.trim()}
+        className={`-mx-1 inline-flex cursor-default items-center gap-1 whitespace-nowrap rounded-md px-1 py-0.5 transition-colors hover:bg-accent/[0.08] ${sizeClass} ${props.className ?? ''}`.trim()}
       >
         {displayText}
         {props.hideInfoIcon ? null : <Info className="size-3 shrink-0 text-content-muted" aria-hidden="true" />}

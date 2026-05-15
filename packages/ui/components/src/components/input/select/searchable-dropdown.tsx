@@ -8,7 +8,7 @@ export interface SearchableDropdownProps {
   onSelect: (value: string) => void;
 }
 
-const itemClass = 'cursor-pointer rounded-sm px-2 py-1.5 text-[12px] font-medium leading-4 text-content outline-none';
+const itemClass = 'cursor-pointer rounded-md px-2 py-1.5 text-[12px] font-medium leading-4 text-content outline-none';
 
 export function SearchableDropdown(props: SearchableDropdownProps) {
   if (props.options.length === 0) {

@@ -24,7 +24,7 @@ export const Default: Story = {
     <div className="min-h-screen w-full bg-background p-8">
       <div className="flex w-full items-center gap-6">
         {providers.map((provider) => (
-          <div key={provider.id} className="flex items-center gap-3 rounded-sm bg-surface px-4 py-3">
+          <div key={provider.id} className="flex items-center gap-3 rounded-md bg-surface px-4 py-3">
             <ProviderLogo provider={provider.id} size="lg" />
             <span className="text-sm font-medium text-content">{provider.label}</span>
           </div>

@@ -37,7 +37,7 @@ export function IconButton(props: IconButtonProps) {
   const iconPx = isNumericSize ? Math.round(size * 0.5) : undefined;
 
   const classes =
-    `inline-flex items-center justify-center rounded-sm transition-colors ${sizeClass} ${variantClass} ${disabledClass} ${className ?? ''}`.trim();
+    `inline-flex items-center justify-center rounded-md transition-colors ${sizeClass} ${variantClass} ${disabledClass} ${className ?? ''}`.trim();
 
   return (
     <button type="button" className={classes} disabled={disabled} style={numericStyle} {...rest}>

@@ -49,18 +49,18 @@ export function ThreadSnapshotPage(props: ThreadSnapshotPageProps) {
         {viewingSnapshot ? 'Thread Snapshot' : 'Thread'}
       </Header>
       <Section>
-        {props.status === 'loading' ? <div className="rounded-sm bg-surface p-4">Loading thread snapshot.</div> : null}
+        {props.status === 'loading' ? <div className="rounded-md bg-surface p-4">Loading thread snapshot.</div> : null}
         {props.status === 'error' ? (
-          <div className="rounded-sm bg-surface p-4">Could not load thread snapshot.</div>
+          <div className="rounded-md bg-surface p-4">Could not load thread snapshot.</div>
         ) : null}
         {props.status === 'ready' && props.cells.length === 0 ? (
-          <div className="rounded-sm bg-surface p-4">No conversation cells found for this snapshot.</div>
+          <div className="rounded-md bg-surface p-4">No conversation cells found for this snapshot.</div>
         ) : null}
         {props.cells.length > 0 ? <ThreadSnapshotContent cells={props.cells} mode={viewMode} /> : null}
       </Section>
       {viewingSnapshot ? (
         <Section title="Snapshot">
-          <div className="rounded-sm bg-surface p-4">
+          <div className="rounded-md bg-surface p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm leading-6 text-content-muted">Viewing a point in time snapshot.</p>
               <Button rightIcon="arrow-right" onClick={props.onViewFullThread}>

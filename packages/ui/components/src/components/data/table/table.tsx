@@ -28,7 +28,7 @@ export function Table<TRow>(props: TableProps<TRow>) {
     ) : null;
 
   return (
-    <div className="w-full overflow-hidden rounded-sm bg-surface">
+    <div className="w-full overflow-hidden rounded-md bg-surface">
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse">
           <thead>

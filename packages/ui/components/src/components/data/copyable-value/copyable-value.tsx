@@ -22,7 +22,7 @@ export function CopyableValue(props: CopyableValueProps) {
 
   return (
     <button
-      className="group -mx-1 inline-flex items-center gap-2 rounded-sm px-1 text-left text-sm leading-6 text-content transition-colors hover:bg-accent/[0.08] hover:text-accent"
+      className="group -mx-1 inline-flex items-center gap-2 rounded-md px-1 text-left text-sm leading-6 text-content transition-colors hover:bg-accent/[0.08] hover:text-accent"
       type="button"
       onClick={async () => {
         try {

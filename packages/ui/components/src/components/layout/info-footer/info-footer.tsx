@@ -59,7 +59,7 @@ function InfoFooterItemView(props: InfoFooterItemViewProps) {
   if (props.item.onClick !== undefined) {
     return (
       <button
-        className="flex min-w-0 shrink cursor-pointer items-center gap-1 overflow-hidden whitespace-nowrap rounded-sm px-1 transition-colors hover:bg-surface-hover"
+        className="flex min-w-0 shrink cursor-pointer items-center gap-1 overflow-hidden whitespace-nowrap rounded-md px-1 transition-colors hover:bg-surface-hover"
         onClick={props.item.onClick}
         type="button"
       >

@@ -22,7 +22,7 @@ export interface AgentRunningIndicatorProps {
 export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
   if (props.status === 'waiting') {
     return (
-      <div className="flex items-center gap-2 rounded-sm bg-surface px-3 py-2 text-content-subtle text-sm">
+      <div className="flex items-center gap-2 rounded-md bg-surface px-3 py-2 text-content-subtle text-sm">
         <Icon name="clock" className="size-4" color="text-content-muted" />
         <span>Agent is waiting</span>
       </div>
@@ -31,7 +31,7 @@ export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
 
   if (props.status === 'interrupted') {
     return (
-      <div className="flex items-center gap-2 rounded-sm bg-surface px-3 py-2 text-content-subtle text-sm">
+      <div className="flex items-center gap-2 rounded-md bg-surface px-3 py-2 text-content-subtle text-sm">
         <Icon name="triangle-alert" className="size-4" color="text-warning" />
         <span>Agent was interrupted</span>
       </div>
@@ -48,7 +48,7 @@ export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
 
   if (liveness?.state === 'reconnecting') {
     return (
-      <div className="flex items-center gap-2 rounded-sm bg-surface px-3 py-2 text-content-subtle text-sm">
+      <div className="flex items-center gap-2 rounded-md bg-surface px-3 py-2 text-content-subtle text-sm">
         <Icon name="loader-circle" className="size-4 animate-spin" color="text-accent" />
         <span>
           Reconnecting to agent
@@ -61,7 +61,7 @@ export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
 
   if (liveness?.state === 'stalled') {
     return (
-      <div className="flex items-center gap-2 rounded-sm bg-surface px-3 py-2 text-content-subtle text-sm">
+      <div className="flex items-center gap-2 rounded-md bg-surface px-3 py-2 text-content-subtle text-sm">
         <Icon name="triangle-alert" className="size-4" color="text-warning" />
         <span>
           Stalled — no activity for {ageSeconds ?? '?'}s{liveness.hint ? ` (${liveness.hint})` : null}
@@ -71,7 +71,7 @@ export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-sm bg-surface px-3 py-2 text-content-subtle text-sm">
+    <div className="flex items-center gap-2 rounded-md bg-surface px-3 py-2 text-content-subtle text-sm">
       <Icon name="loader-circle" className="size-4 animate-spin" color="text-accent" />
       <span>
         Agent is working
