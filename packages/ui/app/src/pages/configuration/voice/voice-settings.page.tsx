@@ -43,7 +43,9 @@ export function VoiceSettingsPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>Voice</Header>
+      <Header subtitle="Pick which inference profiles drive speech-to-text and text-to-speech for the assistant and voice capture surfaces.">
+        Voice
+      </Header>
       <Section subtitle="Defaults used by voice capture and audio output throughout the app." title="Defaults">
         <Surface>
           <Select

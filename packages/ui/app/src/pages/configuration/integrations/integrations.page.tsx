@@ -8,7 +8,9 @@ export function IntegrationsPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>Integrations</Header>
+      <Header subtitle="Connect to model providers like Anthropic, OpenAI, or OpenRouter so agents can authenticate and bill against your accounts.">
+        Integrations
+      </Header>
       <Section
         actionItems={
           state.selectingProvider ? null : (

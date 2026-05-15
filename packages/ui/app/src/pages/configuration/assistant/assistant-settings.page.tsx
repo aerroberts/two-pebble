@@ -56,7 +56,9 @@ export function AssistantSettingsPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>Assistant</Header>
+      <Header subtitle="Configure which agent backs the Assistant page and whether the floating launcher (FAB) is enabled.">
+        Assistant
+      </Header>
       <Section subtitle="Agent registry that powers the Assistant page." title="Agent">
         <Surface>
           <Select

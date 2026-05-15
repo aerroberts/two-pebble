@@ -9,7 +9,9 @@ export function InferenceProfilesPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>Inference profiles</Header>
+      <Header subtitle="A named pairing of an integration plus model id and decoding settings — pick one of these when configuring an agent or transcription profile.">
+        Inference profiles
+      </Header>
       {INFERENCE_PROFILE_KINDS.map((kind: InferenceProfileKind) => (
         <InferenceProfileKindSection
           key={kind}

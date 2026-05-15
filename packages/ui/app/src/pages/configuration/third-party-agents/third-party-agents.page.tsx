@@ -18,7 +18,9 @@ export function ThirdPartyAgentsPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header>Third-party agents</Header>
+      <Header subtitle="External agent frameworks installed on this machine (Claude Code, Codex) that Pebble can wrap with framework agent registries.">
+        Third-party agents
+      </Header>
       <Section
         actionItems={
           <Row gap="sm">
