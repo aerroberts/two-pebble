@@ -69,9 +69,6 @@ import { listTaskDeliverablesOperation } from './operations/task-deliverables.li
 import { createTaskDependencyOperation } from './operations/task-dependencies.create.operation';
 import { deleteTaskDependencyOperation } from './operations/task-dependencies.delete.operation';
 import { listTaskDependenciesOperation } from './operations/task-dependencies.list.operation';
-import { listTaskDispatchSettingsOperation } from './operations/task-dispatch-settings.list.operation';
-import { readTaskDispatchSettingsOperation } from './operations/task-dispatch-settings.read.operation';
-import { updateTaskDispatchSettingsOperation } from './operations/task-dispatch-settings.update.operation';
 import { listTaskEventsOperation } from './operations/task-events.list.operation';
 import { createTaskPoolOperation } from './operations/task-pools.create.operation';
 import { deleteTaskPoolOperation } from './operations/task-pools.delete.operation';
@@ -360,19 +357,6 @@ export class RealtimeDatastore {
   public get taskEvents() {
     return {
       list: listTaskEventsOperation({ datastore: this }),
-    };
-  }
-
-  /**
-   * Returns dispatch settings operations bound to this realtime datastore.
-   * Settings are per-scope (board or pool) and govern automatic dispatch
-   * concurrency. Mutations broadcast `taskDispatchSettingsUpdated`.
-   */
-  public get taskDispatchSettings() {
-    return {
-      list: listTaskDispatchSettingsOperation({ datastore: this }),
-      read: readTaskDispatchSettingsOperation({ datastore: this }),
-      update: updateTaskDispatchSettingsOperation({ datastore: this }),
     };
   }
 

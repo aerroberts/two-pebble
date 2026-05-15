@@ -68,23 +68,3 @@ export async function recordStatusTaskEvent(datastore: Datastore) {
     data: '{}',
   });
 }
-
-export async function upsertBoardDispatchSettings(datastore: Datastore) {
-  return datastore.taskBoards.dispatchSettings.upsert({
-    autoAgentRegistryId: null,
-    concurrency: 3,
-    dispatchMode: 'automatic',
-    scopeId: 'board-1',
-    scopeKind: 'board',
-  });
-}
-
-export async function upsertPoolDispatchSettings(datastore: Datastore) {
-  return datastore.taskBoards.dispatchSettings.upsert({
-    autoAgentRegistryId: null,
-    concurrency: 1,
-    dispatchMode: 'manual',
-    scopeId: 'pool-1',
-    scopeKind: 'pool',
-  });
-}

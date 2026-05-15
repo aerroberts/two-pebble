@@ -1,6 +1,6 @@
 export interface HeartbeatListener {
   readonly id: string;
-  readonly kind: 'automation' | 'task-board';
+  readonly kind: 'automation';
   onHeartbeat(now: number): Promise<HeartbeatReportDetail>;
 }
 

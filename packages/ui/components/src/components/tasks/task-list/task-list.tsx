@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../../content/icon/icon';
 import { Select, type SelectOption } from '../../input/select/select';
@@ -12,12 +11,6 @@ export interface TaskListTask {
   name: string;
   poolId: string | null;
   status: TaskStatusIconStatus;
-  /**
-   * Optional per-task concurrency indicator rendered at the trailing edge of
-   * the row. A fixed-size slot is always reserved so rows maintain identical
-   * heights and horizontal layout whether or not an indicator is present.
-   */
-  concurrencyIndicator?: ReactNode;
 }
 
 export interface TaskListPool {
@@ -316,21 +309,6 @@ function TaskListCellRow(props: TaskListCellRowProps) {
           placeholder="Untitled"
           value={draft}
         />
-        {/*
-         * Concurrency indicator slot — always rendered so the row height and
-         * horizontal layout remain stable whether or not an indicator is
-         * present. The slot reserves a fixed minimum width and a fixed height
-         * matching the badge dimensions at all times. When no indicator is
-         * provided the slot is invisible (aria-hidden + opacity-0) but still
-         * occupies space, preventing layout shifts when indicators appear,
-         * disappear, or update.
-         */}
-        <span
-          aria-hidden={node.concurrencyIndicator == null ? true : undefined}
-          className={`inline-flex h-6 min-w-[3rem] shrink-0 items-center justify-end${node.concurrencyIndicator == null ? ' opacity-0' : ''}`}
-        >
-          {node.concurrencyIndicator}
-        </span>
       </div>
     </li>
   );

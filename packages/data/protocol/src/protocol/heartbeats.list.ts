@@ -1,6 +1,6 @@
 export interface HeartbeatReport {
   listenerId: string;
-  kind: 'automation' | 'task-board';
+  kind: 'automation';
   outcome: 'fired' | 'skipped' | 'error';
   detail: Record<string, unknown>;
 }

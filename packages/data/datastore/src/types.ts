@@ -31,7 +31,6 @@ import type {
   taskDeliverableSubmissionsTable,
   taskDeliverablesTable,
   taskDependenciesTable,
-  taskDispatchSettingsTable,
   taskEventsTable,
   taskPoolsTable,
   tasksTable,
@@ -103,7 +102,6 @@ export interface DatastoreSchema extends Record<string, object> {
   taskDependenciesTable: typeof taskDependenciesTable;
   taskDeliverableSubmissionsTable: typeof taskDeliverableSubmissionsTable;
   taskDeliverablesTable: typeof taskDeliverablesTable;
-  taskDispatchSettingsTable: typeof taskDispatchSettingsTable;
   taskEventsTable: typeof taskEventsTable;
   taskPoolsTable: typeof taskPoolsTable;
   taskTemplateDeliverablesTable: typeof taskTemplateDeliverablesTable;
@@ -332,20 +330,6 @@ export interface TaskDependencyRecord {
   toId: string;
 }
 
-export type TaskDispatchScopeKind = 'board' | 'pool';
-export type TaskDispatchMode = 'manual' | 'automatic';
-
-export interface TaskDispatchSettingsRecord {
-  id: string;
-  createdAt: number;
-  updatedAt: number;
-  scopeKind: TaskDispatchScopeKind;
-  scopeId: string;
-  concurrency: number;
-  dispatchMode: TaskDispatchMode;
-  autoAgentRegistryId: string | null;
-}
-
 export interface TaskEventRecord {
   id: string;
   createdAt: number;
@@ -374,7 +358,7 @@ export interface AutomationRecord {
 
 export interface HeartbeatReport {
   listenerId: string;
-  kind: 'automation' | 'task-board';
+  kind: 'automation';
   outcome: 'fired' | 'skipped' | 'error';
   detail: Record<string, unknown>;
 }

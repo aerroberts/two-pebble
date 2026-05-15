@@ -71,13 +71,13 @@ describe('feature: operation heartbeats', () => {
     const second = await datastore.heartbeats.insert({
       durationMs: 8,
       listenerCount: 1,
-      reports: [{ listenerId: 'taskBoard:1', kind: 'task-board', outcome: 'fired', detail: { dispatched: 1 } }],
+      reports: [{ listenerId: 'automation:2', kind: 'automation', outcome: 'fired', detail: { ran: 1 } }],
       tickAt: 200,
     });
 
     const listed = await datastore.heartbeats.list({ limit: 10, offset: 0 });
     expect(listed.items.map((row) => row.id)).toEqual([second.id, first.id]);
-    expect(listed.items[0]?.reports[0]?.detail).toEqual({ dispatched: 1 });
+    expect(listed.items[0]?.reports[0]?.detail).toEqual({ ran: 1 });
 
     await datastore.heartbeats.prune({ retain: 1 });
     const pruned = await datastore.heartbeats.list({ limit: 10, offset: 0 });

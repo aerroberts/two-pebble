@@ -1,6 +1,5 @@
 import {
   ButtonGroup,
-  ConcurrencyIndicator,
   DataPanelLayout,
   EditableHeading,
   TaskGraph,
@@ -20,7 +19,6 @@ import type {
 import { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
-import { useGlobalConcurrency } from '../../shared/concurrency/use-global-concurrency';
 import { TaskBoardSettingsView } from './task-board-settings-view';
 import { TaskDetailSidebar } from './task-detail-sidebar';
 import { type TaskBoardView, useTaskBoardPageState } from './use-task-board-page-state';
@@ -44,7 +42,6 @@ const STATUS_SORT_ORDER: Record<string, number> = {
 
 export function TaskBoardPage() {
   const state = useTaskBoardPageState();
-  const concurrency = useGlobalConcurrency();
 
   const graphInput = useMemo<TaskGraphInput>(
     () => buildGraphInput(state.tasks, state.pools, state.dependencies),
@@ -97,14 +94,11 @@ export function TaskBoardPage() {
         />
       }
       rightAccessory={
-        <>
-          <ConcurrencyIndicator count={concurrency.count} intensity={concurrency.intensity} />
-          <ButtonGroup
-            options={VIEW_OPTIONS}
-            value={state.view}
-            onChange={(value: string) => state.setView(value as TaskBoardView)}
-          />
-        </>
+        <ButtonGroup
+          options={VIEW_OPTIONS}
+          value={state.view}
+          onChange={(value: string) => state.setView(value as TaskBoardView)}
+        />
       }
     />
   );
@@ -139,18 +133,12 @@ export function TaskBoardPage() {
           />
         ) : (
           <TaskBoardSettingsView
-            boardId={state.boardId}
             boardNameDraft={state.boardNameDraft}
             onBoardNameChange={(value: string) => state.setBoardNameDraft(value)}
             onBoardNameSave={() => void state.saveBoardName()}
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
             onDeleteBoard={() => void state.deleteBoard()}
-            boardDispatchSettings={state.boardDispatchSettings}
-            poolDispatchSettings={state.poolDispatchSettings}
-            agentRegistries={state.agentRegistries}
-            inferenceProfiles={state.inferenceProfiles}
-            onSaveDispatchSettings={(input) => void state.saveDispatchSettings(input)}
             templates={state.taskTemplates}
             onCreateTemplate={(input) => void state.createTaskTemplate(input)}
             onUpdateTemplate={(input) => void state.updateTaskTemplate(input)}

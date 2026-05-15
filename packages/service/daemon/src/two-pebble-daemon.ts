@@ -10,7 +10,6 @@ import { HeartbeatService } from './services/heartbeat-service';
 import { LivenessReconciler } from './services/liveness-reconciler';
 import { MulticastBridge } from './services/multicast-bridge';
 import { asDaemonBridge } from './services/multicast-bridge-cast';
-import { TaskBoardDispatchService } from './services/task-board-dispatch-listener';
 import { TaskBoardService } from './services/task-board-service';
 import type {
   AgentLivenessPayload,
@@ -97,16 +96,7 @@ export class TwoPebbleDaemon {
       heartbeat,
       logger,
     });
-    const taskBoardDispatch = new TaskBoardDispatchService({
-      agentRegistry,
-      bridge: multicastBridge,
-      datastore: this.datastore,
-      heartbeat,
-      logger,
-      taskBoards,
-    });
     await automations.hydrate();
-    await taskBoardDispatch.hydrate();
     heartbeat.start();
     this.heartbeat = heartbeat;
     this.context = {
@@ -119,7 +109,6 @@ export class TwoPebbleDaemon {
       logsDirectoryPath: path.dirname(this.input.logFilePath),
       multicastBridge,
       port: this.server.port,
-      taskBoardDispatch,
       taskBoards,
     };
     this.server.onClientConnected((bridge) => this.connect(bridge));
