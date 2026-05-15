@@ -3,7 +3,7 @@ import { Node as ProseMirrorNode } from 'prosemirror-model';
 
 export interface TipTapNode {
   type: string;
-  attrs?: Record<string, unknown>;
+  attrs?: TipTapAttrs;
   content?: TipTapNode[];
   marks?: TipTapMark[];
   text?: string;
@@ -11,13 +11,19 @@ export interface TipTapNode {
 
 export interface TipTapMark {
   type: string;
-  attrs?: Record<string, unknown>;
+  attrs?: TipTapAttrs;
 }
 
 export interface TipTapDocument {
   type: 'doc';
   content?: TipTapNode[];
 }
+
+export type TipTapAttrs = {
+  [key: string]: TipTapJsonValue;
+};
+
+export type TipTapJsonValue = string | number | boolean | null | TipTapJsonValue[] | TipTapAttrs;
 
 const PROSEMIRROR_TO_TIPTAP_NODE_NAMES: Record<string, string> = {
   bullet_list: 'bulletList',
@@ -96,10 +102,7 @@ function tipTapMarkToProsemirror(mark: TipTapMark): TipTapMark {
   };
 }
 
-function convertAttrsToTipTap(
-  type: string,
-  attrs: Record<string, unknown> | undefined,
-): Record<string, unknown> | undefined {
+function convertAttrsToTipTap(type: string, attrs: TipTapAttrs | undefined): TipTapAttrs | undefined {
   if (attrs === undefined) {
     return undefined;
   }
@@ -110,10 +113,7 @@ function convertAttrsToTipTap(
   return attrs;
 }
 
-function convertAttrsToProsemirror(
-  type: string,
-  attrs: Record<string, unknown> | undefined,
-): Record<string, unknown> | undefined {
+function convertAttrsToProsemirror(type: string, attrs: TipTapAttrs | undefined): TipTapAttrs | undefined {
   if (attrs === undefined) {
     return undefined;
   }

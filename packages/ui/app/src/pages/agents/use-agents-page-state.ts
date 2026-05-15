@@ -5,7 +5,7 @@ import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
 
 export function useAgentsPageState() {
   const [agentRegistryId, setAgentRegistryId] = useState('');
-  const [message, setMessage] = useState('Say hello and prove the daemon agent lifecycle is wired.');
+  const [message, setMessage] = useState('');
   const [launching, setLaunching] = useState(false);
   const agentRegistries = useAgentRegistries();
   const inferenceProfiles = useInferenceProfiles();

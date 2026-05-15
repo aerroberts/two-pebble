@@ -1,4 +1,63 @@
 {
+  "exclude": [
+    {
+      "rules": ["@rule/file-length"],
+      "paths": ["src/pages/assistant/assistant.page.tsx"],
+      "justification": "Assistant page currently owns the chat surface and launch affordances; split after CI is enforcing the baseline."
+    },
+    {
+      "rules": ["@rule/definition-length", "@rule/indent"],
+      "paths": ["src/pages/task-board/use-task-board-page-state.ts"],
+      "justification": "Task board page state still owns multi-step state orchestration; keep the current behavior stable while CI begins enforcing the rest of the repo."
+    },
+    {
+      "rules": ["@rule/file-length"],
+      "paths": [
+        "src/pages/task-board/task-board-settings-view.tsx",
+        "src/pages/task-board/use-task-board-page-state.ts"
+      ],
+      "justification": "Task board settings and state picked up legacy dispatch UI flows from main; split them in a focused UI cleanup after CI starts enforcing the baseline."
+    },
+    {
+      "rules": ["@rule/definition-length", "@rule/typescript-function-shape"],
+      "paths": ["src/pages/agent-detail/use-agent-detail-page-state.ts"],
+      "justification": "Agent detail state still has legacy optional inputs and a large reducer-like flow that should be split separately from CI enablement."
+    },
+    {
+      "rules": ["@rule/typescript-function-shape"],
+      "paths": [
+        "src/pages/assistant/use-assistant-page-state.ts",
+        "src/pages/automations/automation-format.ts",
+        "src/pages/task-board/use-task-board-page-state.ts"
+      ],
+      "justification": "Assistant page state exposes a legacy optional branch; preserve behavior while introducing CI enforcement."
+    },
+    {
+      "rules": ["@rule/react-exported-component"],
+      "paths": [
+        "src/pages/assistant/assistant-direct-input.tsx",
+        "src/shared/agents/agent-registry-icon.tsx"
+      ],
+      "justification": "These exported component names predate the filename rule; renaming them is a follow-up because imports span page and shared UI code."
+    },
+    {
+      "rules": ["@rule/react-jsx-style"],
+      "paths": [
+        "src/App.tsx",
+        "src/layouts/assistant-fab.tsx",
+        "src/shared/voice/voice-capture-button.tsx",
+        "src/pages/agent-detail/agent-detail-chat-view-footer.tsx",
+        "src/pages/assistant/assistant-direct-input.tsx",
+        "src/pages/assistant/assistant.page.tsx",
+        "src/pages/documents/document-editor.page.tsx",
+        "src/pages/agents/agents-launch-section.tsx",
+        "src/pages/developer/heartbeats/heartbeats.page.tsx",
+        "src/pages/task-board/task-board-settings-view.tsx",
+        "src/pages/task-board/task-detail-sidebar.tsx"
+      ],
+      "justification": "These app surfaces still use page-local Tailwind classes; component-library extraction is separate UI debt from enabling CI."
+    }
+  ],
   "additional": {
     "@rule/file-length": {
       "files": {

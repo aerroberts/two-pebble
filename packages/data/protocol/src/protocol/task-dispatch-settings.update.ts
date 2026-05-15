@@ -1,19 +1,21 @@
-import type {
-  TaskDispatchSettingsMode,
-  TaskDispatchSettingsRecord,
-  TaskDispatchSettingsScopeKind,
-} from './task-dispatch-settings.read';
-
 export interface TaskDispatchSettingsUpdateOperation {
   name: 'updateTaskDispatchSettings';
   request: {
-    scopeKind: TaskDispatchSettingsScopeKind;
+    scopeKind: 'board' | 'pool';
     scopeId: string;
     concurrency: number;
-    dispatchMode: TaskDispatchSettingsMode;
+    dispatchMode: 'manual' | 'automatic';
     autoAgentRegistryId: string | null;
   };
   response: {
     settings: TaskDispatchSettingsRecord;
   };
+}
+
+export interface TaskDispatchSettingsRecord {
+  scopeKind: 'board' | 'pool';
+  scopeId: string;
+  concurrency: number;
+  dispatchMode: 'manual' | 'automatic';
+  autoAgentRegistryId: string | null;
 }

@@ -6,13 +6,18 @@ type OperationHandlerInput = {
   scopeId: string;
 };
 
+type TaskDispatchSettingsRow = Omit<TaskDispatchSettingsRecord, 'dispatchMode' | 'scopeKind'> & {
+  dispatchMode: string;
+  scopeKind: string;
+};
+
 /**
  * Returns the dispatch settings row for a (scopeKind, scopeId) pair, or null
  * when no row exists. Callers should treat null as the default
  * `{ concurrency: 0, dispatchMode: 'manual' }` configuration.
  */
 export function taskDispatchSettingsReadOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput): Promise<TaskDispatchSettingsRecord | null> {
+  return async function handler(input: OperationHandlerInput) {
     const row = await ctx.database
       .select()
       .from(ctx.schema.taskDispatchSettingsTable)
@@ -30,9 +35,7 @@ export function taskDispatchSettingsReadOperation(ctx: DatastoreContext) {
   };
 }
 
-function castRow(
-  row: { dispatchMode: string; scopeKind: string } & Omit<TaskDispatchSettingsRecord, 'dispatchMode' | 'scopeKind'>,
-): TaskDispatchSettingsRecord {
+function castRow(row: TaskDispatchSettingsRow): TaskDispatchSettingsRecord {
   return {
     ...row,
     dispatchMode: row.dispatchMode as TaskDispatchMode,
