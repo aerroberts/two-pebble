@@ -131,8 +131,9 @@ export function useAgentDetailPageState() {
     navigate(`/tasks/${boardId}?selectedTask=${taskId}`);
   };
 
-  const sendChatMessage = async () => {
-    const trimmed = chatDraft.trim();
+  const sendChatMessage = async (override?: string) => {
+    const source = override ?? chatDraft;
+    const trimmed = source.trim();
     if (trimmed.length === 0 || agentId.length === 0) {
       return;
     }

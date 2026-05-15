@@ -78,7 +78,7 @@ export function AgentDetailPage() {
               chatDraft={state.chatDraft}
               chatSending={state.chatSending}
               onChatDraftChange={state.setChatDraft}
-              onChatSubmit={() => void state.sendChatMessage()}
+              onChatSubmit={(override) => void state.sendChatMessage(override)}
               onStop={() => void requestStop()}
               stopping={state.stopping}
             />
