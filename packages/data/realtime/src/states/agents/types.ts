@@ -30,6 +30,10 @@ export interface FailAgentInput {
   id: string;
 }
 
+export interface ResumeAgentInput {
+  id: string;
+}
+
 export interface LaunchAgentInput {
   agentRegistryId: string;
   message: string;

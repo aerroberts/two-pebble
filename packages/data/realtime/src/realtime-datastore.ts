@@ -15,6 +15,7 @@ import { listAgentPriceLineItemsOperation } from './operations/agent.price-line-
 import { recordAgentPriceLineItemOperation } from './operations/agent.price-line-items.record.operation';
 import { readAgentOperation } from './operations/agent.read.operation';
 import { renameAgentOperation } from './operations/agent.rename.operation';
+import { resumeAgentOperation } from './operations/agent.resume.operation';
 import { stopAgentOperation } from './operations/agent.stop.operation';
 import { listAgentTracesOperation } from './operations/agent.traces.list.operation';
 import { recordAgentTraceOperation } from './operations/agent.traces.record.operation';
@@ -387,6 +388,7 @@ export class RealtimeDatastore {
       },
       read: readAgentOperation({ datastore: this }),
       rename: renameAgentOperation({ datastore: this }),
+      resume: resumeAgentOperation({ datastore: this }),
       stop: stopAgentOperation({ datastore: this }),
       freshStart: freshStartAgentOperation({ datastore: this }),
       traces: {

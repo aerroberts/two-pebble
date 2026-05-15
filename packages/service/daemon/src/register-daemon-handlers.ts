@@ -12,6 +12,7 @@ import { handler as listAgentPriceLineItemsHandler } from './handlers/agent.pric
 import { handler as recordAgentPriceLineItemHandler } from './handlers/agent.price-line-items.record.handler';
 import { handler as readAgentHandler } from './handlers/agent.read.handler';
 import { handler as renameAgentHandler } from './handlers/agent.rename.handler';
+import { handler as resumeAgentHandler } from './handlers/agent.resume.handler';
 import { handler as listAgentSignalsHandler } from './handlers/agent.signals.list.handler';
 import { handler as resolveAgentSignalHandler } from './handlers/agent.signals.resolve.handler';
 import { handler as sendAgentSignalHandler } from './handlers/agent.signals.send.handler';
@@ -114,6 +115,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('readAgent', readAgentHandler(context));
   register('renameAgent', renameAgentHandler(context));
   register('stopAgent', stopAgentHandler(context));
+  register('resumeAgent', resumeAgentHandler(context));
   register('freshStartAgent', freshStartAgentHandler(context));
   register('readAgentCall', readAgentCallHandler(context));
   register('recordAgentCall', recordAgentCallHandler(context));

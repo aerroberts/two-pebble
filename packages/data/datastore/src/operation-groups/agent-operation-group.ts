@@ -13,6 +13,7 @@ import { agentPriceLineItemsRecordOperation } from '../operations/agent.price-li
 import { agentReadOperation } from '../operations/agent.read';
 import { agentRenameOperation } from '../operations/agent.rename';
 import { agentSetMetadataOperation } from '../operations/agent.set-metadata';
+import { agentSetParentResponseSignalIdOperation } from '../operations/agent.set-parent-response-signal-id';
 import { agentSetStatusOperation } from '../operations/agent.set-status';
 import { agentSignalsListForAgentOperation } from '../operations/agent.signals.list-for-agent';
 import { agentSignalsListOpenForAgentOperation } from '../operations/agent.signals.list-open-for-agent';
@@ -46,6 +47,7 @@ export function bindAgentOperationGroup(bind: DatastoreOperationBinder) {
     fail: bind(agentFailOperation, 'agent.fail'),
     list: bind(agentListOperation, 'agent.list'),
     setMetadata: bind(agentSetMetadataOperation, 'agent.set-metadata'),
+    setParentResponseSignalId: bind(agentSetParentResponseSignalIdOperation, 'agent.set-parent-response-signal-id'),
     setStatus: bind(agentSetStatusOperation, 'agent.set-status'),
     signals: {
       listForAgent: bind(agentSignalsListForAgentOperation, 'agent.signals.list-for-agent'),

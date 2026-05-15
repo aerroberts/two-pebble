@@ -2,6 +2,7 @@ import type { ThirdPartyAgentFramework } from '../../frameworks/third-party-agen
 import type { AgentFrameworkStatusEvent } from '../../frameworks/types';
 import type { UsageReport } from '../../pricing';
 import { staticPriceCalculator } from '../../pricing';
+import type { DataCells } from '../../thread';
 import { Cell } from '../../thread';
 import type { PebbleAgentTrace } from '../../traces';
 import type { PebbleJsonRecord } from '../../types';
@@ -18,6 +19,10 @@ export class FrameworkAgent extends Agent {
   private readonly systemPrompt: string;
   private systemMessageEmitted: boolean;
   private resumeMetadata: PebbleJsonRecord = {};
+  // The most recent assistant message produced this turn. Reset on every
+  // `working` edge so we never replay a stale message across turns; emitted
+  // through `finalMessage` when the framework settles into idle.
+  private lastAssistantMessage: DataCells | undefined;
 
   constructor(config: ThirdPartyAgentConfig) {
     super({
@@ -31,7 +36,16 @@ export class FrameworkAgent extends Agent {
     this.systemPrompt = config.systemPrompt;
     this.systemMessageEmitted = !config.freshLaunch;
     this.framework.onUsage((usage) => this.emitUsage(usage));
-    this.framework.onTrace((type, data) => this.emitTrace(type, data));
+    this.framework.onTrace((type, data) => {
+      if (type === 'assistant-message') {
+        // The framework emits this as a debug trace; we additionally memo it
+        // here so the idle edge has something concrete to hand back via the
+        // `finalMessage` event without consumers having to subscribe to traces.
+        const assistantData = data as AgentTraceData<'assistant-message'>;
+        this.lastAssistantMessage = assistantData.content;
+      }
+      this.emitTrace(type, data);
+    });
     this.framework.onStatusChange((event) => this.onFrameworkStatusChange(event));
     this.framework.onMetadataUpdate((metadata) => {
       this.resumeMetadata = metadata;
@@ -89,9 +103,15 @@ export class FrameworkAgent extends Agent {
    * The system-prompt trace is emitted at most once per agent so observers
    * see what context the session was started with — re-emitting on every
    * resume (within-daemon or after rehydrate) would just duplicate it.
+   * On the idle edge we publish whatever assistant message the framework
+   * produced this turn via `finalMessage` so consumers (e.g. the sub-agent
+   * parent-link bridge) can react without listening to traces.
    */
   private onFrameworkStatusChange(event: AgentFrameworkStatusEvent): void {
     if (event.status === 'working') {
+      // New turn beginning — clear stale memo so a turn that produces no
+      // assistant text doesn't accidentally re-emit the previous one.
+      this.lastAssistantMessage = undefined;
       if (!this.systemMessageEmitted && this.systemPrompt.length > 0) {
         this.emitTrace('system-message', { content: [Cell.text(this.systemPrompt)] });
         this.systemMessageEmitted = true;
@@ -104,6 +124,11 @@ export class FrameworkAgent extends Agent {
       return;
     }
     this.changeStatus('idle', 'framework idle');
+    if (this.lastAssistantMessage !== undefined) {
+      const content = this.lastAssistantMessage;
+      this.lastAssistantMessage = undefined;
+      this.emit('finalMessage', { content });
+    }
   }
 
   /**

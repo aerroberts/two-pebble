@@ -1,5 +1,5 @@
 import { AppBox, AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection } from '@two-pebble/components';
-import { type AgentRecord, useAgents, useCompleteAgent, useStopAgent } from '@two-pebble/realtime';
+import { type AgentRecord, useAgents, useCompleteAgent, useResumeAgent, useStopAgent } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AgentSidebarItem } from './agent-sidebar-item';
 import type { AppShellProps } from './app-shell-props';
@@ -13,6 +13,7 @@ export function AgentsAppShell(props: AppShellProps) {
   const agents = useAgents();
   const stopAgent = useStopAgent();
   const completeAgent = useCompleteAgent();
+  const resumeAgent = useResumeAgent();
   const agentList = agents.values().sort((left, right) => right.startedAt - left.startedAt);
   const activeAgents = agentList.filter((agent) => agent.status === 'running');
   const waitingAgents = agentList.filter((agent) => agent.status === 'waiting');
@@ -26,6 +27,10 @@ export function AgentsAppShell(props: AppShellProps) {
 
   const handleArchive = (agentId: string) => {
     void completeAgent({ id: agentId }).catch(() => undefined);
+  };
+
+  const handleResume = (agentId: string) => {
+    void resumeAgent({ id: agentId }).catch(() => undefined);
   };
 
   return (
@@ -86,6 +91,7 @@ export function AgentsAppShell(props: AppShellProps) {
                     active={location.pathname === `/agents/${agent.id}`}
                     agent={agent}
                     key={agent.id}
+                    onResume={() => handleResume(agent.id)}
                     onSelect={() => navigate(`/agents/${agent.id}`)}
                   />
                 ))}

@@ -8,6 +8,7 @@ interface AgentSidebarItemProps {
   onSelect: () => void;
   onStop?: () => void;
   onArchive?: () => void;
+  onResume?: () => void;
 }
 
 interface IconConfig {
@@ -21,6 +22,7 @@ interface IconConfigInput {
   status: AgentStatus;
   onStop?: () => void;
   onArchive?: () => void;
+  onResume?: () => void;
 }
 
 function iconConfigForStatus(input: IconConfigInput): IconConfig {
@@ -51,9 +53,9 @@ function iconConfigForStatus(input: IconConfigInput): IconConfig {
   if (input.status === 'interrupted') {
     return {
       defaultIcon: <Icon name="triangle-alert" color="text-current" />,
-      hoverIcon: null,
-      hoverLabel: null,
-      hoverAction: null,
+      hoverIcon: input.onResume ? <Icon name="arrow-up" color="text-current" /> : null,
+      hoverLabel: input.onResume ? 'Resume agent' : null,
+      hoverAction: input.onResume ?? null,
     };
   }
   if (input.status === 'failed') {
@@ -85,8 +87,8 @@ function agentLabel(agent: AgentRecord): string {
 }
 
 export function AgentSidebarItem(props: AgentSidebarItemProps) {
-  const { active, agent, onSelect, onStop, onArchive } = props;
-  const config = iconConfigForStatus({ status: agent.status, onStop, onArchive });
+  const { active, agent, onSelect, onStop, onArchive, onResume } = props;
+  const config = iconConfigForStatus({ status: agent.status, onStop, onArchive, onResume });
   const handleIconClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();

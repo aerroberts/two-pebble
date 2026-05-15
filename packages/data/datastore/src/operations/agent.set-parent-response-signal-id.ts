@@ -1,33 +1,34 @@
 import { eq } from 'drizzle-orm';
 
-import { createUtcNow } from '../table/create-utc-now';
-import type { DatastoreContext } from '../types';
+import type { AgentStatus, DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
   id: string;
+  parentResponseSignalId: string | null;
 };
 
-export function agentCompleteOperation(ctx: DatastoreContext) {
+/**
+ * Updates the awaited-signal id that the agent's next settlement should
+ * resolve back to. Only meaningful for framework children whose lifetime is
+ * driven by parent asks; Pebble children track this state in their
+ * parent-link capability slots instead.
+ */
+export function agentSetParentResponseSignalIdOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const existing = await ctx.database
       .select()
       .from(ctx.schema.agentsTable)
       .where(eq(ctx.schema.agentsTable.id, input.id))
       .get();
-
     if (existing === undefined) {
       throw new Error(`Agent not found: ${input.id}`);
     }
-
-    const now = createUtcNow();
-
     const row = await ctx.database
       .update(ctx.schema.agentsTable)
-      .set({ completedAt: now, status: 'offline' })
+      .set({ parentResponseSignalId: input.parentResponseSignalId })
       .where(eq(ctx.schema.agentsTable.id, input.id))
       .returning()
       .get();
-
     return {
       agentRegistryId: row.agentRegistryId,
       completedAt: row.completedAt,
@@ -38,7 +39,7 @@ export function agentCompleteOperation(ctx: DatastoreContext) {
       parentAgentId: row.parentAgentId,
       parentResponseSignalId: row.parentResponseSignalId,
       startedAt: row.startedAt,
-      status: 'offline' as const,
+      status: row.status as AgentStatus,
     };
   };
 }

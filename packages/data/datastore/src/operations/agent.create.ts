@@ -7,6 +7,7 @@ type OperationHandlerInput = {
   id?: string;
   name: string;
   parentAgentId?: string | null;
+  parentResponseSignalId?: string | null;
   workspaceId: string;
 };
 
@@ -24,6 +25,7 @@ export function agentCreateOperation(ctx: DatastoreContext) {
         metadata: '{}',
         name: input.name,
         parentAgentId: input.parentAgentId ?? null,
+        parentResponseSignalId: input.parentResponseSignalId ?? null,
         startedAt: now,
         status: 'idle',
         workspaceId: input.workspaceId,
@@ -39,6 +41,7 @@ export function agentCreateOperation(ctx: DatastoreContext) {
       metadata: row.metadata,
       name: input.name,
       parentAgentId: row.parentAgentId,
+      parentResponseSignalId: row.parentResponseSignalId,
       startedAt: now,
       status: 'idle' as const,
       workspaceId: input.workspaceId,

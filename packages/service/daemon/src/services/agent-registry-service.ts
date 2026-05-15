@@ -2,7 +2,7 @@ import type { Datastore } from '@two-pebble/datastore';
 import { Events } from '@two-pebble/events';
 import type { Logger } from '@two-pebble/logger';
 import type { Agent } from '@two-pebble/pebble';
-import { Cell, PebbleAgent } from '@two-pebble/pebble';
+import { Cell, FrameworkAgent, PebbleAgent } from '@two-pebble/pebble';
 import { installCapabilityRunners } from '@two-pebble/pebble/capabilities';
 import type { AgentRegistryServiceContext, DaemonBridge } from '../types';
 import { resolveBuildInput } from './agent-registry-build-input';
@@ -19,6 +19,7 @@ import { buildLaunchAgent } from './build-launch-agent';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
 import { DaemonSignalRunner } from './signal-runner/daemon-signal-runner';
 import {
+  attachFrameworkParentLinkBridge,
   attachParentLinkCapability,
   installFreshLaunchAgent,
   installSubAgentRunner,
@@ -224,6 +225,13 @@ export class AgentRegistryService {
           mode: 'rehydrate',
           parentAgentId: record.parentAgentId,
         });
+        attachFrameworkParentLinkBridge({
+          agent: runtimeAgent,
+          agentId,
+          datastore: this.datastore,
+          logger: this.logger,
+          parentAgentId: record.parentAgentId,
+        });
       }
       if (registry.kind !== 'framework' && registry.inferenceProfileId !== null) {
         const inferenceProfile = await this.datastore.inferenceProfiles.read({ id: registry.inferenceProfileId });
@@ -283,7 +291,10 @@ export class AgentRegistryService {
   /**
    * Wakes an agent when all currently-open signals have resolved.
    * Used by signal delivery paths so a waiting PebbleAgent can resume
-   * immediately after inbound signal state changes.
+   * immediately after inbound signal state changes. For framework agents
+   * we instead translate the next received parent-link signal into an
+   * input message — framework adapters have no `hookOnSignal` surface and
+   * route everything through their plain message channel.
    */
   public async wakeIfSignalsReady(agentId: string): Promise<void> {
     await repairBlockedSubAgentAskSignal({ agentId, datastore: this.datastore });
@@ -302,7 +313,47 @@ export class AgentRegistryService {
     const agent = await this.rehydrate(agentId);
     if (agent instanceof PebbleAgent) {
       agent.resumeFromSignal();
+      return;
     }
+    if (agent instanceof FrameworkAgent) {
+      await this.deliverNextParentSignalToFramework(agent, agentId, received.items);
+    }
+  }
+
+  /**
+   * Routes the next pending parent-link push signal into a framework
+   * agent. Stamps the agent's row with `parentResponseSignalId` so the
+   * finalMessage bridge knows which awaited slot to resolve when the
+   * framework eventually settles into idle, then marks the inbound signal
+   * resolved so it isn't redelivered on rehydrate.
+   */
+  private async deliverNextParentSignalToFramework(
+    agent: FrameworkAgent,
+    agentId: string,
+    received: Array<{ id: string; capabilityId: string; data: unknown }>,
+  ): Promise<void> {
+    const candidate = received.find((signal) => signal.capabilityId === 'parent-link');
+    if (candidate === undefined) {
+      return;
+    }
+    const data = candidate.data as { type?: string; message?: string; responseSignalId?: string } | null;
+    if (data === null || typeof data !== 'object') {
+      await this.datastore.agent.signals.markResolved({ id: candidate.id });
+      return;
+    }
+    const message = typeof data.message === 'string' ? data.message : '';
+    if (message.length === 0) {
+      await this.datastore.agent.signals.markResolved({ id: candidate.id });
+      return;
+    }
+    if (data.type === 'respond-parent' && typeof data.responseSignalId === 'string') {
+      await this.datastore.agent.setParentResponseSignalId({
+        id: agentId,
+        parentResponseSignalId: data.responseSignalId,
+      });
+    }
+    await this.datastore.agent.signals.markResolved({ id: candidate.id });
+    agent.sendMessage([Cell.text(message)]);
   }
 
   /**
@@ -401,6 +452,7 @@ export class AgentRegistryService {
         agentRegistry: this,
         bridge: this.multicastBridge,
         coordinator,
+        datastore: this.datastore,
         logger: this.logger,
         ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
         specs: combinedSpecs,

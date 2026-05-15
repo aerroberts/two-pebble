@@ -1,6 +1,7 @@
+import type { Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
-import type { Agent } from '@two-pebble/pebble';
-import { PebbleAgent } from '@two-pebble/pebble';
+import type { Agent, DataCells } from '@two-pebble/pebble';
+import { FrameworkAgent, PebbleAgent } from '@two-pebble/pebble';
 import { buildCapability, installCapabilityRunners } from '@two-pebble/pebble/capabilities';
 import type { DaemonBridge } from '../../types';
 import type { AgentRegistryService } from '../agent-registry-service';
@@ -27,6 +28,7 @@ interface InstallFreshAgentInput {
   agentRegistry: AgentRegistryService;
   bridge: DaemonBridge;
   coordinator: SubAgentCoordinator;
+  datastore: Datastore;
   logger: Logger;
   parentAgentId?: string;
   specs: CapabilitySpec[];
@@ -36,6 +38,14 @@ interface AttachParentLinkInput {
   agent: Agent;
   coordinator: SubAgentCoordinator;
   mode: 'fresh' | 'rehydrate';
+  parentAgentId: string;
+}
+
+interface AttachFrameworkParentLinkInput {
+  agent: Agent;
+  agentId: string;
+  datastore: Datastore;
+  logger: Logger;
   parentAgentId: string;
 }
 
@@ -86,6 +96,83 @@ export function attachParentLinkCapability(input: AttachParentLinkInput): void {
 }
 
 /**
+ * Wires a framework sub-agent into the parent-link signal protocol without
+ * giving it a Pebble capability. The framework adapter has no slots to
+ * persist `pendingParentResponse` state, so the bookkeeping lives on the
+ * agents row (`parentResponseSignalId`): the wake path stamps it when a
+ * parent push arrives, and this listener clears it by resolving the
+ * parent's awaited signal whenever the framework settles into idle with a
+ * final assistant message.
+ */
+export function attachFrameworkParentLinkBridge(input: AttachFrameworkParentLinkInput): void {
+  if (!(input.agent instanceof FrameworkAgent)) {
+    return;
+  }
+  const datastore = input.datastore;
+  const logger = input.logger;
+  const parentAgentId = input.parentAgentId;
+  const agentId = input.agentId;
+  input.agent.on('finalMessage', (event) => {
+    void resolveFrameworkResponse({
+      agentId,
+      content: event.content,
+      datastore,
+      logger,
+      parentAgentId,
+    });
+  });
+}
+
+interface ResolveFrameworkResponseInput {
+  agentId: string;
+  content: DataCells;
+  datastore: Datastore;
+  logger: Logger;
+  parentAgentId: string;
+}
+
+async function resolveFrameworkResponse(input: ResolveFrameworkResponseInput): Promise<void> {
+  try {
+    const record = await input.datastore.agent.read({ id: input.agentId });
+    const responseSignalId = record.parentResponseSignalId;
+    if (responseSignalId === null || responseSignalId === undefined || responseSignalId.length === 0) {
+      return;
+    }
+    await input.datastore.agent.signals.resolve({
+      agentId: input.parentAgentId,
+      capabilityId: 'sub-agent',
+      signalId: responseSignalId,
+      data: {
+        childAgentId: input.agentId,
+        message: extractMessageText(input.content),
+        type: 'sub-agent-response',
+      },
+    });
+    await input.datastore.agent.setParentResponseSignalId({
+      id: input.agentId,
+      parentResponseSignalId: null,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    input.logger.warn('framework parent-link resolve failed', { agentId: input.agentId, error: message });
+  }
+}
+
+function extractMessageText(content: DataCells): string {
+  const parts: string[] = [];
+  for (const cell of content) {
+    if (cell.type === 'text') {
+      parts.push(cell.content.text);
+    } else if (cell.type === 'header1' || cell.type === 'header2') {
+      parts.push(cell.content.text);
+    } else if (cell.type === 'codeBlock') {
+      parts.push(cell.content.code);
+    }
+  }
+  return parts.join('\n');
+}
+
+/**
  * Installs the parent-side runner, attaches Pebble capabilities, and
  * (when applicable) attaches the child-side parent-link capability.
  * One entry point so the daemon's runAgent path stays small and the
@@ -107,6 +194,13 @@ export function installFreshLaunchAgent(input: InstallFreshAgentInput): void {
       agent: input.agent,
       coordinator: input.coordinator,
       mode: 'fresh',
+      parentAgentId: input.parentAgentId,
+    });
+    attachFrameworkParentLinkBridge({
+      agent: input.agent,
+      agentId: input.agentId,
+      datastore: input.datastore,
+      logger: input.logger,
       parentAgentId: input.parentAgentId,
     });
   }

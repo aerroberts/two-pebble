@@ -71,6 +71,7 @@ export { useFreshStartAgent } from './states/agents/hooks/use-fresh-start-agent.
 export { useLaunchAgent } from './states/agents/hooks/use-launch-agent.hook';
 export { useReadAgent } from './states/agents/hooks/use-read-agent.hook';
 export { useRenameAgent } from './states/agents/hooks/use-rename-agent.hook';
+export { useResumeAgent } from './states/agents/hooks/use-resume-agent.hook';
 export { useSendAgentMessage } from './states/agents/hooks/use-send-agent-message.hook';
 export { useStopAgent } from './states/agents/hooks/use-stop-agent.hook';
 export type {
@@ -82,6 +83,7 @@ export type {
   FailAgentInput,
   LaunchAgentInput,
   ReadAgentInput,
+  ResumeAgentInput,
   SendAgentMessageInput,
 } from './states/agents/types';
 export { useAppSettings } from './states/app-settings/hooks/use-app-settings.hook';

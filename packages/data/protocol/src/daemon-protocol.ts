@@ -17,6 +17,7 @@ import type { AgentPriceLineItemRecordedEvent } from './protocol/agent.price-lin
 import type { AgentReadOperation } from './protocol/agent.read';
 import type { AgentRecordedEvent } from './protocol/agent.recorded';
 import type { AgentRenameOperation } from './protocol/agent.rename';
+import type { AgentResumeOperation } from './protocol/agent.resume';
 import type { AgentSignalsListOperation } from './protocol/agent.signals.list';
 import type { AgentSignalsResolveOperation } from './protocol/agent.signals.resolve';
 import type { AgentSignalsSendOperation } from './protocol/agent.signals.send';
@@ -119,6 +120,7 @@ export type DaemonOperations = [
   AgentCreateOperation,
   AgentRenameOperation,
   AgentStopOperation,
+  AgentResumeOperation,
   AgentFreshStartOperation,
   AgentCompleteOperation,
   AgentFailOperation,

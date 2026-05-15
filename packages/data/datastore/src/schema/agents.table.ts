@@ -17,6 +17,11 @@ export const agentsTable = customTable('agents', {
   // Optional parent agent that spawned this run.
   parentAgentId: text('parent_agent_id'),
 
+  // Optional awaited-signal id on the parent that this agent's next
+  // settlement should resolve back to. Only used for framework children:
+  // Pebble children resolve via their parent-link capability state slots.
+  parentResponseSignalId: text('parent_response_signal_id'),
+
   // The agent registry this agent was launched from.
   // Null for legacy agents created before resumability shipped; those agents are read-only.
   agentRegistryId: text('agent_registry_id'),
