@@ -10,31 +10,24 @@ export interface SidebarSectionProps {
   /** When `collapsible`, starts collapsed if true. Defaults to false. */
   defaultCollapsed?: boolean;
   href?: string;
-  icon?: string;
   onClick?: MouseEventHandler;
   title: ReactNode;
 }
 
 export function SidebarSection(props: SidebarSectionProps) {
-  const { active, children, collapsible = false, defaultCollapsed = false, href, icon, title, onClick } = props;
+  const { active, children, collapsible = false, defaultCollapsed = false, href, title, onClick } = props;
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const isInteractive = collapsible || !!onClick || !!href;
   const titleClass = active ? 'text-accent' : 'text-content-muted';
   const interactiveClass = isInteractive ? 'cursor-pointer hover:text-content transition-colors' : '';
   const spacingClass = 'gap-2 px-2';
   const headerClass = `flex w-full items-center overflow-visible rounded-lg py-1.5 text-left font-heading text-[12px] font-normal leading-4 tracking-[0.08em] ${spacingClass} ${titleClass} ${interactiveClass}`;
-  const iconNode = icon ? (
-    <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-accent">
-      <Icon name={icon} color="text-current" />
-    </span>
-  ) : null;
   const chevronNode = collapsible ? (
     <Icon name={collapsed ? 'chevron-right' : 'chevron-down'} color="text-current" />
   ) : null;
   const headerContent = (
     <>
       {chevronNode}
-      {iconNode}
       <span className="truncate">{title}</span>
     </>
   );

@@ -11,13 +11,13 @@ export function AgentControlSidebar(props: AgentControlSidebarProps) {
 
   return (
     <Sidebar>
-      <SidebarSection title="Runtime" icon="terminal">
+      <SidebarSection title="Runtime">
         <SidebarOption label="Overview" active={active === 'overview'} />
         <SidebarOption label="Runs" badge="3" active={active === 'runs'} />
         <SidebarOption label="Agents" badge="5" active={active === 'agents'} />
         <SidebarOption label="Traces" badge="12" active={active === 'traces'} />
       </SidebarSection>
-      <SidebarSection title="Configuration" icon="settings">
+      <SidebarSection title="Configuration">
         <SidebarOption label="Providers" active={active === 'providers'} />
         <SidebarOption label="Models" active={active === 'models'} />
         <SidebarOption label="Datastore" active={active === 'datastore'} />

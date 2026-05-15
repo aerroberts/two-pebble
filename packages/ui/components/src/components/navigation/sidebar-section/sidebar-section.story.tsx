@@ -15,7 +15,7 @@ type Story = StoryObj<typeof SidebarSection>;
 export const Default: Story = {
   render: () => (
     <SyntaxExample>
-      <SidebarSection title="Settings" icon="settings">
+      <SidebarSection title="Settings">
         <SidebarOption label="General" />
         <SidebarOption label="Runtime" />
       </SidebarSection>

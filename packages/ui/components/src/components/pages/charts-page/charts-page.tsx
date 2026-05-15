@@ -138,7 +138,7 @@ const workflowNodes = [
 function ChartsSidebar() {
   return (
     <Sidebar brandingTitle="Charts">
-      <SidebarSection title="Dashboards" icon="chart-no-axes-combined">
+      <SidebarSection title="Dashboards">
         <SidebarOption active label="Overview" />
         <SidebarOption label="Runtime" />
         <SidebarOption label="Cost" />

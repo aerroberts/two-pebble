@@ -11,16 +11,16 @@ export function TraceDetailSidebar(props: TraceDetailSidebarProps) {
 
   return (
     <Sidebar>
-      <SidebarSection title="Current Run" icon="activity">
+      <SidebarSection title="Current Run">
         <SidebarOption label="0042" active={active === 'trace-0042'} />
         <SidebarOption label="0041" active={active === 'trace-0041'} />
       </SidebarSection>
-      <SidebarSection title="Signals" icon="radio">
+      <SidebarSection title="Signals">
         <SidebarOption label="Model calls" active={active === 'model-calls'} />
         <SidebarOption label="Tool calls" active={active === 'tool-calls'} />
         <SidebarOption label="Serialized thread" active={active === 'thread'} />
       </SidebarSection>
-      <SidebarSection title="Storage" icon="database">
+      <SidebarSection title="Storage">
         <SidebarOption label="Datastore rows" active={active === 'datastore'} />
         <SidebarOption label="Provider events" active={active === 'provider-events'} />
       </SidebarSection>

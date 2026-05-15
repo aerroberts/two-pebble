@@ -17,7 +17,7 @@ export const Default: Story = {
   render: () => (
     <SyntaxExample>
       <Sidebar>
-        <SidebarSection title="Navigation" icon="compass">
+        <SidebarSection title="Navigation">
           <SidebarOption label="Dashboard" active />
           <SidebarOption label="Settings" />
         </SidebarSection>
