@@ -13,6 +13,12 @@ const STATUS_STATE: Record<WorktreeStatus, StatusState> = {
   deleted: 'failed',
 };
 
+const STATUS_LABEL: Record<WorktreeStatus, string> = {
+  active: 'Worktree active',
+  creating: 'Creating worktree',
+  deleted: 'Worktree inactive',
+};
+
 export function WorktreesList(props: WorktreesListProps) {
   return (
     <ListLayout
@@ -28,9 +34,12 @@ export function WorktreesList(props: WorktreesListProps) {
               icon="trash-2"
               onClick={() => props.onDeleteClick(entry.id)}
               type="button"
+              variant="secondary"
             />
           ),
-        value: <Status label={entry.value.status} state={STATUS_STATE[entry.value.status]} />,
+        value: (
+          <Status label={STATUS_LABEL[entry.value.status]} state={STATUS_STATE[entry.value.status]} variant="pill" />
+        ),
       }))}
     />
   );

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Icon } from '../icon/icon';
 
 export type StatusState = 'idle' | 'not-started' | 'in-progress' | 'failed' | 'success' | 'connected' | 'disconnected';
-export type StatusVariant = 'default' | 'icon';
+export type StatusVariant = 'default' | 'icon' | 'pill';
 
 interface StatusStateConfig {
   label: string;
@@ -70,6 +70,15 @@ export function Status(props: StatusProps) {
   }
 
   const label = props.label ?? getStatusLabel(props.state);
+
+  if (props.variant === 'pill') {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-hover px-2 py-0.5 text-xs text-content">
+        <StatusIndicator state={props.state} />
+        <span>{label}</span>
+      </span>
+    );
+  }
 
   return (
     <span className="inline-flex items-center gap-2 text-sm text-content">
