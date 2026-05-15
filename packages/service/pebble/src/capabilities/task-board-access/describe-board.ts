@@ -99,3 +99,20 @@ function indexTasksByPool(tasks: TaskBoardTaskNode[]): TasksByPool {
 function byName<T extends { name: string }>(left: T, right: T): number {
   return left.name.localeCompare(right.name);
 }
+
+/**
+ * Renders a flat list of task records as compact `id name [status, pool]`
+ * lines the model can scan quickly. Sorted by name so the output is stable.
+ */
+export function renderTaskList(tasks: TaskBoardTaskNode[]): string {
+  if (tasks.length === 0) {
+    return '(no tasks)';
+  }
+  const sorted = [...tasks].sort(byName);
+  return sorted
+    .map((task) => {
+      const poolLabel = task.poolId === null ? 'pool: (root)' : `pool: ${task.poolId}`;
+      return `${task.id}  ${task.name} [${task.effectiveStatus}, ${poolLabel}]`;
+    })
+    .join('\n');
+}
