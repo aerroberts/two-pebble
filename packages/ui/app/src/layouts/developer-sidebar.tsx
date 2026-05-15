@@ -47,6 +47,14 @@ export function DeveloperSidebar() {
           onClick={() => navigate('/developer/agents/thread-log')}
         />
       </SidebarSection>
+      <SidebarSection title="Voice">
+        <SidebarOption
+          active={location.pathname.startsWith('/developer/voice/transcriptions')}
+          icon="mic"
+          label="Transcriptions"
+          onClick={() => navigate('/developer/voice/transcriptions')}
+        />
+      </SidebarSection>
     </>
   );
 }

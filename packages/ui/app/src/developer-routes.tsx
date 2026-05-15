@@ -8,6 +8,7 @@ import { DatabaseSettingsPage } from './pages/developer/database/database-settin
 import { HeartbeatsPage } from './pages/developer/heartbeats/heartbeats.page';
 import { DeveloperThreadPage } from './pages/developer/threads/developer-thread-page';
 import { ThreadsPage } from './pages/developer/threads/threads.page';
+import { TranscriptionHistoryPage } from './pages/developer/voice/transcription-history.page';
 import { RedirectToDeveloperThread } from './redirect-to-developer-thread';
 
 export function DeveloperRoutes() {
@@ -88,6 +89,14 @@ export function DeveloperRoutes() {
         element={
           <DeveloperAppShell>
             <DeveloperThreadPage />
+          </DeveloperAppShell>
+        }
+      />
+      <Route
+        path="voice/transcriptions"
+        element={
+          <DeveloperAppShell>
+            <TranscriptionHistoryPage />
           </DeveloperAppShell>
         }
       />
