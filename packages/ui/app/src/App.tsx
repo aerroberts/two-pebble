@@ -33,6 +33,7 @@ import { MetricsExplorerPage } from './pages/metrics/metrics-explorer.page';
 import { PricingExplorerPage } from './pages/metrics/pricing-explorer.page';
 import { PricingOverviewPage } from './pages/metrics/pricing-overview.page';
 import { ModelCallDetailPage } from './pages/model-call-detail/model-call-detail.page';
+import { OverviewPage } from './pages/overview/overview.page';
 import { TaskBoardPage } from './pages/task-board/task-board.page';
 import { TasksPage } from './pages/tasks/tasks.page';
 import { RedirectToDeveloperThread } from './redirect-to-developer-thread';
@@ -50,7 +51,14 @@ export function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/agents/new" replace />} />
+      <Route
+        path="/"
+        element={
+          <MainAppShell>
+            <OverviewPage />
+          </MainAppShell>
+        }
+      />
       <Route
         path="/assistant"
         element={
