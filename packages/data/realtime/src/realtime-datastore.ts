@@ -23,6 +23,7 @@ import { createAgentRegistryOperation } from './operations/agent-registries.crea
 import { deleteAgentRegistryOperation } from './operations/agent-registries.delete.operation';
 import { listAgentRegistriesOperation } from './operations/agent-registries.list.operation';
 import { updateAgentRegistryOperation } from './operations/agent-registries.update.operation';
+import { sendAssistantMessageOperation } from './operations/assistant.message.operation';
 import { readAppSettingsOperation } from './operations/app-settings.read.operation';
 import { updateAppSettingsOperation } from './operations/app-settings.update.operation';
 import { createAutomationOperation } from './operations/automations.create.operation';
@@ -397,6 +398,17 @@ export class RealtimeDatastore {
     return {
       read: readAppSettingsOperation({ datastore: this }),
       update: updateAppSettingsOperation({ datastore: this }),
+    };
+  }
+
+  /**
+   * Returns Assistant operations bound to app settings and agent runtime state.
+   * The send path owns Assistant agent creation/relaunch so UI surfaces do not
+   * duplicate launch-vs-message decisions.
+   */
+  public get assistant() {
+    return {
+      sendMessage: sendAssistantMessageOperation({ datastore: this }),
     };
   }
 

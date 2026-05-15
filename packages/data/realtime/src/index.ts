@@ -88,6 +88,7 @@ export type {
 } from './states/agents/types';
 export { useAppSettings } from './states/app-settings/hooks/use-app-settings.hook';
 export { useGenerateSpeech } from './states/app-settings/hooks/use-generate-speech.hook';
+export { useSendAssistantMessage } from './states/app-settings/hooks/use-send-assistant-message.hook';
 export { useTranscribeAudio } from './states/app-settings/hooks/use-transcribe-audio.hook';
 export { useUpdateAppSettings } from './states/app-settings/hooks/use-update-app-settings.hook';
 export type { AppSettingsRecord, AppSettingsState, UpdateAppSettingsInput } from './states/app-settings/types';

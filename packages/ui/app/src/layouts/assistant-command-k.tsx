@@ -1,7 +1,7 @@
 'use client';
 
 import { useToast } from '@two-pebble/components';
-import { useAppSettings, useLaunchAgent, useSendAgentMessage, useUpdateAppSettings } from '@two-pebble/realtime';
+import { useAppSettings, useSendAssistantMessage } from '@two-pebble/realtime';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AgentInput } from '../shared/agent-input/agent-input';
 
@@ -23,9 +23,7 @@ import { AgentInput } from '../shared/agent-input/agent-input';
  */
 export function AssistantCommandK() {
   const appSettings = useAppSettings();
-  const updateAppSettings = useUpdateAppSettings();
-  const launchAgent = useLaunchAgent();
-  const sendAgentMessage = useSendAgentMessage();
+  const sendAssistantMessage = useSendAssistantMessage();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
@@ -76,7 +74,6 @@ export function AssistantCommandK() {
   }
 
   const registryId = settings?.assistantAgentRegistryId ?? null;
-  const agentId = settings?.assistantAgentId ?? null;
 
   const sendToAssistant = async (text: string) => {
     const trimmed = text.trim();
@@ -89,22 +86,8 @@ export function AssistantCommandK() {
       return;
     }
     try {
-      if (agentId === null) {
-        const launched = await launchAgent({ agentRegistryId: registryId, message: trimmed });
-        if (settings !== null) {
-          await updateAppSettings({
-            defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
-            defaultSpeechProfileId: settings.defaultSpeechProfileId,
-            assistantAgentRegistryId: settings.assistantAgentRegistryId,
-            assistantAgentId: launched.id,
-            assistantCommandKEnabled: settings.assistantCommandKEnabled,
-            assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
-          });
-        }
-      } else {
-        await sendAgentMessage({ agentId, message: trimmed });
-      }
-      toast('Sent to Assistant.', 'success');
+      const result = await sendAssistantMessage({ message: trimmed });
+      toast(result.launched ? 'Started Assistant and sent message.' : 'Sent to Assistant.', 'success');
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : 'Failed to send.';
       toast(message, 'error');

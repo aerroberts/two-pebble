@@ -1,29 +1,16 @@
 import { useToast } from '@two-pebble/components';
-import type { AgentStatus } from '@two-pebble/realtime';
 import {
   useAgentLiveness,
   useAgents,
   useAgentTraces,
   useAppSettings,
-  useLaunchAgent,
-  useSendAgentMessage,
-  useUpdateAppSettings,
+  useSendAssistantMessage,
 } from '@two-pebble/realtime';
 import { useMemo, useState } from 'react';
 
-type AssistantAgentId = string | null;
-
-const TERMINAL_AGENT_STATUSES: ReadonlySet<AgentStatus> = new Set(['failed', 'offline']);
-
-function isTerminalAgentStatus(status: AgentStatus | undefined): boolean {
-  return status !== undefined && TERMINAL_AGENT_STATUSES.has(status);
-}
-
 export function useAssistantPageState() {
   const appSettings = useAppSettings();
-  const updateAppSettings = useUpdateAppSettings();
-  const launchAgent = useLaunchAgent();
-  const sendAgentMessage = useSendAgentMessage();
+  const sendAssistantMessage = useSendAssistantMessage();
   const agents = useAgents();
   const toaster = useToast();
   const [chatDraft, setChatDraft] = useState('');
@@ -47,20 +34,6 @@ export function useAssistantPageState() {
 
   const settingsLoaded = appSettings.status === 'ready' || settings !== null;
 
-  const persistAgentId = (nextAgentId: AssistantAgentId) => {
-    if (settings === null) {
-      return;
-    }
-    void updateAppSettings({
-      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
-      defaultSpeechProfileId: settings.defaultSpeechProfileId,
-      assistantAgentRegistryId: settings.assistantAgentRegistryId,
-      assistantAgentId: nextAgentId,
-      assistantCommandKEnabled: settings.assistantCommandKEnabled,
-      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
-    });
-  };
-
   const sendChatMessage = async (override?: string) => {
     const source = override ?? chatDraft;
     const trimmed = source.trim();
@@ -70,25 +43,9 @@ export function useAssistantPageState() {
     setChatSending(true);
     setChatError('');
     try {
-      // If the active Assistant agent is in a terminal state (failed/offline),
-      // its thread is no longer accepting messages. Spawn a fresh agent so the
-      // user can keep talking without a manual reset/refresh.
-      const currentAgentStatus = agent?.status;
-      const shouldRespawn = agentId !== null && isTerminalAgentStatus(currentAgentStatus);
-      if (shouldRespawn) {
-        console.warn('Assistant agent is in terminal state; spawning a new agent.', {
-          agentId,
-          status: currentAgentStatus,
-        });
-      }
-      if (agentId === null || shouldRespawn) {
-        const launched = await launchAgent({ agentRegistryId: registryId, message: trimmed });
-        persistAgentId(launched.id);
-        if (shouldRespawn) {
-          toaster.toast('Previous Assistant thread had ended — started a new conversation.', 'info');
-        }
-      } else {
-        await sendAgentMessage({ agentId, message: trimmed });
+      const result = await sendAssistantMessage({ message: trimmed });
+      if (result.launched && agentId !== null) {
+        toaster.toast('Previous Assistant thread had ended; started a new conversation.', 'info');
       }
       setChatDraft('');
     } catch (failure) {
