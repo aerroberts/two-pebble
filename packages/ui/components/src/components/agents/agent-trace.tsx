@@ -3,7 +3,7 @@
 import { aggregatePebbleAgentTraces as aggregateAgentTraces } from '@two-pebble/pebble';
 import { renderAgentTrace } from './render-trace';
 import { ToolTraceGroup } from './tool-trace-group';
-import type { AgentTraceByType, AgentTraceRecord, SpeakController } from './types';
+import type { AgentAggregatedTraceRecord, AgentTraceByType, AgentTraceRecord, SpeakController } from './types';
 
 export interface AgentTraceProps {
   onAgentClick?: (agentId: string) => void;
@@ -15,10 +15,29 @@ export interface AgentTraceProps {
   traces: AgentTraceRecord[];
 }
 
+// Trace types that have no visible chat representation. These are intermediate or
+// lifecycle-only signals that either fall through `renderAgentTrace` without a case
+// or explicitly return `null`. Keeping them in the stream would break adjacency
+// detection for tool traces and produce stray empty wrapper divs in the layout,
+// so we filter them out before grouping.
+const NON_RENDERING_TRACE_TYPES = new Set<AgentAggregatedTraceRecord['type']>([
+  'capability-hydrate',
+  'signal-received',
+  'signal-registered',
+  'signal-resolved',
+  'sub-agent-failure',
+  'sub-agent-invoke',
+  'sub-agent-success',
+  'tool-call-requested',
+  'agent-waiting',
+]);
+
 // Renders persisted agent traces through one aggregated trace pipeline.
 export function AgentTrace(props: AgentTraceProps) {
   const traces = [...props.traces].sort((left, right) => left.orderId - right.orderId);
-  const aggregatedTraces = aggregateAgentTraces(traces).sort((left, right) => left.orderId - right.orderId);
+  const aggregatedTraces = aggregateAgentTraces(traces)
+    .filter((trace) => !NON_RENDERING_TRACE_TYPES.has(trace.type))
+    .sort((left, right) => left.orderId - right.orderId);
   const traceGroups = groupAdjacentToolTraces(aggregatedTraces);
 
   return (
