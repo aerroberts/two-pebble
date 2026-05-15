@@ -12,6 +12,8 @@ import { createAgentsState } from './states/agents/state';
 import type { AgentsState } from './states/agents/types';
 import { createAppSettingsState } from './states/app-settings/state';
 import type { AppSettingsState } from './states/app-settings/types';
+import { createAutomationsState } from './states/automations/state';
+import type { AutomationsState } from './states/automations/types';
 import { createDebugLogsState } from './states/debug-logs/state';
 import type { DebugLogsState } from './states/debug-logs/types';
 import { createDocumentsState } from './states/documents/state';
@@ -39,6 +41,7 @@ export interface RealtimeState
     AgentTracesState,
     AgentsState,
     AppSettingsState,
+    AutomationsState,
     DocumentsState,
     InferenceProfilesState,
     IntegrationsState,
@@ -58,6 +61,7 @@ export function createRealtimeState(): RealtimeState {
     ...createAgentTracesState(),
     ...createAgentsState(),
     ...createAppSettingsState(),
+    ...createAutomationsState(),
     ...createDebugLogsState(),
     ...createDocumentsState(),
     ...createInferenceProfilesState(),

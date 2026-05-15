@@ -25,6 +25,11 @@ import { listAgentRegistriesOperation } from './operations/agent-registries.list
 import { updateAgentRegistryOperation } from './operations/agent-registries.update.operation';
 import { readAppSettingsOperation } from './operations/app-settings.read.operation';
 import { updateAppSettingsOperation } from './operations/app-settings.update.operation';
+import { createAutomationOperation } from './operations/automations.create.operation';
+import { deleteAutomationOperation } from './operations/automations.delete.operation';
+import { listAutomationsOperation } from './operations/automations.list.operation';
+import { runAutomationNowOperation } from './operations/automations.run-now.operation';
+import { updateAutomationOperation } from './operations/automations.update.operation';
 import { describeDatabaseOperation } from './operations/database.describe.operation';
 import { migrateDatabaseOperation } from './operations/database.migrate.operation';
 import { openDatabaseOperation } from './operations/database.open.operation';
@@ -39,6 +44,7 @@ import { listDocumentsOperation } from './operations/documents.list.operation';
 import { readDocumentOperation } from './operations/documents.read.operation';
 import { updateDocumentOperation } from './operations/documents.update.operation';
 import { generateSpeechOperation } from './operations/generate-speech.operation';
+import { listHeartbeatsOperation } from './operations/heartbeats.list.operation';
 import { createInferenceProfileOperation } from './operations/inference-profiles.create.operation';
 import { deleteInferenceProfileOperation } from './operations/inference-profiles.delete.operation';
 import { listInferenceProfilesOperation } from './operations/inference-profiles.list.operation';
@@ -108,6 +114,7 @@ import { listenToAgentRegistries } from './states/agent-registries/listen';
 import { listenToAgentTraces } from './states/agent-traces/listen';
 import { listenToAgents } from './states/agents/listen';
 import { listenToAppSettings } from './states/app-settings/listen';
+import { listenToAutomations } from './states/automations/listen';
 import { listenToDebugLogs } from './states/debug-logs/listen';
 import { listenToDocuments } from './states/documents/listen';
 import { listenToInferenceProfiles } from './states/inference-profiles/listen';
@@ -207,6 +214,22 @@ export class RealtimeDatastore {
       delete: deleteAgentRegistryOperation({ datastore: this }),
       list: listAgentRegistriesOperation({ datastore: this }),
       update: updateAgentRegistryOperation({ datastore: this }),
+    };
+  }
+
+  public get automations() {
+    return {
+      create: createAutomationOperation({ datastore: this }),
+      delete: deleteAutomationOperation({ datastore: this }),
+      list: listAutomationsOperation({ datastore: this }),
+      runNow: runAutomationNowOperation({ datastore: this }),
+      update: updateAutomationOperation({ datastore: this }),
+    };
+  }
+
+  public get heartbeats() {
+    return {
+      list: listHeartbeatsOperation({ datastore: this }),
     };
   }
 
@@ -626,6 +649,7 @@ export class RealtimeDatastore {
     listenToAgentTraces({ datastore: this });
     listenToAgents({ datastore: this });
     listenToAppSettings({ datastore: this });
+    listenToAutomations({ datastore: this });
     listenToDebugLogs({ datastore: this });
     listenToDocuments({ datastore: this });
     listenToInferenceProfiles({ datastore: this });

@@ -20,7 +20,9 @@ import type {
   agentsTable,
   agentTracesTable,
   appSettingsTable,
+  automationsTable,
   documentsTable,
+  heartbeatsTable,
   inferenceProfilesTable,
   integrationsTable,
   metricsTable,
@@ -90,7 +92,9 @@ export interface DatastoreSchema extends Record<string, object> {
   agentTracesTable: typeof agentTracesTable;
   agentsTable: typeof agentsTable;
   appSettingsTable: typeof appSettingsTable;
+  automationsTable: typeof automationsTable;
   documentsTable: typeof documentsTable;
+  heartbeatsTable: typeof heartbeatsTable;
   inferenceProfilesTable: typeof inferenceProfilesTable;
   integrationsTable: typeof integrationsTable;
   metricsTable: typeof metricsTable;
@@ -351,6 +355,38 @@ export interface TaskEventRecord {
   status: string;
   reason: string;
   data: string;
+}
+
+export type AutomationIntervalUnit = 'manual' | 'minutes' | 'hours' | 'days';
+
+export interface AutomationRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  name: string;
+  agentRegistryId: string;
+  message: string;
+  intervalUnit: AutomationIntervalUnit;
+  intervalValue: number;
+  lastRanAt: number | null;
+  enabled: boolean;
+}
+
+export interface HeartbeatReport {
+  listenerId: string;
+  kind: 'automation' | 'task-board';
+  outcome: 'fired' | 'skipped' | 'error';
+  detail: Record<string, unknown>;
+}
+
+export interface HeartbeatRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  tickAt: number;
+  durationMs: number;
+  listenerCount: number;
+  reports: HeartbeatReport[];
 }
 
 export type MetricDimensionsRecord = Record<string, string>;

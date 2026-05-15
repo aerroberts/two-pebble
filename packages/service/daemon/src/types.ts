@@ -10,9 +10,11 @@ import type {
   WsBridgeServer,
 } from '@two-pebble/ws-bridge';
 import type { AgentRegistryService } from './services/agent-registry-service';
+import type { AutomationService } from './services/automation-service';
+import type { HeartbeatService } from './services/heartbeat-service';
 import type { LivenessReconciler } from './services/liveness-reconciler';
+import type { TaskBoardDispatchService } from './services/task-board-dispatch-listener';
 import type { TaskBoardService } from './services/task-board-service';
-import type { TaskDispatcherService } from './services/task-dispatcher';
 
 export type DaemonBridge = Bridge<DaemonProtocol>;
 
@@ -46,14 +48,16 @@ export interface TwoPebbleDaemonInput {
 
 export interface DaemonRuntimeContext {
   agentRegistry: AgentRegistryService;
+  automations: AutomationService;
   databaseFilePath: string;
   datastore: Datastore;
+  heartbeat: HeartbeatService;
   logger: Logger;
   logsDirectoryPath: string;
   multicastBridge: DaemonBridge;
   port: number;
+  taskBoardDispatch: TaskBoardDispatchService;
   taskBoards: TaskBoardService;
-  taskDispatcher: TaskDispatcherService;
   livenessReconciler?: LivenessReconciler;
 }
 

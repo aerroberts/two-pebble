@@ -1,5 +1,4 @@
 import type { Datastore } from '@two-pebble/datastore';
-import { Events } from '@two-pebble/events';
 import type { Logger } from '@two-pebble/logger';
 import type { ProtocolTaskRecord } from '@two-pebble/protocol';
 import { TaskBoard, TaskOwnershipError } from '@two-pebble/tasks';
@@ -27,7 +26,6 @@ import type {
   SyncTasksFromAgentInput,
   SyncTasksFromAgentResult,
   TaskBoardServiceContext,
-  TaskBoardServiceEventMap,
   TaskMutationOutcome,
 } from './task-board-service-types';
 
@@ -41,13 +39,6 @@ export class TaskBoardService {
   private readonly datastore: Datastore;
   private readonly logger: Logger;
   private readonly engines = new Map<string, TaskBoard>();
-
-  /**
-   * In-process event emitter consumed by the dispatcher. Fires
-   * `boardChanged` after every state mutation that could shift the dispatch
-   * picture (new task, status change, ownership change, pool added, etc.).
-   */
-  public readonly events = new Events<TaskBoardServiceEventMap>();
 
   public constructor(context: TaskBoardServiceContext) {
     this.datastore = context.datastore;
@@ -74,7 +65,6 @@ export class TaskBoardService {
   public async createBoard(input: CreateBoardInput) {
     const record = await this.datastore.taskBoards.create({ name: input.name });
     this.engines.set(record.id, new TaskBoard(record.id));
-    this.events.emit('boardChanged', { boardId: record.id });
     return record;
   }
 
@@ -102,7 +92,6 @@ export class TaskBoardService {
    */
   public async setTaskOwner(id: string, ownerId: OwnerId) {
     const record = await this.datastore.taskBoards.tasks.setOwner({ id, ownerId });
-    this.events.emit('boardChanged', { boardId: record.boardId });
     return record;
   }
 
@@ -468,7 +457,6 @@ export class TaskBoardService {
       });
       events.push(rowToProtocolEvent(row));
     }
-    this.events.emit('boardChanged', { boardId: context.boardId });
     return { result, events };
   }
 

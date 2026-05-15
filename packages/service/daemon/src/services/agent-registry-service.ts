@@ -1,5 +1,4 @@
 import type { Datastore } from '@two-pebble/datastore';
-import { Events } from '@two-pebble/events';
 import type { Logger } from '@two-pebble/logger';
 import type { Agent } from '@two-pebble/pebble';
 import { Cell, FrameworkAgent, PebbleAgent } from '@two-pebble/pebble';
@@ -14,7 +13,7 @@ import { rehydrateAgent } from './agent-registry-rehydrate';
 import { repairBlockedSubAgentAskSignal, repairBlockedSubAgentAskSignals } from './agent-registry-signal-repair';
 import { interruptStaleRunningAgents, persistAgentMetadata } from './agent-registry-status';
 import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
-import type { AgentRegistryServiceEventMap, LaunchAgentInput, RunAgentInput } from './agent-registry-types';
+import type { LaunchAgentInput, RunAgentInput } from './agent-registry-types';
 import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
@@ -46,13 +45,6 @@ export class AgentRegistryService {
   private readonly pendingRehydrations = new Map<string, Promise<Agent>>();
   private coordinator: SubAgentCoordinator | undefined;
 
-  /**
-   * In-process emitter the dispatcher subscribes to so it can react to
-   * agent lifecycle edges (terminal status frees a slot; running occupies
-   * one). Status changes routed through `persistAgentStatus` fire here.
-   */
-  public readonly events = new Events<AgentRegistryServiceEventMap>();
-
   public constructor(context: AgentRegistryServiceContext) {
     this.datastore = context.datastore;
     this.logger = context.logger;
@@ -78,7 +70,6 @@ export class AgentRegistryService {
     this.deactivate(input.agentId);
     const updated = await this.datastore.agent.setStatus({ id: input.agentId, status: 'offline' });
     this.multicastBridge.emit('agentRecorded', updated);
-    this.events.emit('agentStatusChanged', { agentId: input.agentId, status: 'offline' });
   }
 
   /**
@@ -116,22 +107,20 @@ export class AgentRegistryService {
     this.deactivate(agentId);
     const updated = await this.datastore.agent.setStatus({ id: agentId, status: 'interrupted' });
     this.multicastBridge.emit('agentRecorded', updated);
-    this.events.emit('agentStatusChanged', { agentId, status: 'interrupted' });
     this.logger.warn('agent interrupted', { agentId, reason });
   }
 
   /**
    * Handles a manual stop request from a user. Forwards the request to the
    * runtime agent when it implements `stop`, flips the durable record to
-   * `idle`, broadcasts the status change so the dispatcher frees its slot,
-   * and syncs any tasks the agent still owns so they leave terminal limbo.
+   * `idle`, broadcasts the status change, and syncs any tasks the agent
+   * still owns so they leave terminal limbo.
    *
    * Unlike a natural completion, the runtime is not allowed to linger:
    * the hot registry entry is dropped regardless of whether the framework
    * acknowledged the stop, mirroring `interrupt` / `terminate`. The status
-   * hook chain (`agentRecorded` emit, `agentStatusChanged` emit, task
-   * resync) runs in one place so manual stops fire the same downstream
-   * effects as automated terminations.
+   * hook chain (`agentRecorded` emit and task resync) runs in one place so
+   * manual stops fire the same downstream effects as automated terminations.
    */
   public async stopManual(agentId: string, reason: string): Promise<void> {
     const active = this.activeAgents.get(agentId);
@@ -146,7 +135,6 @@ export class AgentRegistryService {
     this.deactivate(agentId);
     const updated = await this.datastore.agent.setStatus({ id: agentId, status: 'idle' });
     this.multicastBridge.emit('agentRecorded', updated);
-    this.events.emit('agentStatusChanged', { agentId, status: 'idle' });
     try {
       const sync = await this.taskBoards.syncOwnedTasksFromAgentStatus({
         agentId,
@@ -271,9 +259,7 @@ export class AgentRegistryService {
       logger: this.logger,
       pending: this.subAgentCreatePromises,
       taskBoards: this.taskBoards,
-      onStatusPersisted: (agentId, status) => {
-        this.events.emit('agentStatusChanged', { agentId, status });
-      },
+      onStatusPersisted: () => undefined,
     });
     installAgentPersistenceListeners({ context, input, nextOrderId });
     installSubAgentListeners({ context, input, nextOrderId });

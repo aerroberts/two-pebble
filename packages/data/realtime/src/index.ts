@@ -91,6 +91,23 @@ export { useGenerateSpeech } from './states/app-settings/hooks/use-generate-spee
 export { useTranscribeAudio } from './states/app-settings/hooks/use-transcribe-audio.hook';
 export { useUpdateAppSettings } from './states/app-settings/hooks/use-update-app-settings.hook';
 export type { AppSettingsRecord, AppSettingsState, UpdateAppSettingsInput } from './states/app-settings/types';
+export { useAutomations } from './states/automations/hooks/use-automations.hook';
+export { useCreateAutomation } from './states/automations/hooks/use-create-automation.hook';
+export { useDeleteAutomation } from './states/automations/hooks/use-delete-automation.hook';
+export { useHeartbeats } from './states/automations/hooks/use-heartbeats.hook';
+export { useRunAutomationNow } from './states/automations/hooks/use-run-automation-now.hook';
+export { useUpdateAutomation } from './states/automations/hooks/use-update-automation.hook';
+export type {
+  AutomationIntervalUnit,
+  AutomationRecord,
+  AutomationsState,
+  CreateAutomationInput,
+  DeleteAutomationInput,
+  HeartbeatRecord,
+  HeartbeatReport,
+  RunAutomationNowInput,
+  UpdateAutomationInput,
+} from './states/automations/types';
 export {
   type UseDebugLogContentResult,
   useDebugLogContent,

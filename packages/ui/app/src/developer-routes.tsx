@@ -5,6 +5,7 @@ import { DeveloperAgentsPage } from './pages/developer/agents/developer-agents.p
 import { DaemonLogPage } from './pages/developer/daemon-logs/daemon-log.page';
 import { DaemonLogsPage } from './pages/developer/daemon-logs/daemon-logs.page';
 import { DatabaseSettingsPage } from './pages/developer/database/database-settings.page';
+import { HeartbeatsPage } from './pages/developer/heartbeats/heartbeats.page';
 import { DeveloperThreadPage } from './pages/developer/threads/developer-thread-page';
 import { ThreadsPage } from './pages/developer/threads/threads.page';
 import { RedirectToDeveloperThread } from './redirect-to-developer-thread';
@@ -39,6 +40,14 @@ export function DeveloperRoutes() {
         element={
           <DeveloperAppShell>
             <DatabaseSettingsPage />
+          </DeveloperAppShell>
+        }
+      />
+      <Route
+        path="heartbeats"
+        element={
+          <DeveloperAppShell>
+            <HeartbeatsPage />
           </DeveloperAppShell>
         }
       />
