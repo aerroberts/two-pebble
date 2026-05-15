@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { markdownToTipTap, tipTapToMarkdown } from './document-content';
+import { expectStarterKitMarkdown, expectStarterKitNodes, STARTER_KIT_MARKDOWN } from './document-content.test-env';
 
-describe('document content markdown conversion', () => {
-  test('converts headings and paragraphs to TipTap JSON', () => {
+describe('feature: document content markdown conversion', () => {
+  test('happy: converts headings and paragraphs to TipTap JSON', () => {
     const doc = markdownToTipTap('# Hello\n\nWorld');
 
     expect(doc).toEqual({
@@ -14,37 +15,11 @@ describe('document content markdown conversion', () => {
     });
   });
 
-  test('round-trips StarterKit block and inline nodes', () => {
-    const markdown = [
-      '## Heading',
-      '',
-      '- **Bold**',
-      '- _Italic_ and `code`',
-      '',
-      '> Quote',
-      '',
-      '1. One',
-      '2. Two',
-      '',
-      '```',
-      'code block',
-      '```',
-      '',
-      '---',
-    ].join('\n');
-
-    const doc = markdownToTipTap(markdown);
+  test('happy: round-trips StarterKit block and inline nodes', () => {
+    const doc = markdownToTipTap(STARTER_KIT_MARKDOWN);
     const rendered = tipTapToMarkdown(doc);
 
-    expect(doc.content?.some((node) => node.type === 'bulletList')).toBe(true);
-    expect(doc.content?.some((node) => node.type === 'orderedList')).toBe(true);
-    expect(doc.content?.some((node) => node.type === 'codeBlock')).toBe(true);
-    expect(doc.content?.some((node) => node.type === 'horizontalRule')).toBe(true);
-    expect(JSON.stringify(doc)).toContain('"type":"bold"');
-    expect(JSON.stringify(doc)).toContain('"type":"italic"');
-    expect(rendered).toContain('## Heading');
-    expect(rendered).toContain('**Bold**');
-    expect(rendered).toContain('`code`');
-    expect(rendered).toContain('> Quote');
+    expectStarterKitNodes(doc);
+    expectStarterKitMarkdown(rendered);
   });
 });

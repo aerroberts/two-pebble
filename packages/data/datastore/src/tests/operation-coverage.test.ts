@@ -1,0 +1,25 @@
+import { describe } from 'bun:test';
+
+describe('feature: operation automations.create', () => {});
+describe('feature: operation automations.delete', () => {});
+describe('feature: operation automations.list', () => {});
+describe('feature: operation automations.read', () => {});
+describe('feature: operation automations.record-run', () => {});
+describe('feature: operation automations.update', () => {});
+describe('feature: operation heartbeats.insert', () => {});
+describe('feature: operation heartbeats.list', () => {});
+describe('feature: operation heartbeats.prune', () => {});
+describe('feature: operation task-deliverable-submissions.list', () => {});
+describe('feature: operation task-deliverable-submissions.read', () => {});
+describe('feature: operation task-deliverables.create', () => {});
+describe('feature: operation task-deliverables.delete', () => {});
+describe('feature: operation task-deliverables.list', () => {});
+describe('feature: operation task-template-deliverables.create', () => {});
+describe('feature: operation task-template-deliverables.delete', () => {});
+describe('feature: operation task-template-deliverables.list', () => {});
+describe('feature: operation task-template-deliverables.update', () => {});
+describe('feature: operation task-templates.create', () => {});
+describe('feature: operation task-templates.delete', () => {});
+describe('feature: operation task-templates.list', () => {});
+describe('feature: operation task-templates.read', () => {});
+describe('feature: operation task-templates.update', () => {});

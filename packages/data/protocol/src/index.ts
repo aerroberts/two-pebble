@@ -17,11 +17,7 @@ export type {
   TaskTemplateRecord,
 } from './protocol/task-deliverable-types';
 export type { TaskDependencyRecord } from './protocol/task-dependencies.list';
-export type {
-  TaskDispatchSettingsMode,
-  TaskDispatchSettingsRecord,
-  TaskDispatchSettingsScopeKind,
-} from './protocol/task-dispatch-settings.read';
+export type { TaskDispatchSettingsRecord } from './protocol/task-dispatch-settings.read';
 export type { TaskPoolRecord } from './protocol/task-pools.list';
 export type { ProtocolTaskRecord } from './protocol/tasks.list';
 export type {

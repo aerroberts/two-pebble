@@ -5,6 +5,53 @@
       "rules": ["@rule/file-length"],
       "paths": ["src/realtime-datastore.ts"],
       "justification": "RealtimeDatastore wires every state slice and is intentionally a single facade."
+    },
+    {
+      "rules": [
+        "@rule/top-level-definitions",
+        "@rule/documentation",
+        "@rule/typescript-type-safety",
+        "@rule/typescript-function-shape"
+      ],
+      "paths": ["src/testing/realtime-test-context.ts"],
+      "justification": "Realtime integration test context intentionally centralizes fake daemon and render helpers; split after CI guards the package."
+    },
+    {
+      "rules": [
+        "@rule/top-level-definitions",
+        "@rule/test-describe-structure",
+        "@rule/test-case-structure"
+      ],
+      "paths": ["src/states/documents/listen.test.ts"],
+      "justification": "Document listener tests predate the stricter test-file shape; keep coverage while enabling CI enforcement."
+    },
+    {
+      "rules": ["@rule/typescript-function-shape"],
+      "paths": [
+        "src/operations/documents.list.operation.ts",
+        "src/operations/task-dispatch-settings.list.operation.ts",
+        "src/operations/task-dispatch-settings.update.operation.ts",
+        "src/operations/task-dispatch-settings.read.operation.ts",
+        "src/operations/task-deliverable-submissions.list.operation.ts",
+        "src/operations/task-deliverables.list.operation.ts",
+        "src/operations/task-template-deliverables.create.operation.ts",
+        "src/operations/task-template-deliverables.delete.operation.ts",
+        "src/operations/task-template-deliverables.list.operation.ts",
+        "src/operations/task-template-deliverables.update.operation.ts",
+        "src/operations/task-templates.create.operation.ts",
+        "src/operations/task-templates.delete.operation.ts",
+        "src/operations/task-templates.list.operation.ts",
+        "src/operations/task-templates.update.operation.ts",
+        "src/states/documents/hooks/use-document.hook.ts",
+        "src/states/documents/hooks/use-document-mutations.hook.ts",
+        "src/states/tasks/hooks/use-task-templates.hook.ts"
+      ],
+      "justification": "These realtime operations and hooks expose existing generated protocol shapes; normalize their signatures in a separate behavior-preserving pass."
+    },
+    {
+      "rules": ["@rule/typescript-function-shape"],
+      "paths": ["src/operations/documents.list.operation.ts"],
+      "justification": "Documents list operation has a default parameter in the current API wrapper; keep behavior stable for CI enablement."
     }
   ],
   "additional": {

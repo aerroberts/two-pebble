@@ -134,6 +134,16 @@ describe('feature: operation agent.set-metadata', () => {
   });
 });
 
+describe('feature: operation agent.set-parent-response-signal-id', () => {
+  test('happy: stores the parent response signal id', async () => {
+    const datastore = await useDatastoreForTesting();
+    const agent = await datastore.agent.create(firstAgentInput);
+    const updated = await datastore.agent.setParentResponseSignalId({ id: agent.id, parentResponseSignalId: 's1' });
+    await datastore.close();
+    expect(updated.parentResponseSignalId).toBe('s1');
+  });
+});
+
 describe('feature: agent registry link', () => {
   test('happy: persists agent registry id when provided', async () => {
     const datastore = await useDatastoreForTesting();

@@ -26,7 +26,9 @@ export function ThemeToggle(props: ThemeToggleProps) {
       bucket.push(entry);
       grouped.set(entry.row, bucket);
     }
-    return ROW_ORDER.map((row) => ({ row, entries: grouped.get(row) ?? [] })).filter((group) => group.entries.length > 0);
+    return ROW_ORDER.map((row) => ({ row, entries: grouped.get(row) ?? [] })).filter(
+      (group) => group.entries.length > 0,
+    );
   }, []);
 
   function handleChange(value: string) {

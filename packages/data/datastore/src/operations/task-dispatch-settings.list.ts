@@ -5,12 +5,18 @@ type OperationHandlerInput = {
   empty?: never;
 };
 
+type TaskDispatchSettingsRow = Omit<TaskDispatchSettingsRecord, 'dispatchMode' | 'scopeKind'> & {
+  dispatchMode: string;
+  scopeKind: string;
+};
+
 /**
  * Lists every dispatch settings row. Useful for the dispatcher's boot sweep
  * and for surfacing automation badges across the UI.
  */
 export function taskDispatchSettingsListOperation(ctx: DatastoreContext) {
-  return async function handler(_input: OperationHandlerInput) {
+  return async function handler(input: OperationHandlerInput) {
+    void input;
     const rows = await ctx.database
       .select()
       .from(ctx.schema.taskDispatchSettingsTable)
@@ -20,9 +26,7 @@ export function taskDispatchSettingsListOperation(ctx: DatastoreContext) {
   };
 }
 
-function castRow(
-  row: { dispatchMode: string; scopeKind: string } & Omit<TaskDispatchSettingsRecord, 'dispatchMode' | 'scopeKind'>,
-): TaskDispatchSettingsRecord {
+function castRow(row: TaskDispatchSettingsRow): TaskDispatchSettingsRecord {
   return {
     ...row,
     dispatchMode: row.dispatchMode as TaskDispatchMode,

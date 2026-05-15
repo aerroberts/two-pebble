@@ -1,14 +1,28 @@
 {
   "inherit": "@group/guardrails-typescript",
+  "exclude": [
+    {
+      "rules": ["@rule/typescript-type-safety"],
+      "paths": ["src/protocol/heartbeats.list.ts"],
+      "justification": "Heartbeat report payloads still expose legacy untyped JSON shapes; preserve the protocol contract while CI begins enforcing the package."
+    }
+  ],
   "additional": {
     "@rule/code-structure": {
       "rules": [
         {
           "match": "src/protocol/*",
           "type": "must-be-file",
-          "allowedImports": ["@two-pebble/datatypes", "@two-pebble/pebble", "../task-events", "../task-events/index"],
+          "allowedImports": [
+            "@two-pebble/datatypes",
+            "@two-pebble/pebble",
+            "../task-events",
+            "../task-events/index",
+            "./automations.list",
+            "./heartbeats.list",
+            "./task-deliverable-types"
+          ],
           "contains": ["export interface"],
-          "excludes": ["export type"],
           "recommendation": "Protocol operation modules stay flat and domain-named so the bridge contract is visible in one directory."
         },
         {
