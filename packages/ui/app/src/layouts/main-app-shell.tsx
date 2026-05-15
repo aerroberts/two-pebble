@@ -9,6 +9,7 @@ import {
 } from '@two-pebble/components';
 import { useAgents } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useGlobalConcurrency } from '../shared/concurrency/use-global-concurrency';
 import type { AppShellProps } from './app-shell-props';
 import { AssistantFab } from './assistant-fab';
 import { ConfigurationSidebar } from './configuration-sidebar';
@@ -23,6 +24,7 @@ export function MainAppShell(props: AppShellProps) {
   const navigate = useNavigate();
   const agents = useAgents();
   const activeAgentCount = agents.values().filter((agent) => agent.status === 'running').length;
+  const concurrency = useGlobalConcurrency();
   const mode = getSidebarMode(location.pathname);
 
   return (
@@ -59,7 +61,7 @@ export function MainAppShell(props: AppShellProps) {
           }
           tone={mode === 'main' ? 'default' : 'auxiliary'}
         >
-          {renderSidebarContent(mode, location.pathname, navigate, activeAgentCount)}
+          {renderSidebarContent(mode, location.pathname, navigate, activeAgentCount, concurrency.count)}
         </Sidebar>
       }
     >
@@ -74,6 +76,7 @@ function renderSidebarContent(
   pathname: string,
   navigate: SidebarNavigate,
   activeAgentCount: number,
+  activeConcurrencyCount: number,
 ) {
   if (mode === 'configuration') {
     return (
@@ -127,6 +130,16 @@ function renderSidebarContent(
         />
         <SidebarOption
           active={pathname.startsWith('/tasks')}
+          badge={
+            activeConcurrencyCount > 0 ? (
+              <span
+                aria-label={`${activeConcurrencyCount} ${activeConcurrencyCount === 1 ? 'agent' : 'agents'} active`}
+                role="status"
+              >
+                {activeConcurrencyCount} active
+              </span>
+            ) : undefined
+          }
           icon="list-checks"
           label="Tasks"
           onClick={() => navigate('/tasks')}
