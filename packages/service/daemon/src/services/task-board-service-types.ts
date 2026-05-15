@@ -2,6 +2,9 @@ import type {
   Datastore,
   TaskRecord as DatastoreTaskRecord,
   TaskBoardRecord,
+  TaskDeliverablePayload,
+  TaskDeliverableRecord,
+  TaskDeliverableSubmissionRecord,
   TaskDependencyRecord,
   TaskPoolRecord,
 } from '@two-pebble/datastore';
@@ -40,6 +43,7 @@ export interface CreateTaskInput {
   name: string;
   description?: string;
   dependsOn: string[];
+  templateId?: string | null;
 }
 
 export interface SetTaskStatusInput {
@@ -53,6 +57,13 @@ export interface SetTaskStatusAsAgentInput {
   agentId: string;
   status: SettableTaskStatus;
   reason: string;
+}
+
+export interface SubmitDeliverableAsAgentInput {
+  agentId: string;
+  taskId: string;
+  deliverableId: string;
+  payload: TaskDeliverablePayload;
 }
 
 export type EffectiveTaskStatus = 'blocked' | 'open' | 'working' | 'waiting' | 'success' | 'failure';
@@ -114,6 +125,8 @@ export interface MutationOutcome<T> {
 
 export type TaskMutationOutcome = MutationOutcome<ProtocolTaskRecord>;
 export type DependencyMutationOutcome = MutationOutcome<TaskDependencyRecord>;
+
+export type { TaskDeliverablePayload, TaskDeliverableRecord, TaskDeliverableSubmissionRecord };
 
 export interface SyncTasksFromAgentInput {
   agentId: string;

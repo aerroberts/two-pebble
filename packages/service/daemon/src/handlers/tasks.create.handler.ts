@@ -11,9 +11,15 @@ export function handler(ctx: DaemonHandlerContext) {
       boardId: payload.boardId,
       poolId: payload.poolId,
       name: payload.name,
+      description: payload.description ?? '',
       dependsOn: payload.dependsOn,
+      templateId: payload.templateId ?? null,
     });
     ctx.multicastBridge.emit('taskUpdated', result);
+    const { items: deliverables } = await ctx.datastore.taskBoards.deliverables.list({ taskId: result.id });
+    for (const deliverable of deliverables) {
+      ctx.multicastBridge.emit('taskDeliverableUpdated', deliverable);
+    }
     for (const event of events) {
       ctx.multicastBridge.emit('taskEventRecorded', event);
     }

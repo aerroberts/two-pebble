@@ -5,6 +5,7 @@ export interface TasksCreateOperation {
     poolId: string | null;
     name: string;
     description?: string;
+    templateId?: string | null;
     dependsOn: string[];
   };
   response: {

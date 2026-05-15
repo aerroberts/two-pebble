@@ -3,4 +3,5 @@ export interface TaskLifecycleCapabilityConfig {
   boardId?: string;
   taskName?: string;
   taskDescription?: string;
+  additionalContext?: string;
 }

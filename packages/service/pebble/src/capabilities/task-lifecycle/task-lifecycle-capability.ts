@@ -1,10 +1,10 @@
 import { AgentExitHook, NativeTool, ToolResponse } from '../../agent';
 import type { TaskBoardRunner } from '../../agent/task-board-runner';
 import type { AgentStatus } from '../../agent/types';
-import { Cell } from '../../thread';
+import { Cell, type DataCells } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import { getCapabilityRunners } from '../runners';
-import { completeTaskSchema, failTaskSchema } from './task-lifecycle-schemas';
+import { completeTaskSchema, failTaskSchema, submitDeliverableSchema } from './task-lifecycle-schemas';
 import type { TaskLifecycleCapabilityConfig } from './task-lifecycle-types';
 
 /**
@@ -23,6 +23,9 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
   private readonly boardIdSlot = this.useState<string>('boardId', '');
   private readonly taskNameSlot = this.useState<string>('taskName', '');
   private readonly taskDescriptionSlot = this.useState<string>('taskDescription', '');
+  private readonly additionalContextSlot = this.useState<string>('additionalContext', '');
+  private readonly requiredDeliverableIdsSlot = this.useState<string[]>('requiredDeliverableIds', []);
+  private readonly submittedDeliverableIdsSlot = this.useState<string[]>('submittedDeliverableIds', []);
   // `completed` flips to true once the agent successfully calls complete-task
   // or fail-task. Stored so the gate survives rehydration.
   private readonly completedSlot = this.useState<boolean>('completed', false);
@@ -47,16 +50,14 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
     if (typeof config.taskDescription === 'string') {
       this.taskDescriptionSlot.set(config.taskDescription);
     }
+    if (typeof config.additionalContext === 'string') {
+      this.additionalContextSlot.set(config.additionalContext);
+    }
     const name = this.taskNameSlot.value;
     if (name.length === 0) {
       return;
     }
-    const description = this.taskDescriptionSlot.value.trim();
-    const cells =
-      description.length > 0
-        ? [Cell.header2(`Task: ${name}`), Cell.text(description)]
-        : [Cell.header2(`Task: ${name}`)];
-    this.agent.addUserContext('Task Assignment', cells);
+    void this.injectTaskAssignmentContext();
   }
 
   /**
@@ -69,10 +70,33 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
     return {
       tools: [
         new NativeTool({
+          description: 'Submit one required deliverable for the assigned task.',
+          name: 'submit-deliverable',
+          schema: submitDeliverableSchema,
+        }).onInvoke(async (input) => {
+          const submission = await this.runner().submitDeliverable({
+            agentId: this.agent.agentId,
+            taskId: this.requireTaskId(),
+            deliverableId: input.deliverableId,
+            payload: input.payload,
+          });
+          this.markDeliverableSubmitted(submission.deliverableId);
+          return ToolResponse.success([Cell.text(`Submitted deliverable ${submission.deliverableId}.`)]);
+        }),
+        new NativeTool({
           description: 'Mark the assigned task as successfully complete.',
           name: 'complete-task',
           schema: completeTaskSchema,
         }).onInvoke(async (input) => {
+          await this.ensureDeliverableStateLoaded();
+          const missing = this.requiredDeliverableIdsSlot.value.filter(
+            (id) => !this.submittedDeliverableIdsSlot.value.includes(id),
+          );
+          if (missing.length > 0) {
+            return ToolResponse.error(`Cannot complete: deliverables not yet submitted: ${missing.join(', ')}`, [
+              Cell.text(`Cannot complete: deliverables not yet submitted: ${missing.join(', ')}`),
+            ]);
+          }
           await this.runner().setOwnedTaskStatus({
             agentId: this.agent.agentId,
             taskId: this.requireTaskId(),
@@ -157,6 +181,49 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
       throw new Error('task-board runner is not installed.');
     }
     return runner;
+  }
+
+  private async injectTaskAssignmentContext(): Promise<void> {
+    await this.ensureDeliverableStateLoaded();
+    const name = this.taskNameSlot.value;
+    const description = this.taskDescriptionSlot.value.trim();
+    const additionalContext = this.additionalContextSlot.value.trim();
+    const deliverables = await this.runner().listTaskDeliverables({ taskId: this.requireTaskId() });
+    const cells: DataCells = [Cell.header2(`Task: ${name}`)];
+    if (description.length > 0) {
+      cells.push(Cell.text(description));
+    }
+    if (additionalContext.length > 0) {
+      cells.push(Cell.text(additionalContext));
+    }
+    if (deliverables.length > 0) {
+      const lines = ['Deliverables required (submit each via the submit-deliverable tool):'];
+      for (const deliverable of deliverables) {
+        lines.push(`  - id=${deliverable.id}  name=${deliverable.name}  type=${deliverable.type}`);
+        if (deliverable.description.trim().length > 0) {
+          lines.push(`    ${deliverable.description.trim()}`);
+        }
+      }
+      cells.push(Cell.text(lines.join('\n')));
+    }
+    this.agent.addUserContext('Task Assignment', cells);
+  }
+
+  private async ensureDeliverableStateLoaded(): Promise<void> {
+    const taskId = this.requireTaskId();
+    const [deliverables, submissions] = await Promise.all([
+      this.runner().listTaskDeliverables({ taskId }),
+      this.runner().listTaskDeliverableSubmissions({ taskId }),
+    ]);
+    this.requiredDeliverableIdsSlot.set(deliverables.map((deliverable) => deliverable.id));
+    this.submittedDeliverableIdsSlot.set(submissions.map((submission) => submission.deliverableId));
+  }
+
+  private markDeliverableSubmitted(deliverableId: string): void {
+    if (this.submittedDeliverableIdsSlot.value.includes(deliverableId)) {
+      return;
+    }
+    this.submittedDeliverableIdsSlot.set([...this.submittedDeliverableIdsSlot.value, deliverableId]);
   }
 
   private requireTaskId(): string {

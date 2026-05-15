@@ -26,11 +26,15 @@ import type {
   metricsTable,
   repositoriesTable,
   taskBoardsTable,
+  taskDeliverableSubmissionsTable,
+  taskDeliverablesTable,
   taskDependenciesTable,
   taskDispatchSettingsTable,
   taskEventsTable,
   taskPoolsTable,
   tasksTable,
+  taskTemplateDeliverablesTable,
+  taskTemplatesTable,
   thirdPartyAgentInstallsTable,
   workspacesTable,
   worktreesTable,
@@ -93,9 +97,13 @@ export interface DatastoreSchema extends Record<string, object> {
   repositoriesTable: typeof repositoriesTable;
   taskBoardsTable: typeof taskBoardsTable;
   taskDependenciesTable: typeof taskDependenciesTable;
+  taskDeliverableSubmissionsTable: typeof taskDeliverableSubmissionsTable;
+  taskDeliverablesTable: typeof taskDeliverablesTable;
   taskDispatchSettingsTable: typeof taskDispatchSettingsTable;
   taskEventsTable: typeof taskEventsTable;
   taskPoolsTable: typeof taskPoolsTable;
+  taskTemplateDeliverablesTable: typeof taskTemplateDeliverablesTable;
+  taskTemplatesTable: typeof taskTemplatesTable;
   tasksTable: typeof tasksTable;
   thirdPartyAgentInstallsTable: typeof thirdPartyAgentInstallsTable;
   worktreesTable: typeof worktreesTable;
@@ -260,9 +268,56 @@ export interface TaskRecord {
   poolId: string | null;
   name: string;
   description: string;
+  templateId: string | null;
+  additionalContext: string;
   ownerId: string | null;
   status: string;
 }
+
+export type TaskDeliverableType = 'text' | 'pr_url';
+
+export interface TaskTemplateRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  boardId: string;
+  name: string;
+  prompt: string;
+}
+
+export interface TaskTemplateDeliverableRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  templateId: string;
+  name: string;
+  description: string;
+  type: TaskDeliverableType;
+  orderIndex: number;
+}
+
+export interface TaskDeliverableRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  taskId: string;
+  name: string;
+  description: string;
+  type: TaskDeliverableType;
+  orderIndex: number;
+}
+
+export interface TaskDeliverableSubmissionRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  taskId: string;
+  deliverableId: string;
+  payload: string;
+  submittedAt: number;
+}
+
+export type TaskDeliverablePayload = { type: 'text'; content: string } | { type: 'pr_url'; url: string };
 
 export interface TaskDependencyRecord {
   id: string;

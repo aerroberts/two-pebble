@@ -6,6 +6,10 @@ export type TaskPoolRecord = RealtimeEmitResponse<'listTaskPools'>['items'][numb
 export type ProtocolTaskRecord = RealtimeEmitResponse<'listTasks'>['items'][number];
 export type TaskDependencyRecord = RealtimeEmitResponse<'listTaskDependencies'>['items'][number];
 export type TaskEventRecord = RealtimeEmitResponse<'listTaskEvents'>['items'][number];
+export type TaskTemplateRecord = RealtimeEmitResponse<'listTaskTemplates'>['items'][number];
+export type TaskTemplateDeliverableRecord = RealtimeEmitResponse<'listTaskTemplateDeliverables'>['items'][number];
+export type TaskDeliverableRecord = RealtimeEmitResponse<'listTaskDeliverables'>['items'][number];
+export type TaskDeliverableSubmissionRecord = RealtimeEmitResponse<'listTaskDeliverableSubmissions'>['items'][number];
 
 export type CreateTaskBoardInput = RealtimeEmitPayload<'createTaskBoard'>;
 export type UpdateTaskBoardInput = RealtimeEmitPayload<'updateTaskBoard'>;
@@ -21,6 +25,12 @@ export type UpdateTaskDescriptionInput = RealtimeEmitPayload<'updateTaskDescript
 export type DeleteTaskInput = RealtimeEmitPayload<'deleteTask'>;
 export type CreateTaskDependencyInput = RealtimeEmitPayload<'createTaskDependency'>;
 export type DeleteTaskDependencyInput = RealtimeEmitPayload<'deleteTaskDependency'>;
+export type CreateTaskTemplateInput = RealtimeEmitPayload<'createTaskTemplate'>;
+export type UpdateTaskTemplateInput = RealtimeEmitPayload<'updateTaskTemplate'>;
+export type DeleteTaskTemplateInput = RealtimeEmitPayload<'deleteTaskTemplate'>;
+export type CreateTaskTemplateDeliverableInput = RealtimeEmitPayload<'createTaskTemplateDeliverable'>;
+export type UpdateTaskTemplateDeliverableInput = RealtimeEmitPayload<'updateTaskTemplateDeliverable'>;
+export type DeleteTaskTemplateDeliverableInput = RealtimeEmitPayload<'deleteTaskTemplateDeliverable'>;
 
 export interface TasksState {
   taskBoards: LoadableRegistry<TaskBoardRecord>;
@@ -28,4 +38,8 @@ export interface TasksState {
   tasks: LoadableRegistry<ProtocolTaskRecord>;
   taskDependencies: LoadableRegistry<TaskDependencyRecord>;
   taskEvents: LoadableRegistry<TaskEventRecord>;
+  taskTemplates: LoadableRegistry<TaskTemplateRecord>;
+  taskTemplateDeliverables: LoadableRegistry<TaskTemplateDeliverableRecord>;
+  taskDeliverables: LoadableRegistry<TaskDeliverableRecord>;
+  taskDeliverableSubmissions: LoadableRegistry<TaskDeliverableSubmissionRecord>;
 }

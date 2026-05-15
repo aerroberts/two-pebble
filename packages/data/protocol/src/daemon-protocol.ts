@@ -79,6 +79,11 @@ import type { TaskBoardsDeleteOperation } from './protocol/task-boards.delete';
 import type { TaskBoardsListOperation } from './protocol/task-boards.list';
 import type { TaskBoardsUpdateOperation } from './protocol/task-boards.update';
 import type { TaskBoardDeletedEvent, TaskBoardUpdatedEvent } from './protocol/task-boards.updated';
+import type { TaskDeliverableSubmissionsListOperation } from './protocol/task-deliverable-submissions.list';
+import type { TaskDeliverableSubmissionRecordedEvent } from './protocol/task-deliverable-submissions.recorded';
+import type { TaskDeliverableSubmissionsSubmitOperation } from './protocol/task-deliverable-submissions.submit';
+import type { TaskDeliverablesListOperation } from './protocol/task-deliverables.list';
+import type { TaskDeliverableUpdatedEvent } from './protocol/task-deliverables.updated';
 import type { TaskDependenciesCreateOperation } from './protocol/task-dependencies.create';
 import type { TaskDependenciesDeleteOperation } from './protocol/task-dependencies.delete';
 import type { TaskDependenciesListOperation } from './protocol/task-dependencies.list';
@@ -95,6 +100,19 @@ import type { TaskPoolsCreateOperation } from './protocol/task-pools.create';
 import type { TaskPoolsDeleteOperation } from './protocol/task-pools.delete';
 import type { TaskPoolsListOperation } from './protocol/task-pools.list';
 import type { TaskPoolDeletedEvent, TaskPoolUpdatedEvent } from './protocol/task-pools.updated';
+import type { TaskTemplateDeliverablesCreateOperation } from './protocol/task-template-deliverables.create';
+import type { TaskTemplateDeliverablesDeleteOperation } from './protocol/task-template-deliverables.delete';
+import type { TaskTemplateDeliverableDeletedEvent } from './protocol/task-template-deliverables.deleted';
+import type { TaskTemplateDeliverablesListOperation } from './protocol/task-template-deliverables.list';
+import type { TaskTemplateDeliverablesUpdateOperation } from './protocol/task-template-deliverables.update';
+import type { TaskTemplateDeliverableUpdatedEvent } from './protocol/task-template-deliverables.updated';
+import type { TaskTemplatesCreateOperation } from './protocol/task-templates.create';
+import type { TaskTemplatesDeleteOperation } from './protocol/task-templates.delete';
+import type { TaskTemplateDeletedEvent } from './protocol/task-templates.deleted';
+import type { TaskTemplatesListOperation } from './protocol/task-templates.list';
+import type { TaskTemplatesReadOperation } from './protocol/task-templates.read';
+import type { TaskTemplatesUpdateOperation } from './protocol/task-templates.update';
+import type { TaskTemplateUpdatedEvent } from './protocol/task-templates.updated';
 import type { TasksCreateOperation } from './protocol/tasks.create';
 import type { TasksDelegateOperation, TasksUndelegateOperation } from './protocol/tasks.delegate';
 import type { TasksDeleteOperation } from './protocol/tasks.delete';
@@ -212,6 +230,18 @@ export type DaemonOperations = [
   TaskDispatchSettingsReadOperation,
   TaskDispatchSettingsListOperation,
   TaskDispatchSettingsUpdateOperation,
+  TaskTemplatesListOperation,
+  TaskTemplatesCreateOperation,
+  TaskTemplatesReadOperation,
+  TaskTemplatesUpdateOperation,
+  TaskTemplatesDeleteOperation,
+  TaskTemplateDeliverablesListOperation,
+  TaskTemplateDeliverablesCreateOperation,
+  TaskTemplateDeliverablesUpdateOperation,
+  TaskTemplateDeliverablesDeleteOperation,
+  TaskDeliverablesListOperation,
+  TaskDeliverableSubmissionsListOperation,
+  TaskDeliverableSubmissionsSubmitOperation,
   MetricsListNamesOperation,
   MetricsListVariantsOperation,
   MetricsQueryAggregatedOperation,
@@ -249,6 +279,12 @@ export type DaemonEvents = [
   TaskDependencyDeletedEvent,
   TaskEventRecordedEvent,
   TaskDispatchSettingsUpdatedEvent,
+  TaskTemplateUpdatedEvent,
+  TaskTemplateDeletedEvent,
+  TaskTemplateDeliverableUpdatedEvent,
+  TaskTemplateDeliverableDeletedEvent,
+  TaskDeliverableUpdatedEvent,
+  TaskDeliverableSubmissionRecordedEvent,
 ];
 
 export interface ClientProtocol

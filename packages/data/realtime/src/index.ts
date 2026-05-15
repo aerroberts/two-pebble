@@ -156,27 +156,44 @@ export { useTaskBoardContents } from './states/tasks/hooks/use-task-board-conten
 export { useTaskBoardMutations } from './states/tasks/hooks/use-task-board-mutations.hook';
 export { useTaskBoards } from './states/tasks/hooks/use-task-boards.hook';
 export { useTaskEvents } from './states/tasks/hooks/use-task-events.hook';
+export { useTaskTemplateMutations } from './states/tasks/hooks/use-task-template-mutations.hook';
+export {
+  useBoardTaskTemplates,
+  useTaskDeliverableSubmissions,
+  useTaskDeliverables,
+  useTemplateDeliverables,
+} from './states/tasks/hooks/use-task-templates.hook';
 export type {
   CreateTaskBoardInput,
   CreateTaskDependencyInput,
   CreateTaskInput,
   CreateTaskPoolInput,
+  CreateTaskTemplateDeliverableInput,
+  CreateTaskTemplateInput,
   DelegateTaskInput,
   DeleteTaskBoardInput,
   DeleteTaskDependencyInput,
   DeleteTaskInput,
   DeleteTaskPoolInput,
+  DeleteTaskTemplateDeliverableInput,
+  DeleteTaskTemplateInput,
   ProtocolTaskRecord,
   RenameTaskInput,
   SetTaskStatusInput,
   TaskBoardRecord,
+  TaskDeliverableRecord,
+  TaskDeliverableSubmissionRecord,
   TaskDependencyRecord,
   TaskEventRecord,
   TaskPoolRecord,
   TasksState,
+  TaskTemplateDeliverableRecord,
+  TaskTemplateRecord,
   UndelegateTaskInput,
   UpdateTaskBoardInput,
   UpdateTaskDescriptionInput,
+  UpdateTaskTemplateDeliverableInput,
+  UpdateTaskTemplateInput,
 } from './states/tasks/types';
 export type { DetectClaudeCodeResult } from './states/third-party-agent-installs/detect-claude-code-result';
 export { useCreateThirdPartyAgentInstall } from './states/third-party-agent-installs/hooks/use-create-third-party-agent-install.hook';

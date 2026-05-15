@@ -21,6 +21,7 @@ export function handler(ctx: DaemonHandlerContext) {
             boardId: task.boardId,
             taskName: task.name,
             taskDescription,
+            additionalContext: task.additionalContext,
           },
         },
       ],
@@ -72,6 +73,7 @@ interface MinimalTaskRow {
   boardId: string;
   name: string;
   description: string | null;
+  additionalContext: string;
   ownerId: string | null;
 }
 

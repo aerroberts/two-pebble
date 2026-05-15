@@ -264,6 +264,7 @@ export class TaskDispatcherService {
             boardId: task.boardId,
             taskName: task.name,
             taskDescription: task.description,
+            additionalContext: task.additionalContext,
           },
         },
       ],

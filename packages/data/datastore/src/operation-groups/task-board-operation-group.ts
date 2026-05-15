@@ -4,6 +4,12 @@ import { taskBoardsDeleteOperation } from '../operations/task-boards.delete';
 import { taskBoardsListOperation } from '../operations/task-boards.list';
 import { taskBoardsReadOperation } from '../operations/task-boards.read';
 import { taskBoardsUpdateOperation } from '../operations/task-boards.update';
+import { taskDeliverableSubmissionsListOperation } from '../operations/task-deliverable-submissions.list';
+import { taskDeliverableSubmissionsReadOperation } from '../operations/task-deliverable-submissions.read';
+import { taskDeliverableSubmissionsUpsertOperation } from '../operations/task-deliverable-submissions.upsert';
+import { taskDeliverablesCreateOperation } from '../operations/task-deliverables.create';
+import { taskDeliverablesDeleteOperation } from '../operations/task-deliverables.delete';
+import { taskDeliverablesListOperation } from '../operations/task-deliverables.list';
 import { taskDependenciesCreateOperation } from '../operations/task-dependencies.create';
 import { taskDependenciesDeleteOperation } from '../operations/task-dependencies.delete';
 import { taskDependenciesListOperation } from '../operations/task-dependencies.list';
@@ -17,6 +23,15 @@ import { taskPoolsCreateOperation } from '../operations/task-pools.create';
 import { taskPoolsDeleteOperation } from '../operations/task-pools.delete';
 import { taskPoolsListOperation } from '../operations/task-pools.list';
 import { taskPoolsSetParentOperation } from '../operations/task-pools.set-parent';
+import { taskTemplateDeliverablesCreateOperation } from '../operations/task-template-deliverables.create';
+import { taskTemplateDeliverablesDeleteOperation } from '../operations/task-template-deliverables.delete';
+import { taskTemplateDeliverablesListOperation } from '../operations/task-template-deliverables.list';
+import { taskTemplateDeliverablesUpdateOperation } from '../operations/task-template-deliverables.update';
+import { taskTemplatesCreateOperation } from '../operations/task-templates.create';
+import { taskTemplatesDeleteOperation } from '../operations/task-templates.delete';
+import { taskTemplatesListOperation } from '../operations/task-templates.list';
+import { taskTemplatesReadOperation } from '../operations/task-templates.read';
+import { taskTemplatesUpdateOperation } from '../operations/task-templates.update';
 import { tasksCreateOperation } from '../operations/tasks.create';
 import { tasksDeleteOperation } from '../operations/tasks.delete';
 import { tasksListOperation } from '../operations/tasks.list';
@@ -44,6 +59,19 @@ export function bindTaskBoardOperationGroup(bind: DatastoreOperationBinder) {
       list: bind(taskPoolsListOperation, 'task-pools.list'),
       setParent: bind(taskPoolsSetParentOperation, 'task-pools.set-parent'),
     },
+    templates: {
+      create: bind(taskTemplatesCreateOperation, 'task-templates.create'),
+      delete: bind(taskTemplatesDeleteOperation, 'task-templates.delete'),
+      list: bind(taskTemplatesListOperation, 'task-templates.list'),
+      read: bind(taskTemplatesReadOperation, 'task-templates.read'),
+      update: bind(taskTemplatesUpdateOperation, 'task-templates.update'),
+      deliverables: {
+        create: bind(taskTemplateDeliverablesCreateOperation, 'task-template-deliverables.create'),
+        delete: bind(taskTemplateDeliverablesDeleteOperation, 'task-template-deliverables.delete'),
+        list: bind(taskTemplateDeliverablesListOperation, 'task-template-deliverables.list'),
+        update: bind(taskTemplateDeliverablesUpdateOperation, 'task-template-deliverables.update'),
+      },
+    },
     tasks: {
       create: bind(tasksCreateOperation, 'tasks.create'),
       delete: bind(tasksDeleteOperation, 'tasks.delete'),
@@ -53,6 +81,16 @@ export function bindTaskBoardOperationGroup(bind: DatastoreOperationBinder) {
       setPool: bind(tasksSetPoolOperation, 'tasks.set-pool'),
       update: bind(tasksUpdateOperation, 'tasks.update'),
       updateDescription: bind(tasksUpdateDescriptionOperation, 'tasks.update-description'),
+    },
+    deliverables: {
+      create: bind(taskDeliverablesCreateOperation, 'task-deliverables.create'),
+      delete: bind(taskDeliverablesDeleteOperation, 'task-deliverables.delete'),
+      list: bind(taskDeliverablesListOperation, 'task-deliverables.list'),
+    },
+    deliverableSubmissions: {
+      list: bind(taskDeliverableSubmissionsListOperation, 'task-deliverable-submissions.list'),
+      read: bind(taskDeliverableSubmissionsReadOperation, 'task-deliverable-submissions.read'),
+      upsert: bind(taskDeliverableSubmissionsUpsertOperation, 'task-deliverable-submissions.upsert'),
     },
     dependencies: {
       create: bind(taskDependenciesCreateOperation, 'task-dependencies.create'),
