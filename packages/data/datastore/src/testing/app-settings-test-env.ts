@@ -13,6 +13,7 @@ export async function writeFullAppSettings() {
     assistantAgentRegistryId: 'registry-1',
     assistantAgentId: 'agent-1',
     assistantFabEnabled: false,
+    assistantCommandKEnabled: false,
   });
   await datastore.close();
   return updated;
@@ -31,6 +32,7 @@ export async function clearAssistantAgentSetting() {
     assistantAgentRegistryId: 'registry-1',
     assistantAgentId: 'agent-1',
     assistantFabEnabled: false,
+    assistantCommandKEnabled: false,
   });
   const cleared = await datastore.appSettings.update({
     defaultTranscriptionProfileId: null,
@@ -38,6 +40,7 @@ export async function clearAssistantAgentSetting() {
     assistantAgentRegistryId: 'registry-1',
     assistantAgentId: null,
     assistantFabEnabled: false,
+    assistantCommandKEnabled: false,
   });
   await datastore.close();
   return cleared;

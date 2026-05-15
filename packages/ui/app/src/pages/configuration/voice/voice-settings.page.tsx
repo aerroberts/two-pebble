@@ -25,6 +25,7 @@ export function VoiceSettingsPage() {
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
       assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
     });
   };
 
@@ -38,6 +39,7 @@ export function VoiceSettingsPage() {
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
       assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
     });
   };
 

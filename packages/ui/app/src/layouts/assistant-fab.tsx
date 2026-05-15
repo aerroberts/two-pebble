@@ -53,6 +53,7 @@ export function AssistantFab() {
           assistantAgentRegistryId: settings.assistantAgentRegistryId,
           assistantAgentId: launched.id,
           assistantFabEnabled: settings.assistantFabEnabled,
+          assistantCommandKEnabled: settings.assistantCommandKEnabled,
         });
       } else {
         await sendAgentMessage({ agentId, message: trimmed });

@@ -22,6 +22,7 @@ export function AssistantSettingsPage() {
   const settings = appSettings.value;
   const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantFabEnabled = settings?.assistantFabEnabled ?? false;
+  const assistantCommandKEnabled = settings?.assistantCommandKEnabled ?? false;
 
   const onAssistantAgentChange = (value: string) => {
     if (settings === null) {
@@ -35,6 +36,7 @@ export function AssistantSettingsPage() {
       assistantAgentRegistryId: nextRegistryId,
       assistantAgentId: registryChanged ? null : settings.assistantAgentId,
       assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
     });
   };
 
@@ -48,6 +50,21 @@ export function AssistantSettingsPage() {
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
       assistantFabEnabled: next,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
+    });
+  };
+
+  const onAssistantCommandKChange = (next: boolean) => {
+    if (settings === null) {
+      return;
+    }
+    void updateAppSettings({
+      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
+      defaultSpeechProfileId: settings.defaultSpeechProfileId,
+      assistantAgentRegistryId: settings.assistantAgentRegistryId,
+      assistantAgentId: settings.assistantAgentId,
+      assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: next,
     });
   };
 
@@ -77,6 +94,11 @@ export function AssistantSettingsPage() {
             checked={assistantFabEnabled}
             label="Show floating Assistant button"
             onChange={(event) => onAssistantFabChange(event.target.checked)}
+          />
+          <Checkbox
+            checked={assistantCommandKEnabled}
+            label="Enable Command-K for global assistant speech"
+            onChange={(event) => onAssistantCommandKChange(event.target.checked)}
           />
         </Surface>
       </Section>

@@ -21,6 +21,9 @@ export const appSettingsTable = customTable('app_settings', {
 
   // Toggle for the global Assistant mic FAB rendered in the main app shell.
   assistantFabEnabled: integer('assistant_fab_enabled', { mode: 'boolean' }).notNull().default(false),
+
+  // Toggle for the Command-K global shortcut that opens the assistant speech overlay.
+  assistantCommandKEnabled: integer('assistant_command_k_enabled', { mode: 'boolean' }).notNull().default(false),
 });
 
 export const APP_SETTINGS_SINGLETON_ID = 'singleton';

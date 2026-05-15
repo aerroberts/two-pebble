@@ -57,6 +57,7 @@ export function useAssistantPageState() {
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: nextAgentId,
       assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
     });
   };
 

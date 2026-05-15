@@ -29,6 +29,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       assistantAgentRegistryId: null,
       assistantAgentId: null,
       assistantFabEnabled: false,
+      assistantCommandKEnabled: false,
     };
     return fallback;
   };
