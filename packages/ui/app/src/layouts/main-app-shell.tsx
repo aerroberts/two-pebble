@@ -9,8 +9,8 @@ import {
 } from '@two-pebble/components';
 import { useAgents } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { AppShellProps } from './app-shell-props';
 import { useGlobalConcurrency } from '../shared/concurrency/use-global-concurrency';
+import type { AppShellProps } from './app-shell-props';
 import { AssistantFab } from './assistant-fab';
 import { ConfigurationSidebar } from './configuration-sidebar';
 import { DeveloperSidebar } from './developer-sidebar';
