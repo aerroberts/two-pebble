@@ -1,6 +1,7 @@
 'use client';
 
 import { aggregatePebbleAgentTraces as aggregateAgentTraces } from '@two-pebble/pebble';
+import { useRef } from 'react';
 import { renderAgentTrace } from './render-trace';
 import { ToolTraceGroup } from './tool-trace-group';
 import type { AgentAggregatedTraceRecord, AgentTraceByType, AgentTraceRecord, SpeakController } from './types';
@@ -40,24 +41,36 @@ export function AgentTrace(props: AgentTraceProps) {
     .sort((left, right) => left.orderId - right.orderId);
   const traceGroups = groupAdjacentToolTraces(aggregatedTraces);
 
+  // Track IDs seen on the initial render. Groups whose IDs were not present on
+  // the first render are newly-inserted and receive the fade-in animation.
+  // Using a ref avoids re-renders and persists across prop updates.
+  const initialIdsRef = useRef<Set<string> | null>(null);
+  if (initialIdsRef.current === null) {
+    initialIdsRef.current = new Set(traceGroups.map((g) => g.id));
+  }
+  const initialIds = initialIdsRef.current;
+
   return (
     <div className="flex w-full flex-col gap-2">
-      {traceGroups.map((group) => (
-        <div key={group.id}>
-          {group.type === 'tool-group' ? (
-            <ToolTraceGroup traces={group.traces} />
-          ) : (
-            renderAgentTrace(group.trace, {
-              onAgentClick: props.onAgentClick,
-              onModelCallClick: props.onModelCallClick,
-              speakController: props.speakController,
-              onTaskClick: props.onTaskClick,
-              onThreadSnapshotClick: props.onThreadSnapshotClick,
-              onWorktreeOpenClick: props.onWorktreeOpenClick,
-            })
-          )}
-        </div>
-      ))}
+      {traceGroups.map((group) => {
+        const isNew = !initialIds.has(group.id);
+        return (
+          <div key={group.id} className={isNew ? 'trace-entry-fade-in' : undefined}>
+            {group.type === 'tool-group' ? (
+              <ToolTraceGroup traces={group.traces} />
+            ) : (
+              renderAgentTrace(group.trace, {
+                onAgentClick: props.onAgentClick,
+                onModelCallClick: props.onModelCallClick,
+                speakController: props.speakController,
+                onTaskClick: props.onTaskClick,
+                onThreadSnapshotClick: props.onThreadSnapshotClick,
+                onWorktreeOpenClick: props.onWorktreeOpenClick,
+              })
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -3,7 +3,6 @@ import {
   AgentTrace,
   ChatPageLayout,
   Header,
-  IconButton,
   InputArea,
   PageLayout,
   Row,
@@ -12,8 +11,6 @@ import {
   TabSelect,
 } from '@two-pebble/components';
 import { useMemo, useState } from 'react';
-import { ConfirmDialog } from '../../shared/confirm/confirm-dialog';
-import { useConfirm } from '../../shared/confirm/use-confirm';
 import { useSpeakText } from '../../shared/voice/use-speak-text';
 import type { VoiceCaptureStatus } from '../../shared/voice/use-voice-capture';
 import { VoiceCaptureButton } from '../../shared/voice/voice-capture-button';
@@ -75,7 +72,6 @@ const ASSISTANT_VIEW_OPTIONS = [
  */
 export function AssistantPage() {
   const state = useAssistantPageState();
-  const confirm = useConfirm();
   const speech = useSpeakText();
   // Anchor that hides everything older than this visit. The Direct view
   // only shows traces whose orderId is past the anchor — anything older is
@@ -138,20 +134,6 @@ export function AssistantPage() {
     setViewMode(nextMode);
   };
 
-  const requestReset = async () => {
-    const ok = await confirm.confirm({
-      title: 'Reset Assistant context',
-      message:
-        'Provision a fresh Assistant agent on the next message? The previous agent stays in your agent list and can be reopened from there.',
-      confirmLabel: 'Reset',
-    });
-    if (ok) {
-      state.resetContext();
-      setDirectTurnAnchor(0);
-      setHasSubmittedThisVisit(false);
-    }
-  };
-
   if (state.settingsLoaded && state.registryId === null) {
     return (
       <PageLayout width="full">
@@ -168,36 +150,15 @@ export function AssistantPage() {
 
   const tabs = <TabSelect options={ASSISTANT_VIEW_OPTIONS} value={viewMode} onChange={handleViewModeChange} />;
 
-  const resetControl =
-    state.agentId === null ? null : (
-      <IconButton
-        aria-label="Reset Assistant context"
-        icon="refresh-cw"
-        onClick={() => void requestReset()}
-        title="Reset Assistant context"
-        variant="secondary"
-      />
-    );
-
-  const headerActions = (
-    <Row gap="sm">
-      {tabs}
-      {resetControl}
-    </Row>
-  );
-
   const header = (
-    <Header
-      actionItems={headerActions}
-      subtitle="Talk to your saved Assistant agent. The conversation persists across visits."
-    >
+    <Header actionItems={tabs} subtitle="Talk to your saved Assistant agent. The conversation persists across visits.">
       Assistant
     </Header>
   );
 
   if (viewMode === 'direct') {
     return (
-      <ChatPageLayout footer={<ConfirmDialog controller={confirm} />} header={header} width="full">
+      <ChatPageLayout footer={null} header={header} width="full">
         <div className="flex h-full min-h-0 flex-col">
           {/* Upper region: traces aligned to the bottom edge so the latest
               content sits right above the input cluster. Flex-1 so it
@@ -307,7 +268,6 @@ export function AssistantPage() {
         <>
           {chatInputArea}
           {chatInputControls}
-          <ConfirmDialog controller={confirm} />
         </>
       }
     >
