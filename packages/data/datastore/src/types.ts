@@ -196,6 +196,7 @@ export interface DocumentRecord {
   updatedAt: number;
   name: string;
   content: string;
+  references: string;
 }
 
 export interface WorktreeRecord {

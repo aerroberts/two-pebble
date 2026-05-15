@@ -5,6 +5,7 @@ type OperationHandlerInput = {
   content?: string;
   id: string;
   name?: string;
+  references?: string;
 };
 
 export function documentsUpdateOperation(ctx: DatastoreContext) {
@@ -24,6 +25,7 @@ export function documentsUpdateOperation(ctx: DatastoreContext) {
       .set({
         content: input.content ?? existing.content,
         name: input.name ?? existing.name,
+        references: input.references ?? existing.references,
       })
       .where(eq(ctx.schema.documentsTable.id, input.id))
       .returning()

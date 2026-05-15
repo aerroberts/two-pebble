@@ -4,6 +4,17 @@ export { Agent } from './agent';
 export type { AgentNamingRunner } from './agent-naming-runner';
 export { FrameworkAgent } from './agents/framework-agent';
 export { PebbleAgent } from './agents/pebble-agent';
+export type {
+  DocumentCreateInput,
+  DocumentListEntry,
+  DocumentListInput,
+  DocumentListOutput,
+  DocumentReadInput,
+  DocumentReadOutput,
+  DocumentRunner,
+  DocumentSummary,
+  DocumentUpdateInput,
+} from './document-runner';
 export { AgentExitHook } from './hooks/agent-exit-hook';
 export type { EarlyExitHookResult } from './hooks/early-exit';
 export { EarlyExit } from './hooks/early-exit';

@@ -55,5 +55,6 @@ function sampleDocument(input: { name: string }): DocumentRecord {
     updatedAt: 2,
     name: input.name,
     content: '{"type":"doc","content":[]}',
+    references: '[]',
   };
 }

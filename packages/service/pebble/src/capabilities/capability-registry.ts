@@ -1,6 +1,7 @@
 import type { AgentCapability } from '../agent';
 import type { PebbleJsonValue } from '../types';
 import { AgentNamingCapability } from './agent-naming/agent-naming-capability';
+import { DocumentWriterCapability } from './document-writer/document-writer-capability';
 import { ParentLinkCapability } from './parent-link/parent-link-capability';
 import { ProgressiveTaskListCapability } from './progressive-task-list/progressive-task-list-capability';
 import { SubAgentCapability } from './sub-agent/sub-agent-capability';
@@ -43,6 +44,9 @@ export class CapabilityRegistry {
     }
     if (id === 'agent-naming') {
       return new AgentNamingCapability() as AgentCapability<PebbleJsonValue>;
+    }
+    if (id === 'document-writer') {
+      return new DocumentWriterCapability() as AgentCapability<PebbleJsonValue>;
     }
 
     throw new Error(`Unknown capability id: "${id}"`);

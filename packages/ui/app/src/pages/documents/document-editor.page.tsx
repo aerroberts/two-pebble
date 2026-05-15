@@ -1,5 +1,6 @@
 import { EditableHeading, Header, IconButton, PageLayout, Surface, TipTapEditor } from '@two-pebble/components';
 import { Navigate } from 'react-router-dom';
+import { DocumentAgentPills } from './document-agent-pills';
 import { useDocumentEditorPageState } from './use-document-editor-page-state';
 
 export function DocumentEditorPage() {
@@ -30,6 +31,7 @@ export function DocumentEditorPage() {
           value={state.nameDraft}
         />
       </Header>
+      {state.document === null ? null : <DocumentAgentPills references={state.document.references} />}
       {state.error.length > 0 ? <Surface>{state.error}</Surface> : null}
       {state.document === null ? (
         <Surface>Loading document.</Surface>

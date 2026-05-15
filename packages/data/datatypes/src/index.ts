@@ -1,6 +1,7 @@
 export * from './agent-registries/types';
 export * from './app-settings';
 export * from './document-content';
+export * from './document-references';
 export * from './inference-profiles/types';
 export * from './integrations/types';
 export * from './third-party-agent-installs/types';

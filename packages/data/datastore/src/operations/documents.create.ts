@@ -5,6 +5,7 @@ const EMPTY_DOCUMENT_CONTENT = '{"type":"doc","content":[]}';
 type OperationHandlerInput = {
   content?: string;
   name?: string;
+  references?: string;
 };
 
 export function documentsCreateOperation(ctx: DatastoreContext) {
@@ -14,6 +15,7 @@ export function documentsCreateOperation(ctx: DatastoreContext) {
       .values({
         content: input.content ?? EMPTY_DOCUMENT_CONTENT,
         name: input.name ?? 'Untitled',
+        ...(input.references === undefined ? {} : { references: input.references }),
       })
       .returning()
       .get();

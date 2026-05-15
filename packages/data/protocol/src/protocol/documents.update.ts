@@ -14,4 +14,5 @@ export interface DocumentRecord {
   updatedAt: number;
   name: string;
   content: string;
+  references: string;
 }

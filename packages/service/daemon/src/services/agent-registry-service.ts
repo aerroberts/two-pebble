@@ -16,6 +16,7 @@ import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
 import type { LaunchAgentInput, RunAgentInput } from './agent-registry-types';
 import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
+import { installDocumentRunner } from './document-runner/install';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
 import { DaemonSignalRunner } from './signal-runner/daemon-signal-runner';
 import {
@@ -199,6 +200,13 @@ export class AgentRegistryService {
       multicastBridge: this.multicastBridge,
     });
     installTaskBoardRunner({ agent: runtimeAgent, bridge, logger: this.logger, taskBoards: this.taskBoards });
+    installDocumentRunner({
+      agent: runtimeAgent,
+      agentId,
+      bridge,
+      datastore: this.datastore,
+      logger: this.logger,
+    });
     let inferenceProfileId: string | undefined;
     let integrationId: string | undefined;
     if (record.agentRegistryId !== null && record.agentRegistryId !== undefined) {
@@ -440,6 +448,13 @@ export class AgentRegistryService {
       bridge: this.multicastBridge,
       logger: this.logger,
       taskBoards: this.taskBoards,
+    });
+    installDocumentRunner({
+      agent: input.agent,
+      agentId: input.agentId,
+      bridge: this.multicastBridge,
+      datastore: this.datastore,
+      logger: this.logger,
     });
     let coordinator: SubAgentCoordinator | undefined;
     if (input.registry !== undefined) {

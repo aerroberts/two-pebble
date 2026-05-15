@@ -45,6 +45,13 @@ export const knownCapabilities: KnownCapability<CapabilityConfigValue>[] = [
     defaultConfig: {},
   },
   {
+    id: 'document-writer',
+    title: 'Document writer',
+    description:
+      'Let the agent create, update, read, and list documents. Documents the agent touches are back-linked to it automatically so you can trace authorship from the document editor.',
+    defaultConfig: {},
+  },
+  {
     id: 'task-board-access',
     title: 'Task board access',
     description:
