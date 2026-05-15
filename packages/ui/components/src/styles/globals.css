@@ -382,6 +382,146 @@
   --color-chart-8: #94a3b8;
 }
 
+:root[data-theme="bubblegum"] {
+  --color-background: #ffeaf6;
+  --color-surface: #fffafd;
+  --color-surface-alt: #ffd3eb;
+  --color-surface-raised: #fff5fa;
+  --color-surface-hover: #ffc4e3;
+  --color-surface-neutral: #f4eaf1;
+  --color-accent: #ff3da6;
+  --color-accent-hover: #e0297e;
+  --color-accent-content: #ffffff;
+  --color-content: #36103d;
+  --color-content-muted: #7a3a6f;
+  --color-content-subtle: #b876ab;
+  --color-content-inverse: #ffffff;
+  --color-content-heading: #410a4a;
+  --color-border: #f9b8df;
+  --color-border-strong: #ec8ec6;
+  --color-danger: #be123c;
+  --color-danger-content: #ffffff;
+  --color-success: #16a34a;
+  --color-info: #06b6d4;
+  --color-chart-1: #ff3da6;
+  --color-chart-2: #22d3ee;
+  --color-chart-3: #fde047;
+  --color-chart-4: #a855f7;
+  --color-chart-5: #34d399;
+  --color-chart-6: #fb923c;
+  --color-chart-7: #f43f5e;
+  --color-chart-8: #6366f1;
+}
+
+:root[data-theme="vaporwave"] {
+  --color-background: #1a0f2e;
+  --color-surface: #241337;
+  --color-surface-alt: #2e1948;
+  --color-surface-raised: #281641;
+  --color-surface-hover: #3a205a;
+  --color-surface-neutral: #1f1a2e;
+  --color-accent: #ff77ee;
+  --color-accent-hover: #ff97f4;
+  --color-accent-content: #1a0f2e;
+  --color-content: #f4ecff;
+  --color-content-muted: #c2a8e0;
+  --color-content-subtle: #9275bd;
+  --color-content-inverse: #15091f;
+  --color-content-heading: #ffffff;
+  --color-border: #4a2a6f;
+  --color-border-strong: #6b3f9c;
+  --color-danger: #fda4af;
+  --color-danger-content: #ffffff;
+  --color-success: #5eead4;
+  --color-info: #22d3ee;
+  --color-transfer-sent: #c4b5fd;
+  --color-transfer-received: #5eead4;
+  --color-tooltip-surface: #2e1948;
+  --color-tooltip-border: #4a2a6f;
+  --color-tooltip-foreground: #f4ecff;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+  --shadow-panel: -2px 0 8px rgba(0, 0, 0, 0.3);
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --color-chart-1: #ff77ee;
+  --color-chart-2: #22d3ee;
+  --color-chart-3: #a855f7;
+  --color-chart-4: #fb7185;
+  --color-chart-5: #fde047;
+  --color-chart-6: #34d399;
+  --color-chart-7: #818cf8;
+  --color-chart-8: #fb923c;
+}
+
+:root[data-theme="matrix"] {
+  --color-background: #020a04;
+  --color-surface: #06140a;
+  --color-surface-alt: #0c1f12;
+  --color-surface-raised: #0a1a0e;
+  --color-surface-hover: #102716;
+  --color-surface-neutral: #0a120c;
+  --color-accent: #39ff7f;
+  --color-accent-hover: #6cffa1;
+  --color-accent-content: #020a04;
+  --color-content: #c8ffd8;
+  --color-content-muted: #6dbb85;
+  --color-content-subtle: #468a5b;
+  --color-content-inverse: #020a04;
+  --color-content-heading: #d9ffe5;
+  --color-border: #144925;
+  --color-border-strong: #1f6936;
+  --color-danger: #f87171;
+  --color-danger-content: #ffffff;
+  --color-success: #39ff7f;
+  --color-info: #4ade80;
+  --color-transfer-sent: #86efac;
+  --color-transfer-received: #39ff7f;
+  --color-tooltip-surface: #0c1f12;
+  --color-tooltip-border: #144925;
+  --color-tooltip-foreground: #c8ffd8;
+  --color-overlay: rgba(0, 0, 0, 0.85);
+  --shadow-panel: -2px 0 8px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --color-chart-1: #39ff7f;
+  --color-chart-2: #4ade80;
+  --color-chart-3: #86efac;
+  --color-chart-4: #a3e635;
+  --color-chart-5: #fde047;
+  --color-chart-6: #fbbf24;
+  --color-chart-7: #2dd4bf;
+  --color-chart-8: #65a30d;
+}
+
+:root[data-theme="carnival"] {
+  --color-background: #fffce5;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fff4b8;
+  --color-surface-raised: #fffcef;
+  --color-surface-hover: #ffe98a;
+  --color-surface-neutral: #f5f1e1;
+  --color-accent: #ff2d55;
+  --color-accent-hover: #db1f43;
+  --color-accent-content: #ffffff;
+  --color-content: #2c1010;
+  --color-content-muted: #715040;
+  --color-content-subtle: #a37e6c;
+  --color-content-inverse: #ffffff;
+  --color-content-heading: #1f0808;
+  --color-border: #f6c46a;
+  --color-border-strong: #d99622;
+  --color-danger: #b91c1c;
+  --color-danger-content: #ffffff;
+  --color-success: #0d8c4f;
+  --color-info: #ff7a00;
+  --color-chart-1: #ff2d55;
+  --color-chart-2: #ffd60a;
+  --color-chart-3: #0aa3ff;
+  --color-chart-4: #10b981;
+  --color-chart-5: #c026d3;
+  --color-chart-6: #fb923c;
+  --color-chart-7: #65a30d;
+  --color-chart-8: #4c1d95;
+}
+
 @keyframes state-sparkle-spin {
   0% {
     opacity: 0.78;
