@@ -5,24 +5,14 @@ import type { DaemonHandlerContext } from '../types';
 type StopAgentOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'stopAgent'>;
 type Payload = StopAgentOperation['request'];
 
-interface StoppableAgent {
-  stop(reason: string): Promise<void>;
-}
-
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
-    const agent = ctx.agentRegistry.get(payload.agentId);
-    if (agent === undefined) {
+    const reason = payload.reason ?? 'user stop';
+    const active = ctx.agentRegistry.get(payload.agentId);
+    if (active === undefined) {
       throw new Error(`agent "${payload.agentId}" is not active`);
     }
-    const reason = payload.reason ?? 'user stop';
-    if ('stop' in agent && typeof agent.stop === 'function') {
-      await (agent as typeof agent & StoppableAgent).stop(reason);
-    } else {
-      const updated = await ctx.datastore.agent.setStatus({ id: payload.agentId, status: 'idle' });
-      ctx.multicastBridge.emit('agentRecorded', updated);
-    }
-    ctx.agentRegistry.deactivate(payload.agentId);
+    await ctx.agentRegistry.stopManual(payload.agentId, reason);
     return { agentId: payload.agentId };
   };
 }

@@ -117,7 +117,7 @@ export type DependencyMutationOutcome = MutationOutcome<TaskDependencyRecord>;
 
 export interface SyncTasksFromAgentInput {
   agentId: string;
-  agentStatus: 'failed';
+  agentStatus: 'failed' | 'idle';
   reason?: string;
 }
 
