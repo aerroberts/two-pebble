@@ -1,14 +1,55 @@
-import { Button, Header, PageLayout, Section, Surface, Table, type TableColumn } from '@two-pebble/components';
+import {
+  AutomationIndicator,
+  type AutomationIndicatorState,
+  Button,
+  Header,
+  PageLayout,
+  Section,
+  Surface,
+  Table,
+  type TableColumn,
+} from '@two-pebble/components';
 import { type AutomationRecord, useAutomations } from '@two-pebble/realtime';
 import { useNavigate } from 'react-router-dom';
-import { formatAutomationInterval, formatTimestamp, nextDueAt } from './automation-format';
+import { formatCadenceLabel, formatTimestamp, nextDueAt } from './automation-format';
+
+interface AutomationIndicatorCellProps {
+  automation: AutomationRecord;
+}
+
+function AutomationIndicatorCell(props: AutomationIndicatorCellProps) {
+  const automation = props.automation;
+  const state: AutomationIndicatorState = !automation.enabled
+    ? 'disabled'
+    : automation.intervalUnit === 'manual'
+      ? 'manual'
+      : 'scheduled';
+
+  return (
+    <AutomationIndicator
+      state={state}
+      variant="pill"
+      cadenceLabel={formatCadenceLabel(automation)}
+      cadenceTitle={`Every ${automation.intervalValue} ${automation.intervalUnit}`}
+    />
+  );
+}
 
 const columns: TableColumn<AutomationRecord>[] = [
-  { id: 'name', header: 'Name', cell: (row) => row.name },
-  { id: 'interval', header: 'Interval', cell: (row) => formatAutomationInterval(row) },
-  { id: 'enabled', header: 'State', cell: (row) => (row.enabled ? 'Enabled' : 'Disabled') },
+  {
+    id: 'name',
+    header: 'Name',
+    cell: (row) => row.name,
+  },
   { id: 'lastRanAt', header: 'Last run', cell: (row) => formatTimestamp(row.lastRanAt) },
   { id: 'nextDueAt', header: 'Next due', cell: (row) => formatTimestamp(nextDueAt(row)) },
+  {
+    id: 'indicator',
+    header: '',
+    align: 'right',
+    width: '60px',
+    cell: (row) => <AutomationIndicatorCell automation={row} />,
+  },
 ];
 
 export function AutomationsPage() {

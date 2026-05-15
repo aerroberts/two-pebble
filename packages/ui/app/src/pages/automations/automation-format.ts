@@ -23,3 +23,17 @@ export function nextDueAt(automation: AutomationRecord): number | null {
     automation.intervalUnit === 'minutes' ? 60_000 : automation.intervalUnit === 'hours' ? 3_600_000 : 86_400_000;
   return (automation.lastRanAt ?? automation.createdAt) + automation.intervalValue * multiplier;
 }
+
+/** Short cadence label for display in the automation list, e.g. "3H", "2D", "30M". */
+export function formatCadenceLabel(automation: AutomationRecord): string {
+  if (automation.intervalUnit === 'minutes') {
+    return `${automation.intervalValue}M`;
+  }
+  if (automation.intervalUnit === 'hours') {
+    return `${automation.intervalValue}H`;
+  }
+  if (automation.intervalUnit === 'days') {
+    return `${automation.intervalValue}D`;
+  }
+  return '';
+}
