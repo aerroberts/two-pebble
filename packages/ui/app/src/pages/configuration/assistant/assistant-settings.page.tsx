@@ -1,14 +1,24 @@
 import { Checkbox, Header, PageLayout, Section, Select, type SelectOption, Surface } from '@two-pebble/components';
-import { useAgentRegistries, useAppSettings, useUpdateAppSettings } from '@two-pebble/realtime';
+import {
+  type AgentRegistryRecord,
+  type InferenceProfileRecord,
+  type LoadableRegistry,
+  useAgentRegistries,
+  useAppSettings,
+  useInferenceProfiles,
+  useUpdateAppSettings,
+} from '@two-pebble/realtime';
+import { agentRegistryIcon } from '../../../shared/agents/agent-registry-icon';
 
 const NONE_VALUE = '__none__';
 
 export function AssistantSettingsPage() {
   const appSettings = useAppSettings();
   const agentRegistries = useAgentRegistries();
+  const inferenceProfiles = useInferenceProfiles();
   const updateAppSettings = useUpdateAppSettings();
 
-  const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries);
+  const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries, inferenceProfiles);
   const settings = appSettings.value;
   const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantFabEnabled = settings?.assistantFabEnabled ?? false;
@@ -74,16 +84,15 @@ export function AssistantSettingsPage() {
   );
 }
 
-type AgentRegistryLike = { id: string; name: string };
-interface AgentRegistryOptionsInput {
-  values(): AgentRegistryLike[];
-}
-
-function buildAgentRegistryOptions(registries: AgentRegistryOptionsInput): SelectOption[] {
+function buildAgentRegistryOptions(
+  registries: LoadableRegistry<AgentRegistryRecord>,
+  profiles: LoadableRegistry<InferenceProfileRecord>,
+): SelectOption[] {
   const matching = registries
     .values()
     .sort((left, right) => left.name.localeCompare(right.name))
     .map((registry) => ({
+      icon: agentRegistryIcon(registry, profiles),
       label: registry.name.length > 0 ? registry.name : 'Untitled agent',
       value: registry.id,
     }));

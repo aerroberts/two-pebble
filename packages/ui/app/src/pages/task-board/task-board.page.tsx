@@ -10,12 +10,15 @@ import {
 } from '@two-pebble/components';
 import type {
   AgentRegistryRecord,
+  InferenceProfileRecord,
+  LoadableRegistry,
   ProtocolTaskRecord,
   TaskDependencyRecord,
   TaskPoolRecord,
 } from '@two-pebble/realtime';
 import { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
+import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
 import { TaskBoardSettingsView } from './task-board-settings-view';
 import { TaskDetailSidebar } from './task-detail-sidebar';
 import { type TaskBoardView, useTaskBoardPageState } from './use-task-board-page-state';
@@ -71,7 +74,7 @@ export function TaskBoardPage() {
       onDelegate={(agentRegistryId: string) => void state.delegateSelectedTask(agentRegistryId)}
       onUndelegate={() => void state.undelegateSelectedTask()}
       onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
-      delegateAgents={state.agentRegistries.map(toDelegateOption)}
+      delegateAgents={state.agentRegistries.map((registry) => toDelegateOption(registry, state.inferenceProfiles))}
       delegateDisabled={state.delegating}
     />
   ) : null;
@@ -134,7 +137,8 @@ export function TaskBoardPage() {
             onDeleteBoard={() => void state.deleteBoard()}
             boardDispatchSettings={state.boardDispatchSettings}
             poolDispatchSettings={state.poolDispatchSettings}
-            agentRegistries={state.agentRegistries.map((entry) => ({ id: entry.id, name: entry.name }))}
+            agentRegistries={state.agentRegistries}
+            inferenceProfiles={state.inferenceProfiles}
             onSaveDispatchSettings={(input) => void state.saveDispatchSettings(input)}
           />
         )}
@@ -180,6 +184,10 @@ function toListPool(pool: TaskPoolRecord) {
   return { id: pool.id, name: pool.name, parentPoolId: pool.parentPoolId };
 }
 
-function toDelegateOption(registry: AgentRegistryRecord) {
-  return { value: registry.id, label: registry.name };
+function toDelegateOption(registry: AgentRegistryRecord, profiles: LoadableRegistry<InferenceProfileRecord>) {
+  return {
+    icon: agentRegistryIcon(registry, profiles),
+    label: registry.name,
+    value: registry.id,
+  };
 }

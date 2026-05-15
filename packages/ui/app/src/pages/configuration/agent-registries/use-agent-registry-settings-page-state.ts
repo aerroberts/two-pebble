@@ -180,6 +180,7 @@ export function useAgentRegistrySettingsPageState() {
     deleteSelectedRegistry,
     inferenceProfileId,
     inferenceProfileOptions,
+    inferenceProfiles,
     installOptions,
     name,
     otherRegistryOptions,

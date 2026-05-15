@@ -8,14 +8,15 @@ import {
   Select,
   Surface,
 } from '@two-pebble/components';
-import type { TaskPoolRecord } from '@two-pebble/realtime';
+import type {
+  AgentRegistryRecord,
+  InferenceProfileRecord,
+  LoadableRegistry,
+  TaskPoolRecord,
+} from '@two-pebble/realtime';
 import { useState } from 'react';
+import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
 import type { DispatchMode, DispatchSettingsUpdateInput, DispatchSettingsValue } from './use-task-board-page-state';
-
-interface AgentRegistryOption {
-  id: string;
-  name: string;
-}
 
 interface TaskBoardSettingsViewProps {
   boardId: string;
@@ -27,7 +28,8 @@ interface TaskBoardSettingsViewProps {
   onDeleteBoard: () => void;
   boardDispatchSettings: DispatchSettingsValue;
   poolDispatchSettings: Record<string, DispatchSettingsValue>;
-  agentRegistries: AgentRegistryOption[];
+  agentRegistries: AgentRegistryRecord[];
+  inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
   onSaveDispatchSettings: (input: DispatchSettingsUpdateInput) => void;
 }
 
@@ -52,6 +54,7 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
         <Surface>
           <DispatchSettingsEditor
             agentRegistries={props.agentRegistries}
+            inferenceProfiles={props.inferenceProfiles}
             initial={props.boardDispatchSettings}
             onSave={(value) =>
               props.onSaveDispatchSettings({
@@ -72,6 +75,7 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
               onDelete: props.onDeletePool,
               dispatch: props.poolDispatchSettings[pool.id] ?? null,
               agentRegistries: props.agentRegistries,
+              inferenceProfiles: props.inferenceProfiles,
               onSaveDispatch: (value) =>
                 props.onSaveDispatchSettings({
                   scopeKind: 'pool',
@@ -100,7 +104,8 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
 }
 
 interface DispatchSettingsEditorProps {
-  agentRegistries: AgentRegistryOption[];
+  agentRegistries: AgentRegistryRecord[];
+  inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
   initial: DispatchSettingsValue;
   onSave: (value: DispatchSettingsValue) => void;
 }
@@ -141,7 +146,11 @@ function DispatchSettingsEditor(props: DispatchSettingsEditorProps) {
       {mode === 'automatic' ? (
         <Select
           placeholder="Pick an agent"
-          options={props.agentRegistries.map((entry) => ({ value: entry.id, label: entry.name }))}
+          options={props.agentRegistries.map((entry) => ({
+            icon: agentRegistryIcon(entry, props.inferenceProfiles),
+            label: entry.name,
+            value: entry.id,
+          }))}
           value={agentId ?? undefined}
           onChange={(value: string) => {
             setAgentId(value);
@@ -163,7 +172,8 @@ interface PoolItemInput {
   pool: TaskPoolRecord;
   onDelete: PoolDeleteHandler;
   dispatch: DispatchSettingsValue | null;
-  agentRegistries: AgentRegistryOption[];
+  agentRegistries: AgentRegistryRecord[];
+  inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
   onSaveDispatch: (value: DispatchSettingsValue) => void;
 }
 
@@ -177,6 +187,7 @@ function toPoolItem(input: PoolItemInput): ListLayoutItem {
         <PoolAutomationToggle
           pool={input.pool}
           agentRegistries={input.agentRegistries}
+          inferenceProfiles={input.inferenceProfiles}
           dispatch={input.dispatch}
           onSave={input.onSaveDispatch}
         />
@@ -190,7 +201,8 @@ function toPoolItem(input: PoolItemInput): ListLayoutItem {
 
 interface PoolAutomationToggleProps {
   pool: TaskPoolRecord;
-  agentRegistries: AgentRegistryOption[];
+  agentRegistries: AgentRegistryRecord[];
+  inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
   dispatch: DispatchSettingsValue | null;
   onSave: (value: DispatchSettingsValue) => void;
 }
@@ -219,6 +231,7 @@ function PoolAutomationToggle(props: PoolAutomationToggleProps) {
     <div className="flex flex-col gap-2">
       <DispatchSettingsEditor
         agentRegistries={props.agentRegistries}
+        inferenceProfiles={props.inferenceProfiles}
         initial={current}
         onSave={(value) => {
           props.onSave(value);

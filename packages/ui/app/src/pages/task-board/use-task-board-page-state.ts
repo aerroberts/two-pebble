@@ -2,6 +2,7 @@ import {
   type ProtocolTaskRecord,
   useAgentRegistries,
   useAgents,
+  useInferenceProfiles,
   useRealtimeDatastore,
   useTaskBoardContents,
   useTaskBoardMutations,
@@ -54,6 +55,7 @@ export function useTaskBoardPageState() {
   const contents = useTaskBoardContents({ boardId });
   const mutations = useTaskBoardMutations();
   const agentRegistries = useAgentRegistries();
+  const inferenceProfiles = useInferenceProfiles();
   const agents = useAgents();
   const datastore = useRealtimeDatastore();
   const board = taskBoards.getItem(boardId)?.value ?? null;
@@ -186,6 +188,7 @@ export function useTaskBoardPageState() {
   );
   return {
     agentRegistries: agentRegistries.values(),
+    inferenceProfiles,
     board,
     boardId,
     boardNameDraft,
