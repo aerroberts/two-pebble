@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
 
-import { Icon } from '../../content/icon/icon';
+import { TwoPebbleLogo } from '../../branding/two-pebble-logo/two-pebble-logo';
 
 export interface LoadingPageProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> {
   scope?: 'contained' | 'viewport';
@@ -17,7 +17,7 @@ export function LoadingPage(props: LoadingPageProps) {
 
   return (
     <div className={rootClassName} style={minHeight ? { minHeight } : undefined} {...rest}>
-      <Icon name="stone" className="loading-rock-spinner h-7 w-7 text-accent" />
+      <TwoPebbleLogo svgClassName="loading-rock-spinner h-7 w-7 text-accent" />
     </div>
   );
 }
