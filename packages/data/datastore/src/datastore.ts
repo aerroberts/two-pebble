@@ -3,7 +3,6 @@ import path from 'node:path';
 import type { Client, Row, Value } from '@libsql/client';
 import { createClient } from '@libsql/client';
 import { logger } from '@two-pebble/logger';
-import { metrics } from '@two-pebble/metrics';
 import { drizzle } from 'drizzle-orm/libsql';
 import type { DatastoreOperationBinder } from './datastore-operation-binder';
 import { bindAgentOperationGroup } from './operation-groups/agent-operation-group';
@@ -238,7 +237,12 @@ export class Datastore {
   }
 
   private wrapOperation(operation: string, handler: DatastoreOperationHandler): DatastoreOperationHandler {
-    const logged: DatastoreOperationHandler = async (...args) => {
+    // Per-operation datastore metrics produced excessive cardinality and noise
+    // (every get/put/delete/list fired duration/success/failure counters).
+    // Higher-level observability lives at the daemon operation surface and on
+    // explicit business metrics inside individual operations, so the generic
+    // datastore wrapper now only logs failures and forwards the call.
+    return async (...args) => {
       try {
         return await handler(...args);
       } catch (error) {
@@ -249,12 +253,6 @@ export class Datastore {
         throw error;
       }
     };
-    // Metrics on metric operations would feed back into themselves and produce
-    // unbounded recursion through the registered onMetric handler.
-    if (operation.startsWith('metrics.')) {
-      return logged;
-    }
-    return metrics.wrap('datastore.operation', logged, { operation }) as DatastoreOperationHandler;
   }
 
   private async readTableDescriptions(): Promise<DatabaseTableDescription[]> {
