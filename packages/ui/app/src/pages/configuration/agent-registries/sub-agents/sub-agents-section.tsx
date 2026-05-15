@@ -48,7 +48,12 @@ export function SubAgentsSection(props: SubAgentsSectionProps) {
         <Surface>This agent has no sub-agents. Add one to let it spawn other agents at runtime.</Surface>
       ) : null}
       {props.references.map((reference, index) => (
-        <Surface key={`${reference.agentRegistryId}-${reference.name}`}>
+        // The row's identifying fields (name/agentRegistryId) are user-editable,
+        // so we cannot key by them — keying on a typed value would remount the
+        // inputs on every keystroke and drop focus. Index is stable enough here
+        // because rows are append/remove only, never reordered.
+        // biome-ignore lint/suspicious/noArrayIndexKey: row identity is positional, see comment above
+        <Surface key={index}>
           <Input
             label="Name"
             onChange={(event) => handleUpdate(index, { name: event.target.value })}

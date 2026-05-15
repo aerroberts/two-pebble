@@ -10,20 +10,22 @@ import type { ProgressiveTaskListConfig, ProgressiveTaskListTaskInput } from '..
  */
 export function ProgressiveTaskListEditor(props: CapabilityEditorProps<ProgressiveTaskListConfig>) {
   const tasks = props.config.tasks ?? [];
+  const addAction = (
+    <Button leftIcon="plus" onClick={() => addTask(props, tasks)} type="button" variant="secondary">
+      Add task
+    </Button>
+  );
   return (
-    <Section
-      actionItems={
-        <Button leftIcon="plus" onClick={() => addTask(props, tasks)} type="button" variant="secondary">
-          Add task
-        </Button>
-      }
-      title="Tasks"
-    >
+    <Section actionItems={addAction} title="Tasks">
       {tasks.length === 0 ? (
         <Surface>No tasks configured. The agent will run with an empty list until tasks are added.</Surface>
       ) : null}
       {tasks.map((task, index) => (
-        <Surface key={task.id}>
+        // `task.id` is a user-editable field, so keying on it would remount the
+        // row (and drop input focus) on every keystroke. Index is stable enough
+        // here because rows are append/remove only, never reordered.
+        // biome-ignore lint/suspicious/noArrayIndexKey: row identity is positional, see comment above
+        <Surface key={index}>
           <Input
             label="ID"
             onChange={(event) => updateTask(props, tasks, index, { id: event.target.value })}
@@ -35,7 +37,7 @@ export function ProgressiveTaskListEditor(props: CapabilityEditorProps<Progressi
             value={task.description}
           />
           <IconButton
-            aria-label={`Remove task ${task.id}`}
+            aria-label={`Remove task ${task.id || `${index + 1}`}`}
             icon="trash-2"
             onClick={() => removeTask(props, tasks, index)}
             type="button"
