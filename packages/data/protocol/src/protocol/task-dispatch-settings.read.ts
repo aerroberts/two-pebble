@@ -1,18 +1,15 @@
-export type TaskDispatchSettingsScopeKind = 'board' | 'pool';
-export type TaskDispatchSettingsMode = 'manual' | 'automatic';
-
 export interface TaskDispatchSettingsRecord {
-  scopeKind: TaskDispatchSettingsScopeKind;
+  scopeKind: 'board' | 'pool';
   scopeId: string;
   concurrency: number;
-  dispatchMode: TaskDispatchSettingsMode;
+  dispatchMode: 'manual' | 'automatic';
   autoAgentRegistryId: string | null;
 }
 
 export interface TaskDispatchSettingsReadOperation {
   name: 'readTaskDispatchSettings';
   request: {
-    scopeKind: TaskDispatchSettingsScopeKind;
+    scopeKind: 'board' | 'pool';
     scopeId: string;
   };
   response: {

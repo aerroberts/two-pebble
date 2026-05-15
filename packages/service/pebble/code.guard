@@ -5,6 +5,21 @@
       "rules": ["@rule/file-length"],
       "paths": ["src/agent/agents/pebble-agent.ts"],
       "justification": "PebbleAgent is long and will continue to be long"
+    },
+    {
+      "rules": ["@rule/top-level-definitions", "@rule/documentation"],
+      "paths": ["src/capabilities/agent-naming/agent-naming-capability.ts"],
+      "justification": "Agent naming capability keeps a local helper beside the class today; extract and document it separately from CI enablement."
+    },
+    {
+      "rules": ["@rule/definition-length", "@rule/indent"],
+      "paths": ["src/capabilities/task-board-access/task-board-access-capability.ts"],
+      "justification": "Task board access capability has existing nested response assembly that should be split in a focused follow-up."
+    },
+    {
+      "rules": ["@rule/indent", "@rule/typescript-function-shape"],
+      "paths": ["src/capabilities/task-lifecycle/task-lifecycle-capability.ts"],
+      "justification": "Task lifecycle capability currently exposes a complex operation signature; preserve the runtime contract while CI starts running."
     }
   ],
   "additional": {

@@ -9,13 +9,18 @@ type OperationHandlerInput = {
   autoAgentRegistryId: string | null;
 };
 
+type TaskDispatchSettingsRow = Omit<TaskDispatchSettingsRecord, 'dispatchMode' | 'scopeKind'> & {
+  dispatchMode: string;
+  scopeKind: string;
+};
+
 /**
  * Upserts the dispatch settings row for a (scopeKind, scopeId) pair.
  * The unique index on (scope_kind, scope_id) guarantees at most one row per
  * scope. Returns the resulting record.
  */
 export function taskDispatchSettingsUpsertOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput): Promise<TaskDispatchSettingsRecord> {
+  return async function handler(input: OperationHandlerInput) {
     const existing = await ctx.database
       .select()
       .from(ctx.schema.taskDispatchSettingsTable)
@@ -54,9 +59,7 @@ export function taskDispatchSettingsUpsertOperation(ctx: DatastoreContext) {
   };
 }
 
-function castRow(
-  row: { dispatchMode: string; scopeKind: string } & Omit<TaskDispatchSettingsRecord, 'dispatchMode' | 'scopeKind'>,
-): TaskDispatchSettingsRecord {
+function castRow(row: TaskDispatchSettingsRow): TaskDispatchSettingsRecord {
   return {
     ...row,
     dispatchMode: row.dispatchMode as TaskDispatchMode,

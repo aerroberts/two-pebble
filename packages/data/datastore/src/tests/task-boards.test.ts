@@ -8,6 +8,8 @@ import {
   seedBoardWithPoolAndTask,
   seedBoardWithTwoPools,
   seedTwoTasks,
+  upsertBoardDispatchSettings,
+  upsertPoolDispatchSettings,
 } from '../testing/task-boards-test-env';
 
 describe('feature: operation task-boards.create', () => {
@@ -302,5 +304,45 @@ describe('feature: operation task-events.list', () => {
     const events = await recordTwoTaskEvents(datastore);
     await datastore.close();
     expect(events.items.map((event) => event.reason)).toEqual(['first', 'second']);
+  });
+});
+
+describe('feature: operation task-dispatch-settings.upsert', () => {
+  test('happy: upserts board dispatch settings', async () => {
+    const datastore = await useDatastoreForTesting();
+    const settings = await upsertBoardDispatchSettings(datastore);
+    await datastore.close();
+    expect(settings.concurrency).toBe(3);
+  });
+});
+
+describe('feature: operation task-dispatch-settings.read', () => {
+  test('happy: reads dispatch settings by scope', async () => {
+    const datastore = await useDatastoreForTesting();
+    await upsertPoolDispatchSettings(datastore);
+    const settings = await datastore.taskBoards.dispatchSettings.read({ scopeId: 'pool-1', scopeKind: 'pool' });
+    await datastore.close();
+    expect(settings?.dispatchMode).toBe('manual');
+  });
+});
+
+describe('feature: operation task-dispatch-settings.list', () => {
+  test('happy: lists dispatch settings', async () => {
+    const datastore = await useDatastoreForTesting();
+    await upsertBoardDispatchSettings(datastore);
+    const list = await datastore.taskBoards.dispatchSettings.list({});
+    await datastore.close();
+    expect(list.items).toHaveLength(1);
+  });
+});
+
+describe('feature: operation task-dispatch-settings.delete', () => {
+  test('happy: deletes dispatch settings by scope', async () => {
+    const datastore = await useDatastoreForTesting();
+    await upsertBoardDispatchSettings(datastore);
+    await datastore.taskBoards.dispatchSettings.delete({ scopeId: 'board-1', scopeKind: 'board' });
+    const list = await datastore.taskBoards.dispatchSettings.list({});
+    await datastore.close();
+    expect(list.items).toHaveLength(0);
   });
 });

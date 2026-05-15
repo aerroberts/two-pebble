@@ -1,5 +1,3 @@
-import type { DocumentRecord } from './documents.list';
-
 export interface UpdateDocumentOperation {
   name: 'updateDocument';
   request: {
@@ -8,4 +6,12 @@ export interface UpdateDocumentOperation {
     name?: string;
   };
   response: DocumentRecord;
+}
+
+export interface DocumentRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  name: string;
+  content: string;
 }
