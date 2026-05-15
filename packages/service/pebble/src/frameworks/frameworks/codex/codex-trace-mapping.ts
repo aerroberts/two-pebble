@@ -218,7 +218,9 @@ function fileChangeToTraces(item: FileChangeItem): ConvertedCodexEvent[] {
   ];
 }
 
-function changeKindLabel(kind: 'add' | 'delete' | 'update'): string {
+type FileChangeKind = 'add' | 'delete' | 'update';
+
+function changeKindLabel(kind: FileChangeKind): string {
   if (kind === 'add') {
     return 'add';
   }

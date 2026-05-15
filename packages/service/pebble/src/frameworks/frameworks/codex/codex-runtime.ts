@@ -39,3 +39,7 @@ export type CodexThreadEvent = ThreadEvent;
 export type CodexThread = Thread;
 
 export type InputStreamResolver = () => void;
+
+export interface ThreadEventDispatchResult {
+  turnFailure?: string;
+}
