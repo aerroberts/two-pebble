@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Checkbox,
   Header,
   Input,
@@ -13,12 +14,27 @@ import { type AutomationIntervalUnit, useAgentRegistries, useCreateAutomation } 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const intervalOptions = [
-  { label: 'Manual', value: 'manual' },
-  { label: 'Minutes', value: 'minutes' },
-  { label: 'Hours', value: 'hours' },
-  { label: 'Days', value: 'days' },
+interface ScheduleOption {
+  value: string;
+  label: string;
+  intervalUnit: AutomationIntervalUnit;
+  intervalValue: number;
+}
+
+const scheduleOptions: ScheduleOption[] = [
+  { value: 'manual', label: 'Manual', intervalUnit: 'manual', intervalValue: 1 },
+  { value: '1:hours', label: 'Every 1 hour', intervalUnit: 'hours', intervalValue: 1 },
+  { value: '4:hours', label: 'Every 4 hours', intervalUnit: 'hours', intervalValue: 4 },
+  { value: '1:days', label: 'Every 1 day', intervalUnit: 'days', intervalValue: 1 },
 ];
+
+function toScheduleValue(intervalUnit: AutomationIntervalUnit, intervalValue: number): string {
+  if (intervalUnit === 'manual') {
+    return 'manual';
+  }
+  const match = scheduleOptions.find((o) => o.intervalUnit === intervalUnit && o.intervalValue === intervalValue);
+  return match?.value ?? 'manual';
+}
 
 export function AutomationsNewPage() {
   const navigate = useNavigate();
@@ -33,6 +49,14 @@ export function AutomationsNewPage() {
   const [enabled, setEnabled] = useState(true);
   const [saving, setSaving] = useState(false);
   const saveDisabled = saving || name.trim().length === 0 || agentRegistryId.length === 0;
+
+  const handleScheduleChange = (value: string) => {
+    const option = scheduleOptions.find((o) => o.value === value);
+    if (option) {
+      setIntervalUnit(option.intervalUnit);
+      setIntervalValue(option.intervalValue);
+    }
+  };
 
   const handleSave = async () => {
     if (saveDisabled) {
@@ -69,22 +93,14 @@ export function AutomationsNewPage() {
             value={agentRegistryId}
           />
           <InputArea label="Message" onChange={(event) => setMessage(event.target.value)} value={message} />
-          <Select
-            fullWidth
-            label="Interval"
-            onChange={(value) => setIntervalUnit(value as AutomationIntervalUnit)}
-            options={intervalOptions}
-            value={intervalUnit}
-          />
-          {intervalUnit === 'manual' ? null : (
-            <Input
-              label="Interval value"
-              min={1}
-              onChange={(event) => setIntervalValue(Number(event.target.value))}
-              type="number"
-              value={intervalValue}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-content-secondary">Schedule</span>
+            <ButtonGroup
+              onChange={handleScheduleChange}
+              options={scheduleOptions}
+              value={toScheduleValue(intervalUnit, intervalValue)}
             />
-          )}
+          </div>
           <Checkbox checked={enabled} label="Enabled" onChange={(event) => setEnabled(event.target.checked)} />
           <Button disabled={saveDisabled} leftIcon="save" onClick={() => void handleSave()}>
             {saving ? 'Saving' : 'Create automation'}

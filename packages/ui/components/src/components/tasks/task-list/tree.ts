@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { TaskStatusIconStatus } from '../task-status-icon/types';
 import type { TaskListPool, TaskListTask } from './task-list';
 
@@ -8,6 +9,7 @@ export interface TaskListTaskNode {
   kind: 'task';
   name: string;
   status: TaskStatusIconStatus;
+  concurrencyIndicator: ReactNode;
 }
 
 export interface TaskListPoolNode {
