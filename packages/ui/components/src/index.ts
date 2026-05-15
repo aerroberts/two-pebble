@@ -7,8 +7,8 @@ export {
   AgentPriceTotal,
   type AgentPriceTotalProps,
   type PriceChartMode,
-  priceChartModeOptions,
   type PriceLineItemListMode,
+  priceChartModeOptions,
   priceLineItemListModeOptions,
 } from './components/agents/agent-price-summary';
 export {
@@ -124,6 +124,7 @@ export {
 } from './components/data/list-layout/list-layout';
 export { RelativeTime, type RelativeTimeProps } from './components/data/relative-time/relative-time';
 export { Table, type TableColumn, type TableProps } from './components/data/table/table';
+export { type JSONContent, TipTapEditor, type TipTapEditorProps } from './components/editor/tiptap-editor';
 export { Button, type ButtonProps, type ButtonVariant } from './components/input/button/button';
 export {
   ButtonGroup,

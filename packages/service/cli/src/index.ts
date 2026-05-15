@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { registerAgentCommand } from './commands/agent';
 import { registerCallToolCommand } from './commands/call-tool';
 import { registerDaemonCommand } from './commands/daemon';
+import { registerDocumentCommand } from './commands/document';
 import { registerStatusCommand } from './commands/status';
 import { registerTaskCommand } from './commands/task';
 
@@ -13,6 +14,7 @@ program.name('peb').description('Control active Two Pebble agents through the lo
 registerAgentCommand(program);
 registerCallToolCommand(program);
 registerDaemonCommand(program);
+registerDocumentCommand(program);
 registerStatusCommand(program);
 registerTaskCommand(program);
 

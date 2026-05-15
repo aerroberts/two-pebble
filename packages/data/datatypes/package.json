@@ -16,9 +16,13 @@
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
     "guard": "bunx guardrails",
     "lint": "biome check --write .",
-    "test": "bun -e \"console.log('No datatypes tests configured')\"",
-    "test:coverage": "bun -e \"console.log('No datatypes tests configured')\"",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "prosemirror-markdown": "^1.13.2",
+    "prosemirror-model": "^1.25.4"
   },
   "devDependencies": {
     "@two-pebble/guardrails": "workspace:*"

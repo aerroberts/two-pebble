@@ -66,6 +66,7 @@ describe('feature: realtime agents', () => {
     const ctx = await buildRealtimeContext({});
     const agents = await ctx.realtime.renderHook(useAgents);
     const agent = await ctx.daemon.do('createAgent', agentCreateInput());
+    await ctx.setAgentStatus({ id: agent.id, status: 'waiting' });
     await ctx.daemon.do('failAgent', { id: agent.id });
     const state = await agents.waitFor((value) => value.getItem(agent.id)?.value?.status === 'failed');
     await ctx.close();

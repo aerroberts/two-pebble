@@ -1,0 +1,23 @@
+import type { DatastoreContext, DocumentRecord } from '../types';
+
+const EMPTY_DOCUMENT_CONTENT = '{"type":"doc","content":[]}';
+
+type OperationHandlerInput = {
+  content?: string;
+  name?: string;
+};
+
+export function documentsCreateOperation(ctx: DatastoreContext) {
+  return async function handler(input: OperationHandlerInput) {
+    const row = await ctx.database
+      .insert(ctx.schema.documentsTable)
+      .values({
+        content: input.content ?? EMPTY_DOCUMENT_CONTENT,
+        name: input.name ?? 'Untitled',
+      })
+      .returning()
+      .get();
+
+    return row as DocumentRecord;
+  };
+}
