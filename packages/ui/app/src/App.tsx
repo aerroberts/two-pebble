@@ -5,6 +5,7 @@ import { DeveloperRoutes } from './developer-routes';
 import { AgentsAppShell } from './layouts/agents-app-shell';
 import { AutomationsAppShell } from './layouts/automations-app-shell';
 import { ConfigurationAppShell } from './layouts/configuration-app-shell';
+import { DocumentsAppShell } from './layouts/documents-app-shell';
 import { MainAppShell } from './layouts/main-app-shell';
 import { MetricsAppShell } from './layouts/metrics-app-shell';
 import { AgentDetailPage } from './pages/agent-detail/agent-detail.page';
@@ -114,17 +115,17 @@ export function App() {
       <Route
         path="/documents"
         element={
-          <MainAppShell>
+          <DocumentsAppShell>
             <DocumentsPage />
-          </MainAppShell>
+          </DocumentsAppShell>
         }
       />
       <Route
         path="/documents/:documentId"
         element={
-          <MainAppShell>
+          <DocumentsAppShell>
             <DocumentEditorPage />
-          </MainAppShell>
+          </DocumentsAppShell>
         }
       />
       <Route
