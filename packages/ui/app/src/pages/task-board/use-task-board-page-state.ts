@@ -248,6 +248,20 @@ export function useTaskBoardPageState() {
         }
         await mutations.setTaskStatus({ id: selectedTask.id, status, reason: `manual: set to ${status}` });
       }),
+    stopSelectedWaitingTask: () =>
+      handle(async () => {
+        if (selectedTask === null) {
+          return;
+        }
+        if (selectedTask.effectiveStatus !== 'waiting') {
+          return;
+        }
+        await mutations.setTaskStatus({
+          id: selectedTask.id,
+          status: 'failure',
+          reason: 'manual: stopped while waiting',
+        });
+      }),
     addSelectedTaskDependency: (toId: string) =>
       handle(async () => {
         if (selectedTask === null) {

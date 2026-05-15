@@ -71,6 +71,7 @@ export function TaskBoardPage() {
       onDelegate={(agentRegistryId: string) => void state.delegateSelectedTask(agentRegistryId)}
       onUndelegate={() => void state.undelegateSelectedTask()}
       onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
+      onStopWaitingTask={() => void state.stopSelectedWaitingTask()}
       delegateAgents={state.agentRegistries.map(toDelegateOption)}
       delegateDisabled={state.delegating}
     />

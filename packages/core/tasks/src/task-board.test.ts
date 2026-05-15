@@ -189,6 +189,21 @@ describe('feature: status transitions', () => {
     board.setTaskStatus('t', 'working');
     expect(board.getTaskStatus('t')).toBe('working');
   });
+
+  it('happy: a waiting task can be stopped by transitioning to failure', () => {
+    const board = new TaskBoard('b');
+    board.addTask({ id: 't' });
+    board.addTask({ id: 'dependent', dependsOn: ['t'] });
+    board.setTaskStatus('t', 'working');
+    board.setTaskStatus('t', 'waiting');
+    board.setTaskStatus('t', 'failure');
+    expect(board.getTaskStatus('t')).toBe('failure');
+    // Once the waiting task is stopped (terminal), dependents become open
+    // rather than remaining blocked, and downstream workflows must respect it.
+    expect(board.getTaskStatus('dependent')).toBe('open');
+    // The terminal state is sticky: re-starting it is rejected.
+    expect(() => board.setTaskStatus('t', 'working')).toThrow(InvalidStatusTransitionError);
+  });
 });
 
 describe('feature: subscribe events', () => {

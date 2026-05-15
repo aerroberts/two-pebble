@@ -31,6 +31,7 @@ export interface TaskDetailSidebarProps {
   onDelegate: (agentRegistryId: string) => void;
   onUndelegate: () => void;
   onOpenAgent: (agentId: string) => void;
+  onStopWaitingTask: () => void;
 }
 
 const STATUS_LABEL: Record<TaskStatusIconStatus, string> = {
@@ -63,6 +64,11 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
           <TaskStatusIcon status={props.task.status} size="sm" />
           <span>{STATUS_LABEL[props.task.status]}</span>
         </AppBox>
+        {props.task.status === 'waiting' ? (
+          <Button leftIcon="square" onClick={props.onStopWaitingTask} variant="secondary">
+            Stop
+          </Button>
+        ) : null}
         {props.ownerAgent !== null ? renderOwnerSummary(props) : null}
       </AppBox>
       <AppTextarea
