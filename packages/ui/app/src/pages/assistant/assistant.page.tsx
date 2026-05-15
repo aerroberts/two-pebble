@@ -154,7 +154,7 @@ export function AssistantPage() {
 
   if (state.settingsLoaded && state.registryId === null) {
     return (
-      <PageLayout width="fixed">
+      <PageLayout width="full">
         <Header subtitle="Pick the agent that powers the Assistant.">Assistant</Header>
         <Section>
           <Surface>
@@ -197,7 +197,7 @@ export function AssistantPage() {
 
   if (viewMode === 'direct') {
     return (
-      <ChatPageLayout footer={<ConfirmDialog controller={confirm} />} header={header} width="fixed">
+      <ChatPageLayout footer={<ConfirmDialog controller={confirm} />} header={header} width="full">
         <div className="flex h-full min-h-0 flex-col">
           {/* Upper region: traces aligned to the bottom edge so the latest
               content sits right above the input cluster. Flex-1 so it
