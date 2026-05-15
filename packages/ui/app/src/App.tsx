@@ -1,6 +1,6 @@
 import { LoadingPage, NotConnectedPage } from '@two-pebble/components';
 import { useRealtimeConnection } from '@two-pebble/realtime';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { DeveloperRoutes } from './developer-routes';
 import { AgentsAppShell } from './layouts/agents-app-shell';
 import { ConfigurationAppShell } from './layouts/configuration-app-shell';
@@ -33,6 +33,7 @@ import { RedirectToDeveloperThread } from './redirect-to-developer-thread';
 
 export function App() {
   const connection = useRealtimeConnection();
+  const location = useLocation();
 
   if (connection.status === 'connecting') {
     return <LoadingPage />;
@@ -42,202 +43,210 @@ export function App() {
     return <NotConnectedPage />;
   }
 
+  // Keying the Routes wrapper on `location.pathname` remounts the page
+  // shell on every navigation. The `.page-route-fade-in` class drives a
+  // ~180ms fade-up animation on the new layout. We rely on React's
+  // unmount to clear the old layout immediately — combined with the
+  // sidebar's own slide-in this reads as a coordinated transition without
+  // requiring a presence library to hold the exiting tree around.
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/agents/new" replace />} />
-      <Route
-        path="/assistant"
-        element={
-          <MainAppShell>
-            <AssistantPage />
-          </MainAppShell>
-        }
-      />
-      <Route path="/agents" element={<Navigate to="/agents/new" replace />} />
-      <Route
-        path="/agents/new"
-        element={
-          <AgentsAppShell>
-            <AgentsPage />
-          </AgentsAppShell>
-        }
-      />
-      <Route
-        path="/agents/:agentId"
-        element={
-          <AgentsAppShell>
-            <AgentDetailPage />
-          </AgentsAppShell>
-        }
-      />
-      <Route
-        path="/agents/:agentId/model-calls/:modelCallId"
-        element={
-          <AgentsAppShell>
-            <ModelCallDetailPage />
-          </AgentsAppShell>
-        }
-      />
-      <Route path="/threads" element={<Navigate to="/developer/agents/thread-log" replace />} />
-      <Route path="/threads/:threadId" element={<RedirectToDeveloperThread />} />
-      <Route path="/threads/:threadId/:orderId" element={<RedirectToDeveloperThread />} />
-      <Route
-        path="/tasks"
-        element={
-          <MainAppShell>
-            <TasksPage />
-          </MainAppShell>
-        }
-      />
-      <Route
-        path="/tasks/:boardId"
-        element={
-          <MainAppShell>
-            <TaskBoardPage />
-          </MainAppShell>
-        }
-      />
-      <Route
-        path="/metrics"
-        element={
-          <MetricsAppShell>
-            <MetricsExplorerPage />
-          </MetricsAppShell>
-        }
-      />
-      <Route path="/metrics/pricing" element={<Navigate to="/metrics/pricing/overview" replace />} />
-      <Route
-        path="/metrics/pricing/overview"
-        element={
-          <MetricsAppShell>
-            <PricingOverviewPage />
-          </MetricsAppShell>
-        }
-      />
-      <Route
-        path="/metrics/pricing/explorer"
-        element={
-          <MetricsAppShell>
-            <PricingExplorerPage />
-          </MetricsAppShell>
-        }
-      />
-      <Route
-        path="/metrics/:metricName"
-        element={
-          <MetricsAppShell>
-            <MetricDetailPage />
-          </MetricsAppShell>
-        }
-      />
-      <Route path="/configuration" element={<Navigate to="/configuration/integrations" replace />} />
-      <Route
-        path="/configuration/integrations"
-        element={
-          <ConfigurationAppShell>
-            <IntegrationsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/integrations/:integrationId"
-        element={
-          <ConfigurationAppShell>
-            <IntegrationSettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/inference-profiles"
-        element={
-          <ConfigurationAppShell>
-            <InferenceProfilesPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/inference-profiles/:inferenceProfileId"
-        element={
-          <ConfigurationAppShell>
-            <InferenceProfileSettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/third-party-agents"
-        element={
-          <ConfigurationAppShell>
-            <ThirdPartyAgentsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/third-party-agents/:installId"
-        element={
-          <ConfigurationAppShell>
-            <ThirdPartyAgentSettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/agent-registries"
-        element={
-          <ConfigurationAppShell>
-            <AgentRegistriesPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/agent-registries/:registryId"
-        element={
-          <ConfigurationAppShell>
-            <AgentRegistrySettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/repositories"
-        element={
-          <ConfigurationAppShell>
-            <RepositoriesPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/repositories/:repositoryId"
-        element={
-          <ConfigurationAppShell>
-            <RepositorySettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route path="/configuration/speech" element={<Navigate to="/configuration/voice" replace />} />
-      <Route
-        path="/configuration/voice"
-        element={
-          <ConfigurationAppShell>
-            <VoiceSettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/assistant"
-        element={
-          <ConfigurationAppShell>
-            <AssistantSettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route
-        path="/configuration/theme"
-        element={
-          <ConfigurationAppShell>
-            <ThemeSettingsPage />
-          </ConfigurationAppShell>
-        }
-      />
-      <Route path="/developer/*" element={<DeveloperRoutes />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <div className="page-route-fade-in flex h-full min-h-0 flex-1 flex-col" key={location.pathname}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/agents/new" replace />} />
+        <Route
+          path="/assistant"
+          element={
+            <MainAppShell>
+              <AssistantPage />
+            </MainAppShell>
+          }
+        />
+        <Route path="/agents" element={<Navigate to="/agents/new" replace />} />
+        <Route
+          path="/agents/new"
+          element={
+            <AgentsAppShell>
+              <AgentsPage />
+            </AgentsAppShell>
+          }
+        />
+        <Route
+          path="/agents/:agentId"
+          element={
+            <AgentsAppShell>
+              <AgentDetailPage />
+            </AgentsAppShell>
+          }
+        />
+        <Route
+          path="/agents/:agentId/model-calls/:modelCallId"
+          element={
+            <AgentsAppShell>
+              <ModelCallDetailPage />
+            </AgentsAppShell>
+          }
+        />
+        <Route path="/threads" element={<Navigate to="/developer/agents/thread-log" replace />} />
+        <Route path="/threads/:threadId" element={<RedirectToDeveloperThread />} />
+        <Route path="/threads/:threadId/:orderId" element={<RedirectToDeveloperThread />} />
+        <Route
+          path="/tasks"
+          element={
+            <MainAppShell>
+              <TasksPage />
+            </MainAppShell>
+          }
+        />
+        <Route
+          path="/tasks/:boardId"
+          element={
+            <MainAppShell>
+              <TaskBoardPage />
+            </MainAppShell>
+          }
+        />
+        <Route
+          path="/metrics"
+          element={
+            <MetricsAppShell>
+              <MetricsExplorerPage />
+            </MetricsAppShell>
+          }
+        />
+        <Route path="/metrics/pricing" element={<Navigate to="/metrics/pricing/overview" replace />} />
+        <Route
+          path="/metrics/pricing/overview"
+          element={
+            <MetricsAppShell>
+              <PricingOverviewPage />
+            </MetricsAppShell>
+          }
+        />
+        <Route
+          path="/metrics/pricing/explorer"
+          element={
+            <MetricsAppShell>
+              <PricingExplorerPage />
+            </MetricsAppShell>
+          }
+        />
+        <Route
+          path="/metrics/:metricName"
+          element={
+            <MetricsAppShell>
+              <MetricDetailPage />
+            </MetricsAppShell>
+          }
+        />
+        <Route path="/configuration" element={<Navigate to="/configuration/integrations" replace />} />
+        <Route
+          path="/configuration/integrations"
+          element={
+            <ConfigurationAppShell>
+              <IntegrationsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/integrations/:integrationId"
+          element={
+            <ConfigurationAppShell>
+              <IntegrationSettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/inference-profiles"
+          element={
+            <ConfigurationAppShell>
+              <InferenceProfilesPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/inference-profiles/:inferenceProfileId"
+          element={
+            <ConfigurationAppShell>
+              <InferenceProfileSettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/third-party-agents"
+          element={
+            <ConfigurationAppShell>
+              <ThirdPartyAgentsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/third-party-agents/:installId"
+          element={
+            <ConfigurationAppShell>
+              <ThirdPartyAgentSettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/agent-registries"
+          element={
+            <ConfigurationAppShell>
+              <AgentRegistriesPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/agent-registries/:registryId"
+          element={
+            <ConfigurationAppShell>
+              <AgentRegistrySettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/repositories"
+          element={
+            <ConfigurationAppShell>
+              <RepositoriesPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/repositories/:repositoryId"
+          element={
+            <ConfigurationAppShell>
+              <RepositorySettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route path="/configuration/speech" element={<Navigate to="/configuration/voice" replace />} />
+        <Route
+          path="/configuration/voice"
+          element={
+            <ConfigurationAppShell>
+              <VoiceSettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/assistant"
+          element={
+            <ConfigurationAppShell>
+              <AssistantSettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/theme"
+          element={
+            <ConfigurationAppShell>
+              <ThemeSettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route path="/developer/*" element={<DeveloperRoutes />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
   );
 }
