@@ -10,8 +10,15 @@ import {
   Surface,
 } from '@two-pebble/components';
 import type { MetricAggregateBucket, MetricVariant } from '@two-pebble/protocol';
-import { useAgents, useInferenceProfiles, useIntegrations, useRealtimeDatastore } from '@two-pebble/realtime';
+import {
+  useAgentRegistries,
+  useAgents,
+  useInferenceProfiles,
+  useIntegrations,
+  useRealtimeDatastore,
+} from '@two-pebble/realtime';
 import { useEffect, useMemo, useState } from 'react';
+import { buildPricingLabelLookup, type PricingLabelLookup } from './pricing-label-lookup';
 
 type LoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 interface RangeOption {
@@ -71,6 +78,7 @@ function FilterField(props: FilterFieldProps) {
 export function PricingExplorerPage() {
   const datastore = useRealtimeDatastore();
   const agents = useAgents();
+  const agentRegistries = useAgentRegistries();
   const integrations = useIntegrations();
   const inferenceProfiles = useInferenceProfiles();
   const [metric, setMetric] = useState<MetricKey>('pricing.total');
@@ -136,28 +144,16 @@ export function PricingExplorerPage() {
     };
   }, [datastore, metric, range, dimensionFilter]);
 
-  const labelLookup = useMemo<Record<FilterKey, Map<string, string>>>(() => {
-    const agentMap = new Map<string, string>();
-    for (const agent of agents.values()) {
-      agentMap.set(agent.id, agent.name || agent.id);
-    }
-    const integrationMap = new Map<string, string>();
-    for (const integration of integrations.values()) {
-      integrationMap.set(integration.id, integration.name || integration.id);
-    }
-    const profileMap = new Map<string, string>();
-    for (const profile of inferenceProfiles.values()) {
-      profileMap.set(profile.id, profile.name || profile.id);
-    }
-    return {
-      charge: new Map(),
-      provider: new Map(),
-      modelId: new Map(),
-      agentId: agentMap,
-      inferenceProfileId: profileMap,
-      integrationId: integrationMap,
-    };
-  }, [agents, integrations, inferenceProfiles]);
+  const labelLookup = useMemo<PricingLabelLookup>(
+    () =>
+      buildPricingLabelLookup({
+        agents: agents.values(),
+        agentRegistries: agentRegistries.values(),
+        inferenceProfiles: inferenceProfiles.values(),
+        integrations: integrations.values(),
+      }),
+    [agents, agentRegistries, integrations, inferenceProfiles],
+  );
 
   const filterOptions = useMemo<Record<FilterKey, { value: string; label: string }[]>>(() => {
     const collected: Record<FilterKey, Set<string>> = {
