@@ -1,17 +1,41 @@
 import { AppBox, AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection } from '@two-pebble/components';
 import { type AutomationRecord, useAutomations } from '@two-pebble/realtime';
+import { CircleSlash, MousePointerClick } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { formatCadenceLabel } from '../pages/automations/automation-format';
 import type { AppShellProps } from './app-shell-props';
 import { MainAppShell } from './main-app-shell';
+
+function AutomationBadge({ automation }: { automation: AutomationRecord }) {
+  if (!automation.enabled) {
+    return (
+      <span className="inline-flex items-center opacity-40" title="Disabled">
+        <CircleSlash size={12} />
+      </span>
+    );
+  }
+  if (automation.intervalUnit === 'manual') {
+    return (
+      <span className="inline-flex items-center" title="Manual">
+        <MousePointerClick size={12} />
+      </span>
+    );
+  }
+  return (
+    <span
+      className="font-mono text-[10px] font-semibold"
+      title={`Every ${automation.intervalValue} ${automation.intervalUnit}`}
+    >
+      {formatCadenceLabel(automation)}
+    </span>
+  );
+}
 
 export function AutomationsAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const automations = useAutomations();
   const list = automations.values().sort((left, right) => left.name.localeCompare(right.name));
-  const active = list.filter((automation) => automation.enabled && automation.intervalUnit !== 'manual');
-  const manual = list.filter((automation) => automation.enabled && automation.intervalUnit === 'manual');
-  const disabled = list.filter((automation) => !automation.enabled);
 
   return (
     <MainAppShell>
@@ -24,58 +48,27 @@ export function AutomationsAppShell(props: AppShellProps) {
               label="New automation"
               onClick={() => navigate('/automations/new')}
             />
-            <AutomationSection
-              automations={active}
-              locationPathname={location.pathname}
-              navigate={navigate}
-              title="Active"
-            />
-            <AutomationSection
-              automations={manual}
-              locationPathname={location.pathname}
-              navigate={navigate}
-              title="Manual"
-            />
-            <AutomationSection
-              automations={disabled}
-              defaultCollapsed
-              locationPathname={location.pathname}
-              navigate={navigate}
-              title="Disabled"
-            />
+            <SidebarSection title="Automations">
+              {list.length === 0 ? (
+                <AppBox variant="sidebar-empty">No automations.</AppBox>
+              ) : (
+                list.map((automation) => (
+                  <SidebarOption
+                    active={location.pathname === `/automations/${automation.id}`}
+                    badge={<AutomationBadge automation={automation} />}
+                    icon={automation.intervalUnit === 'manual' ? 'play' : 'clock'}
+                    key={automation.id}
+                    label={automation.name}
+                    onClick={() => navigate(`/automations/${automation.id}`)}
+                  />
+                ))
+              )}
+            </SidebarSection>
           </Sidebar>
         }
       >
         {props.children}
       </AuxiliarySidebarLayout>
     </MainAppShell>
-  );
-}
-
-interface AutomationSectionProps {
-  automations: AutomationRecord[];
-  defaultCollapsed?: boolean;
-  locationPathname: string;
-  navigate: (path: string) => void;
-  title: string;
-}
-
-function AutomationSection(props: AutomationSectionProps) {
-  return (
-    <SidebarSection collapsible defaultCollapsed={props.defaultCollapsed} title={props.title}>
-      {props.automations.length === 0 ? (
-        <AppBox variant="sidebar-empty">No automations.</AppBox>
-      ) : (
-        props.automations.map((automation) => (
-          <SidebarOption
-            active={props.locationPathname === `/automations/${automation.id}`}
-            icon={automation.intervalUnit === 'manual' ? 'play' : 'clock'}
-            key={automation.id}
-            label={automation.name}
-            onClick={() => props.navigate(`/automations/${automation.id}`)}
-          />
-        ))
-      )}
-    </SidebarSection>
   );
 }
