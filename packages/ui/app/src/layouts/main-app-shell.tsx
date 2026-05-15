@@ -7,6 +7,7 @@ import {
   SidebarSection,
   TwoPebbleLogo,
 } from '@two-pebble/components';
+import { useAgents } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppShellProps } from './app-shell-props';
 import { ConfigurationSidebar } from './configuration-sidebar';
@@ -19,6 +20,8 @@ type SidebarNavigate = (path: string) => void;
 export function MainAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const agents = useAgents();
+  const activeAgentCount = agents.values().filter((agent) => agent.status === 'running').length;
   const mode = getSidebarMode(location.pathname);
 
   return (
@@ -55,7 +58,7 @@ export function MainAppShell(props: AppShellProps) {
           }
           tone={mode === 'main' ? 'default' : 'auxiliary'}
         >
-          {renderSidebarContent(mode, location.pathname, navigate)}
+          {renderSidebarContent(mode, location.pathname, navigate, activeAgentCount)}
         </Sidebar>
       }
     >
@@ -64,7 +67,12 @@ export function MainAppShell(props: AppShellProps) {
   );
 }
 
-function renderSidebarContent(mode: SidebarMode, pathname: string, navigate: SidebarNavigate) {
+function renderSidebarContent(
+  mode: SidebarMode,
+  pathname: string,
+  navigate: SidebarNavigate,
+  activeAgentCount: number,
+) {
   if (mode === 'configuration') {
     return (
       <>
@@ -101,6 +109,16 @@ function renderSidebarContent(mode: SidebarMode, pathname: string, navigate: Sid
         />
         <SidebarOption
           active={pathname.startsWith('/agents') || pathname.startsWith('/threads')}
+          badge={
+            activeAgentCount > 0 ? (
+              <span
+                aria-label={`${activeAgentCount} ${activeAgentCount === 1 ? 'agent' : 'agents'} active`}
+                role="status"
+              >
+                {activeAgentCount} active
+              </span>
+            ) : undefined
+          }
           icon="bot"
           label="Agents"
           onClick={() => navigate('/agents')}
