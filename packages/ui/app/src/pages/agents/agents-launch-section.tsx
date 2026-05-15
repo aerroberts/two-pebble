@@ -17,6 +17,7 @@ interface AgentsLaunchSectionProps {
 export function AgentsLaunchSection(props: AgentsLaunchSectionProps) {
   const [voiceStatus, setVoiceStatus] = useState<VoiceCaptureStatus>('idle');
   const isRecording = voiceStatus === 'recording';
+  const launchDisabled = props.launching || props.message.trim().length === 0 || props.agentRegistryId.length === 0;
   return (
     <Section title="Launch">
       <Surface>
@@ -32,6 +33,15 @@ export function AgentsLaunchSection(props: AgentsLaunchSectionProps) {
           disabled={isRecording}
           label="Message"
           onChange={(event) => props.onMessageChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              if (!launchDisabled) {
+                props.onLaunchAgent();
+              }
+            }
+          }}
+          placeholder="Enter to launch, Shift+Enter for newline"
           value={props.message}
         />
         <div
@@ -50,11 +60,7 @@ export function AgentsLaunchSection(props: AgentsLaunchSectionProps) {
                 isRecording ? 'max-w-0 opacity-0 -ml-2' : 'max-w-[14rem] opacity-100'
               }`}
             >
-              <Button
-                disabled={props.launching || props.message.trim().length === 0 || props.agentRegistryId.length === 0}
-                onClick={props.onLaunchAgent}
-                rightIcon="arrow-right"
-              >
+              <Button disabled={launchDisabled} onClick={props.onLaunchAgent} rightIcon="arrow-right">
                 {props.launching ? 'Launching' : 'Launch agent'}
               </Button>
             </div>
