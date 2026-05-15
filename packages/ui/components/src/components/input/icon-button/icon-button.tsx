@@ -27,7 +27,7 @@ export function IconButton(props: IconButtonProps) {
     variant === 'secondary'
       ? 'bg-transparent text-content hover:bg-surface-hover'
       : 'bg-accent text-accent-content hover:bg-accent-hover';
-  const disabledClass = disabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer hover:scale-105 active:scale-95';
+  const disabledClass = disabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer active:scale-95';
 
   const isNumericSize = typeof size === 'number';
   const sizeClass = isNumericSize ? '' : sizePresetClasses[size];
