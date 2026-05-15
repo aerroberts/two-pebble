@@ -37,7 +37,9 @@ export function WorktreesList(props: WorktreesListProps) {
               variant="secondary"
             />
           ),
-        value: <Status label={STATUS_LABEL[entry.value.status]} state={STATUS_STATE[entry.value.status]} variant="pill" />,
+        value: (
+          <Status label={STATUS_LABEL[entry.value.status]} state={STATUS_STATE[entry.value.status]} variant="pill" />
+        ),
       }))}
     />
   );
