@@ -10,7 +10,7 @@ import {
 import { useAgents } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppShellProps } from './app-shell-props';
-import { AssistantFab } from './assistant-fab';
+import { AssistantCommandK } from './assistant-command-k';
 import { ConfigurationSidebar } from './configuration-sidebar';
 import { DeveloperSidebar } from './developer-sidebar';
 import { MetricsSidebar } from './metrics-sidebar';
@@ -64,7 +64,7 @@ export function MainAppShell(props: AppShellProps) {
       }
     >
       {props.children}
-      <AssistantFab />
+      <AssistantCommandK />
     </SidebarLayout>
   );
 }

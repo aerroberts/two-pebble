@@ -24,7 +24,8 @@ export function VoiceSettingsPage() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
-      assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
+      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
     });
   };
 
@@ -37,7 +38,8 @@ export function VoiceSettingsPage() {
       defaultSpeechProfileId: value === NONE_VALUE ? null : value,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
-      assistantFabEnabled: settings.assistantFabEnabled,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
+      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
     });
   };
 

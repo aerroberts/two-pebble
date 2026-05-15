@@ -1,6 +1,6 @@
 import type { IconButtonSize } from '@two-pebble/components';
 import { AppBox, AppButton, Icon, IconButton, VoiceWaveformDisplay } from '@two-pebble/components';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useVoiceCapture, type VoiceCaptureStatus } from './use-voice-capture';
 
 interface VoiceCaptureButtonProps {
@@ -22,6 +22,12 @@ interface VoiceCaptureButtonProps {
   buttonSize?: IconButtonSize | number;
   /** Variant of the idle / non-recording mic button. Defaults to secondary. */
   buttonVariant?: 'primary' | 'secondary';
+  /**
+   * Auto-start recording on first mount once the capture pipeline is ready.
+   * Used by surfaces that open into voice mode (e.g. cmd-K with the
+   * "start in voice mode" setting on).
+   */
+  autoStart?: boolean;
 }
 
 export function VoiceCaptureButton(props: VoiceCaptureButtonProps) {
@@ -32,10 +38,19 @@ export function VoiceCaptureButton(props: VoiceCaptureButtonProps) {
   const ariaLabel = ariaLabelForStatus(capture.status, capture.disabledReason);
   const onStatusChange = props.onStatusChange;
   const hideStop = props.submitOnly === true && capture.canSubmit;
+  const autoStartedRef = useRef(false);
 
   useEffect(() => {
     onStatusChange?.(capture.status);
   }, [capture.status, onStatusChange]);
+
+  useEffect(() => {
+    if (!props.autoStart || autoStartedRef.current || capture.disabled || capture.status !== 'idle') {
+      return;
+    }
+    autoStartedRef.current = true;
+    capture.onClick();
+  }, [props.autoStart, capture.disabled, capture.status, capture.onClick]);
 
   if (capture.status === 'recording') {
     return (

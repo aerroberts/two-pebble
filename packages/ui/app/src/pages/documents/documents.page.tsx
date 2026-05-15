@@ -43,7 +43,7 @@ export function DocumentsPage() {
           icon: 'file-text',
           key: document.id,
           onClick: () => navigate(`/documents/${document.id}`),
-          trailingAccessory: <RelativeTime date={document.updatedAt} />,
+          trailingAccessory: <RelativeTime date={document.updatedAt} hideIcon />,
           title: document.name.length > 0 ? document.name : 'Untitled',
         }))}
       />

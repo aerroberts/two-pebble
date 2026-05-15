@@ -288,6 +288,20 @@
       "when": 1781985600000,
       "tag": "0040_drop_task_dispatch_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1782072000000,
+      "tag": "0041_app_settings_assistant_command_k",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "6",
+      "when": 1782158400000,
+      "tag": "0042_app_settings_command_k_voice_mode",
+      "breakpoints": true
     }
   ]
 }
