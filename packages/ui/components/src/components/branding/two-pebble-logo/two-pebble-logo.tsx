@@ -9,6 +9,8 @@ export interface TwoPebbleLogoProps extends Omit<HTMLAttributes<HTMLDivElement>,
   withText?: boolean;
   /** Overrides the wordmark rendered when `withText` is true. */
   text?: string;
+  /** Additional classes applied to the SVG. When provided, the default size class from `size` is dropped so the caller controls sizing/animation. */
+  svgClassName?: string;
 }
 
 const logoSizeClassName: Record<TwoPebbleLogoSize, string> = {
@@ -17,11 +19,12 @@ const logoSizeClassName: Record<TwoPebbleLogoSize, string> = {
 };
 
 export function TwoPebbleLogo(props: TwoPebbleLogoProps) {
-  const { size = 'small', withText = false, text, className, ...rest } = props;
+  const { size = 'small', withText = false, text, className, svgClassName: svgClassNameOverride, ...rest } = props;
   const wordmark = text ?? 'Two Pebble';
   const gapClassName = withText ? 'gap-3' : 'gap-0';
   const containerClassName = `inline-flex items-center ${gapClassName} ${className ?? ''}`.trim();
-  const svgClassName = `${logoSizeClassName[size]} shrink-0 fill-current text-content`;
+  const sizeClassName = svgClassNameOverride ? '' : logoSizeClassName[size];
+  const svgClassName = `${sizeClassName} shrink-0 fill-current text-content ${svgClassNameOverride ?? ''}`.trim();
 
   return (
     <div className={containerClassName} {...rest}>
