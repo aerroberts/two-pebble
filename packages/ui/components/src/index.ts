@@ -7,8 +7,8 @@ export {
   AgentPriceTotal,
   type AgentPriceTotalProps,
   type PriceChartMode,
-  priceChartModeOptions,
   type PriceLineItemListMode,
+  priceChartModeOptions,
   priceLineItemListModeOptions,
 } from './components/agents/agent-price-summary';
 export {
@@ -229,6 +229,11 @@ export {
   type NotConnectedPageProps,
 } from './components/states/not-connected-page/not-connected-page';
 export { NotFoundPage, type NotFoundPageProps } from './components/states/not-found-page/not-found-page';
+export {
+  ConcurrencyIndicator,
+  type ConcurrencyIndicatorProps,
+  type ConcurrencyIntensity,
+} from './components/tasks/concurrency-indicator/concurrency-indicator';
 export {
   TaskGraph,
   type TaskGraphInput,
