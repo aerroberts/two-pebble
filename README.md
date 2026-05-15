@@ -67,3 +67,9 @@ bun run test
 bun run guard
 bun run build
 ```
+
+## One More Thing
+
+Why do programmers prefer dark mode?
+
+Because light attracts bugs.
