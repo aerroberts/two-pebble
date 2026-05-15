@@ -1,5 +1,6 @@
 import { AgentTrace, Section, Surface } from '@two-pebble/components';
 import type { AgentTraceRecord, LoadableRegistry } from '@two-pebble/realtime';
+import { useStickWindowToBottom } from '../../shared/scroll/use-stick-window-to-bottom';
 
 interface AgentDetailTraceViewProps {
   agentLoaded: boolean;
@@ -13,6 +14,7 @@ interface AgentDetailTraceViewProps {
 }
 
 export function AgentDetailTraceView(props: AgentDetailTraceViewProps) {
+  useStickWindowToBottom();
   return (
     <Section>
       {props.agentLoaded ? null : <Surface>Loading agent.</Surface>}
