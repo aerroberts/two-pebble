@@ -1,4 +1,4 @@
-import { ClaudeCodeLogo, ListLayout, ProviderLogo, Section } from '@two-pebble/components';
+import { ClaudeCodeLogo, CodexLogo, ListLayout, ProviderLogo, Section } from '@two-pebble/components';
 import type {
   AgentRegistryRecord,
   InferenceProfileRecord,
@@ -77,7 +77,7 @@ function buildFrameworkListItem(
       ? null
       : (installs.getItem(registry.thirdPartyAgentInstallId)?.value ?? null);
   return {
-    icon: <ClaudeCodeLogo size="xs" />,
+    icon: install?.frameworkId === 'codex' ? <CodexLogo size="xs" /> : <ClaudeCodeLogo size="xs" />,
     key: registry.id,
     onClick: () => onRegistryClick(registry.id),
     subtitle: getInstallLabel(install),

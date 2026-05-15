@@ -213,9 +213,11 @@ export type {
   UpdateTaskTemplateInput,
 } from './states/tasks/types';
 export type { DetectClaudeCodeResult } from './states/third-party-agent-installs/detect-claude-code-result';
+export type { DetectCodexResult } from './states/third-party-agent-installs/detect-codex-result';
 export { useCreateThirdPartyAgentInstall } from './states/third-party-agent-installs/hooks/use-create-third-party-agent-install.hook';
 export { useDeleteThirdPartyAgentInstall } from './states/third-party-agent-installs/hooks/use-delete-third-party-agent-install.hook';
 export { useDetectClaudeCode } from './states/third-party-agent-installs/hooks/use-detect-claude-code.hook';
+export { useDetectCodex } from './states/third-party-agent-installs/hooks/use-detect-codex.hook';
 export { useThirdPartyAgentInstalls } from './states/third-party-agent-installs/hooks/use-third-party-agent-installs.hook';
 export { useUpdateThirdPartyAgentInstall } from './states/third-party-agent-installs/hooks/use-update-third-party-agent-install.hook';
 export type {

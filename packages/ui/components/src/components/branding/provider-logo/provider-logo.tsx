@@ -10,6 +10,7 @@ export interface ProviderLogoProps {
 const providerLogoUrls: Record<string, string> = {
   anthropic: new URL('./anthropic.png', import.meta.url).href,
   'claude-code': new URL('./claude.png', import.meta.url).href,
+  codex: new URL('./openai.png', import.meta.url).href,
   ollama: new URL('./ollama.png', import.meta.url).href,
   openai: new URL('./openai.png', import.meta.url).href,
   openrouter: new URL('./open-router.png', import.meta.url).href,
@@ -19,6 +20,7 @@ const providerLogoUrls: Record<string, string> = {
 const providerLogoLabels: Record<string, string> = {
   anthropic: 'Anthropic',
   'claude-code': 'Claude Code',
+  codex: 'OpenAI Codex',
   ollama: 'Ollama',
   openai: 'OpenAI',
   openrouter: 'OpenRouter',
@@ -72,4 +74,8 @@ export function GitLogo(props: Omit<ProviderLogoProps, 'provider'>) {
 
 export function ClaudeCodeLogo(props: Omit<ProviderLogoProps, 'provider'>) {
   return <ProviderLogo provider="claude-code" size={props.size} />;
+}
+
+export function CodexLogo(props: Omit<ProviderLogoProps, 'provider'>) {
+  return <ProviderLogo provider="codex" size={props.size} />;
 }

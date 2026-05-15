@@ -6,8 +6,8 @@ import {
   renderAgentNamingInstruction,
   renderPebbleAgentNamingInstruction,
 } from '@two-pebble/pebble';
-import { ClaudeCodeAgent } from '@two-pebble/pebble/frameworks';
-import type { BuildLaunchAgentInput } from './agent-registry-types';
+import { ClaudeCodeAgent, CodexAgent, type ThirdPartyAgentFramework } from '@two-pebble/pebble/frameworks';
+import type { BuildLaunchAgentInput, BuildLaunchAgentInput_Framework } from './agent-registry-types';
 
 /**
  * Builds the runtime agent implementation for one launch request.
@@ -18,17 +18,10 @@ import type { BuildLaunchAgentInput } from './agent-registry-types';
  */
 export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
   if (input.kind === 'framework') {
-    if (input.install.frameworkId !== 'claude-code') {
-      throw new Error(`Unsupported third-party agent framework: ${input.install.frameworkId}`);
-    }
     return new FrameworkAgent({
       agentId: input.agentId,
       description: input.description,
-      framework: new ClaudeCodeAgent({
-        cwd: input.workspacePath,
-        pathToClaudeCodeExecutable: input.install.data.executablePath,
-        resumeMetadata: input.resumeMetadata,
-      }),
+      framework: buildFrameworkAdapter(input),
       freshLaunch: Object.keys(input.resumeMetadata).length === 0,
       name: input.registry.name,
       systemPrompt: composeFrameworkSystemPrompt(input.agentId, input.registry.systemPrompt),
@@ -47,6 +40,24 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
     workspacePath: input.workspacePath,
     ...(input.restoredThread === undefined ? {} : { restoredThread: input.restoredThread }),
   });
+}
+
+function buildFrameworkAdapter(input: BuildLaunchAgentInput_Framework): ThirdPartyAgentFramework {
+  if (input.install.frameworkId === 'claude-code') {
+    return new ClaudeCodeAgent({
+      cwd: input.workspacePath,
+      pathToClaudeCodeExecutable: input.install.data.executablePath,
+      resumeMetadata: input.resumeMetadata,
+    });
+  }
+  if (input.install.frameworkId === 'codex') {
+    return new CodexAgent({
+      cwd: input.workspacePath,
+      pathToCodexExecutable: input.install.data.executablePath,
+      resumeMetadata: input.resumeMetadata,
+    });
+  }
+  throw new Error(`Unsupported third-party agent framework: ${(input.install as { frameworkId: string }).frameworkId}`);
 }
 
 function composeFrameworkSystemPrompt(agentId: string, registrySystemPrompt: string): string {

@@ -1,10 +1,16 @@
-import { useCreateThirdPartyAgentInstall, useDetectClaudeCode, useThirdPartyAgentInstalls } from '@two-pebble/realtime';
+import {
+  useCreateThirdPartyAgentInstall,
+  useDetectClaudeCode,
+  useDetectCodex,
+  useThirdPartyAgentInstalls,
+} from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export function useThirdPartyAgentsPageState() {
   const createInstall = useCreateThirdPartyAgentInstall();
   const detectClaudeCodeInstall = useDetectClaudeCode();
+  const detectCodexInstall = useDetectCodex();
   const installs = useThirdPartyAgentInstalls();
   const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
@@ -45,11 +51,29 @@ export function useThirdPartyAgentsPageState() {
     }
   };
 
+  const detectCodex = async () => {
+    setActionError('');
+    setDetecting(true);
+    try {
+      const result = await detectCodexInstall();
+      if (!result.detected) {
+        setActionError('Could not find a `codex` executable on PATH. Install OpenAI Codex first.');
+        return;
+      }
+      navigate(`/configuration/third-party-agents/${result.installId}`);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Could not detect OpenAI Codex.');
+    } finally {
+      setDetecting(false);
+    }
+  };
+
   return {
     actionError,
     createBlankInstall,
     creating,
     detectClaudeCode,
+    detectCodex,
     detecting,
     installs,
     navigate,

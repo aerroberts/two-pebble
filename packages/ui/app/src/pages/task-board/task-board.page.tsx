@@ -16,6 +16,7 @@ import type {
   ProtocolTaskRecord,
   TaskDependencyRecord,
   TaskPoolRecord,
+  ThirdPartyAgentInstallRecord,
 } from '@two-pebble/realtime';
 import { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -77,7 +78,9 @@ export function TaskBoardPage() {
       onDelegate={(agentRegistryId: string) => void state.delegateSelectedTask(agentRegistryId)}
       onUndelegate={() => void state.undelegateSelectedTask()}
       onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
-      delegateAgents={state.agentRegistries.map((registry) => toDelegateOption(registry, state.inferenceProfiles))}
+      delegateAgents={state.agentRegistries.map((registry) =>
+        toDelegateOption(registry, state.inferenceProfiles, state.installs),
+      )}
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
       submissions={state.selectedTaskDeliverableSubmissions}
@@ -150,6 +153,7 @@ export function TaskBoardPage() {
             poolDispatchSettings={state.poolDispatchSettings}
             agentRegistries={state.agentRegistries}
             inferenceProfiles={state.inferenceProfiles}
+            installs={state.installs}
             onSaveDispatchSettings={(input) => void state.saveDispatchSettings(input)}
             templates={state.taskTemplates}
             onCreateTemplate={(input) => void state.createTaskTemplate(input)}
@@ -202,9 +206,13 @@ function toListPool(pool: TaskPoolRecord) {
   return { id: pool.id, name: pool.name, parentPoolId: pool.parentPoolId };
 }
 
-function toDelegateOption(registry: AgentRegistryRecord, profiles: LoadableRegistry<InferenceProfileRecord>) {
+function toDelegateOption(
+  registry: AgentRegistryRecord,
+  profiles: LoadableRegistry<InferenceProfileRecord>,
+  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>,
+) {
   return {
-    icon: agentRegistryIcon(registry, profiles),
+    icon: agentRegistryIcon(registry, profiles, installs),
     label: registry.name,
     value: registry.id,
   };

@@ -1,4 +1,4 @@
-import { ClaudeCodeLogo, ProviderLogo } from '@two-pebble/components';
+import { ClaudeCodeLogo, CodexLogo, ProviderLogo } from '@two-pebble/components';
 import {
   useAgentRegistries,
   useDeleteAgentRegistry,
@@ -63,7 +63,7 @@ export function useAgentRegistrySettingsPageState() {
     .values()
     .sort((left, right) => left.name.localeCompare(right.name))
     .map((install) => ({
-      icon: createElement(ClaudeCodeLogo, { size: 'xs' }),
+      icon: createElement(install.frameworkId === 'codex' ? CodexLogo : ClaudeCodeLogo, { size: 'xs' }),
       label: install.name.length > 0 ? install.name : install.frameworkId,
       value: install.id,
     }));
@@ -182,6 +182,7 @@ export function useAgentRegistrySettingsPageState() {
     inferenceProfileOptions,
     inferenceProfiles,
     installOptions,
+    installs,
     name,
     otherRegistryOptions,
     redirectToRegistries: registryId.length === 0,

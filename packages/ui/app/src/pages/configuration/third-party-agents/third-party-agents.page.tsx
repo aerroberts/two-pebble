@@ -1,4 +1,14 @@
-import { Button, ClaudeCodeLogo, Header, ListLayout, PageLayout, Row, Section, Surface } from '@two-pebble/components';
+import {
+  Button,
+  ClaudeCodeLogo,
+  CodexLogo,
+  Header,
+  ListLayout,
+  PageLayout,
+  Row,
+  Section,
+  Surface,
+} from '@two-pebble/components';
 import type { ThirdPartyAgentInstallRecord } from '@two-pebble/realtime';
 import { useThirdPartyAgentsPageState } from './use-third-party-agents-page-state';
 
@@ -20,6 +30,15 @@ export function ThirdPartyAgentsPage() {
               variant="secondary"
             >
               {state.detecting ? 'Detecting' : 'Detect Claude Code'}
+            </Button>
+            <Button
+              disabled={state.detecting}
+              leftIcon="zap"
+              onClick={() => void state.detectCodex()}
+              type="button"
+              variant="secondary"
+            >
+              {state.detecting ? 'Detecting' : 'Detect Codex'}
             </Button>
             <Button
               disabled={state.creating}
@@ -55,7 +74,7 @@ type NavigateFn = (path: string) => void;
 
 function buildInstallListItem(install: ThirdPartyAgentInstallRecord, navigate: NavigateFn): InstallListItem {
   return {
-    icon: <ClaudeCodeLogo size="xs" />,
+    icon: install.frameworkId === 'codex' ? <CodexLogo size="xs" /> : <ClaudeCodeLogo size="xs" />,
     key: install.id,
     onClick: () => navigate(`/configuration/third-party-agents/${install.id}`),
     subtitle: install.data.executablePath.length > 0 ? install.data.executablePath : 'No executable path configured',
