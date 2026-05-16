@@ -47,7 +47,7 @@ export function useTaskBoardPageState() {
   const board = taskBoards.getItem(boardId)?.value ?? null;
   const [boardNameDraft, setBoardNameDraft] = useState('');
   const [taskNameDraft, setTaskNameDraft] = useState('');
-  const [view, setView] = useState<TaskBoardView>('graph');
+  const [view, setView] = useState<TaskBoardView>('list');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [delegating, setDelegating] = useState(false);
   const [error, setError] = useState('');
