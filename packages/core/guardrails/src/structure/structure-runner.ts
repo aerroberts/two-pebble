@@ -12,11 +12,13 @@ export class StructureRunner {
   private readonly reporters = new Map<string, Reporter>();
   private readonly scannedFiles = new Set<string>();
   private readonly variables = new Map<string, Set<string>>();
+  private readonly packageDir: string;
+  private readonly config: GuardrailConfig;
 
-  public constructor(
-    private readonly packageDir: string,
-    private readonly config: GuardrailConfig,
-  ) {}
+  public constructor(packageDir: string, config: GuardrailConfig) {
+    this.packageDir = packageDir;
+    this.config = config;
+  }
 
   /**
    * Evaluates every configured structure query.
