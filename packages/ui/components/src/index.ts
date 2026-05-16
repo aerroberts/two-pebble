@@ -133,9 +133,10 @@ export { RelativeTime, type RelativeTimeProps } from './components/data/relative
 export { Table, type TableColumn, type TableProps } from './components/data/table/table';
 export {
   deleteTriggerRange,
+  type SlashCommand,
+  SlashCommandPopover,
+  type SlashCommandPopoverProps,
   type SlashTrigger,
-  SlashTaskHint,
-  type SlashTaskHintProps,
 } from './components/editor/slash';
 export { type JSONContent, TipTapEditor, type TipTapEditorProps } from './components/editor/tiptap-editor';
 export {
