@@ -1,6 +1,9 @@
 import type { TraversalSnapshotNode } from '../types';
 import type { TraversalIndex } from './traversal-index';
 
+/**
+ * Converts indexed traversal records into stable snapshot-friendly trees.
+ */
 export class TraversalSnapshotRenderer {
   public constructor(private readonly index: TraversalIndex) {}
 

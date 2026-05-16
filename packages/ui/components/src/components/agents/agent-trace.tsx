@@ -13,15 +13,23 @@ export interface AgentTraceProps {
   onTaskClick?: (boardId: string, taskId: string) => void;
   onThreadSnapshotClick?: (threadCursor: string) => void;
   onWorktreeOpenClick?: (worktreeId: string) => void;
+  onDocumentClick?: (documentId: string) => void;
   traces: AgentTraceRecord[];
+  /**
+   * When true, render every available trace type — only sub-agent
+   * fan-in events (which are aggregated into the parent sub-agent
+   * trace) stay hidden. Use for the dedicated trace view; chat-style
+   * surfaces should leave this off to keep the abridged stream.
+   */
+  exhaustive?: boolean;
 }
 
-// Trace types that have no visible chat representation. These are intermediate or
-// lifecycle-only signals that either fall through `renderAgentTrace` without a case
-// or explicitly return `null`. Keeping them in the stream would break adjacency
-// detection for tool traces and produce stray empty wrapper divs in the layout,
-// so we filter them out before grouping.
-const NON_RENDERING_TRACE_TYPES = new Set<AgentAggregatedTraceRecord['type']>([
+// Trace types with no visible chat representation. Default chat-style streams
+// hide these so the abridged view stays clean and adjacency detection for tool
+// traces continues to work. The dedicated trace view passes `exhaustive` to
+// surface most of these (only sub-agent fan-in events stay aggregated into the
+// parent sub-agent trace).
+const CHAT_ABRIDGED_TRACE_TYPES = new Set<AgentAggregatedTraceRecord['type']>([
   'capability-hydrate',
   'signal-received',
   'signal-registered',
@@ -33,11 +41,18 @@ const NON_RENDERING_TRACE_TYPES = new Set<AgentAggregatedTraceRecord['type']>([
   'agent-waiting',
 ]);
 
+const EXHAUSTIVE_HIDDEN_TRACE_TYPES = new Set<AgentAggregatedTraceRecord['type']>([
+  'sub-agent-failure',
+  'sub-agent-invoke',
+  'sub-agent-success',
+]);
+
 // Renders persisted agent traces through one aggregated trace pipeline.
 export function AgentTrace(props: AgentTraceProps) {
+  const hiddenTypes = props.exhaustive ? EXHAUSTIVE_HIDDEN_TRACE_TYPES : CHAT_ABRIDGED_TRACE_TYPES;
   const traces = [...props.traces].sort((left, right) => left.orderId - right.orderId);
   const aggregatedTraces = aggregateAgentTraces(traces)
-    .filter((trace) => !NON_RENDERING_TRACE_TYPES.has(trace.type))
+    .filter((trace) => !hiddenTypes.has(trace.type))
     .sort((left, right) => left.orderId - right.orderId);
   const traceGroups = groupAdjacentToolTraces(aggregatedTraces);
 
@@ -66,6 +81,7 @@ export function AgentTrace(props: AgentTraceProps) {
                 onTaskClick: props.onTaskClick,
                 onThreadSnapshotClick: props.onThreadSnapshotClick,
                 onWorktreeOpenClick: props.onWorktreeOpenClick,
+                onDocumentClick: props.onDocumentClick,
               })
             )}
           </div>

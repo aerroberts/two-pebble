@@ -1,18 +1,25 @@
 import { InvalidGuardrailConfigError } from '../errors';
-import type { AdditionalRules, ExcludeEntry, GuardrailConfig, RuleConfig } from '../types';
+import type { ExcludeEntry, GuardrailConfig, StructureFindRuleConfig } from '../types';
 
-type ConfigValidationPrimitive = boolean | null | number | string;
-type ConfigValidationValue = ConfigValidationPrimitive | ConfigValidationValue[] | ConfigValidationObject | undefined;
-type ConfigValidationObjectInput = object | undefined;
+type ConfigPrimitive = boolean | null | number | string;
+type ConfigValue = ConfigPrimitive | ConfigValue[] | ConfigObject | undefined;
+type ConfigObjectInput = object | undefined;
 
-interface ConfigValidationObject {
-  [key: string]: ConfigValidationValue;
+interface ConfigObject {
+  [key: string]: ConfigValue;
 }
 
 export function validateGuardrailConfig(config: GuardrailConfig) {
   validateGroupReference(config.definition, 'definition');
   validateGroupReference(config.inherit, 'inherit');
-  validateAdditionalRules(config.additional);
+
+  if ('additional' in config) {
+    throw new InvalidGuardrailConfigError('additional is not supported; put structure checks in top-level rules.');
+  }
+
+  if (config.rules !== undefined) {
+    validateRules(config.rules, 'rules');
+  }
 
   if (config.exclude === undefined) {
     return;
@@ -27,7 +34,7 @@ export function validateGuardrailConfig(config: GuardrailConfig) {
   }
 }
 
-function validateGroupReference(value: ConfigValidationValue, field: string) {
+function validateGroupReference(value: ConfigValue, field: string) {
   if (value === undefined) {
     return;
   }
@@ -39,32 +46,26 @@ function validateGroupReference(value: ConfigValidationValue, field: string) {
   }
 }
 
-function validateAdditionalRules(additional: AdditionalRules) {
-  if (additional === undefined) {
-    return;
+function validateRules(rules: StructureFindRuleConfig[], field: string) {
+  if (!Array.isArray(rules)) {
+    throw new InvalidGuardrailConfigError(`${field} must be an array.`);
   }
 
-  if (!isObject(additional)) {
-    throw new InvalidGuardrailConfigError('additional must be an object.');
-  }
-
-  for (const [ruleName, ruleConfig] of Object.entries(additional)) {
-    if (!isObject(ruleConfig)) {
-      throw new InvalidGuardrailConfigError(`additional.${ruleName} must be an object.`);
+  for (const [index, rule] of rules.entries()) {
+    if (!isObject(rule)) {
+      throw new InvalidGuardrailConfigError(`${field}[${index}] must be an object.`);
     }
 
-    const config = ruleConfig as RuleConfig;
-
-    if ('options' in config) {
-      throw new InvalidGuardrailConfigError(
-        `additional.${ruleName}.options is not supported; put rule config fields at the top level.`,
-      );
+    if (typeof rule.find !== 'string' && !isStringArray(rule.find)) {
+      throw new InvalidGuardrailConfigError(`${field}[${index}].find must be a string or array of strings.`);
     }
 
-    if ('paths' in config) {
-      throw new InvalidGuardrailConfigError(
-        `additional.${ruleName}.paths is not supported; rules own their file matching.`,
-      );
+    if ('assert' in rule) {
+      throw new InvalidGuardrailConfigError(`${field}[${index}].assert is not supported; use rules instead.`);
+    }
+
+    if (rule.traverse !== undefined) {
+      validateRules(rule.traverse, `${field}[${index}].traverse`);
     }
   }
 }
@@ -74,31 +75,29 @@ function validateExcludeEntry(entry: ExcludeEntry, index: number) {
     throw new InvalidGuardrailConfigError(`exclude[${index}] must be an object.`);
   }
 
-  validateStringArray(entry.rules, `exclude[${index}].rules`);
+  if (entry.rules !== undefined) {
+    validateStringArray(entry.rules, `exclude[${index}].rules`);
+  }
   validateStringArray(entry.paths, `exclude[${index}].paths`);
-  validateJustification(entry.justification, index);
+  validateNonEmptyString(entry.justification, `exclude[${index}].justification`);
 }
 
-function validateJustification(justification: string, index: number) {
-  validateNonEmptyString(justification, `exclude[${index}].justification`);
-}
-
-function validateStringArray(value: ConfigValidationValue, field: string) {
-  if (!Array.isArray(value) || value.length === 0) {
+function validateStringArray(value: ConfigValue, field: string) {
+  if (!isStringArray(value)) {
     throw new InvalidGuardrailConfigError(`${field} must be a non-empty array of strings.`);
   }
-
-  for (const item of value) {
-    validateNonEmptyString(item, field);
-  }
 }
 
-function validateNonEmptyString(value: ConfigValidationValue, field: string) {
+function isStringArray(value: ConfigValue) {
+  return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === 'string' && item.length > 0);
+}
+
+function validateNonEmptyString(value: ConfigValue, field: string) {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new InvalidGuardrailConfigError(`${field} must be a non-empty string.`);
   }
 }
 
-function isObject(value: ConfigValidationObjectInput) {
+function isObject(value: ConfigObjectInput) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

@@ -2,6 +2,9 @@ import type { TraversalNodeRecord } from '../types';
 import { matchesGlob } from '../utils/glob';
 import type { TraversalIndex } from './traversal-index';
 
+/**
+ * Resolves traversal query strings against indexed traversal records.
+ */
 export class TraversalFinder {
   public constructor(private readonly index: TraversalIndex) {}
 
@@ -84,7 +87,9 @@ export class TraversalFinder {
     const siblings = parent?.childIds ?? [];
     const siblingIndex = siblings.indexOf(record.id);
     if (siblingIndex > 0) {
-      return siblings[siblingIndex - 1];
+      const siblingId = siblings[siblingIndex - 1];
+      const sibling = siblingId ? this.index.record(siblingId) : undefined;
+      return this.unwrapPreviousSibling(sibling) && sibling ? this.previousSibling(sibling.id) : siblingId;
     }
 
     return parent && this.unwrapPreviousSibling(parent) ? this.previousSibling(parent.id) : undefined;

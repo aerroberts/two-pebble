@@ -63,12 +63,13 @@ export function AgentRegistrySettingsPage() {
             />
           )}
           <RichTextFieldHost
+            key={state.registry.value.id}
             ariaLabel="System prompt"
             label="System prompt"
             minHeight={160}
             onCommit={(payload) => state.updateSystemPrompt(payload.doc)}
             placeholder="System prompt — / to reference a document"
-            value={state.systemPrompt}
+            value={state.registry.value.systemPrompt}
           />
         </Surface>
       </Section>

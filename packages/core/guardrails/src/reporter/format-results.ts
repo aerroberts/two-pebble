@@ -132,7 +132,7 @@ function formatSeparator() {
 }
 
 function ruleId(rule: string) {
-  return `@rule/${rule}`;
+  return rule;
 }
 
 function diagnosticFile(diagnostic: Diagnostic) {

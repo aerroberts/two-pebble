@@ -7,6 +7,7 @@ interface AgentDetailTraceViewProps {
   traces: LoadableRegistry<AgentTraceRecord>;
   agentTraces: AgentTraceRecord[];
   onAgentClick: (agentId: string) => void;
+  onDocumentClick: (documentId: string) => void;
   onModelCallClick: (modelCallId: string) => void;
   onTaskClick: (boardId: string, taskId: string) => void;
   onThreadSnapshotClick: (threadCursor: string) => void;
@@ -24,11 +25,13 @@ export function AgentDetailTraceView(props: AgentDetailTraceViewProps) {
       {props.agentTraces.length > 0 ? (
         <AgentTrace
           onAgentClick={props.onAgentClick}
+          onDocumentClick={props.onDocumentClick}
           onModelCallClick={props.onModelCallClick}
           onTaskClick={props.onTaskClick}
           onThreadSnapshotClick={props.onThreadSnapshotClick}
           onWorktreeOpenClick={props.onWorktreeOpenClick}
           traces={props.agentTraces}
+          exhaustive
         />
       ) : null}
     </Section>

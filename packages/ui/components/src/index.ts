@@ -133,9 +133,10 @@ export { RelativeTime, type RelativeTimeProps } from './components/data/relative
 export { Table, type TableColumn, type TableProps } from './components/data/table/table';
 export {
   deleteTriggerRange,
+  type SlashCommand,
+  SlashCommandPopover,
+  type SlashCommandPopoverProps,
   type SlashTrigger,
-  SlashTaskHint,
-  type SlashTaskHintProps,
 } from './components/editor/slash';
 export { type JSONContent, TipTapEditor, type TipTapEditorProps } from './components/editor/tiptap-editor';
 export {
@@ -288,3 +289,8 @@ export {
   type TaskStatusIconSize,
   type TaskStatusIconStatus,
 } from './components/tasks/task-status-icon/task-status-icon';
+export {
+  TaskStatusIconSelect,
+  type TaskStatusIconSelectProps,
+  type SettableTaskStatus as TaskStatusIconSelectStatus,
+} from './components/tasks/task-status-icon-select/task-status-icon-select';

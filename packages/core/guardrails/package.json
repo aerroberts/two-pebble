@@ -1,7 +1,7 @@
 {
   "name": "@two-pebble/guardrails",
   "version": "0.1.0",
-  "description": "Vendored guardrails CLI for the two-pebble monorepo.",
+  "description": "Structure-only guardrails CLI for the two-pebble monorepo.",
   "type": "module",
   "sideEffects": false,
   "bin": {

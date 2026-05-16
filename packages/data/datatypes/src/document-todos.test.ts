@@ -1,38 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { TipTapDocument } from './document-content';
 import { applyTodoStatus, extractTodos } from './document-todos';
-
-const sampleDoc = (): TipTapDocument => ({
-  type: 'doc',
-  content: [
-    { type: 'paragraph', content: [{ type: 'text', text: 'intro' }] },
-    {
-      type: 'todoItem',
-      attrs: { id: '01J-A', status: 'open' },
-      content: [{ type: 'text', text: 'first task' }],
-    },
-    {
-      type: 'todoItem',
-      attrs: { id: '01J-B', status: 'completed', completionType: 'manual' },
-      content: [{ type: 'text', text: 'done thing' }],
-    },
-    {
-      type: 'bulletList',
-      content: [
-        {
-          type: 'listItem',
-          content: [
-            {
-              type: 'todoItem',
-              attrs: { id: '01J-C', status: 'invalid' },
-              content: [{ type: 'text', text: 'nested todo' }],
-            },
-          ],
-        },
-      ],
-    },
-  ],
-});
+import { sampleDoc } from './document-todos-test-support';
 
 describe('feature: document todo extraction', () => {
   test('happy: flattens every todoItem including nested ones', () => {

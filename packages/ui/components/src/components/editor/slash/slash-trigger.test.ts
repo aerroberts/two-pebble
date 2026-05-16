@@ -19,8 +19,7 @@ function mockEditor(options: MockEditorOptions): Editor {
     state: {
       selection: { head: options.head },
       doc: {
-        textBetween: (_from: number, _to: number, _block: string, _leaf: string) =>
-          options.text.slice(0, options.head),
+        textBetween: (_from: number, _to: number, _block: string, _leaf: string) => options.text.slice(0, options.head),
       },
     },
     view: {

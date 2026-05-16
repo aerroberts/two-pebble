@@ -3,7 +3,7 @@
   "exclude": [
     {
       "rules": [
-        "@rule/structure"
+        "structure"
       ],
       "paths": [
         "src/agent/agents/pebble-agent.ts"
@@ -12,7 +12,7 @@
     },
     {
       "rules": [
-        "@rule/structure"
+        "structure"
       ],
       "paths": [
         "src/capabilities/agent-naming/agent-naming-capability.ts"
@@ -21,70 +21,55 @@
     },
     {
       "rules": [
-        "@rule/structure",
-        "@rule/indent"
+        "structure"
       ],
       "paths": [
         "src/capabilities/task-board-access/task-board-access-capability.ts"
       ],
       "justification": "Task board access capability has existing nested response assembly that should be split in a focused follow-up."
-    },
-    {
-      "rules": [
-        "@rule/indent",
-        "@rule/typescript-function-shape"
-      ],
-      "paths": [
-        "src/capabilities/task-lifecycle/task-lifecycle-capability.ts"
-      ],
-      "justification": "Task lifecycle capability currently exposes a complex operation signature; preserve the runtime contract while CI starts running."
     }
   ],
-  "additional": {
-    "@rule/structure": {
-      "find": [
+  "rules": [
+    {
+      "find": "src/traces/agent-traces",
+      "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.",
+      "rules": {
+        "type": "folder"
+      },
+      "allowEmpty": true
+    },
+    {
+      "find": "src/traces/agent-traces/*",
+      "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types.",
+      "rules": {
+        "type": "file",
+        "contains": [
+          "export interface PebbleAgent"
+        ]
+      },
+      "allowEmpty": true,
+      "traverse": [
         {
-          "find": "src/traces/agent-traces",
-          "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.",
-          "assert": {
-            "type": "folder"
-          },
-          "allowEmpty": true
-        },
-        {
-          "find": "src/traces/agent-traces/*",
-          "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types.",
-          "assert": {
-            "type": "file",
-            "contains": [
-              "export interface PebbleAgent"
+          "find": [
+            "import",
+            "re-export"
+          ],
+          "rules": {
+            "allowedImportPath": [
+              "../../thread",
+              "../../thread/index"
             ]
           },
-          "allowEmpty": true,
-          "traverse": [
-            {
-              "find": [
-                "import",
-                "re-export"
-              ],
-              "assert": {
-                "allowedImportPath": [
-                  "../../thread",
-                  "../../thread/index"
-                ]
-              },
-              "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types."
-            }
-          ]
-        },
-        {
-          "find": "src/traces/agent-traces/folder/*",
-          "recommendation": "Agent trace interfaces stay one file deep so the trace catalog is scanable.",
-          "assert": {
-            "exists": false
-          }
+          "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types."
         }
       ]
+    },
+    {
+      "find": "src/traces/agent-traces/folder/*",
+      "recommendation": "Agent trace interfaces stay one file deep so the trace catalog is scanable.",
+      "rules": {
+        "exists": false
+      }
     }
-  }
+  ]
 }
