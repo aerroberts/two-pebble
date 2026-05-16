@@ -4,10 +4,16 @@ import { dirname, resolve } from 'node:path';
 import type { BridgePayload, BridgePayloadObject, BridgeProtocol, Message } from '../protocol';
 import { Bridge } from './bridge';
 
+/**
+ * Shared payload used by bridge operation test protocols.
+ */
 export interface PingValue extends BridgePayloadObject {
   value: number;
 }
 
+/**
+ * Client-side test protocol for in-process bridge assertions.
+ */
 export interface PingProtocol
   extends BridgeProtocol<
     {
@@ -23,6 +29,9 @@ export interface PingProtocol
     }
   > {}
 
+/**
+ * Server-side test protocol mirroring the ping protocol in reverse.
+ */
 export interface PongProtocol
   extends BridgeProtocol<
     {
@@ -38,6 +47,9 @@ export interface PongProtocol
     }
   > {}
 
+/**
+ * Builds an in-memory bridge pair used by bridge unit tests.
+ */
 export function bridgeTestEnv() {
   const messages: Message[] = [];
   const client = new Bridge<PingProtocol>();
@@ -96,6 +108,9 @@ export function bridgeTestEnv() {
   };
 }
 
+/**
+ * Writes or checks a JSONL snapshot for deterministic bridge messages.
+ */
 export async function expectJsonlSnapshot(name: string, rows: BridgePayload[]) {
   const snapshotPath = resolve(import.meta.dirname, 'snapshots', name);
   const content = `${rows.map((row) => JSON.stringify(row)).join('\n')}\n`;
