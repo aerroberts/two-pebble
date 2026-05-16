@@ -1,91 +1,52 @@
 {
-  "inherit": "@group/guardrails-typescript",
-  "exclude": [
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/services/agent-registry-service.ts"
-      ],
-      "justification": "Agent registry service is existing orchestration code with broad persistence and launch contracts; refactor separately after CI is active."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/services/task-board-service.ts"
-      ],
-      "justification": "Task board service already exceeds the package length target; split it in a behavior-preserving follow-up."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/services/task-dispatcher/task-dispatcher.ts"
-      ],
-      "justification": "Task dispatcher is legacy scheduling orchestration with static helpers and local contract shapes; preserve it while CI starts enforcing new changes."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/services/agent-naming/daemon-agent-naming-runner.ts"
-      ],
-      "justification": "Agent naming runner mixes local helpers with its class boundary today; extract helpers and docs in a focused follow-up."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/handlers/task-deliverable-submissions.list.handler.ts",
-        "src/handlers/task-deliverable-submissions.submit.handler.ts",
-        "src/handlers/task-deliverables.list.handler.ts",
-        "src/handlers/task-template-deliverables.create.handler.ts",
-        "src/handlers/task-template-deliverables.delete.handler.ts",
-        "src/handlers/task-template-deliverables.list.handler.ts",
-        "src/handlers/task-template-deliverables.update.handler.ts",
-        "src/handlers/task-templates.create.handler.ts",
-        "src/handlers/task-templates.delete.handler.ts",
-        "src/handlers/task-templates.list.handler.ts",
-        "src/handlers/task-templates.read.handler.ts",
-        "src/handlers/task-templates.update.handler.ts",
-        "src/services/agent-registry-listeners.ts",
-        "src/services/automation-service/automation-heartbeat-listener.ts",
-        "src/services/automation-service/automation-service.ts",
-        "src/services/heartbeat-service/heartbeat-listener.ts",
-        "src/services/heartbeat-service/heartbeat-service.ts",
-        "src/services/task-board-runner/daemon-task-board-runner.ts",
-        "src/services/task-board-service.ts"
-      ],
-      "justification": "Task board dispatch, automation, heartbeat, and template handlers landed before daemon guard was enforced; normalize those contracts in a focused follow-up while CI protects the rest of the package."
-    }
-  ],
-  "rules": [
+  "structure": [
+    // The previous daemon guard inherited @group/guardrails-typescript and used top-level structure exclusions for
+    // legacy orchestration files. Structure-only package guards cannot subtract package-local paths from an inherited
+    // group, so keep those exemptions as steering here instead of restoring unsupported top-level exclude:
+    // src/services/agent-registry-service.ts, src/services/task-board-service.ts,
+    // src/services/task-dispatcher/task-dispatcher.ts, src/services/agent-naming/daemon-agent-naming-runner.ts,
+    // task-board/template handlers, agent-registry listeners, automation, heartbeat, and task-board runner services.
+    //
+    // Each daemon handler exports a `handler(ctx)` wrapper so error handling, logging, and bridge fanout stay consistent.
+    // Literal contains/missing checks are not supported by structure-only guardrails; keep returning
+    // `async function wrappedHandler(...)` and keep state-change fanout on `ctx.multicastBridge.emit`, not
+    // `ctx.bridge.emit` or another per-client bridge emit.
     {
       "find": "src/handlers/*.handler.ts",
-      "recommendation": "Each handler exports a handler which wraps the actual handler function for consistent error handling and logging. State changes must broadcast through ctx.multicastBridge.emit so every connected UI sees the mutation — handlers must not call ctx.bridge.emit or any other per-client bridge emit, because the caller is often a one-shot CLI client and other UIs would never receive the event.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "export function handler(ctx: DaemonHandlerContext) {",
-          "return async function wrappedHandler("
-        ],
-        "missing": [
-          "ctx.bridge",
-          "bridge.emit"
-        ]
+      "recommendation": "Each handler exports a handler(ctx) wrapper for consistent error handling and logging. State changes must broadcast through ctx.multicastBridge.emit so every connected UI sees the mutation; handlers must not call ctx.bridge.emit or any other per-client bridge emit.",
+      "asserts": {
+        "type": "file"
       },
-      "allowEmpty": true
+      "code": [
+        {
+          "find": "export/function",
+          "recommendation": "Each handler module exposes one exported handler function.",
+          "asserts": {
+            "named": "handler",
+            "matches": {
+              "exactly": 1
+            }
+          }
+        },
+        {
+          "find": "export/function/parameters/parameter",
+          "recommendation": "The exported handler accepts the daemon handler context as ctx.",
+          "asserts": {
+            "named": "ctx",
+            "matches": {
+              "exactly": 1
+            }
+          }
+        }
+      ]
     },
+
+    // Daemon handler tests live in src/tests, not alongside handler files. Keep src/handlers free of test-only files so
+    // the protocol surface stays scannable.
     {
       "find": "src/handlers/*.test.ts",
-      "recommendation": "Daemon handler tests live in src/tests, not alongside handler files. Keep src/handlers free of test-only files so the protocol surface stays scannable.",
-      "rules": {
+      "recommendation": "Daemon handler tests live in src/tests, not alongside handler files.",
+      "asserts": {
         "exists": false
       }
     }
