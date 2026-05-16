@@ -93,6 +93,7 @@ export function AgentDetailPage() {
           onWorktreeOpenClick={state.openWorktree}
           stopping={state.stopping}
           traces={state.traces}
+          waitingReasons={state.waitingReasons}
         />
       </ChatPageLayout>
     );

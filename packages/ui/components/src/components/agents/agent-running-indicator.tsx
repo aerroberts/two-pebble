@@ -13,6 +13,12 @@ export interface AgentRunningIndicatorProps {
     lastError?: string;
     hint?: string;
   } | null;
+  /**
+   * When the agent reports `waiting`, list the specific signals or states it
+   * is waiting on (e.g. open `AgentSignal` names). Empty/omitted falls back
+   * to the generic 'Agent is waiting' copy.
+   */
+  waitingReasons?: string[];
   /** When provided, renders an inline ghost stop button at the end of the status line. */
   onStop?: () => void;
   /** Disables the stop button while a stop is in progress. */
@@ -30,10 +36,11 @@ export interface AgentRunningIndicatorProps {
  */
 export function AgentRunningIndicator(props: AgentRunningIndicatorProps) {
   if (props.status === 'waiting') {
+    const reasons = (props.waitingReasons ?? []).filter((reason) => reason.length > 0);
     return (
       <div className="flex items-center gap-2 rounded-md bg-surface px-3 py-2 text-content-subtle text-sm">
         <Icon name="clock" className="size-4" color="text-content-muted" />
-        <span>Agent is waiting</span>
+        <span>{reasons.length === 0 ? 'Agent is waiting' : `Agent is waiting on ${reasons.join(', ')}`}</span>
       </div>
     );
   }
