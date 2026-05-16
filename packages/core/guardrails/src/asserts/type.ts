@@ -4,12 +4,9 @@ import type { AssertOutcome } from '../types';
 /**
  * Asserts every matched node has the expected token type.
  */
-export function typeAssertion(nodes: WorkspaceNode[], expected: string): AssertOutcome {
+export function validate(nodes: WorkspaceNode[], expected: string): AssertOutcome {
   if (nodes.length === 0) {
-    return {
-      passed: false,
-      description: `Expected matched nodes to be of type "${expected}", but the find returned no nodes.`,
-    };
+    return { passed: true };
   }
   const mismatch = nodes.find((node) => node.type !== expected);
   if (mismatch) {

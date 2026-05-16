@@ -10,7 +10,7 @@ import { Controller } from './controller';
  * controller passes when files exist and fails when they don't.
  */
 
-const fixtureRoot = resolve(import.meta.dirname, 'fixtures/sample-package');
+const fixtureRoot = resolve(import.meta.dirname, '../test-resources/sample-package');
 
 describe('feature: controller', () => {
   test('happy: exists:true passes when the find matches a file', async () => {
@@ -84,6 +84,93 @@ describe('feature: controller', () => {
     const result = await new Controller().run(fixtureRoot, config);
 
     expect(result.passed).toBe(true);
+  });
+
+  test('happy: named assertion matches when the node name lines up', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'present.ts must export `present`.',
+          asserts: { exists: true },
+          code: [
+            {
+              find: 'export/const',
+              asserts: { named: 'present' },
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('unhappy: named assertion fails when the node name does not match', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'present.ts must export `expected`.',
+          asserts: { exists: true },
+          code: [
+            {
+              find: 'export/const',
+              asserts: { named: 'expected' },
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+    const codeCheck = result.results.find((check) => check.find.includes('export/const'));
+
+    expect(codeCheck?.passed).toBe(false);
+    expect(codeCheck?.diagnostics[0]?.assertion).toBe('named');
+  });
+
+  test('happy: exclude removes files that the find would have matched', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/*.ts',
+          exclude: 'src/present.ts',
+          recommendation: 'Every non-present source file must exist.',
+          asserts: { matches: { exactly: 1 } },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('happy: exclude removes AST nodes inside a code rule', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/extra.ts',
+          recommendation: 'extra.ts',
+          asserts: { exists: true },
+          code: [
+            {
+              find: ['export/const', 'export/function'],
+              exclude: 'export/function',
+              asserts: { matches: { exactly: 1 } },
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+    const codeCheck = result.results.find((check) => check.find.includes('export/const'));
+
+    expect(codeCheck?.passed).toBe(true);
   });
 
   test('happy: matches assertion enforces an exact count', async () => {

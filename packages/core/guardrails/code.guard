@@ -1,31 +1,17 @@
 {
   "inherit": "@group/guardrails-typescript",
   "structure": [
-    {
-      "find": "src/asserts/index.ts",
-      "recommendation": "src/asserts/index.ts must exist so the runner can register the assertion implementations.",
-      "asserts": {
-        "exists": true
-      }
-    },
-    {
-      "find": "src/asserts/exists.ts",
-      "recommendation": "The exists assertion is the foundational structure assertion and must live in src/asserts/exists.ts.",
-      "asserts": {
-        "exists": true
-      }
-    },
+    // Every assert handler must itself live in its own file and every file in that directory must be an assert handler
     {
       "find": "src/asserts/*.ts",
-      "recommendation": "Asserts are each in their own file ",
       "asserts": {
-        "exists": true,
-        "type": "file"
+        "exists": true
       },
       "code": [
         {
           "find": "export/function",
           "asserts": {
+            "named": "validate",
             "matches": {
               "exactly": 1
             }

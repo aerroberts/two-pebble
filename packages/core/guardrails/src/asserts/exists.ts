@@ -4,7 +4,7 @@ import type { AssertOutcome } from '../types';
 /**
  * Asserts that a structure find returned (or did not return) any nodes.
  */
-export function existsAssertion(nodes: WorkspaceNode[], expected: boolean): AssertOutcome {
+export function validate(nodes: WorkspaceNode[], expected: boolean): AssertOutcome {
   const found = nodes.length > 0;
   if (found === expected) {
     return { passed: true };

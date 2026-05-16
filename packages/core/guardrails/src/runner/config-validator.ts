@@ -35,6 +35,7 @@ function validateGroupReference(value: string | undefined, field: string) {
 
 function validateStructureRule(rule: StructureRule, field: string) {
   validateFind(rule, field);
+  validateOptionalExclude(rule.exclude, field);
   validateOptionalRecommendation(rule.recommendation, field);
   validateOptionalAsserts(rule.asserts, field);
 
@@ -51,8 +52,24 @@ function validateStructureRule(rule: StructureRule, field: string) {
 
 function validateCodeRule(rule: CodeRule, field: string) {
   validateFind(rule, field);
+  validateOptionalExclude(rule.exclude, field);
   validateOptionalAsserts(rule.asserts, field);
   validateOptionalRecommendation(rule.recommendation, field);
+}
+
+function validateOptionalExclude(value: unknown, field: string) {
+  if (value === undefined) {
+    return;
+  }
+  if (typeof value === 'string') {
+    if (value.length === 0) {
+      throw new InvalidGuardrailConfigError(`${field}.exclude must be a non-empty string when provided.`);
+    }
+    return;
+  }
+  if (!isStringArray(value)) {
+    throw new InvalidGuardrailConfigError(`${field}.exclude must be a string or array of strings.`);
+  }
 }
 
 function validateFind(rule: { find: unknown }, field: string) {

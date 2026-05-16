@@ -25,6 +25,25 @@
           }
         }
       ]
+    },
+
+    // Code should be clear and readable, comments should be used throughout the codebase to describe functionality
+    // Before every exported token, we need to have a short block comment that describes the intended functionality
+    // In the case of a class, the comment should describe the responsibility of the class, what it should be handling and what it should not be handling in the broader scope of the local system
+    {
+      "find": "src/**/*.ts",
+      "exclude": ["src/**/index.ts", "src/**/types.ts"],
+      "code": [
+        {
+          "find": "export$before",
+          "asserts": {
+            "type": "block-comment",
+            "lines": {
+              "min": 3
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -4,7 +4,7 @@ import type { AssertOutcome, NumberRange } from '../types';
 /**
  * Asserts the number of nodes returned by a find satisfies an exactly/min/max range.
  */
-export function matchesAssertion(nodes: WorkspaceNode[], range: NumberRange): AssertOutcome {
+export function validate(nodes: WorkspaceNode[], range: NumberRange): AssertOutcome {
   const count = nodes.length;
   if (range.exactly !== undefined && count !== range.exactly) {
     return { passed: false, description: `Expected exactly ${range.exactly} matches, but found ${count}.` };

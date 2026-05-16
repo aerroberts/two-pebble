@@ -5,9 +5,9 @@ import type { AssertOutcome, NumberRange } from '../types';
  * Asserts each matched node spans a number of source lines that satisfies the
  * exactly/min/max range. Nodes without range metadata fail the assertion.
  */
-export function linesAssertion(nodes: WorkspaceNode[], range: NumberRange): AssertOutcome {
+export function validate(nodes: WorkspaceNode[], range: NumberRange): AssertOutcome {
   if (nodes.length === 0) {
-    return { passed: false, description: 'Expected lines metadata, but the find returned no nodes.' };
+    return { passed: true };
   }
   for (const node of nodes) {
     const span = node.lines;

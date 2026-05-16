@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { CodeTraversal, type WorkspaceNode } from '@two-pebble/traversal';
-import { runAsserts } from '../asserts';
 import { InvalidGuardrailConfigError, UnknownDefinitionError } from '../errors';
+import { runAsserts } from '../run-asserts';
 import type {
   AssertName,
   CheckResult,
@@ -50,14 +50,11 @@ export class Controller {
     filesScanned: Set<string>,
   ): Promise<CheckResult[]> {
     const ruleStart = performance.now();
-    const queries = (Array.isArray(rule.find) ? rule.find : [rule.find]).map((query) =>
-      this.absoluteFind(packageDir, query),
-    );
-    const resultSet = await traversal.find(queries);
-    const nodes: WorkspaceNode[] = [];
+    const findQueries = this.toQueryList(rule.find).map((query) => this.absoluteFind(packageDir, query));
+    const excludeQueries = this.toQueryList(rule.exclude).map((query) => this.absoluteFind(packageDir, query));
+    const nodes = await this.findMinusExclude(traversal, findQueries, excludeQueries);
     const matchedFiles: WorkspaceNode[] = [];
-    resultSet.forEach((node) => {
-      nodes.push(node);
+    for (const node of nodes) {
       const path = node.getProperty('path');
       if (path) {
         filesScanned.add(path);
@@ -65,7 +62,7 @@ export class Controller {
       if (node.type === 'file') {
         matchedFiles.push(node);
       }
-    });
+    }
 
     const findLabel = this.findLabel(rule.find);
     const recommendation = this.buildRecommendation(rule);
@@ -102,13 +99,10 @@ export class Controller {
   ): Promise<CheckResult> {
     const start = performance.now();
     const filePath = fileNode.getProperty('path') ?? '';
-    const astQueries = Array.isArray(codeRule.find) ? codeRule.find : [codeRule.find];
-    const queries = astQueries.map((astQuery) => `${this.ensureGlobPattern(filePath)}#${astQuery}`);
-    const resultSet = await traversal.find(queries);
-    const nodes: WorkspaceNode[] = [];
-    resultSet.forEach((node) => {
-      nodes.push(node);
-    });
+    const scope = this.ensureGlobPattern(filePath);
+    const findQueries = this.toQueryList(codeRule.find).map((astQuery) => `${scope}#${astQuery}`);
+    const excludeQueries = this.toQueryList(codeRule.exclude).map((astQuery) => `${scope}#${astQuery}`);
+    const nodes = await this.findMinusExclude(traversal, findQueries, excludeQueries);
 
     const findLabel = `${relative(packageDir, filePath)}#${this.findLabel(codeRule.find)}`;
     const recommendation = this.buildRecommendation(parent, codeRule);
@@ -164,6 +158,44 @@ export class Controller {
       }
     }
     return parts.join('\n');
+  }
+
+  private toQueryList(value: string | string[] | undefined): string[] {
+    if (value === undefined) {
+      return [];
+    }
+    return Array.isArray(value) ? value : [value];
+  }
+
+  // Runs the find set, then subtracts anything also matched by the exclude
+  // set. Files dedupe by their `path` property (each glob walk creates fresh
+  // WorkspaceNodes); token nodes dedupe by their stable cached id.
+  private async findMinusExclude(
+    traversal: CodeTraversal,
+    findQueries: string[],
+    excludeQueries: string[],
+  ): Promise<WorkspaceNode[]> {
+    const findNodes = this.collectNodes(await traversal.find(findQueries));
+    if (excludeQueries.length === 0) {
+      return findNodes;
+    }
+    const excluded = new Set(this.collectNodes(await traversal.find(excludeQueries)).map((node) => this.nodeKey(node)));
+    return findNodes.filter((node) => !excluded.has(this.nodeKey(node)));
+  }
+
+  private collectNodes(resultSet: Awaited<ReturnType<CodeTraversal['find']>>): WorkspaceNode[] {
+    const nodes: WorkspaceNode[] = [];
+    resultSet.forEach((node) => {
+      nodes.push(node);
+    });
+    return nodes;
+  }
+
+  private nodeKey(node: WorkspaceNode): string {
+    if (node.type === 'file' || node.type === 'folder') {
+      return `path:${node.getProperty('path')}`;
+    }
+    return `id:${node.id}`;
   }
 
   private absoluteFind(packageDir: string, query: string) {
