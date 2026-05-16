@@ -1,3 +1,3 @@
 export { deleteTriggerRange } from './delete-trigger-range';
+export { type SlashCommand, SlashCommandPopover, type SlashCommandPopoverProps } from './slash-command-popover';
 export { readActiveSlashTrigger, type SlashTrigger } from './slash-trigger';
-export { SlashTaskHint, type SlashTaskHintProps } from './slash-task-hint';
