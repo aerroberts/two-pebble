@@ -1,3 +1,5 @@
 {
-  "inherit": "@group/guardrails-typescript"
+  "inherit": "@group/guardrails-typescript",
+  // Metrics relies on the shared TypeScript structure checks and does not add package-local structure rules.
+  "structure": []
 }
