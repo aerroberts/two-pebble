@@ -1,0 +1,22 @@
+[
+  {
+    "type": "token:import",
+    "name": "import",
+    "token": "import",
+    "importPath": "node:fs/promises",
+    "path": "src/data/repository.ts",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 1
+  },
+  {
+    "type": "token:import",
+    "name": "import",
+    "token": "import",
+    "importPath": "react",
+    "path": "src/ui/panel.tsx",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 1
+  }
+]

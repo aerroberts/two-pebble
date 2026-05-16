@@ -1,0 +1,24 @@
+[
+  {
+    "type": "token:function",
+    "name": "run",
+    "async": false,
+    "token": "function",
+    "functionKind": "method",
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:function",
+    "name": "normalize",
+    "async": false,
+    "token": "function",
+    "functionKind": "method",
+    "path": "src/services/example-service.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  }
+]

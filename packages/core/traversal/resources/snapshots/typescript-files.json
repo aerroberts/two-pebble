@@ -1,0 +1,17 @@
+[
+  {
+    "type": "file",
+    "name": "async-repository.ts",
+    "path": "src/data/async-repository.ts"
+  },
+  {
+    "type": "file",
+    "name": "repository.ts",
+    "path": "src/data/repository.ts"
+  },
+  {
+    "type": "file",
+    "name": "example-service.ts",
+    "path": "src/services/example-service.ts"
+  }
+]

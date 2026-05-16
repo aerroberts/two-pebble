@@ -1,0 +1,13 @@
+[
+  {
+    "type": "token:function",
+    "name": "run",
+    "async": false,
+    "token": "function",
+    "functionKind": "method",
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "type": "file",
+    "name": "config.json",
+    "path": "src/config.json"
+  },
+  {
+    "type": "folder",
+    "name": "data",
+    "path": "src/data"
+  },
+  {
+    "type": "file",
+    "name": "async-repository.ts",
+    "path": "src/data/async-repository.ts"
+  },
+  {
+    "type": "file",
+    "name": "repository.ts",
+    "path": "src/data/repository.ts"
+  },
+  {
+    "type": "file",
+    "name": "notes.md",
+    "path": "src/notes.md"
+  },
+  {
+    "type": "folder",
+    "name": "services",
+    "path": "src/services"
+  },
+  {
+    "type": "file",
+    "name": "example-service.ts",
+    "path": "src/services/example-service.ts"
+  },
+  {
+    "type": "file",
+    "name": "styles.css",
+    "path": "src/styles.css"
+  },
+  {
+    "type": "folder",
+    "name": "ui",
+    "path": "src/ui"
+  },
+  {
+    "type": "file",
+    "name": "panel.tsx",
+    "path": "src/ui/panel.tsx"
+  }
+]

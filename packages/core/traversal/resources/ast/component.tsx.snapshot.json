@@ -1,0 +1,101 @@
+{
+  "kind": "file",
+  "name": "component.tsx",
+  "children": [
+    {
+      "kind": "token",
+      "name": "import",
+      "token": "import",
+      "importPath": "react",
+      "line": 1,
+      "startLine": 1,
+      "startColumn": 1,
+      "endLine": 1,
+      "endColumn": 40,
+      "children": []
+    },
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 3,
+      "startLine": 3,
+      "startColumn": 1,
+      "endLine": 6,
+      "endColumn": 2,
+      "children": [
+        {
+          "kind": "token",
+          "name": "PanelProps",
+          "token": "interface",
+          "line": 3,
+          "startLine": 3,
+          "startColumn": 1,
+          "endLine": 6,
+          "endColumn": 2,
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "token",
+      "name": "block-comment",
+      "token": "block-comment",
+      "commentContent": "Renders a labeled panel.",
+      "line": 8,
+      "startLine": 8,
+      "startColumn": 1,
+      "endLine": 10,
+      "endColumn": 4,
+      "children": []
+    },
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 11,
+      "startLine": 11,
+      "startColumn": 1,
+      "endLine": 18,
+      "endColumn": 2,
+      "children": [
+        {
+          "kind": "token",
+          "name": "Panel",
+          "async": false,
+          "token": "function",
+          "functionKind": "declaration",
+          "line": 11,
+          "startLine": 11,
+          "startColumn": 1,
+          "endLine": 18,
+          "endColumn": 2,
+          "children": [
+            {
+              "kind": "token",
+              "name": "{ title, children }",
+              "token": "parameter",
+              "line": 11,
+              "startLine": 11,
+              "startColumn": 23,
+              "endLine": 11,
+              "endColumn": 54,
+              "children": []
+            },
+            {
+              "kind": "token",
+              "name": "block",
+              "token": "block",
+              "line": 11,
+              "startLine": 11,
+              "startColumn": 56,
+              "endLine": 18,
+              "endColumn": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

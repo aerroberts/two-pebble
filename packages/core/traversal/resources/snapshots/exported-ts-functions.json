@@ -1,0 +1,24 @@
+[
+  {
+    "type": "token:function",
+    "name": "readAsyncRepository",
+    "async": true,
+    "token": "function",
+    "functionKind": "declaration",
+    "path": "src/data/async-repository.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 16
+  },
+  {
+    "type": "token:function",
+    "name": "readRepository",
+    "async": false,
+    "token": "function",
+    "functionKind": "declaration",
+    "path": "src/data/repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  }
+]

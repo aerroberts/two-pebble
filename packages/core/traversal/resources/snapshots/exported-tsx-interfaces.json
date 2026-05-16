@@ -1,0 +1,11 @@
+[
+  {
+    "type": "token:interface",
+    "name": "PanelProps",
+    "token": "interface",
+    "path": "src/ui/panel.tsx",
+    "line": 3,
+    "startLine": 3,
+    "endLine": 6
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "type": "token:interface",
+    "name": "AsyncRepositoryOptions",
+    "token": "interface",
+    "path": "src/data/async-repository.ts",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 3
+  },
+  {
+    "type": "token:interface",
+    "name": "RepositoryOptions",
+    "token": "interface",
+    "path": "src/data/repository.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:interface",
+    "name": "ExampleServiceInput",
+    "token": "interface",
+    "path": "src/services/example-service.ts",
+    "line": 14,
+    "startLine": 14,
+    "endLine": 16
+  }
+]

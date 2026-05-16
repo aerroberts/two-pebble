@@ -1,0 +1,113 @@
+{
+  "kind": "file",
+  "name": "commented.ts",
+  "children": [
+    {
+      "kind": "token",
+      "name": "block-comment",
+      "token": "block-comment",
+      "commentContent": "Creates an example service used by traversal snapshots.",
+      "line": 1,
+      "startLine": 1,
+      "startColumn": 1,
+      "endLine": 3,
+      "endColumn": 4,
+      "children": []
+    },
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 4,
+      "startLine": 4,
+      "startColumn": 1,
+      "endLine": 8,
+      "endColumn": 2,
+      "children": [
+        {
+          "kind": "token",
+          "name": "ExampleService",
+          "token": "class",
+          "line": 4,
+          "startLine": 4,
+          "startColumn": 1,
+          "endLine": 8,
+          "endColumn": 2,
+          "children": [
+            {
+              "kind": "token",
+              "name": "public",
+              "token": "public",
+              "line": 5,
+              "startLine": 5,
+              "startColumn": 3,
+              "endLine": 7,
+              "endColumn": 4,
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "run",
+                  "async": false,
+                  "token": "function",
+                  "functionKind": "method",
+                  "line": 5,
+                  "startLine": 5,
+                  "startColumn": 3,
+                  "endLine": 7,
+                  "endColumn": 4,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "input",
+                      "token": "parameter",
+                      "line": 5,
+                      "startLine": 5,
+                      "startColumn": 14,
+                      "endLine": 5,
+                      "endColumn": 27,
+                      "children": []
+                    },
+                    {
+                      "kind": "token",
+                      "name": "block",
+                      "token": "block",
+                      "line": 5,
+                      "startLine": 5,
+                      "startColumn": 29,
+                      "endLine": 7,
+                      "endColumn": 4,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 10,
+      "startLine": 10,
+      "startColumn": 1,
+      "endLine": 12,
+      "endColumn": 2,
+      "children": [
+        {
+          "kind": "token",
+          "name": "ExampleInput",
+          "token": "interface",
+          "line": 10,
+          "startLine": 10,
+          "startColumn": 1,
+          "endLine": 12,
+          "endColumn": 2,
+          "children": []
+        }
+      ]
+    }
+  ]
+}

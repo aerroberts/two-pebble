@@ -1,0 +1,452 @@
+{
+  "kind": "file",
+  "name": "nested-functions.ts",
+  "children": [
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 1,
+      "startLine": 1,
+      "startColumn": 1,
+      "endLine": 19,
+      "endColumn": 2,
+      "children": [
+        {
+          "kind": "token",
+          "name": "outer",
+          "async": false,
+          "token": "function",
+          "functionKind": "declaration",
+          "line": 1,
+          "startLine": 1,
+          "startColumn": 1,
+          "endLine": 19,
+          "endColumn": 2,
+          "children": [
+            {
+              "kind": "token",
+              "name": "value",
+              "token": "parameter",
+              "line": 1,
+              "startLine": 1,
+              "startColumn": 23,
+              "endLine": 1,
+              "endColumn": 36,
+              "children": []
+            },
+            {
+              "kind": "token",
+              "name": "block",
+              "token": "block",
+              "line": 1,
+              "startLine": 1,
+              "startColumn": 38,
+              "endLine": 19,
+              "endColumn": 2,
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "inner",
+                  "async": false,
+                  "token": "function",
+                  "functionKind": "declaration",
+                  "line": 2,
+                  "startLine": 2,
+                  "startColumn": 3,
+                  "endLine": 8,
+                  "endColumn": 4,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "input",
+                      "token": "parameter",
+                      "line": 2,
+                      "startLine": 2,
+                      "startColumn": 18,
+                      "endLine": 2,
+                      "endColumn": 31,
+                      "children": []
+                    },
+                    {
+                      "kind": "token",
+                      "name": "block",
+                      "token": "block",
+                      "line": 2,
+                      "startLine": 2,
+                      "startColumn": 33,
+                      "endLine": 8,
+                      "endColumn": 4,
+                      "children": [
+                        {
+                          "kind": "token",
+                          "name": "arrowInsideFunction",
+                          "token": "const",
+                          "line": 3,
+                          "startLine": 3,
+                          "startColumn": 5,
+                          "endLine": 5,
+                          "endColumn": 7,
+                          "children": [
+                            {
+                              "kind": "token",
+                              "name": "arrowInsideFunction",
+                              "async": false,
+                              "token": "function",
+                              "functionKind": "arrow",
+                              "line": 3,
+                              "startLine": 3,
+                              "startColumn": 33,
+                              "endLine": 5,
+                              "endColumn": 6,
+                              "children": [
+                                {
+                                  "kind": "token",
+                                  "name": "suffix",
+                                  "token": "parameter",
+                                  "line": 3,
+                                  "startLine": 3,
+                                  "startColumn": 34,
+                                  "endLine": 3,
+                                  "endColumn": 48,
+                                  "children": []
+                                },
+                                {
+                                  "kind": "token",
+                                  "name": "block",
+                                  "token": "block",
+                                  "line": 3,
+                                  "startLine": 3,
+                                  "startColumn": 53,
+                                  "endLine": 5,
+                                  "endColumn": 6,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "token",
+                  "name": "arrowInsideOuter",
+                  "token": "const",
+                  "line": 10,
+                  "startLine": 10,
+                  "startColumn": 3,
+                  "endLine": 16,
+                  "endColumn": 5,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "arrowInsideOuter",
+                      "async": false,
+                      "token": "function",
+                      "functionKind": "arrow",
+                      "line": 10,
+                      "startLine": 10,
+                      "startColumn": 28,
+                      "endLine": 16,
+                      "endColumn": 4,
+                      "children": [
+                        {
+                          "kind": "token",
+                          "name": "input",
+                          "token": "parameter",
+                          "line": 10,
+                          "startLine": 10,
+                          "startColumn": 29,
+                          "endLine": 10,
+                          "endColumn": 42,
+                          "children": []
+                        },
+                        {
+                          "kind": "token",
+                          "name": "block",
+                          "token": "block",
+                          "line": 10,
+                          "startLine": 10,
+                          "startColumn": 47,
+                          "endLine": 16,
+                          "endColumn": 4,
+                          "children": [
+                            {
+                              "kind": "token",
+                              "name": "nestedArrow",
+                              "token": "const",
+                              "line": 11,
+                              "startLine": 11,
+                              "startColumn": 5,
+                              "endLine": 13,
+                              "endColumn": 7,
+                              "children": [
+                                {
+                                  "kind": "token",
+                                  "name": "nestedArrow",
+                                  "async": false,
+                                  "token": "function",
+                                  "functionKind": "arrow",
+                                  "line": 11,
+                                  "startLine": 11,
+                                  "startColumn": 25,
+                                  "endLine": 13,
+                                  "endColumn": 6,
+                                  "children": [
+                                    {
+                                      "kind": "token",
+                                      "name": "suffix",
+                                      "token": "parameter",
+                                      "line": 11,
+                                      "startLine": 11,
+                                      "startColumn": 26,
+                                      "endLine": 11,
+                                      "endColumn": 40,
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "token",
+                                      "name": "block",
+                                      "token": "block",
+                                      "line": 11,
+                                      "startLine": 11,
+                                      "startColumn": 45,
+                                      "endLine": 13,
+                                      "endColumn": 6,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 21,
+      "startLine": 21,
+      "startColumn": 1,
+      "endLine": 23,
+      "endColumn": 3,
+      "children": [
+        {
+          "kind": "token",
+          "name": "exportedArrow",
+          "token": "const",
+          "line": 21,
+          "startLine": 21,
+          "startColumn": 1,
+          "endLine": 23,
+          "endColumn": 3,
+          "children": [
+            {
+              "kind": "token",
+              "name": "exportedArrow",
+              "async": false,
+              "token": "function",
+              "functionKind": "arrow",
+              "line": 21,
+              "startLine": 21,
+              "startColumn": 30,
+              "endLine": 23,
+              "endColumn": 2,
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "value",
+                  "token": "parameter",
+                  "line": 21,
+                  "startLine": 21,
+                  "startColumn": 31,
+                  "endLine": 21,
+                  "endColumn": 44,
+                  "children": []
+                },
+                {
+                  "kind": "token",
+                  "name": "block",
+                  "token": "block",
+                  "line": 21,
+                  "startLine": 21,
+                  "startColumn": 49,
+                  "endLine": 23,
+                  "endColumn": 2,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 25,
+      "startLine": 25,
+      "startColumn": 1,
+      "endLine": 33,
+      "endColumn": 2,
+      "children": [
+        {
+          "kind": "token",
+          "name": "asyncOuter",
+          "async": true,
+          "token": "function",
+          "functionKind": "declaration",
+          "line": 25,
+          "startLine": 25,
+          "startColumn": 1,
+          "endLine": 33,
+          "endColumn": 2,
+          "children": [
+            {
+              "kind": "token",
+              "name": "fetchText",
+              "token": "parameter",
+              "line": 25,
+              "startLine": 25,
+              "startColumn": 34,
+              "endLine": 25,
+              "endColumn": 78,
+              "children": []
+            },
+            {
+              "kind": "token",
+              "name": "path",
+              "token": "parameter",
+              "line": 25,
+              "startLine": 25,
+              "startColumn": 80,
+              "endLine": 25,
+              "endColumn": 92,
+              "children": []
+            },
+            {
+              "kind": "token",
+              "name": "block",
+              "token": "block",
+              "line": 25,
+              "startLine": 25,
+              "startColumn": 94,
+              "endLine": 33,
+              "endColumn": 2,
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "text",
+                  "token": "const",
+                  "line": 26,
+                  "startLine": 26,
+                  "startColumn": 3,
+                  "endLine": 26,
+                  "endColumn": 38,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "await",
+                      "token": "await",
+                      "line": 26,
+                      "startLine": 26,
+                      "startColumn": 16,
+                      "endLine": 26,
+                      "endColumn": 37,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "token",
+                  "name": "asyncArrow",
+                  "token": "const",
+                  "line": 27,
+                  "startLine": 27,
+                  "startColumn": 3,
+                  "endLine": 30,
+                  "endColumn": 5,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "asyncArrow",
+                      "async": true,
+                      "token": "function",
+                      "functionKind": "arrow",
+                      "line": 27,
+                      "startLine": 27,
+                      "startColumn": 22,
+                      "endLine": 30,
+                      "endColumn": 4,
+                      "children": [
+                        {
+                          "kind": "token",
+                          "name": "suffix",
+                          "token": "parameter",
+                          "line": 27,
+                          "startLine": 27,
+                          "startColumn": 29,
+                          "endLine": 27,
+                          "endColumn": 43,
+                          "children": []
+                        },
+                        {
+                          "kind": "token",
+                          "name": "block",
+                          "token": "block",
+                          "line": 27,
+                          "startLine": 27,
+                          "startColumn": 48,
+                          "endLine": 30,
+                          "endColumn": 4,
+                          "children": [
+                            {
+                              "kind": "token",
+                              "name": "innerText",
+                              "token": "const",
+                              "line": 28,
+                              "startLine": 28,
+                              "startColumn": 5,
+                              "endLine": 28,
+                              "endColumn": 60,
+                              "children": [
+                                {
+                                  "kind": "token",
+                                  "name": "await",
+                                  "token": "await",
+                                  "line": 28,
+                                  "startLine": 28,
+                                  "startColumn": 23,
+                                  "endLine": 28,
+                                  "endColumn": 59,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
