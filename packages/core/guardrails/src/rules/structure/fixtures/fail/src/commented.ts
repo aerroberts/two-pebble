@@ -1,5 +1,5 @@
 export class ExampleService {
-  private run(input: string) {
+  public run(input: string) {
     return `forbidden:${input}`;
   }
 }

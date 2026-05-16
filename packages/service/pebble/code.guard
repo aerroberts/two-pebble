@@ -7,7 +7,7 @@
       "justification": "PebbleAgent is long and will continue to be long"
     },
     {
-      "rules": ["@rule/top-level-definitions", "@rule/documentation"],
+      "rules": ["@rule/top-level-definitions", "@rule/structure"],
       "paths": ["src/capabilities/agent-naming/agent-naming-capability.ts"],
       "justification": "Agent naming capability keeps a local helper beside the class today; extract and document it separately from CI enablement."
     },

@@ -23,7 +23,7 @@
       "justification": "Task dispatcher is legacy scheduling orchestration with static helpers and local contract shapes; preserve it while CI starts enforcing new changes."
     },
     {
-      "rules": ["@rule/top-level-definitions", "@rule/documentation"],
+      "rules": ["@rule/top-level-definitions", "@rule/structure"],
       "paths": ["src/services/agent-naming/daemon-agent-naming-runner.ts"],
       "justification": "Agent naming runner mixes local helpers with its class boundary today; extract helpers and docs in a focused follow-up."
     },
@@ -31,7 +31,7 @@
       "rules": [
         "@rule/top-level-definitions",
         "@rule/class-name",
-        "@rule/documentation",
+        "@rule/structure",
         "@rule/typescript-type-safety",
         "@rule/typescript-function-shape",
         "@rule/typescript-variable-type"

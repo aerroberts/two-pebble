@@ -175,10 +175,9 @@ export class TypeScriptTranslator {
       const accessor = this.createTokenRecord(records, {
         sourceFile,
         node,
-        token: 'function',
+        token: 'accessor',
         name: node.name.getText(sourceFile),
         async: false,
-        functionKind: 'method',
         childIds: children,
       });
       return this.wrapClassMemberModifiers(sourceFile, node, accessor, records);
@@ -245,6 +244,10 @@ export class TypeScriptTranslator {
   private classChildRecords(sourceFile: ts.SourceFile, node: ts.ClassDeclaration, records: TraversalNodeRecord[]) {
     const childIds: string[] = [];
     for (const member of node.members) {
+      for (const comment of this.leadingCommentRecords(sourceFile, member, records)) {
+        childIds.push(comment.id);
+      }
+
       const translated = this.translateDeclaration(sourceFile, member, records);
       if (translated) {
         childIds.push(translated.id);
@@ -316,6 +319,9 @@ export class TypeScriptTranslator {
   private classMemberModifierToken(modifier: ts.Modifier): TraversalTokenName | undefined {
     if (modifier.kind === ts.SyntaxKind.PrivateKeyword) {
       return 'private';
+    }
+    if (modifier.kind === ts.SyntaxKind.ProtectedKeyword) {
+      return 'protected';
     }
     if (modifier.kind === ts.SyntaxKind.PublicKeyword) {
       return 'public';
@@ -477,7 +483,7 @@ export class TypeScriptTranslator {
 
   private leadingCommentRecords(sourceFile: ts.SourceFile, node: ts.Node, records: TraversalNodeRecord[]) {
     const sourceText = sourceFile.getFullText();
-    const comments = ts.getLeadingCommentRanges(sourceText, node.pos) ?? [];
+    const comments = ts.getLeadingCommentRanges(sourceText, node.getFullStart()) ?? [];
 
     return comments.map((comment) => {
       const token: TraversalTokenName =

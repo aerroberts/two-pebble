@@ -8,6 +8,10 @@ export class ExampleService {
     return new ExampleService();
   }
 
+  /**
+   * Runs the example service.
+   * Normalizes caller input.
+   */
   public run(input: string) {
     return this.normalize(input.trim());
   }

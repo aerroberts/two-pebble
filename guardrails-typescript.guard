@@ -52,6 +52,36 @@
           "recommendation": "Class members must stay short enough to scan. Extract collaborators or private helpers when one member starts owning multiple decisions."
         },
         {
+          "find": "src/**/*.ts/**/class/accessor",
+          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "assert": {
+            "lines": {
+              "max": 80
+            }
+          },
+          "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions."
+        },
+        {
+          "find": "src/**/*.ts/**/class/*/accessor",
+          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "assert": {
+            "lines": {
+              "max": 80
+            }
+          },
+          "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions."
+        },
+        {
+          "find": "src/**/*.ts/**/class/*/*/accessor",
+          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "assert": {
+            "lines": {
+              "max": 80
+            }
+          },
+          "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions."
+        },
+        {
           "find": "src/**/*.ts/**/class/constructor",
           "exclude": ["**/fixtures/**", "**/*.test.ts"],
           "assert": {
@@ -162,6 +192,91 @@
           "recommendation": "Catch blocks must stay short enough to scan. Move recovery branches into named helpers when error handling grows."
         },
         {
+          "find": "src/**/*.ts/**/class",
+          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "traverse": [
+            {
+              "find": "$prev-sibling",
+              "assert": {
+                "type": "token:block-comment",
+                "contains": "/**",
+                "tokenLineLength": {
+                  "min": 3
+                }
+              },
+              "recommendation": "Classes need a short leading JSDoc block that explains the responsibility, contract, or boundary."
+            }
+          ]
+        },
+        {
+          "find": "src/**/*.ts/**/class/function",
+          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "traverse": [
+            {
+              "find": "$prev-sibling",
+              "assert": {
+                "type": "token:block-comment",
+                "contains": "/**",
+                "tokenLineLength": {
+                  "min": 3
+                }
+              },
+              "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+            }
+          ]
+        },
+        {
+          "find": "src/**/*.ts/**/class/public/function",
+          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "traverse": [
+            {
+              "find": "$prev-sibling",
+              "assert": {
+                "type": "token:block-comment",
+                "contains": "/**",
+                "tokenLineLength": {
+                  "min": 3
+                }
+              },
+              "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+            }
+          ]
+        },
+        {
+          "find": "src/**/*.ts/**/class/static/function",
+          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "traverse": [
+            {
+              "find": "$prev-sibling",
+              "assert": {
+                "type": "token:block-comment",
+                "contains": "/**",
+                "tokenLineLength": {
+                  "min": 3
+                }
+              },
+              "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+            }
+          ]
+        },
+        {
+          "find": "src/**/*.ts/**/class/public/static/function",
+          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "traverse": [
+            {
+              "find": "$prev-sibling",
+              "assert": {
+                "type": "token:block-comment",
+                "contains": "/**",
+                "tokenLineLength": {
+                  "min": 3
+                }
+              },
+              "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+            }
+          ]
+        },
+        {
           "find": "src/**/*.ts/class",
           "exclude": ["**/fixtures/**", "**/*.test.ts"],
           "assert": {
@@ -234,18 +349,6 @@
     "@rule/class-name": {
       "classNamePattern": "^[A-Z][A-Za-z0-9]*$",
       "fileNameCase": "kebab-case"
-    },
-    "@rule/documentation": {
-      "statements": [
-        {
-          "match": "class",
-          "minimumJSDocLines": 3
-        },
-        {
-          "match": "publicClassMethod",
-          "minimumJSDocLines": 3
-        }
-      ]
     },
     "@rule/indent": {
       "files": {

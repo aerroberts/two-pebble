@@ -39,6 +39,10 @@ export class Rule extends Guardrail<StructureConfig> {
   }
 
   private async checkTraverse(rule: StructureFindRuleConfig, nodes: TraversalNode[]) {
+    if (nodes.length === 0) {
+      return;
+    }
+
     for (const childRule of rule.traverse ?? []) {
       const childNodes = this.withoutExcludedNodes(
         (await Promise.all(nodes.map((node) => node.find(childRule.find)))).flat(),

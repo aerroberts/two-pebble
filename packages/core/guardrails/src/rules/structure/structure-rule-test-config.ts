@@ -22,6 +22,17 @@ const structureRuleFind = [
     ],
   },
   {
+    find: 'src/**/*.ts/**/class/public/function',
+    recommendation: 'Public class methods are part of this fixture contract.',
+    traverse: [
+      {
+        find: '$prev-sibling',
+        assert: { type: 'token:block-comment', contains: '/**', tokenLineLength: { min: 3 } },
+        recommendation: 'Public class methods need a short leading JSDoc block.',
+      },
+    ],
+  },
+  {
     find: 'src/missing.ts',
     assert: { exists: false },
     recommendation: 'The missing marker file should stay absent.',

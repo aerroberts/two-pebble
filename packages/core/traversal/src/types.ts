@@ -3,6 +3,7 @@ import type ts from 'typescript';
 export type TraversalNodeKind = 'empty-set' | 'file' | 'folder' | 'root' | 'token';
 
 export type TraversalTokenName =
+  | 'accessor'
   | 'await'
   | 'block'
   | 'block-comment'
@@ -20,6 +21,7 @@ export type TraversalTokenName =
   | 'parameter-binding'
   | 'parameters'
   | 'private'
+  | 'protected'
   | 'public'
   | 'static'
   | 'try';

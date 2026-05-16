@@ -13,6 +13,16 @@
     "type": "token:block-comment",
     "name": "block-comment",
     "token": "block-comment",
+    "commentContent": "Runs the example service.\nNormalizes caller input.",
+    "path": "src/services/example-service.ts",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 14
+  },
+  {
+    "type": "token:block-comment",
+    "name": "block-comment",
+    "token": "block-comment",
     "commentContent": "Renders children with a title.",
     "path": "src/ui/panel.tsx",
     "line": 8,

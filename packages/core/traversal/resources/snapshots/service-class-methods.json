@@ -17,9 +17,9 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 11,
-    "startLine": 11,
-    "endLine": 13
+    "line": 15,
+    "startLine": 15,
+    "endLine": 17
   },
   {
     "type": "token:function",
@@ -28,8 +28,8 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 17
+    "line": 19,
+    "startLine": 19,
+    "endLine": 21
   }
 ]

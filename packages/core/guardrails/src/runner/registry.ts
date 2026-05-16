@@ -1,6 +1,5 @@
 import { Rule as ClassNameRule } from '../rules/class-name/rule';
 import { Rule as CodeStructureRule } from '../rules/code-structure/rule';
-import { Rule as DocumentationRule } from '../rules/documentation/rule';
 import { Rule as IndentRule } from '../rules/indent/rule';
 import { Rule as ReactExportedComponentRule } from '../rules/react-exported-component/rule';
 import { Rule as ReactFunctionParameterRule } from '../rules/react-function-parameter/rule';
@@ -22,10 +21,6 @@ export const rules: RuleRegistration[] = [
   {
     name: 'class-name',
     create: (context) => new ClassNameRule(context),
-  },
-  {
-    name: 'documentation',
-    create: (context) => new DocumentationRule(context),
   },
   {
     name: 'react-exported-component',

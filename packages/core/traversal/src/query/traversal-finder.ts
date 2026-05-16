@@ -53,7 +53,17 @@ export class TraversalFinder {
       return siblings[index - 1];
     }
 
-    return parent?.token === 'export' ? this.previousSibling(parent.id) : undefined;
+    return parent && this.unwrapPreviousSibling(parent) ? this.previousSibling(parent.id) : undefined;
+  }
+
+  private unwrapPreviousSibling(record: TraversalNodeRecord | undefined) {
+    return (
+      record?.token === 'export' ||
+      record?.token === 'private' ||
+      record?.token === 'protected' ||
+      record?.token === 'public' ||
+      record?.token === 'static'
+    );
   }
 
   private descendantIds(id: string) {

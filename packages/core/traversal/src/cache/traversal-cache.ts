@@ -11,7 +11,7 @@ import type {
 import { sha256 } from '../utils/hash';
 import { normalizeTraversalPath } from '../utils/path';
 
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 2;
 
 export class TraversalCache {
   private tree?: SerializedTraversalTree;

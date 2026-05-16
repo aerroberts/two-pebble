@@ -21,7 +21,7 @@
       "line": 4,
       "startLine": 4,
       "startColumn": 1,
-      "endLine": 10,
+      "endLine": 14,
       "endColumn": 2,
       "children": [
         {
@@ -31,7 +31,7 @@
           "line": 4,
           "startLine": 4,
           "startColumn": 1,
-          "endLine": 10,
+          "endLine": 14,
           "endColumn": 2,
           "children": [
             {
@@ -71,12 +71,24 @@
             },
             {
               "kind": "token",
-              "name": "public",
-              "token": "public",
+              "name": "block-comment",
+              "token": "block-comment",
+              "commentContent": "Returns the input unchanged.\nKeeps the method fixture small.",
               "line": 7,
               "startLine": 7,
               "startColumn": 3,
-              "endLine": 9,
+              "endLine": 10,
+              "endColumn": 6,
+              "children": []
+            },
+            {
+              "kind": "token",
+              "name": "public",
+              "token": "public",
+              "line": 11,
+              "startLine": 11,
+              "startColumn": 3,
+              "endLine": 13,
               "endColumn": 4,
               "children": [
                 {
@@ -85,20 +97,20 @@
                   "async": false,
                   "token": "function",
                   "functionKind": "method",
-                  "line": 7,
-                  "startLine": 7,
+                  "line": 11,
+                  "startLine": 11,
                   "startColumn": 3,
-                  "endLine": 9,
+                  "endLine": 13,
                   "endColumn": 4,
                   "children": [
                     {
                       "kind": "token",
                       "name": "parameters",
                       "token": "parameters",
-                      "line": 7,
-                      "startLine": 7,
+                      "line": 11,
+                      "startLine": 11,
                       "startColumn": 14,
-                      "endLine": 7,
+                      "endLine": 11,
                       "endColumn": 27,
                       "children": [
                         {
@@ -106,10 +118,10 @@
                           "name": "input",
                           "destructured": false,
                           "token": "parameter",
-                          "line": 7,
-                          "startLine": 7,
+                          "line": 11,
+                          "startLine": 11,
                           "startColumn": 14,
-                          "endLine": 7,
+                          "endLine": 11,
                           "endColumn": 27,
                           "children": []
                         }
@@ -119,10 +131,10 @@
                       "kind": "token",
                       "name": "block",
                       "token": "block",
-                      "line": 7,
-                      "startLine": 7,
+                      "line": 11,
+                      "startLine": 11,
                       "startColumn": 29,
-                      "endLine": 9,
+                      "endLine": 13,
                       "endColumn": 4,
                       "children": []
                     }
@@ -138,20 +150,20 @@
       "kind": "token",
       "name": "export",
       "token": "export",
-      "line": 12,
-      "startLine": 12,
+      "line": 16,
+      "startLine": 16,
       "startColumn": 1,
-      "endLine": 14,
+      "endLine": 18,
       "endColumn": 2,
       "children": [
         {
           "kind": "token",
           "name": "ExampleInput",
           "token": "interface",
-          "line": 12,
-          "startLine": 12,
+          "line": 16,
+          "startLine": 16,
           "startColumn": 1,
-          "endLine": 14,
+          "endLine": 18,
           "endColumn": 2,
           "children": []
         }

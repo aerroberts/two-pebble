@@ -40,11 +40,11 @@ describe('feature: structure rule', () => {
     const root = resolve(import.meta.dirname, 'fixtures/fail');
     const result = await new Controller().run(root, passingStructureRuleConfig());
     const diagnostics = result.results.flatMap((entry) => entry.diagnostics);
+    const failure = { error: 'structure-assertion-failed', file: '' };
 
     expect(structureDiagnosticSummary(root, diagnostics)).toEqual([
       { error: 'structure-assertion-failed', file: 'src/commented.ts' },
-      { error: 'structure-assertion-failed', file: '' },
-      { error: 'structure-assertion-failed', file: '' },
+      ...Array(5).fill(failure),
     ]);
   });
 });

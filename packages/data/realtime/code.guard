@@ -9,7 +9,7 @@
     {
       "rules": [
         "@rule/top-level-definitions",
-        "@rule/documentation",
+        "@rule/structure",
         "@rule/typescript-type-safety",
         "@rule/typescript-function-shape"
       ],
