@@ -1,3 +1,60 @@
 {
-  "inherit": "@group/guardrails-typescript"
+  "inherit": "@group/guardrails-typescript",
+  "rules": [
+    {
+      "find": "src/**/*.ts",
+      "exclude": [
+        "**/*.test.ts",
+        "**/fixtures/**",
+        "**/resources/**"
+      ],
+      "traverse": [
+        {
+          "find": "export/function",
+          "rules": {
+            "count": {
+              "max": 1
+            }
+          },
+          "recommendation": "Files may export at most one function. If you have many related functions, consider turning the file into a class. If the functions are truely unrelated, consider breaking each into its own file"
+        }
+      ]
+    },
+    {
+      "find": "src/**/*.test.ts",
+      "traverse": [
+        {
+          "find": "$after-imports",
+          "rules": {
+            "type": "token:block-comment",
+            "contains": [
+              " * Testing philosophy:",
+              " * The tested code operates by ",
+              " * The tests will demonstrate "
+            ],
+            "commentContentLineLength": {
+              "max": 6
+            }
+          },
+          "recommendation": "Test files need a concise testing philosophy block immediately after imports. It must explain the testing philosophy, describe how the tested code operates, and state what the tests demonstrate in no more than six content lines."
+        }
+      ]
+    },
+    {
+      "find": "src/**/*.test.ts/**/describe",
+      "traverse": [
+        {
+          "find": "$prev-sibling",
+          "rules": {
+            "type": "token:block-comment",
+            "contains": "/**",
+            "tokenLineLength": {
+              "min": 4
+            }
+          },
+          "recommendation": "Describe blocks need a four-line leading JSDoc block explaining the behavior under test."
+        }
+      ]
+    }
+  ]
 }

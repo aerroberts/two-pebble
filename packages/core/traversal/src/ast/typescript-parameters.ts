@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import type { TraversalNodeRecord } from '../types';
-import { createTokenRecord } from './typescript-token-records';
+import { typescriptTokenRecords } from './typescript-token-records';
 
 type ParameterOwnerNode =
   | ts.FunctionDeclaration
@@ -14,7 +14,7 @@ type ParameterOwnerNode =
 export function parametersRecord(sourceFile: ts.SourceFile, node: ParameterOwnerNode, records: TraversalNodeRecord[]) {
   const childIds = parameterRecords(sourceFile, node.parameters, records);
   const range = parameterListRange(sourceFile, node);
-  return createTokenRecord(records, {
+  return typescriptTokenRecords.createTokenRecord(records, {
     sourceFile,
     node,
     token: 'parameters',
@@ -31,7 +31,7 @@ function parameterRecords(
   records: TraversalNodeRecord[],
 ) {
   return parameters.map((parameter) => {
-    return createTokenRecord(records, {
+    return typescriptTokenRecords.createTokenRecord(records, {
       sourceFile,
       node: parameter,
       token: 'parameter',
@@ -83,7 +83,7 @@ function parameterBindingRecord(
   propertyName: string | undefined,
   records: TraversalNodeRecord[],
 ): TraversalNodeRecord {
-  return createTokenRecord(records, {
+  return typescriptTokenRecords.createTokenRecord(records, {
     sourceFile,
     node,
     token: 'parameter-binding',

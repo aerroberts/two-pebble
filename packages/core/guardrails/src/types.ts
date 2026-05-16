@@ -53,10 +53,12 @@ export interface StructureRuleAssertions {
   functionKind?: TraversalFunctionKind;
   importPath?: string | StructureStringRuleConfig;
   commentContent?: string | StructureStringRuleConfig;
+  commentContentLineLength?: StructureRangeRuleConfig;
   fileName?: string | StructureFileNameRuleConfig;
   matchesFileName?: boolean;
   contains?: string | string[];
   missing?: string | string[];
+  count?: StructureRangeRuleConfig;
   lines?: StructureRangeRuleConfig;
   tokenLineLength?: StructureRangeRuleConfig;
   tokenCharLength?: StructureRangeRuleConfig;

@@ -1,5 +1,5 @@
 import type { TraversalNodeRecord } from '../types';
-import { matchesGlob } from '../utils/glob';
+import { glob } from '../utils/glob';
 import type { TraversalIndex } from './traversal-index';
 
 /**
@@ -13,6 +13,14 @@ export class TraversalFinder {
   }
 
   public resolveFrom(id: string, query: string) {
+    if (query === '$after-imports') {
+      const node = this.afterImports(id);
+      return node ? [node] : [];
+    }
+    if (query.startsWith('$after-imports/')) {
+      const node = this.afterImports(id);
+      return node ? this.resolveSyntax(node, query.slice('$after-imports/'.length)) : [];
+    }
     if (query === '$prev-sibling') {
       const sibling = this.previousSibling(id);
       return sibling ? [sibling] : [];
@@ -95,6 +103,10 @@ export class TraversalFinder {
     return parent && this.unwrapPreviousSibling(parent) ? this.previousSibling(parent.id) : undefined;
   }
 
+  private afterImports(id: string): string | undefined {
+    return this.index.record(id).childIds.find((childId) => this.index.record(childId).token !== 'import');
+  }
+
   private siblings(id: string) {
     const record = this.index.record(this.siblingGroupMemberId(id));
     const parent = record.parentId ? this.index.record(record.parentId) : undefined;
@@ -141,7 +153,7 @@ export class TraversalFinder {
       record.token === segment ||
       record.kind === segment ||
       record.name === segment ||
-      matchesGlob(record.name, segment)
+      glob.matchesGlob(record.name, segment)
     );
   }
 

@@ -2,7 +2,7 @@ import { statSync } from 'node:fs';
 import { basename, dirname } from 'node:path';
 import { TypescriptTranslator } from '../ast/typescript-translator';
 import type { SerializedTraversalTree, TraversalCacheExpandContext, TraversalNodeRecord } from '../types';
-import { recordFrom } from './record-utils';
+import { recordUtils } from './record-utils';
 
 /**
  * Builds the serialized traversal tree from filesystem entries and translated AST records.
@@ -74,7 +74,7 @@ export class TraversalTreeBuilder {
     const childIds = this.translator.translate(fileRecord.path, records);
     fileRecord.childIds.push(...childIds);
     for (const childId of childIds) {
-      recordFrom(records, childId).parentId = fileRecord.id;
+      recordUtils.recordFrom(records, childId).parentId = fileRecord.id;
     }
   }
 }

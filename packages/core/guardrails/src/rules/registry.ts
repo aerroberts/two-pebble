@@ -1,7 +1,9 @@
 import { Rule as AllowedImportPathRule } from './allowed-import-path/rule';
 import { Rule as AsyncRule } from './async/rule';
 import { Rule as CommentContentRule } from './comment-content/rule';
+import { Rule as CommentContentLineLengthRule } from './comment-content-line-length/rule';
 import { Rule as ContainsRule } from './contains/rule';
+import { Rule as CountRule } from './count/rule';
 import { Rule as ExistsRule } from './exists/rule';
 import { Rule as FileNameRule } from './file-name/rule';
 import { Rule as FunctionKindRule } from './function-kind/rule';
@@ -22,10 +24,12 @@ export function structureRules() {
     new FunctionKindRule(),
     new ImportPathRule(),
     new CommentContentRule(),
+    new CommentContentLineLengthRule(),
     new FileNameRule(),
     new MatchesFileNameRule(),
     new ContainsRule(),
     new MissingRule(),
+    new CountRule(),
     new LinesRule(),
     new TokenLineLengthRule(),
     new TokenCharLengthRule(),

@@ -48,15 +48,26 @@ export class StructureRunner {
     }
 
     for (const childRule of rule.traverse ?? []) {
-      const childNodes = this.withoutExcludedNodes(
-        await this.resolveChildNodes(traversal, childRule, nodes),
-        childRule,
-      );
-      this.recordScannedFiles(childNodes);
-      this.captureExtracts(childRule, childNodes);
-      this.checkRules(childRule, childNodes);
-      this.checkExhaustiveContains(childRule, childNodes);
-      await this.checkTraverse(traversal, childRule, childNodes);
+      if (childRule.rules?.count !== undefined) {
+        for (const childNodes of await this.resolveChildNodeGroups(traversal, childRule, nodes)) {
+          const filteredNodes = this.withoutExcludedNodes(childNodes, childRule);
+          this.recordScannedFiles(filteredNodes);
+          this.captureExtracts(childRule, filteredNodes);
+          this.checkRules(childRule, filteredNodes);
+          this.checkExhaustiveContains(childRule, filteredNodes);
+          await this.checkTraverse(traversal, childRule, filteredNodes);
+        }
+      } else {
+        const childNodes = this.withoutExcludedNodes(
+          await this.resolveChildNodes(traversal, childRule, nodes),
+          childRule,
+        );
+        this.recordScannedFiles(childNodes);
+        this.captureExtracts(childRule, childNodes);
+        this.checkRules(childRule, childNodes);
+        this.checkExhaustiveContains(childRule, childNodes);
+        await this.checkTraverse(traversal, childRule, childNodes);
+      }
     }
   }
 
@@ -68,7 +79,16 @@ export class StructureRunner {
   }
 
   private async resolveChildNodes(traversal: CodeTraversal, rule: StructureFindRuleConfig, parents: TraversalNode[]) {
-    const childGroups = await Promise.all(
+    const childGroups = await this.resolveChildNodeGroups(traversal, rule, parents);
+    return this.uniqueNodes(childGroups.flat());
+  }
+
+  private async resolveChildNodeGroups(
+    traversal: CodeTraversal,
+    rule: StructureFindRuleConfig,
+    parents: TraversalNode[],
+  ) {
+    return Promise.all(
       parents.map(async (parent) => {
         const nodes = this.uniqueNodes(
           (await Promise.all(this.findQueries(rule).map((query) => parent.find(query)))).flat(),
@@ -80,7 +100,6 @@ export class StructureRunner {
         return nodes.length > 0 ? traversal.invertSiblings(nodes) : parent.find('*');
       }),
     );
-    return this.uniqueNodes(childGroups.flat());
   }
 
   private findQueries(rule: StructureFindRuleConfig) {
