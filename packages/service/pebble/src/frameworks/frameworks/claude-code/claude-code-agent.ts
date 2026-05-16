@@ -58,12 +58,21 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
    * and for warm sessions sitting idle between turns it's "a new turn is
    * beginning." Only spawns a new `runSession` when there isn't one
    * iterating; otherwise the existing session picks up the queued message.
+   *
+   * Ordering matters: enqueue the input BEFORE we let the working-status
+   * fanout run, otherwise observers that synchronously react to the
+   * 'working' edge (e.g. the wrapping FrameworkAgent emitting a
+   * system-message trace and flipping the durable status) can sample the
+   * adapter while the queue is still empty. That race is what makes the
+   * very first user message look like it failed to launch the agent —
+   * the daemon sees `running` but the SDK iterator has nothing yet — so
+   * the user resends and the second message appears to "kick" it.
    */
   public async submitMessage(input: AgentFrameworkSubmitMessageInput) {
     const wasIdle = !this.warm;
     this.warm = true;
-    this.emitStatusChange({ status: 'working' });
     this.enqueueInput(this.toUserMessage(this.cellsToString(input.input)));
+    this.emitStatusChange({ status: 'working' });
     if (wasIdle) {
       void this.runSession(input);
     }
