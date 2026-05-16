@@ -30,6 +30,7 @@ interface AgentDetailChatViewBodyProps {
   onTaskClick: (boardId: string, taskId: string) => void;
   onThreadSnapshotClick: (threadCursor: string) => void;
   onWorktreeOpenClick: (worktreeId: string) => void;
+  waitingReasons?: string[];
 }
 
 export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
@@ -57,6 +58,7 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
         onStop={props.onStop}
         status={props.agentStatus}
         stopping={props.stopping}
+        waitingReasons={props.waitingReasons}
       />
       {props.chatError.length > 0 ? <Surface>{props.chatError}</Surface> : null}
     </Section>
