@@ -19,7 +19,7 @@ export function SidebarOption(props: SidebarOptionProps) {
   const spacingClass = icon ? 'gap-2.5 px-2.5' : 'px-3';
   const rootClass = `group relative flex w-full items-start overflow-visible rounded-lg py-1.5 text-left text-[12px] leading-4 transition-colors ${spacingClass} ${textClass}`;
   const trailingNode = badge ? (
-    <span className="shrink-0 rounded-full bg-content/[0.06] px-2 py-0.5 text-[11px] font-semibold text-content-muted">
+    <span className="inline-flex h-4 shrink-0 items-center rounded-full bg-content/[0.06] px-2 text-[11px] font-semibold leading-4 text-content-muted">
       {badge}
     </span>
   ) : null;
