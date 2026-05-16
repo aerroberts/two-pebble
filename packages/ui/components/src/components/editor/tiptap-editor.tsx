@@ -1,10 +1,12 @@
-import type { JSONContent } from '@tiptap/core';
+import type { Editor, JSONContent } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { readActiveSlashTrigger, type SlashTrigger } from './slash/slash-trigger';
+import { TodoItemNode } from './todo-item-node';
 
 export type { JSONContent };
 
@@ -13,20 +15,67 @@ export interface TipTapEditorProps {
   placeholder?: string;
   editable?: boolean;
   onBlur?: (content: JSONContent) => void;
+  /**
+   * Receives the live editor instance once it's mounted so callers can
+   * attach surface-specific behaviours (toolbar commands, programmatic
+   * inserts) without forking the base component.
+   */
+  onEditorReady?: (editor: Editor | null) => void;
+  /**
+   * Notified whenever the cursor enters or leaves a `/command` token in
+   * the editor. Lets page-owned slash UI (hints, popovers) react without
+   * each page wiring its own editor-event subscription, which is fragile
+   * across React rerenders.
+   */
+  onSlashTrigger?: (trigger: SlashTrigger | null) => void;
+  /**
+   * Invoked from the editor's own `handleKeyDown` extension point —
+   * fires before ProseMirror's defaults so a `true` return cleanly
+   * suppresses the default key behaviour. Use this to commit a slash
+   * trigger on Enter or intercept other shortcuts.
+   */
+  onKeyDown?: (editor: Editor, event: KeyboardEvent) => boolean;
 }
 
 export function TipTapEditor(props: TipTapEditorProps) {
+  const propsRef = useRef(props);
+  propsRef.current = props;
+  const editorRef = useRef<Editor | null>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
       Link.configure({ openOnClick: false }),
       Image,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing...' }),
+      TodoItemNode,
     ],
     content: props.initialContent,
     editable: props.editable ?? true,
-    onBlur: ({ editor: currentEditor }) => props.onBlur?.(currentEditor.getJSON()),
+    editorProps: {
+      handleKeyDown: (_view, event) => {
+        const current = editorRef.current;
+        const handler = propsRef.current.onKeyDown;
+        if (current === null || handler === undefined) {
+          return false;
+        }
+        return handler(current, event);
+      },
+    },
+    onBlur: ({ editor: currentEditor }) => propsRef.current.onBlur?.(currentEditor.getJSON()),
+    onUpdate: ({ editor: currentEditor }) => {
+      propsRef.current.onSlashTrigger?.(readActiveSlashTrigger(currentEditor));
+    },
+    onSelectionUpdate: ({ editor: currentEditor }) => {
+      propsRef.current.onSlashTrigger?.(readActiveSlashTrigger(currentEditor));
+    },
   });
+
+  editorRef.current = editor;
+
+  useEffect(() => {
+    props.onEditorReady?.(editor);
+  }, [editor, props.onEditorReady]);
 
   useEffect(() => {
     if (editor === null) {

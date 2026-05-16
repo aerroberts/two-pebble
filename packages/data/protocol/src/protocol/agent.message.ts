@@ -17,6 +17,15 @@ export interface AgentMessageOperation {
      * markdown-based consumers).
      */
     cells?: CellContent[];
+    /**
+     * Document id that originated this message. Populated when the call
+     * comes from `DocumentEditorPage`. The daemon uses it to detect
+     * mid-life rebind attempts against an agent that's already bound to a
+     * different document and to suppress the `<open-tasks>` block when
+     * the agent's `progressive-task-list` capability is not bound to
+     * this document.
+     */
+    sourceDocumentId?: string;
   };
   response: {
     id: string;

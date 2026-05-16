@@ -18,6 +18,15 @@ export type Task = TaskInput & {
 
 export interface ProgressiveTaskListCapabilityParams {
   tasks?: TaskInput[];
+  /**
+   * When set, the capability binds to this document: every turn re-reads
+   * the document body, syncs the in-memory tasks slot from the embedded
+   * `todoItem` nodes, and mirrors `mark-task-complete` /
+   * `mark-task-invalid` tool calls back into the document JSON. The
+   * binding is durable across daemon restarts and immutable for the
+   * lifetime of the agent.
+   */
+  documentId?: string;
 }
 
 export interface ProgressiveTaskListStatus {
@@ -30,3 +39,12 @@ export interface ProgressiveTaskListStatus {
 }
 
 export type TaskUpdater = (task: Task) => Task;
+
+export type TerminalTaskStatus = 'completed' | 'invalid';
+export type TaskCompletionType = 'manual' | 'automatic';
+
+export interface MirrorStatusInput {
+  taskId: string;
+  status: TerminalTaskStatus;
+  completionType?: TaskCompletionType;
+}

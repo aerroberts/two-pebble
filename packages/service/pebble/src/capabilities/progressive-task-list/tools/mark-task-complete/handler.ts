@@ -13,9 +13,14 @@ export function buildMarkTaskCompleteTool(capability: ProgressiveTaskListCapabil
     description: 'Marks a progressive task as completed.',
     name: 'mark-task-complete',
     schema,
-  }).onInvoke((input) => {
+  }).onInvoke(async (input) => {
     try {
       capability.completeTaskSuccessfully(input.taskId, input.reason);
+      await capability.mirrorStatusToDocument({
+        taskId: input.taskId,
+        status: 'completed',
+        completionType: 'manual',
+      });
       return ToolResponse.success([Cell.text(`Marked ${input.taskId} complete.`)]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

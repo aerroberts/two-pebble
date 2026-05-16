@@ -77,8 +77,10 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
   /**
    * Runs before every model turn. Override this to append context cells,
    * adapt instructions, or otherwise prepare the thread for the next call.
+   * Implementations may return a promise; callers must await it before
+   * proceeding to the model call.
    */
-  public hookBeforeAgentTurn(): void {}
+  public hookBeforeAgentTurn(): void | Promise<void> {}
 
   /**
    * Receives durable signal data addressed to this capability.

@@ -1,6 +1,9 @@
 import type { Datastore } from '@two-pebble/datastore';
 import {
   appendAgentReference,
+  applyTodoStatus,
+  type DocumentTodo,
+  extractTodos,
   markdownToTipTap,
   parseDocumentReferences,
   serializeDocumentReferences,
@@ -9,6 +12,7 @@ import {
 } from '@two-pebble/datatypes';
 import type { Logger } from '@two-pebble/logger';
 import type {
+  DocumentApplyTodoStatusInput,
   DocumentCreateInput,
   DocumentListInput,
   DocumentListOutput,
@@ -96,5 +100,51 @@ export class DaemonDocumentRunner implements DocumentRunner {
       items: result.items.map((item) => ({ id: item.id, name: item.name, updatedAt: item.updatedAt })),
       total: result.page.total,
     };
+  }
+
+  public async readDocumentTodos(input: DocumentReadInput): Promise<DocumentTodo[]> {
+    const record = await this.datastore.documents.read({ id: input.id });
+    try {
+      const tipTap = JSON.parse(record.content) as TipTapDocument;
+      return extractTodos(tipTap);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn('document todo extraction failed', { documentId: input.id, error: message });
+      return [];
+    }
+  }
+
+  public async applyTodoStatus(input: DocumentApplyTodoStatusInput): Promise<void> {
+    const existing = await this.datastore.documents.read({ id: input.id });
+    let parsed: TipTapDocument;
+    try {
+      parsed = JSON.parse(existing.content) as TipTapDocument;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn('document todo status update failed: invalid JSON', {
+        documentId: input.id,
+        error: message,
+      });
+      return;
+    }
+    const next = applyTodoStatus(parsed, input.todoId, input.status, input.completionType);
+    if (next === parsed) {
+      // Todo id was not found in the document — leave the document alone
+      // so we don't churn references / push a no-op update.
+      return;
+    }
+    const nextRefs = appendAgentReference(parseDocumentReferences(existing.references), this.agentId, Date.now());
+    const record = await this.datastore.documents.update({
+      id: input.id,
+      content: JSON.stringify(next),
+      references: serializeDocumentReferences(nextRefs),
+    });
+    this.bridge.emit('documentUpdated', record);
+    this.logger.info('document todo status updated by agent', {
+      agentId: this.agentId,
+      documentId: record.id,
+      todoId: input.todoId,
+      status: input.status,
+    });
   }
 }

@@ -1,4 +1,5 @@
 import type { CellContent } from '../../../thread/cells/index';
+import { renderDocumentReferenceText } from '../shared/render-document-reference';
 
 export function renderTextCellAnthropic(cell: CellContent): string {
   switch (cell.type) {
@@ -7,7 +8,7 @@ export function renderTextCellAnthropic(cell: CellContent): string {
     case 'data':
       return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
     case 'documentReference':
-      return `[document: ${cell.content.name} (id: ${cell.content.documentId})]\n\n${cell.content.contentSnapshot}`;
+      return renderDocumentReferenceText(cell.content);
     case 'header1':
       return `# ${cell.content.text}`;
     case 'header2':

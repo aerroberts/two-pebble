@@ -13,6 +13,13 @@ export interface AgentLaunchOperation {
     message: string;
     /** Structured cells produced by the rich composer (preferred when present). */
     cells?: CellContent[];
+    /**
+     * Document id that originated this launch. Populated when the launch
+     * comes from `DocumentEditorPage`. The daemon uses it to auto-attach
+     * the `progressive-task-list` capability with `{ documentId }` so the
+     * agent can mark todos in that document complete.
+     */
+    sourceDocumentId?: string;
   };
   response: {
     id: string;

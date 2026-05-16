@@ -2,6 +2,7 @@ import type { AgentExitHookResult } from '../../agent';
 import { AgentCapability, AgentExitHook, EarlyExit } from '../../agent';
 import { Cell } from '../../thread';
 import type { TaskListUpdateTask } from '../../traces';
+import { mirrorStatusToDocumentBinding, syncTasksFromDocumentBinding } from './document-binding';
 import { ProgressiveTaskListTaskAlreadyTerminalError } from './progressive-task-list-task-already-terminal-error';
 import { ProgressiveTaskListTaskBlockedError } from './progressive-task-list-task-blocked-error';
 import { ProgressiveTaskListTaskNotFoundError } from './progressive-task-list-task-not-found-error';
@@ -9,6 +10,7 @@ import type { TaskListUpdateData } from './progressive-task-list-trace-types';
 import { buildMarkTaskCompleteTool } from './tools/mark-task-complete/handler';
 import { buildMarkTaskInvalidTool } from './tools/mark-task-invalid/handler';
 import type {
+  MirrorStatusInput,
   ProgressiveTaskListCapabilityParams,
   ProgressiveTaskListStatus,
   Task,
@@ -31,6 +33,7 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
   private readonly tasksSlot = this.useState<Task[]>('tasks', []);
   private readonly emittedStatusesSlot = this.useState<Record<string, TaskStatus>>('lastEmittedTaskStatuses', {});
   private readonly turnCounterSlot = this.useState<number>('turnCounter', 0);
+  private readonly documentIdSlot = this.useState<string | null>('documentId', null);
 
   /**
    * Seeds the task list from the user-provided config. The agent calls
@@ -38,6 +41,9 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
    * from the latest persisted snapshot instead.
    */
   public override initialize(config: ProgressiveTaskListCapabilityParams): void {
+    if (typeof config.documentId === 'string' && config.documentId.length > 0) {
+      this.documentIdSlot.set(config.documentId);
+    }
     for (const task of config.tasks ?? []) {
       this.addTask(task);
     }
@@ -227,9 +233,12 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
 
   /**
    * Hook triggered automatically before each agent turn. Handles
-   * auto-completion, reveals hidden tasks, and emits status updates.
+   * auto-completion, reveals hidden tasks, emits status updates, and —
+   * when bound to a document — first reconciles the in-memory tasks
+   * slot against the document's embedded todos.
    */
-  public override hookBeforeAgentTurn() {
+  public override async hookBeforeAgentTurn() {
+    await this.syncTasksFromDocument();
     const turnCounter = this.turnCounterSlot.value;
     const autocompleteIds = this.getAutocompleteableTasks().map((t) => t.id);
     const revealIds = this.getRevealableTasks().map((t) => t.id);
@@ -340,5 +349,44 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
 
   private replaceTask(taskId: string, update: TaskUpdater) {
     this.tasksSlot.set(this.tasksSlot.value.map((task) => (task.id === taskId ? update(task) : task)));
+  }
+
+  /**
+   * Reconciles the in-memory tasks slot against the bound document's
+   * embedded todos. No-op when the capability isn't bound to a document.
+   */
+  private async syncTasksFromDocument(): Promise<void> {
+    const documentId = this.documentIdSlot.value;
+    if (documentId === null) {
+      return;
+    }
+    const result = await syncTasksFromDocumentBinding({
+      agent: this.agent,
+      capabilityId: this.id,
+      documentId,
+      tasks: this.tasksSlot.value,
+    });
+    if (result.changed) {
+      this.tasksSlot.set(result.tasks);
+    }
+  }
+
+  /**
+   * Mirrors a task status change back into the bound document so the
+   * checkbox in the document editor flips for the human viewer.
+   */
+  public async mirrorStatusToDocument(input: MirrorStatusInput): Promise<void> {
+    const documentId = this.documentIdSlot.value;
+    if (documentId === null) {
+      return;
+    }
+    await mirrorStatusToDocumentBinding({
+      agent: this.agent,
+      capabilityId: this.id,
+      documentId,
+      taskId: input.taskId,
+      status: input.status,
+      completionType: input.completionType ?? null,
+    });
   }
 }

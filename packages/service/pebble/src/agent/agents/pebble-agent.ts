@@ -579,7 +579,7 @@ export class PebbleAgent extends Agent {
   // Called before each agentic step
   private async hookOnAgenticStepStart() {
     for (const capability of this.capabilities) {
-      capability.hookBeforeAgentTurn();
+      await capability.hookBeforeAgentTurn();
     }
   }
 

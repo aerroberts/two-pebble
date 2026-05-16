@@ -13,9 +13,10 @@ export function buildMarkTaskInvalidTool(capability: ProgressiveTaskListCapabili
     description: 'Marks a progressive task as invalid or impossible.',
     name: 'mark-task-invalid',
     schema,
-  }).onInvoke((input) => {
+  }).onInvoke(async (input) => {
     try {
       capability.completeTaskUnsuccessfully(input.taskId, input.reason);
+      await capability.mirrorStatusToDocument({ taskId: input.taskId, status: 'invalid' });
       return ToolResponse.success([Cell.text(`Marked ${input.taskId} invalid.`)]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

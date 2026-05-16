@@ -39,12 +39,24 @@ export interface LaunchAgentInput {
   agentRegistryId: string;
   message: string;
   cells?: CellContent[];
+  /**
+   * Document id this launch was triggered from. Drives the daemon's
+   * auto-attach for `progressive-task-list` so the agent can act on
+   * todos embedded in the document body.
+   */
+  sourceDocumentId?: string;
 }
 
 export interface SendAgentMessageInput {
   agentId: string;
   message: string;
   cells?: CellContent[];
+  /**
+   * Document id this message was triggered from. The daemon uses it to
+   * gate the `<open-tasks>` rendering and to detect mid-life rebind
+   * conflicts.
+   */
+  sourceDocumentId?: string;
 }
 
 export interface ReadAgentInput {

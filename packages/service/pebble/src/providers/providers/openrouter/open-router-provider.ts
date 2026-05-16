@@ -6,6 +6,7 @@ import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
 import { collectNativeToolDefinitions } from '../../native-tools';
 import type { ProviderOutputBlock, ProviderResult } from '../../types';
 import { isRetryableProviderStatus } from '../../utils/retry';
+import { renderDocumentReferenceText } from '../shared/render-document-reference';
 import { buildOpenRouterPriceLineItems } from './pricing';
 import type {
   OpenRouterChatCompletionResponse,
@@ -254,7 +255,7 @@ export class OpenRouterProvider extends ModelProvider {
       case 'data':
         return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
       case 'documentReference':
-        return `[document: ${cell.content.name} (id: ${cell.content.documentId})]\n\n${cell.content.contentSnapshot}`;
+        return renderDocumentReferenceText(cell.content);
       case 'header1':
         return `# ${cell.content.text}`;
       case 'header2':

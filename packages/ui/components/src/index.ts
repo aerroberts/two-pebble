@@ -131,7 +131,20 @@ export {
 } from './components/data/list-layout/list-layout';
 export { RelativeTime, type RelativeTimeProps } from './components/data/relative-time/relative-time';
 export { Table, type TableColumn, type TableProps } from './components/data/table/table';
+export {
+  deleteTriggerRange,
+  type SlashTrigger,
+  SlashTaskHint,
+  type SlashTaskHintProps,
+} from './components/editor/slash';
 export { type JSONContent, TipTapEditor, type TipTapEditorProps } from './components/editor/tiptap-editor';
+export {
+  generateTodoId,
+  type TodoItemAttributes,
+  type TodoItemCompletionType,
+  TodoItemNode,
+  type TodoItemStatus,
+} from './components/editor/todo-item-node';
 export { Button, type ButtonProps, type ButtonVariant } from './components/input/button/button';
 export {
   ButtonGroup,

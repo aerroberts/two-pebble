@@ -16,10 +16,15 @@ export function handler(ctx: DaemonHandlerContext) {
             datastore: ctx.datastore,
             logger: ctx.logger,
           });
+    const extraCapabilities =
+      typeof payload.sourceDocumentId === 'string' && payload.sourceDocumentId.length > 0
+        ? [{ id: 'progressive-task-list', config: { documentId: payload.sourceDocumentId } }]
+        : undefined;
     return ctx.agentRegistry.launch({
       agentRegistryId: payload.agentRegistryId,
       message: payload.message,
       ...(cells === undefined ? {} : { cells }),
+      ...(extraCapabilities === undefined ? {} : { extraCapabilities }),
     });
   };
 }

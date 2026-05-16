@@ -13,7 +13,7 @@ import { rehydrateAgent } from './agent-registry-rehydrate';
 import { repairBlockedSubAgentAskSignal, repairBlockedSubAgentAskSignals } from './agent-registry-signal-repair';
 import { interruptStaleRunningAgents, persistAgentMetadata } from './agent-registry-status';
 import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
-import type { LaunchAgentInput, RunAgentInput } from './agent-registry-types';
+import type { ExtraCapabilitySpec, LaunchAgentInput, RunAgentInput } from './agent-registry-types';
 import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
 import { installDocumentRunner } from './document-runner/install';
@@ -493,8 +493,7 @@ export class AgentRegistryService {
     if (input.registry !== undefined) {
       coordinator = this.getCoordinator();
       const registrySpecs = parseCapabilitySpecs(input.registry.capabilities, this.logger);
-      const combinedSpecs =
-        input.extraCapabilities === undefined ? registrySpecs : [...registrySpecs, ...input.extraCapabilities];
+      const combinedSpecs = mergeCapabilitySpecs(registrySpecs, input.extraCapabilities);
       installFreshLaunchAgent({
         agent: input.agent,
         agentId: input.agentId,
@@ -523,4 +522,39 @@ export class AgentRegistryService {
       }),
     });
   }
+}
+
+/**
+ * Combines registry-declared capability specs with launch-time extras,
+ * deduping by id. When both sides declare the same capability, the extra
+ * spec wins — its config replaces the registry's. This lets the document
+ * editor's launch path stamp `documentId` onto an already-registered
+ * `progressive-task-list` without producing a duplicate registration.
+ */
+function mergeCapabilitySpecs(
+  registrySpecs: ExtraCapabilitySpec[],
+  extras: ExtraCapabilitySpec[] | undefined,
+): ExtraCapabilitySpec[] {
+  if (extras === undefined || extras.length === 0) {
+    return registrySpecs;
+  }
+  const extrasById = new Map(extras.map((spec) => [spec.id, spec]));
+  const merged: ExtraCapabilitySpec[] = [];
+  const seen = new Set<string>();
+  for (const spec of registrySpecs) {
+    const replacement = extrasById.get(spec.id);
+    if (replacement !== undefined) {
+      merged.push(replacement);
+      seen.add(spec.id);
+      continue;
+    }
+    merged.push(spec);
+  }
+  for (const extra of extras) {
+    if (seen.has(extra.id)) {
+      continue;
+    }
+    merged.push(extra);
+  }
+  return merged;
 }

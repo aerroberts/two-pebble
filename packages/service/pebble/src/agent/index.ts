@@ -5,6 +5,7 @@ export type { AgentNamingRunner } from './agent-naming-runner';
 export { FrameworkAgent } from './agents/framework-agent';
 export { PebbleAgent } from './agents/pebble-agent';
 export type {
+  DocumentApplyTodoStatusInput,
   DocumentCreateInput,
   DocumentListEntry,
   DocumentListInput,
