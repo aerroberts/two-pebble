@@ -26,6 +26,7 @@ export function AssistantSettingsPage() {
   const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantCommandKEnabled = settings?.assistantCommandKEnabled ?? false;
   const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
+  const assistantCommandKFocusAssistantAfterSend = settings?.assistantCommandKFocusAssistantAfterSend ?? false;
 
   const onAssistantAgentChange = (value: string) => {
     if (settings === null) {
@@ -40,6 +41,7 @@ export function AssistantSettingsPage() {
       assistantAgentId: registryChanged ? null : settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      assistantCommandKFocusAssistantAfterSend: settings.assistantCommandKFocusAssistantAfterSend,
     });
   };
 
@@ -54,6 +56,7 @@ export function AssistantSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: next,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      assistantCommandKFocusAssistantAfterSend: settings.assistantCommandKFocusAssistantAfterSend,
     });
   };
 
@@ -68,6 +71,22 @@ export function AssistantSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: next,
+      assistantCommandKFocusAssistantAfterSend: settings.assistantCommandKFocusAssistantAfterSend,
+    });
+  };
+
+  const onAssistantCommandKFocusAssistantAfterSendChange = (next: boolean) => {
+    if (settings === null) {
+      return;
+    }
+    void updateAppSettings({
+      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
+      defaultSpeechProfileId: settings.defaultSpeechProfileId,
+      assistantAgentRegistryId: settings.assistantAgentRegistryId,
+      assistantAgentId: settings.assistantAgentId,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
+      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      assistantCommandKFocusAssistantAfterSend: next,
     });
   };
 
@@ -103,6 +122,12 @@ export function AssistantSettingsPage() {
               disabled={!assistantCommandKEnabled}
               label="Start in voice mode (auto-records when opened)"
               onChange={(event) => onAssistantCommandKVoiceModeChange(event.target.checked)}
+            />
+            <Checkbox
+              checked={assistantCommandKFocusAssistantAfterSend}
+              disabled={!assistantCommandKEnabled}
+              label="Open the Assistant page after sending"
+              onChange={(event) => onAssistantCommandKFocusAssistantAfterSendChange(event.target.checked)}
             />
           </div>
         </Surface>

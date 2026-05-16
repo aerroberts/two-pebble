@@ -27,6 +27,14 @@ export const appSettingsTable = customTable('app_settings', {
   assistantCommandKVoiceModeEnabled: integer('assistant_command_k_voice_mode_enabled', { mode: 'boolean' })
     .notNull()
     .default(false),
+
+  // After submitting from the Command-K overlay, navigate to the Assistant page so the user can
+  // watch the response stream in instead of staying on whatever page they were on (fire-and-forget).
+  assistantCommandKFocusAssistantAfterSend: integer('assistant_command_k_focus_assistant_after_send', {
+    mode: 'boolean',
+  })
+    .notNull()
+    .default(false),
 });
 
 export const APP_SETTINGS_SINGLETON_ID = 'singleton';

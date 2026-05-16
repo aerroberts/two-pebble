@@ -3,6 +3,7 @@
 import { useToast } from '@two-pebble/components';
 import { useAppSettings, useSendAssistantMessage } from '@two-pebble/realtime';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AgentInput, type RichComposerSubmitPayload } from '../shared/agent-input/agent-input';
 
 /**
@@ -14,18 +15,23 @@ import { AgentInput, type RichComposerSubmitPayload } from '../shared/agent-inpu
  * When `assistantCommandKVoiceModeEnabled` is also on, the overlay opens
  * straight into voice mode and starts recording immediately. Submitting
  * dispatches the message to the persisted Assistant agent and dismisses
- * the overlay; the user stays on the current page and a toast confirms.
+ * the overlay. By default the user stays on the current page with a toast
+ * confirming the send; when `assistantCommandKFocusAssistantAfterSend` is
+ * true the user is navigated to the Assistant page instead so they can
+ * watch the response stream in.
  */
 export function AssistantCommandK() {
   const appSettings = useAppSettings();
   const sendAssistantMessage = useSendAssistantMessage();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const settings = appSettings.value;
   const enabled = settings?.assistantCommandKEnabled ?? false;
   const startInVoiceMode = settings?.assistantCommandKVoiceModeEnabled ?? false;
+  const focusAssistantAfterSend = settings?.assistantCommandKFocusAssistantAfterSend ?? false;
 
   const close = useCallback(() => {
     setOpen(false);
@@ -78,9 +84,14 @@ export function AssistantCommandK() {
       toast('Pick an Assistant agent in Settings before sending.', 'error');
       return;
     }
+    if (focusAssistantAfterSend) {
+      navigate('/assistant');
+    }
     try {
       const result = await sendAssistantMessage({ message: trimmed, cells: payload.cells });
-      toast(result.launched ? 'Started Assistant and sent message.' : 'Sent to Assistant.', 'success');
+      if (!focusAssistantAfterSend) {
+        toast(result.launched ? 'Started Assistant and sent message.' : 'Sent to Assistant.', 'success');
+      }
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : 'Failed to send.';
       toast(message, 'error');

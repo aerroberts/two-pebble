@@ -14,6 +14,7 @@ export async function writeFullAppSettings() {
     assistantAgentId: 'agent-1',
     assistantCommandKEnabled: false,
     assistantCommandKVoiceModeEnabled: false,
+    assistantCommandKFocusAssistantAfterSend: false,
   });
   await datastore.close();
   return updated;
@@ -33,6 +34,7 @@ export async function clearAssistantAgentSetting() {
     assistantAgentId: 'agent-1',
     assistantCommandKEnabled: false,
     assistantCommandKVoiceModeEnabled: false,
+    assistantCommandKFocusAssistantAfterSend: false,
   });
   const cleared = await datastore.appSettings.update({
     defaultTranscriptionProfileId: null,
@@ -41,6 +43,7 @@ export async function clearAssistantAgentSetting() {
     assistantAgentId: null,
     assistantCommandKEnabled: false,
     assistantCommandKVoiceModeEnabled: false,
+    assistantCommandKFocusAssistantAfterSend: false,
   });
   await datastore.close();
   return cleared;

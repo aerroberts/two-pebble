@@ -49,6 +49,7 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
         assistantAgentId: launched.id,
         assistantCommandKEnabled: settings.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+        assistantCommandKFocusAssistantAfterSend: settings.assistantCommandKFocusAssistantAfterSend,
       });
       return { agentId: launched.id, launched: true };
     }

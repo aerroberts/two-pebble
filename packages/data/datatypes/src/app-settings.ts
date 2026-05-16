@@ -11,4 +11,6 @@ export interface AppSettings {
   assistantCommandKEnabled: boolean;
   /** When the Command-K overlay opens, auto-start the mic instead of showing the text+voice composer. */
   assistantCommandKVoiceModeEnabled: boolean;
+  /** After sending from the Command-K overlay, navigate to the Assistant page so the user can follow the response. */
+  assistantCommandKFocusAssistantAfterSend: boolean;
 }

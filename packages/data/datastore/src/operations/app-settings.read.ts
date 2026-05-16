@@ -30,6 +30,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       assistantAgentId: null,
       assistantCommandKEnabled: false,
       assistantCommandKVoiceModeEnabled: false,
+      assistantCommandKFocusAssistantAfterSend: false,
     };
     return fallback;
   };
