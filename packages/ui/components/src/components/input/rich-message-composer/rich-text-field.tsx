@@ -74,7 +74,7 @@ export function RichTextField(props: RichTextFieldProps) {
       const doc = event.editor.getJSON();
       const cells = tipTapDocToCells(doc);
       const markdown = tipTapDocToMarkdown(doc);
-      onCommitRef.current({ markdown, cells });
+      onCommitRef.current({ markdown, cells, doc });
     },
   });
 

@@ -1,4 +1,4 @@
-import { Header, PageLayout, Section, Select, type SelectOption, Surface } from '@two-pebble/components';
+import { Header, PageLayout, ProviderLogo, Section, Select, type SelectOption, Surface } from '@two-pebble/components';
 import type { InferenceProfileKind, InferenceProfileRecord, LoadableRegistry } from '@two-pebble/realtime';
 import { useAppSettings, useInferenceProfiles, useUpdateAppSettings } from '@two-pebble/realtime';
 
@@ -83,6 +83,7 @@ function buildProfileOptions(
     .filter((profile) => profile.kind === kind)
     .sort((left, right) => left.name.localeCompare(right.name))
     .map((profile) => ({
+      icon: <ProviderLogo provider={profile.provider} size="xs" />,
       label: profile.name.length > 0 ? profile.name : `Untitled ${profile.provider} profile`,
       value: profile.id,
     }));

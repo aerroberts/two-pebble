@@ -1,4 +1,5 @@
 import type { CellContent } from '@two-pebble/pebble';
+import type { AgentSignalWireRecord } from '@two-pebble/protocol';
 import {
   type AgentRecord,
   useAgentCalls,
@@ -8,10 +9,11 @@ import {
   useAgentTraces,
   useFreshStartAgent,
   useOpenWorktree,
+  useRealtimeDatastore,
   useSendAgentMessage,
   useStopAgent,
 } from '@two-pebble/realtime';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { threadSnapshotPath } from '../../shared/routing/thread-pointer';
 import { parseAgentDetailViewMode } from './agent-detail.types';
@@ -35,8 +37,38 @@ export function useAgentDetailPageState() {
   const stopAgent = useStopAgent();
   const freshStartAgent = useFreshStartAgent();
   const liveness = useAgentLiveness(agentId);
+  const datastore = useRealtimeDatastore();
   const [stopping, setStopping] = useState(false);
   const [restarting, setRestarting] = useState(false);
+  const [waitingSignals, setWaitingSignals] = useState<AgentSignalWireRecord[]>([]);
+  const isWaiting = agent?.status === 'waiting';
+  useEffect(() => {
+    if (!isWaiting || agentId.length === 0) {
+      setWaitingSignals([]);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const result = await datastore.emit('listAgentSignals', { agentId });
+        if (cancelled) {
+          return;
+        }
+        setWaitingSignals(result.items.filter((signal) => signal.status === 'open'));
+      } catch {
+        if (!cancelled) {
+          setWaitingSignals([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [agentId, datastore, isWaiting]);
+  const waitingReasons = useMemo(
+    () => waitingSignals.map((signal) => (signal.name.length > 0 ? signal.name : signal.capabilityId)),
+    [waitingSignals],
+  );
   const descendantAgentIds = useMemo(() => readDescendantAgentIds(agentId, agents.values()), [agentId, agents]);
   const waterfallAgentIds = useMemo(
     () => (waterfallScope === 'all-children' ? [agentId, ...descendantAgentIds] : [agentId]),
@@ -135,6 +167,10 @@ export function useAgentDetailPageState() {
     navigate(`/tasks/${boardId}?selectedTask=${taskId}`);
   };
 
+  const openDocument = (documentId: string) => {
+    navigate(`/documents/${documentId}`);
+  };
+
   const sendChatMessage = async (input: { markdown: string; cells: CellContent[] }) => {
     const trimmed = input.markdown.trim();
     if ((trimmed.length === 0 && input.cells.length === 0) || agentId.length === 0) {
@@ -190,6 +226,7 @@ export function useAgentDetailPageState() {
     loadingPriceLineItems,
     openAgent,
     openAgentRegistry,
+    openDocument,
     openModelCall,
     openTask,
     openThreadSnapshot,
@@ -209,6 +246,7 @@ export function useAgentDetailPageState() {
     viewMode,
     waterfallScope,
     waterfallItems,
+    waitingReasons,
   };
 }
 

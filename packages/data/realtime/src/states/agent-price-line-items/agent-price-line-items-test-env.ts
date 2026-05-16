@@ -1,3 +1,4 @@
+import { emptyAgentSystemPrompt } from '@two-pebble/datatypes';
 import { agentCreateInput, modelCallRecordInput, openAiIntegrationInput } from '../../testing/support/test-inputs';
 import type { RealtimeContext } from '../../testing/types';
 
@@ -22,7 +23,7 @@ export async function launchPricedAgent(ctx: RealtimeContext) {
     const registry = await ctx.daemon.do('createAgentRegistry', {
       inferenceProfileId: profile.id,
       name: 'Price Test Agent',
-      systemPrompt: '',
+      systemPrompt: emptyAgentSystemPrompt(),
     });
     const agent = await ctx.daemon.do('launchAgent', {
       agentRegistryId: registry.id,

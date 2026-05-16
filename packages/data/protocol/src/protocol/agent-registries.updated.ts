@@ -1,4 +1,4 @@
-import type { AgentRegistryKind } from '@two-pebble/datatypes';
+import type { AgentRegistryKind, TipTapDocument } from '@two-pebble/datatypes';
 
 interface AgentRegistryRecord {
   id: string;
@@ -8,7 +8,7 @@ interface AgentRegistryRecord {
   kind: AgentRegistryKind;
   inferenceProfileId: string | null;
   thirdPartyAgentInstallId: string | null;
-  systemPrompt: string;
+  systemPrompt: TipTapDocument;
   capabilities: string;
   workspaceConfig: string;
 }

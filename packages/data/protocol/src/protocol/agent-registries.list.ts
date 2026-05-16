@@ -1,4 +1,4 @@
-import type { AgentRegistryKind } from '@two-pebble/datatypes';
+import type { AgentRegistryKind, TipTapDocument } from '@two-pebble/datatypes';
 
 export interface AgentRegistryRecord {
   id: string;
@@ -12,7 +12,7 @@ export interface AgentRegistryRecord {
   kind: AgentRegistryKind;
   inferenceProfileId: string | null;
   thirdPartyAgentInstallId: string | null;
-  systemPrompt: string;
+  systemPrompt: TipTapDocument;
   /**
    * Serialized JSON list of `{ id, config }` capability specs the
    * launch flow attaches to each agent run. UI surfaces this as the

@@ -1,14 +1,19 @@
+import { parseAgentSystemPrompt } from '@two-pebble/datatypes';
 import type { AgentRegistryRecord } from '../types';
 
-type StoredAgentRegistryRow = Omit<AgentRegistryRecord, 'kind'>;
+type StoredAgentRegistryRow = Omit<AgentRegistryRecord, 'kind' | 'systemPrompt'> & { systemPrompt: string };
 
 /**
- * Computes the AgentRegistryKind derived from which optional id is set —
- * 'framework' when `thirdPartyAgentInstallId` is populated, 'pebble' for
- * every other shape. The column previously persisted this discriminator
- * directly; the value is now attached on read by the agent-registries
- * operations so consumers keep getting `record.kind`.
+ * Hydrates an agent registry row read from SQLite. Parses the JSON
+ * system prompt into a TipTap document and computes the derived
+ * `kind` discriminator ('framework' when `thirdPartyAgentInstallId` is
+ * populated, 'pebble' otherwise). Legacy rows persisted as raw markdown
+ * are wrapped into a flat TipTap doc by `parseAgentSystemPrompt`.
  */
 export function attachDerivedAgentRegistryKind(row: StoredAgentRegistryRow): AgentRegistryRecord {
-  return { ...row, kind: row.thirdPartyAgentInstallId !== null ? 'framework' : 'pebble' };
+  return {
+    ...row,
+    systemPrompt: parseAgentSystemPrompt(row.systemPrompt),
+    kind: row.thirdPartyAgentInstallId !== null ? 'framework' : 'pebble',
+  };
 }
