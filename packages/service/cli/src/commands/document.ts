@@ -33,6 +33,11 @@ interface DeleteOptions extends SharedOptions {
   id: string;
 }
 
+/**
+ * Registers document import, export, listing, and deletion commands.
+ * Owns the commander surface for TipTap-backed documents.
+ * Leaves daemon connection and formatting details in local helpers.
+ */
 export function registerDocumentCommand(program: Command) {
   const document = program.command('document').description('Manage TipTap-backed documents through the local daemon.');
 

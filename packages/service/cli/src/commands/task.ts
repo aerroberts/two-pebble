@@ -43,6 +43,11 @@ type SettableStatus = 'working' | 'waiting' | 'success' | 'failure';
 
 const SETTABLE_STATUSES: SettableStatus[] = ['working', 'waiting', 'success', 'failure'];
 
+/**
+ * Registers task board, pool, task, and dependency commands.
+ * Owns the commander surface for task-board daemon operations.
+ * Leaves request execution and validation in local helpers.
+ */
 export function registerTaskCommand(program: Command) {
   const task = program.command('task').description('Manage task boards, pools, tasks, and dependencies.');
 

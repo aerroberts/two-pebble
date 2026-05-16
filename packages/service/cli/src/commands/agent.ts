@@ -12,6 +12,11 @@ interface SetNameOptions {
   url?: string;
 }
 
+/**
+ * Registers agent management commands on the root CLI program.
+ * Owns daemon discovery for agent-scoped commands.
+ * Leaves command execution details in local helpers.
+ */
 export function registerAgentCommand(program: Command) {
   const agent = program.command('agent').description('Manage delegate agents through the local daemon.');
 
