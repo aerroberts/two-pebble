@@ -12,7 +12,7 @@
       "justification": "Agent naming capability keeps a local helper beside the class today; extract and document it separately from CI enablement."
     },
     {
-      "rules": ["@rule/definition-length", "@rule/indent"],
+      "rules": ["@rule/structure", "@rule/indent"],
       "paths": ["src/capabilities/task-board-access/task-board-access-capability.ts"],
       "justification": "Task board access capability has existing nested response assembly that should be split in a focused follow-up."
     },

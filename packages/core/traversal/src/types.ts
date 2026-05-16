@@ -7,18 +7,22 @@ export type TraversalTokenName =
   | 'block'
   | 'block-comment'
   | 'class'
+  | 'catch'
   | 'const'
+  | 'constructor'
   | 'export'
   | 'function'
   | 'import'
   | 'interface'
+  | 'if'
   | 'line-comment'
   | 'parameter'
   | 'parameter-binding'
   | 'parameters'
   | 'private'
   | 'public'
-  | 'static';
+  | 'static'
+  | 'try';
 
 export type TraversalNodeType = 'file' | 'folder' | `token:${TraversalTokenName}`;
 

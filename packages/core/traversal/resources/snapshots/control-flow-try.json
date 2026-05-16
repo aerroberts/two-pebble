@@ -1,0 +1,11 @@
+[
+  {
+    "type": "token:try",
+    "name": "try",
+    "token": "try",
+    "path": "src/data/repository.ts",
+    "line": 18,
+    "startLine": 18,
+    "endLine": 22
+  }
+]

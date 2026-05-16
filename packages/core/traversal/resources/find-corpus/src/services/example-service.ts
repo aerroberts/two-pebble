@@ -2,6 +2,8 @@
  * Coordinates example service work.
  */
 export class ExampleService {
+  public constructor() {}
+
   public static create() {
     return new ExampleService();
   }

@@ -31,3 +31,15 @@ export async function asyncOuter(fetchText: (path: string) => Promise<string>, p
 
   return asyncArrow('next');
 }
+
+export function controlFlow(value: string) {
+  if (!value.trim()) {
+    return 'empty';
+  }
+
+  try {
+    return value.toLowerCase();
+  } catch {
+    return 'fallback';
+  }
+}

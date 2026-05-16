@@ -1,0 +1,11 @@
+[
+  {
+    "type": "token:catch",
+    "name": "catch",
+    "token": "catch",
+    "path": "src/data/repository.ts",
+    "line": 20,
+    "startLine": 20,
+    "endLine": 22
+  }
+]

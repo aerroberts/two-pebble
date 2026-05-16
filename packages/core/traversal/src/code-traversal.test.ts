@@ -19,6 +19,10 @@ const findSnapshots = [
   { name: 'service-public-methods', query: 'src/services/**/*.ts/export/class/public/function' },
   { name: 'service-private-methods', query: 'src/services/**/*.ts/export/class/private/function' },
   { name: 'service-static-members', query: 'src/services/**/*.ts/export/class/**/static' },
+  { name: 'service-constructors', query: 'src/services/**/*.ts/export/class/**/constructor' },
+  { name: 'control-flow-if', query: 'src/**/*.ts/**/if' },
+  { name: 'control-flow-try', query: 'src/**/*.ts/**/try' },
+  { name: 'control-flow-catch', query: 'src/**/*.ts/**/catch' },
 ] as const;
 
 function snapshotRoot() {

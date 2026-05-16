@@ -552,6 +552,137 @@
           ]
         }
       ]
+    },
+    {
+      "kind": "token",
+      "name": "export",
+      "token": "export",
+      "line": 35,
+      "startLine": 35,
+      "startColumn": 1,
+      "endLine": 45,
+      "endColumn": 2,
+      "children": [
+        {
+          "kind": "token",
+          "name": "controlFlow",
+          "async": false,
+          "token": "function",
+          "functionKind": "declaration",
+          "line": 35,
+          "startLine": 35,
+          "startColumn": 1,
+          "endLine": 45,
+          "endColumn": 2,
+          "children": [
+            {
+              "kind": "token",
+              "name": "parameters",
+              "token": "parameters",
+              "line": 35,
+              "startLine": 35,
+              "startColumn": 29,
+              "endLine": 35,
+              "endColumn": 42,
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "value",
+                  "destructured": false,
+                  "token": "parameter",
+                  "line": 35,
+                  "startLine": 35,
+                  "startColumn": 29,
+                  "endLine": 35,
+                  "endColumn": 42,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "token",
+              "name": "block",
+              "token": "block",
+              "line": 35,
+              "startLine": 35,
+              "startColumn": 44,
+              "endLine": 45,
+              "endColumn": 2,
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "if",
+                  "token": "if",
+                  "line": 36,
+                  "startLine": 36,
+                  "startColumn": 3,
+                  "endLine": 38,
+                  "endColumn": 4,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "block",
+                      "token": "block",
+                      "line": 36,
+                      "startLine": 36,
+                      "startColumn": 22,
+                      "endLine": 38,
+                      "endColumn": 4,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "token",
+                  "name": "try",
+                  "token": "try",
+                  "line": 40,
+                  "startLine": 40,
+                  "startColumn": 3,
+                  "endLine": 44,
+                  "endColumn": 4,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "block",
+                      "token": "block",
+                      "line": 40,
+                      "startLine": 40,
+                      "startColumn": 7,
+                      "endLine": 42,
+                      "endColumn": 4,
+                      "children": []
+                    },
+                    {
+                      "kind": "token",
+                      "name": "catch",
+                      "token": "catch",
+                      "line": 42,
+                      "startLine": 42,
+                      "startColumn": 5,
+                      "endLine": 44,
+                      "endColumn": 4,
+                      "children": [
+                        {
+                          "kind": "token",
+                          "name": "block",
+                          "token": "block",
+                          "line": 42,
+                          "startLine": 42,
+                          "startColumn": 11,
+                          "endLine": 44,
+                          "endColumn": 4,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

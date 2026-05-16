@@ -20,5 +20,16 @@
     "line": 9,
     "startLine": 9,
     "endLine": 11
+  },
+  {
+    "type": "token:function",
+    "name": "normalizeRepositoryName",
+    "async": false,
+    "token": "function",
+    "functionKind": "declaration",
+    "path": "src/data/repository.ts",
+    "line": 13,
+    "startLine": 13,
+    "endLine": 23
   }
 ]

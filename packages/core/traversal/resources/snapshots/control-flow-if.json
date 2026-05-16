@@ -1,0 +1,11 @@
+[
+  {
+    "type": "token:if",
+    "name": "if",
+    "token": "if",
+    "path": "src/data/repository.ts",
+    "line": 14,
+    "startLine": 14,
+    "endLine": 16
+  }
+]

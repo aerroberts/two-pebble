@@ -13,6 +13,7 @@ type ParameterOwnerNode =
   | ts.FunctionExpression
   | ts.ArrowFunction
   | ts.MethodDeclaration
+  | ts.ConstructorDeclaration
   | ts.GetAccessorDeclaration
   | ts.SetAccessorDeclaration;
 
@@ -43,7 +44,11 @@ export class TypeScriptTranslator {
     return childIds;
   }
 
-  private translateStatement(sourceFile: ts.SourceFile, statement: ts.Statement, records: TraversalNodeRecord[]) {
+  private translateStatement(
+    sourceFile: ts.SourceFile,
+    statement: ts.Statement,
+    records: TraversalNodeRecord[],
+  ): TraversalNodeRecord | undefined {
     if (ts.isImportDeclaration(statement) || ts.isImportEqualsDeclaration(statement)) {
       return this.createTokenRecord(records, {
         sourceFile,
@@ -53,6 +58,12 @@ export class TypeScriptTranslator {
         importPath: this.importPath(sourceFile, statement),
         childIds: [],
       });
+    }
+    if (ts.isIfStatement(statement)) {
+      return this.ifRecord(sourceFile, statement, records);
+    }
+    if (ts.isTryStatement(statement)) {
+      return this.tryRecord(sourceFile, statement, records);
     }
 
     const declaration = this.translateDeclaration(sourceFile, statement, records);
@@ -71,7 +82,11 @@ export class TypeScriptTranslator {
     return exported;
   }
 
-  private translateDeclaration(sourceFile: ts.SourceFile, node: ts.Node, records: TraversalNodeRecord[]) {
+  private translateDeclaration(
+    sourceFile: ts.SourceFile,
+    node: ts.Node,
+    records: TraversalNodeRecord[],
+  ): TraversalNodeRecord | undefined {
     if (ts.isClassDeclaration(node)) {
       const children = this.classChildRecords(sourceFile, node, records);
       return this.createTokenRecord(records, {
@@ -128,6 +143,20 @@ export class TypeScriptTranslator {
       });
       return this.wrapClassMemberModifiers(sourceFile, node, method, records);
     }
+    if (ts.isConstructorDeclaration(node)) {
+      const children = [
+        this.parametersRecord(sourceFile, node, records).id,
+        ...this.blockRecord(sourceFile, node.body, records),
+      ];
+      const constructor = this.createTokenRecord(records, {
+        sourceFile,
+        node,
+        token: 'constructor',
+        name: 'constructor',
+        childIds: children,
+      });
+      return this.wrapClassMemberModifiers(sourceFile, node, constructor, records);
+    }
     if (ts.isPropertyDeclaration(node)) {
       const property = this.createTokenRecord(records, {
         sourceFile,
@@ -156,6 +185,61 @@ export class TypeScriptTranslator {
     }
 
     return undefined;
+  }
+
+  private ifRecord(
+    sourceFile: ts.SourceFile,
+    node: ts.IfStatement,
+    records: TraversalNodeRecord[],
+  ): TraversalNodeRecord {
+    return this.createTokenRecord(records, {
+      sourceFile,
+      node,
+      token: 'if',
+      name: 'if',
+      childIds: [
+        ...this.statementRecord(sourceFile, node.thenStatement, records),
+        ...this.statementRecord(sourceFile, node.elseStatement, records),
+      ],
+    });
+  }
+
+  private tryRecord(
+    sourceFile: ts.SourceFile,
+    node: ts.TryStatement,
+    records: TraversalNodeRecord[],
+  ): TraversalNodeRecord {
+    return this.createTokenRecord(records, {
+      sourceFile,
+      node,
+      token: 'try',
+      name: 'try',
+      childIds: [
+        ...this.blockRecord(sourceFile, node.tryBlock, records),
+        ...this.catchClauseRecord(sourceFile, node.catchClause, records),
+        ...this.blockRecord(sourceFile, node.finallyBlock, records),
+      ],
+    });
+  }
+
+  private catchClauseRecord(
+    sourceFile: ts.SourceFile,
+    node: ts.CatchClause | undefined,
+    records: TraversalNodeRecord[],
+  ): string[] {
+    if (!node) {
+      return [];
+    }
+
+    return [
+      this.createTokenRecord(records, {
+        sourceFile,
+        node,
+        token: 'catch',
+        name: 'catch',
+        childIds: this.blockRecord(sourceFile, node.block, records),
+      }).id,
+    ];
   }
 
   private classChildRecords(sourceFile: ts.SourceFile, node: ts.ClassDeclaration, records: TraversalNodeRecord[]) {
@@ -343,6 +427,22 @@ export class TypeScriptTranslator {
           }).id,
         ]
       : [];
+  }
+
+  private statementRecord(
+    sourceFile: ts.SourceFile,
+    statement: ts.Statement | undefined,
+    records: TraversalNodeRecord[],
+  ): string[] {
+    if (!statement) {
+      return [];
+    }
+    if (ts.isBlock(statement)) {
+      return this.blockRecord(sourceFile, statement, records);
+    }
+
+    const translated: TraversalNodeRecord | undefined = this.translateStatement(sourceFile, statement, records);
+    return translated ? [translated.id] : [];
   }
 
   private bodyRecord(
