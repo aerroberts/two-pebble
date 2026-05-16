@@ -2,7 +2,7 @@
   "inherit": "@group/guardrails-typescript",
   "exclude": [
     {
-      "rules": ["@rule/file-length"],
+      "rules": ["@rule/structure"],
       "paths": ["src/agent/agents/pebble-agent.ts"],
       "justification": "PebbleAgent is long and will continue to be long"
     },

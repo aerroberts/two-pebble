@@ -2,7 +2,7 @@
   "inherit": "@group/guardrails-typescript",
   "exclude": [
     {
-      "rules": ["@rule/file-length"],
+      "rules": ["@rule/structure"],
       "paths": ["src/realtime-datastore.ts"],
       "justification": "RealtimeDatastore wires every state slice and is intentionally a single facade."
     },

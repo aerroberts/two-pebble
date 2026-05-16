@@ -85,6 +85,9 @@ describe('feature: code traversal', () => {
     expect(classes[0]?.property('startLine')).toBe(4);
     expect(classes[0]?.property('endLine')).toBe(8);
 
+    const [file] = await traversal.find('commented.ts');
+    expect(file?.property('lines')).toBe(13);
+
     const previous = await classes[0]?.find('$prev-sibling');
     expect(previous?.map((node) => node.property('token'))).toEqual(['block-comment']);
   });

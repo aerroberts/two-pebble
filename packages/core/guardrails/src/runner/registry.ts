@@ -4,7 +4,6 @@ import { Rule as ClassStaticMemberRule } from '../rules/class-static-member/rule
 import { Rule as CodeStructureRule } from '../rules/code-structure/rule';
 import { Rule as DefinitionLengthRule } from '../rules/definition-length/rule';
 import { Rule as DocumentationRule } from '../rules/documentation/rule';
-import { Rule as FileLengthRule } from '../rules/file-length/rule';
 import { Rule as IndentRule } from '../rules/indent/rule';
 import { Rule as ReactExportedComponentRule } from '../rules/react-exported-component/rule';
 import { Rule as ReactFunctionParameterRule } from '../rules/react-function-parameter/rule';
@@ -23,10 +22,6 @@ import { Rule as TypescriptVariableTypeRule } from '../rules/typescript-variable
 import type { RuleRegistration } from './types';
 
 export const rules: RuleRegistration[] = [
-  {
-    name: 'file-length',
-    create: (context) => new FileLengthRule(context),
-  },
   {
     name: 'class-name',
     create: (context) => new ClassNameRule(context),

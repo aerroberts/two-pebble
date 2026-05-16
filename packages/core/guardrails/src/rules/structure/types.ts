@@ -30,6 +30,7 @@ export interface StructureAssertConfig {
   fileName?: string | StructureFileNameAssertConfig;
   contains?: string | string[];
   missing?: string | string[];
+  lines?: StructureRangeAssertConfig;
   tokenLineLength?: StructureRangeAssertConfig;
   tokenCharLength?: StructureRangeAssertConfig;
 }

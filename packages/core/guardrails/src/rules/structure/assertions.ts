@@ -5,6 +5,7 @@ import { Assert as ExistsAssertion } from './asserts/exists/assert';
 import { Assert as FileNameAssertion } from './asserts/file-name/assert';
 import { Assert as FunctionKindAssertion } from './asserts/function-kind/assert';
 import { Assert as ImportPathAssertion } from './asserts/import-path/assert';
+import { Assert as LinesAssertion } from './asserts/lines/assert';
 import { Assert as MissingAssertion } from './asserts/missing/assert';
 import { Assert as TokenCharLengthAssertion } from './asserts/token-char-length/assert';
 import { Assert as TokenLineLengthAssertion } from './asserts/token-line-length/assert';
@@ -21,6 +22,7 @@ export function structureAssertions() {
     new FileNameAssertion(),
     new ContainsAssertion(),
     new MissingAssertion(),
+    new LinesAssertion(),
     new TokenLineLengthAssertion(),
     new TokenCharLengthAssertion(),
   ];

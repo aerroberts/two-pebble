@@ -1,3 +1,4 @@
+import { posix, relative } from 'node:path';
 import { CodeTraversal, type TraversalNode } from '@two-pebble/traversal';
 import { Guardrail } from '../../constructs/guardrail';
 import { structureAssertions } from './assertions';
@@ -22,7 +23,7 @@ export class Rule extends Guardrail<StructureConfig> {
     });
 
     for (const rule of this.rootRules()) {
-      const nodes = await traversal.find(rule.find);
+      const nodes = this.withoutExcludedNodes(await traversal.find(rule.find));
       this.checkAssertions(rule, nodes);
       await this.checkTraverse(rule, nodes);
     }
@@ -39,7 +40,9 @@ export class Rule extends Guardrail<StructureConfig> {
 
   private async checkTraverse(rule: StructureFindRuleConfig, nodes: TraversalNode[]) {
     for (const childRule of rule.traverse ?? []) {
-      const childNodes = (await Promise.all(nodes.map((node) => node.find(childRule.find)))).flat();
+      const childNodes = this.withoutExcludedNodes(
+        (await Promise.all(nodes.map((node) => node.find(childRule.find)))).flat(),
+      );
       this.checkAssertions(childRule, childNodes);
       await this.checkTraverse(childRule, childNodes);
     }
@@ -83,5 +86,67 @@ export class Rule extends Guardrail<StructureConfig> {
     } catch {
       return undefined;
     }
+  }
+
+  private withoutExcludedNodes(nodes: TraversalNode[]) {
+    if (this.context.exclude.length === 0) {
+      return nodes;
+    }
+
+    return nodes.filter((node) => {
+      const path = this.optionalProperty(node, 'path');
+      return !(typeof path === 'string' && this.excluded(path));
+    });
+  }
+
+  private excluded(path: string) {
+    const relativePath = relative(this.context.packageDir, path).replaceAll('\\', '/');
+    return this.context.exclude.some((excludePath) => this.matchesExclude(relativePath, excludePath));
+  }
+
+  private matchesExclude(path: string, excludePath: string) {
+    const normalized = excludePath.replaceAll('\\', '/').replace(/\/$/, '');
+    if (normalized.includes('*')) {
+      return this.matchesGlob(path, normalized);
+    }
+    if (!posix.extname(normalized)) {
+      return path === normalized || path.startsWith(`${normalized}/`);
+    }
+    return path === normalized;
+  }
+
+  private matchesGlob(path: string, pattern: string) {
+    return new RegExp(this.globExpression(pattern)).test(path);
+  }
+
+  private globExpression(pattern: string) {
+    let expression = '^';
+    for (let index = 0; index < pattern.length; index++) {
+      const char = pattern[index];
+      const next = pattern[index + 1];
+      const afterNext = pattern[index + 2];
+
+      if (char === '*' && next === '*' && afterNext === '/') {
+        expression += '(?:.*/)?';
+        index += 2;
+        continue;
+      }
+      if (char === '*' && next === '*') {
+        expression += '.*';
+        index += 1;
+        continue;
+      }
+      if (char === '*') {
+        expression += '[^/]*';
+        continue;
+      }
+
+      expression += this.escapeRegExp(char ?? '');
+    }
+    return `${expression}$`;
+  }
+
+  private escapeRegExp(value: string) {
+    return value.replace(/[.+^${}()|[\]\\]/g, '\\$&');
   }
 }

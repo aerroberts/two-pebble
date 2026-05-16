@@ -2,7 +2,7 @@
   "inherit": "@group/guardrails-typescript",
   "exclude": [
     {
-      "rules": ["@rule/file-length", "@rule/typescript-type-safety"],
+      "rules": ["@rule/structure", "@rule/typescript-type-safety"],
       "paths": ["src/types.ts"],
       "justification": "Datastore shared row types include legacy heartbeat JSON detail shapes and now exceed the package length target; split and type those contracts separately from CI enablement."
     },

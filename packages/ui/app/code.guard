@@ -1,7 +1,7 @@
 {
   "exclude": [
     {
-      "rules": ["@rule/file-length"],
+      "rules": ["@rule/structure"],
       "paths": ["src/pages/assistant/assistant.page.tsx"],
       "justification": "Assistant page currently owns the chat surface and launch affordances; split after CI is enforcing the baseline."
     },
@@ -52,18 +52,27 @@
     }
   ],
   "additional": {
-    "@rule/file-length": {
-      "files": {
-        "classFile": {
-          "maxLines": 400
+    "@rule/structure": {
+      "find": [
+        {
+          "find": "src/**/*.ts",
+          "assert": {
+            "lines": {
+              "max": 400
+            }
+          },
+          "recommendation": "Move secondary behavior into focused modules until the file has one clear responsibility and fits inside the configured limit."
         },
-        "typescriptFile": {
-          "maxLines": 400
-        },
-        "reactFile": {
-          "maxLines": 300
+        {
+          "find": "src/**/*.tsx",
+          "assert": {
+            "lines": {
+              "max": 300
+            }
+          },
+          "recommendation": "Move secondary UI behavior into focused components until the file has one clear responsibility and fits inside the configured limit."
         }
-      }
+      ]
     },
     "@rule/top-level-definitions": {
       "files": {

@@ -2,12 +2,12 @@
   "inherit": "@group/guardrails-typescript",
   "exclude": [
     {
-      "rules": ["@rule/file-length", "@rule/typescript-type-safety", "@rule/typescript-function-shape"],
+      "rules": ["@rule/structure", "@rule/typescript-type-safety", "@rule/typescript-function-shape"],
       "paths": ["src/services/agent-registry-service.ts"],
       "justification": "Agent registry service is existing orchestration code with broad persistence and launch contracts; refactor separately after CI is active."
     },
     {
-      "rules": ["@rule/file-length"],
+      "rules": ["@rule/structure"],
       "paths": ["src/services/task-board-service.ts"],
       "justification": "Task board service already exceeds the package length target; split it in a behavior-preserving follow-up."
     },

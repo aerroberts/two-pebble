@@ -2,7 +2,7 @@
 
 ## consolidated
 
-- `class-file-length`, `typescript-file-length`, and `react-file-length` became `file-length`.
+- Legacy class, TypeScript, and React file line-count checks became `structure` line-count assertions.
 - `typescript-indent` and `react-indent` became `indent`.
 - `class-top-level-definition`, `test-file-definition`, and the `index.ts` / `types.ts` statement checks from `typescript-module-role` became `top-level-definitions`.
 - The remaining re-export-only behavior from `typescript-module-role` became `typescript-re-export-only-file`.

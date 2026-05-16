@@ -97,6 +97,9 @@ export class Controller {
     if (existingConfig.rules !== undefined && nextConfig.rules !== undefined) {
       return { ...existingConfig, ...nextConfig, rules: [...existingConfig.rules, ...nextConfig.rules] };
     }
+    if (Array.isArray(existingConfig.find) && Array.isArray(nextConfig.find)) {
+      return { ...existingConfig, ...nextConfig, find: [...existingConfig.find, ...nextConfig.find] };
+    }
 
     return next;
   }

@@ -31,6 +31,9 @@ export class TraversalProperties {
     if (name === 'kind') {
       return record.kind;
     }
+    if (name === 'lines') {
+      return this.lines(record);
+    }
     if (name === 'functionKind') {
       return record.functionKind;
     }
@@ -79,6 +82,7 @@ export class TraversalProperties {
     }
     if (record.kind === 'file') {
       common.add('fileName');
+      common.add('lines');
       common.add('text');
     }
     if (record.kind === 'token') {
@@ -87,6 +91,7 @@ export class TraversalProperties {
         'endColumn',
         'endLine',
         'line',
+        'lines',
         'start',
         'startColumn',
         'startLine',
@@ -115,5 +120,9 @@ export class TraversalProperties {
       }
     }
     return common;
+  }
+
+  private lines(record: TraversalNodeRecord) {
+    return record.text?.split('\n').length;
   }
 }

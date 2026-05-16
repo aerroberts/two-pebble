@@ -47,6 +47,13 @@ const traversalPropertyStructureRuleFind = [
   },
 ];
 
+const excludedStructureRuleFind = [
+  {
+    find: 'src/commented.ts',
+    assert: { lines: { max: 1 } },
+  },
+];
+
 export function passingStructureRuleConfig() {
   return {
     additional: {
@@ -62,6 +69,23 @@ export function traversalPropertyStructureRuleConfig() {
     additional: {
       '@rule/structure': {
         find: traversalPropertyStructureRuleFind,
+      },
+    },
+  };
+}
+
+export function excludedStructureRuleConfig() {
+  return {
+    exclude: [
+      {
+        rules: ['@rule/structure'],
+        paths: ['src/commented.ts'],
+        justification: 'The excluded fixture intentionally violates this focused structure assertion.',
+      },
+    ],
+    additional: {
+      '@rule/structure': {
+        find: excludedStructureRuleFind,
       },
     },
   };

@@ -36,6 +36,7 @@ export type TraversalPropertyName =
   | 'importPath'
   | 'kind'
   | 'line'
+  | 'lines'
   | 'name'
   | 'path'
   | 'propertyName'

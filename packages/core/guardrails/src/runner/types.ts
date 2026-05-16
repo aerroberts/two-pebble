@@ -7,5 +7,6 @@ export interface RuleRegistration {
 }
 
 export interface MergeableRuleConfig extends RuleConfig {
+  find?: object[];
   rules?: object[];
 }
