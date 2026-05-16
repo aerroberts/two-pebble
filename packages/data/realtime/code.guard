@@ -1,4 +1,5 @@
 {
+  "inherit": ["guardrails-package"],
   "structure": [
     // The legacy guard inherited @group/guardrails-typescript and excluded src/realtime-datastore.ts,
     // src/testing/realtime-test-context.ts, and src/states/documents/listen.test.ts from package-level

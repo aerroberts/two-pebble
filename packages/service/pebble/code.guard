@@ -1,8 +1,9 @@
 {
+  "inherit": ["guardrails-package"],
   "structure": [
     // Pebble previously inherited @group/guardrails-typescript and then used a top-level exclude for legacy files.
     // Structure-only guardrails cannot subtract package-local paths from an inherited group, so keep the supported
-    // index-file steering here without restoring unsupported top-level `inherit` plus `exclude` behavior.
+    // index-file steering here without restoring unsupported top-level TypeScript inheritance plus `exclude` behavior.
     {
       "find": "src/**/index.ts",
       "code": [

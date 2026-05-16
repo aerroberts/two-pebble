@@ -1,5 +1,5 @@
 {
-  "inherit": "@group/guardrails-typescript",
+  "inherit": ["guardrails-typescript", "guardrails-package"],
   "structure": [
     // The legacy package-level structure exclusion for src/types.ts is dropped because this format has no top-level exclude.
     // The inherited TypeScript guard already excludes src/**/types.ts from exported-token comment checks.

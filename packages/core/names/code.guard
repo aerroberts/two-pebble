@@ -1,5 +1,5 @@
 {
-  "inherit": "@group/guardrails-typescript",
+  "inherit": ["guardrails-typescript", "guardrails-package"],
   // Names relies on the shared TypeScript structure checks and does not add package-local structure rules.
   "structure": []
 }

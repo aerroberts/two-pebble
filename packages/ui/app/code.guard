@@ -1,4 +1,5 @@
 {
+  "inherit": ["guardrails-package"],
   "structure": [
     // The previous app guard did not inherit @group/guardrails-typescript. Inheriting it now would add export-comment
     // requirements that were not part of the app baseline, so this guard keeps only package-local structure rules.

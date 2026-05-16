@@ -11,7 +11,7 @@
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
     "dev": "bun run build && bun link",
     "link": "bun link",
-    "guard": "bunx guardrails",
+    "guard": "guardrails",
     "lint": "biome check --write .",
     "test": "bun -e \"console.log('No CLI tests configured')\"",
     "test:coverage": "bun -e \"console.log('No CLI tests configured')\"",
