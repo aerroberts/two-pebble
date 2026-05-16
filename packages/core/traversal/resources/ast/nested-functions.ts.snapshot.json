@@ -26,14 +26,27 @@
           "children": [
             {
               "kind": "token",
-              "name": "value",
-              "token": "parameter",
+              "name": "parameters",
+              "token": "parameters",
               "line": 1,
               "startLine": 1,
               "startColumn": 23,
               "endLine": 1,
               "endColumn": 36,
-              "children": []
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "value",
+                  "destructured": false,
+                  "token": "parameter",
+                  "line": 1,
+                  "startLine": 1,
+                  "startColumn": 23,
+                  "endLine": 1,
+                  "endColumn": 36,
+                  "children": []
+                }
+              ]
             },
             {
               "kind": "token",
@@ -59,14 +72,27 @@
                   "children": [
                     {
                       "kind": "token",
-                      "name": "input",
-                      "token": "parameter",
+                      "name": "parameters",
+                      "token": "parameters",
                       "line": 2,
                       "startLine": 2,
                       "startColumn": 18,
                       "endLine": 2,
                       "endColumn": 31,
-                      "children": []
+                      "children": [
+                        {
+                          "kind": "token",
+                          "name": "input",
+                          "destructured": false,
+                          "token": "parameter",
+                          "line": 2,
+                          "startLine": 2,
+                          "startColumn": 18,
+                          "endLine": 2,
+                          "endColumn": 31,
+                          "children": []
+                        }
+                      ]
                     },
                     {
                       "kind": "token",
@@ -102,14 +128,27 @@
                               "children": [
                                 {
                                   "kind": "token",
-                                  "name": "suffix",
-                                  "token": "parameter",
+                                  "name": "parameters",
+                                  "token": "parameters",
                                   "line": 3,
                                   "startLine": 3,
                                   "startColumn": 34,
                                   "endLine": 3,
                                   "endColumn": 48,
-                                  "children": []
+                                  "children": [
+                                    {
+                                      "kind": "token",
+                                      "name": "suffix",
+                                      "destructured": false,
+                                      "token": "parameter",
+                                      "line": 3,
+                                      "startLine": 3,
+                                      "startColumn": 34,
+                                      "endLine": 3,
+                                      "endColumn": 48,
+                                      "children": []
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "token",
@@ -154,14 +193,27 @@
                       "children": [
                         {
                           "kind": "token",
-                          "name": "input",
-                          "token": "parameter",
+                          "name": "parameters",
+                          "token": "parameters",
                           "line": 10,
                           "startLine": 10,
                           "startColumn": 29,
                           "endLine": 10,
                           "endColumn": 42,
-                          "children": []
+                          "children": [
+                            {
+                              "kind": "token",
+                              "name": "input",
+                              "destructured": false,
+                              "token": "parameter",
+                              "line": 10,
+                              "startLine": 10,
+                              "startColumn": 29,
+                              "endLine": 10,
+                              "endColumn": 42,
+                              "children": []
+                            }
+                          ]
                         },
                         {
                           "kind": "token",
@@ -197,14 +249,27 @@
                                   "children": [
                                     {
                                       "kind": "token",
-                                      "name": "suffix",
-                                      "token": "parameter",
+                                      "name": "parameters",
+                                      "token": "parameters",
                                       "line": 11,
                                       "startLine": 11,
                                       "startColumn": 26,
                                       "endLine": 11,
                                       "endColumn": 40,
-                                      "children": []
+                                      "children": [
+                                        {
+                                          "kind": "token",
+                                          "name": "suffix",
+                                          "destructured": false,
+                                          "token": "parameter",
+                                          "line": 11,
+                                          "startLine": 11,
+                                          "startColumn": 26,
+                                          "endLine": 11,
+                                          "endColumn": 40,
+                                          "children": []
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "token",
@@ -267,14 +332,27 @@
               "children": [
                 {
                   "kind": "token",
-                  "name": "value",
-                  "token": "parameter",
+                  "name": "parameters",
+                  "token": "parameters",
                   "line": 21,
                   "startLine": 21,
                   "startColumn": 31,
                   "endLine": 21,
                   "endColumn": 44,
-                  "children": []
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "value",
+                      "destructured": false,
+                      "token": "parameter",
+                      "line": 21,
+                      "startLine": 21,
+                      "startColumn": 31,
+                      "endLine": 21,
+                      "endColumn": 44,
+                      "children": []
+                    }
+                  ]
                 },
                 {
                   "kind": "token",
@@ -317,25 +395,39 @@
           "children": [
             {
               "kind": "token",
-              "name": "fetchText",
-              "token": "parameter",
+              "name": "parameters",
+              "token": "parameters",
               "line": 25,
               "startLine": 25,
               "startColumn": 34,
               "endLine": 25,
-              "endColumn": 78,
-              "children": []
-            },
-            {
-              "kind": "token",
-              "name": "path",
-              "token": "parameter",
-              "line": 25,
-              "startLine": 25,
-              "startColumn": 80,
-              "endLine": 25,
               "endColumn": 92,
-              "children": []
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "fetchText",
+                  "destructured": false,
+                  "token": "parameter",
+                  "line": 25,
+                  "startLine": 25,
+                  "startColumn": 34,
+                  "endLine": 25,
+                  "endColumn": 78,
+                  "children": []
+                },
+                {
+                  "kind": "token",
+                  "name": "path",
+                  "destructured": false,
+                  "token": "parameter",
+                  "line": 25,
+                  "startLine": 25,
+                  "startColumn": 80,
+                  "endLine": 25,
+                  "endColumn": 92,
+                  "children": []
+                }
+              ]
             },
             {
               "kind": "token",
@@ -394,14 +486,27 @@
                       "children": [
                         {
                           "kind": "token",
-                          "name": "suffix",
-                          "token": "parameter",
+                          "name": "parameters",
+                          "token": "parameters",
                           "line": 27,
                           "startLine": 27,
                           "startColumn": 29,
                           "endLine": 27,
                           "endColumn": 43,
-                          "children": []
+                          "children": [
+                            {
+                              "kind": "token",
+                              "name": "suffix",
+                              "destructured": false,
+                              "token": "parameter",
+                              "line": 27,
+                              "startLine": 27,
+                              "startColumn": 29,
+                              "endLine": 27,
+                              "endColumn": 43,
+                              "children": []
+                            }
+                          ]
                         },
                         {
                           "kind": "token",

@@ -14,6 +14,8 @@ export type TraversalTokenName =
   | 'interface'
   | 'line-comment'
   | 'parameter'
+  | 'parameter-binding'
+  | 'parameters'
   | 'private'
   | 'public';
 
@@ -25,6 +27,7 @@ export type TraversalPropertyName =
   | 'async'
   | 'children'
   | 'commentContent'
+  | 'destructured'
   | 'end'
   | 'endColumn'
   | 'endLine'
@@ -35,6 +38,7 @@ export type TraversalPropertyName =
   | 'line'
   | 'name'
   | 'path'
+  | 'propertyName'
   | 'start'
   | 'startColumn'
   | 'startLine'
@@ -76,10 +80,12 @@ export interface TraversalNodeRecord {
   name: string;
   parentId?: string;
   async?: boolean;
+  destructured?: boolean;
   path?: string;
   commentContent?: string;
   functionKind?: TraversalFunctionKind;
   importPath?: string;
+  propertyName?: string;
   token?: TraversalTokenName;
   text?: string;
   line?: number;
@@ -117,8 +123,12 @@ export interface TraversalTokenNodeInput {
   token: TraversalTokenName;
   name: string;
   async?: boolean;
+  destructured?: boolean;
+  end?: number;
   functionKind?: TraversalFunctionKind;
   importPath?: string;
+  propertyName?: string;
+  start?: number;
   childIds: string[];
 }
 
@@ -126,10 +136,12 @@ export interface TraversalSnapshotNode {
   kind: TraversalNodeKind;
   name: string;
   async?: boolean;
+  destructured?: boolean;
   token?: TraversalTokenName;
   commentContent?: string;
   functionKind?: TraversalFunctionKind;
   importPath?: string;
+  propertyName?: string;
   line?: number;
   startLine?: number;
   startColumn?: number;

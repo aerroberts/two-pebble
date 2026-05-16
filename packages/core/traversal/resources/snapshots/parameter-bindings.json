@@ -1,0 +1,22 @@
+[
+  {
+    "type": "token:parameter-binding",
+    "name": "title",
+    "token": "parameter-binding",
+    "propertyName": "title",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
+  },
+  {
+    "type": "token:parameter-binding",
+    "name": "children",
+    "token": "parameter-binding",
+    "propertyName": "children",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
+  }
+]

@@ -76,7 +76,7 @@ export class TypeScriptTranslator {
     }
     if (ts.isFunctionDeclaration(node)) {
       const children = [
-        ...this.parameterRecords(sourceFile, node.parameters, records),
+        this.parametersRecord(sourceFile, node, records).id,
         ...this.blockRecord(sourceFile, node.body, records),
       ];
       return this.createTokenRecord(records, {
@@ -106,7 +106,7 @@ export class TypeScriptTranslator {
     }
     if (ts.isMethodDeclaration(node)) {
       const children = [
-        ...this.parameterRecords(sourceFile, node.parameters, records),
+        this.parametersRecord(sourceFile, node, records).id,
         ...this.blockRecord(sourceFile, node.body, records),
       ];
       const method = this.createTokenRecord(records, {
@@ -158,7 +158,7 @@ export class TypeScriptTranslator {
     records: TraversalNodeRecord[],
   ) {
     const children = [
-      ...this.parameterRecords(sourceFile, node.parameters, records),
+      this.parametersRecord(sourceFile, node, records).id,
       ...this.bodyRecord(sourceFile, node.body, records),
     ];
     return this.createTokenRecord(records, {
@@ -208,8 +208,81 @@ export class TypeScriptTranslator {
         node: parameter,
         token: 'parameter',
         name: parameter.name.getText(sourceFile),
-        childIds: [],
+        destructured: this.isDestructuredParameter(parameter),
+        childIds: this.parameterBindingRecords(sourceFile, parameter.name, records),
       }).id;
+    });
+  }
+
+  private parametersRecord(
+    sourceFile: ts.SourceFile,
+    node: ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration,
+    records: TraversalNodeRecord[],
+  ) {
+    const childIds = this.parameterRecords(sourceFile, node.parameters, records);
+    const range = this.parameterListRange(sourceFile, node);
+    return this.createTokenRecord(records, {
+      sourceFile,
+      node,
+      token: 'parameters',
+      name: 'parameters',
+      start: range.start,
+      end: range.end,
+      childIds,
+    });
+  }
+
+  private parameterListRange(
+    sourceFile: ts.SourceFile,
+    node: ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration,
+  ) {
+    if (node.parameters.length > 0) {
+      const first = node.parameters[0];
+      const last = node.parameters[node.parameters.length - 1];
+      return { start: first.getStart(sourceFile), end: last.getEnd() };
+    }
+
+    const start = node.getStart(sourceFile);
+    return { start, end: start };
+  }
+
+  private isDestructuredParameter(parameter: ts.ParameterDeclaration) {
+    return ts.isObjectBindingPattern(parameter.name) || ts.isArrayBindingPattern(parameter.name);
+  }
+
+  private parameterBindingRecords(
+    sourceFile: ts.SourceFile,
+    name: ts.BindingName,
+    records: TraversalNodeRecord[],
+  ): string[] {
+    if (ts.isObjectBindingPattern(name)) {
+      return name.elements.map((element) => this.parameterBindingRecord(sourceFile, element, undefined, records).id);
+    }
+    if (ts.isArrayBindingPattern(name)) {
+      return name.elements.flatMap((element, index) => {
+        if (!ts.isBindingElement(element)) {
+          return [];
+        }
+        return [this.parameterBindingRecord(sourceFile, element, String(index), records).id];
+      });
+    }
+
+    return [];
+  }
+
+  private parameterBindingRecord(
+    sourceFile: ts.SourceFile,
+    node: ts.BindingElement,
+    propertyName: string | undefined,
+    records: TraversalNodeRecord[],
+  ): TraversalNodeRecord {
+    return this.createTokenRecord(records, {
+      sourceFile,
+      node,
+      token: 'parameter-binding',
+      name: node.name.getText(sourceFile),
+      propertyName: node.propertyName?.getText(sourceFile) ?? propertyName ?? node.name.getText(sourceFile),
+      childIds: this.parameterBindingRecords(sourceFile, node.name, records),
     });
   }
 
@@ -288,9 +361,10 @@ export class TypeScriptTranslator {
   }
 
   private createTokenRecord(records: TraversalNodeRecord[], input: TraversalTokenNodeInput) {
-    const { sourceFile, node, token, name, async, functionKind, importPath, childIds } = input;
-    const start = node.getStart(sourceFile);
-    const end = node.getEnd();
+    const { sourceFile, node, token, name, async, destructured, functionKind, importPath, propertyName, childIds } =
+      input;
+    const start = input.start ?? node.getStart(sourceFile);
+    const end = input.end ?? node.getEnd();
     const startPosition = sourceFile.getLineAndCharacterOfPosition(start);
     const endPosition = sourceFile.getLineAndCharacterOfPosition(end);
     const record = pushRecord(records, {
@@ -299,8 +373,10 @@ export class TypeScriptTranslator {
       name,
       token,
       async,
+      destructured,
       functionKind,
       importPath,
+      propertyName,
       path: sourceFile.fileName,
       text: sourceFile.text.slice(start, end),
       line: startPosition.line + 1,

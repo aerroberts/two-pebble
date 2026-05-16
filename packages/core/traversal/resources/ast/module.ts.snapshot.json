@@ -84,14 +84,27 @@
           "children": [
             {
               "kind": "token",
-              "name": "options",
-              "token": "parameter",
+              "name": "parameters",
+              "token": "parameters",
               "line": 9,
               "startLine": 9,
               "startColumn": 26,
               "endLine": 9,
               "endColumn": 46,
-              "children": []
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "options",
+                  "destructured": false,
+                  "token": "parameter",
+                  "line": 9,
+                  "startLine": 9,
+                  "startColumn": 26,
+                  "endLine": 9,
+                  "endColumn": 46,
+                  "children": []
+                }
+              ]
             },
             {
               "kind": "token",

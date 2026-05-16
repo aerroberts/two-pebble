@@ -16,6 +16,9 @@ export class TraversalProperties {
     if (name === 'commentContent') {
       return record.commentContent;
     }
+    if (name === 'destructured') {
+      return record.destructured;
+    }
     if (name === 'fileName') {
       return record.path ? basename(record.path) : record.name;
     }
@@ -36,6 +39,9 @@ export class TraversalProperties {
     }
     if (name === 'name') {
       return record.name;
+    }
+    if (name === 'propertyName') {
+      return record.propertyName;
     }
 
     return this.recordProperty(record, name as TraversalPropertyName);
@@ -100,6 +106,12 @@ export class TraversalProperties {
       }
       if (record.commentContent !== undefined) {
         common.add('commentContent');
+      }
+      if (record.destructured !== undefined) {
+        common.add('destructured');
+      }
+      if (record.propertyName !== undefined) {
+        common.add('propertyName');
       }
     }
     return common;

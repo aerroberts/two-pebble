@@ -73,14 +73,52 @@
           "children": [
             {
               "kind": "token",
-              "name": "{ title, children }",
-              "token": "parameter",
+              "name": "parameters",
+              "token": "parameters",
               "line": 11,
               "startLine": 11,
               "startColumn": 23,
               "endLine": 11,
               "endColumn": 54,
-              "children": []
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "{ title, children }",
+                  "destructured": true,
+                  "token": "parameter",
+                  "line": 11,
+                  "startLine": 11,
+                  "startColumn": 23,
+                  "endLine": 11,
+                  "endColumn": 54,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "title",
+                      "token": "parameter-binding",
+                      "propertyName": "title",
+                      "line": 11,
+                      "startLine": 11,
+                      "startColumn": 25,
+                      "endLine": 11,
+                      "endColumn": 30,
+                      "children": []
+                    },
+                    {
+                      "kind": "token",
+                      "name": "children",
+                      "token": "parameter-binding",
+                      "propertyName": "children",
+                      "line": 11,
+                      "startLine": 11,
+                      "startColumn": 32,
+                      "endLine": 11,
+                      "endColumn": 40,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "token",

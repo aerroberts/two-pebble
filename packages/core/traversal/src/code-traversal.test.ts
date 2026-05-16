@@ -11,6 +11,7 @@ const findSnapshots = [
   { name: 'imports', query: 'src/**/*::import' },
   { name: 'comments', query: 'src/**/*::block-comment' },
   { name: 'awaits', query: 'src/**/*::**/await' },
+  { name: 'parameter-bindings', query: 'src/**/*.tsx::**/parameter-binding' },
   { name: 'exported-ts-functions', query: 'src/**/*.ts::export/function' },
   { name: 'exported-ts-interfaces', query: 'src/**/*.ts::export/interface' },
   { name: 'exported-tsx-interfaces', query: 'src/**/*.tsx::export/interface' },
@@ -62,8 +63,10 @@ function nodeSummary(node: { property(name: string): unknown }) {
     async: optionalProperty(node, 'async'),
     token: optionalProperty(node, 'token'),
     commentContent: optionalProperty(node, 'commentContent'),
+    destructured: optionalProperty(node, 'destructured'),
     functionKind: optionalProperty(node, 'functionKind'),
     importPath: optionalProperty(node, 'importPath'),
+    propertyName: optionalProperty(node, 'propertyName'),
     path: typeof path === 'string' ? relative(resourceRoot(), path) : undefined,
     line: optionalProperty(node, 'line'),
     startLine: optionalProperty(node, 'startLine'),
@@ -127,6 +130,23 @@ describe('feature: code traversal', () => {
     expect(asyncByName.get('asyncOuter')).toBe(true);
     expect(asyncByName.get('asyncArrow')).toBe(true);
     expect(awaits).toHaveLength(2);
+  });
+
+  test('happy: exposes a parameters node with one child per parameter', async () => {
+    const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
+
+    const [parameters] = await traversal.find('component.tsx::export/function/parameters');
+    const parameterNodes = await parameters?.find('parameter');
+    const bindings = await parameters?.find('**/parameter-binding');
+
+    expect(parameters?.property('name')).toBe('parameters');
+    expect(parameters?.property('type')).toBe('token:parameters');
+    expect(parameterNodes?.map((node) => node.property('name'))).toEqual(['{ title, children }']);
+    expect(parameterNodes?.map((node) => node.property('destructured'))).toEqual([true]);
+    expect(bindings?.map((node) => [node.property('name'), node.property('propertyName')])).toEqual([
+      ['title', 'title'],
+      ['children', 'children'],
+    ]);
   });
 
   test('unhappy: throws when a property is not valid for the node type', async () => {
