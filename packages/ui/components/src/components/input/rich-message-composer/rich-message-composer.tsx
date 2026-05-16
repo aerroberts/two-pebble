@@ -204,15 +204,15 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
   const popoverOpen = slashTrigger !== null && !showVoice;
 
   return (
-    <div className="relative w-full" style={{ minHeight: minHeight + 16 }}>
+    <div className="relative w-full min-w-0" style={{ minHeight: minHeight + 16 }}>
       <div
         aria-hidden={showVoice}
         className={`absolute inset-0 transition-[opacity,transform] duration-200 ease-out ${
           showVoice ? 'pointer-events-none translate-y-0.5 opacity-0' : 'translate-y-0 opacity-100'
         }`}
       >
-        <div className="relative flex h-full rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
-          <EditorContent editor={editor} className="composer-editor h-full w-full" style={{ minHeight }} />
+        <div className="relative flex h-full min-w-0 rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
+          <EditorContent editor={editor} className="composer-editor h-full w-full min-w-0" style={{ minHeight }} />
           {voiceSlotEnabled ? (
             <div className="absolute right-1.5 top-1.5">
               <IconButton
