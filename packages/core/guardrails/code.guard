@@ -16,11 +16,22 @@
       }
     },
     {
-      "find": "src/runner/controller.ts",
-      "recommendation": "The structure runner entry point belongs in src/runner/controller.ts.",
+      "find": "src/asserts/*.ts",
+      "recommendation": "Asserts are each in their own file ",
       "asserts": {
-        "exists": true
-      }
+        "exists": true,
+        "type": "file"
+      },
+      "code": [
+        {
+          "find": "export/function",
+          "asserts": {
+            "matches": {
+              "exactly": 1
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,12 +1,19 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { CodeTraversal, type WorkspaceNode } from '@two-pebble/traversal';
 import { runAsserts } from '../asserts';
-import type { AssertName } from '../asserts/types';
 import { InvalidGuardrailConfigError, UnknownDefinitionError } from '../errors';
-import type { CheckResult, Diagnostic, GuardrailConfig, RunResult, StructureRule } from '../types';
+import type {
+  AssertName,
+  CheckResult,
+  CodeRule,
+  Diagnostic,
+  GuardrailConfig,
+  RunResult,
+  StructureRule,
+} from '../types';
 import { validateGuardrailConfig } from './config-validator';
-import { parseGuardConfig } from './guard-config-parser';
+import { leadingCommentsOf, parseGuardConfig } from './guard-config-parser';
 
 /**
  * Expands inherited structure config and runs it for one package.
@@ -24,7 +31,8 @@ export class Controller {
     const results: CheckResult[] = [];
 
     for (const rule of merged.structure ?? []) {
-      results.push(await this.runRule(traversal, packageDir, rule, filesScanned));
+      const ruleResults = await this.runRule(traversal, packageDir, rule, filesScanned);
+      results.push(...ruleResults);
     }
 
     return {
@@ -40,42 +48,122 @@ export class Controller {
     packageDir: string,
     rule: StructureRule,
     filesScanned: Set<string>,
-  ): Promise<CheckResult> {
+  ): Promise<CheckResult[]> {
     const ruleStart = performance.now();
     const queries = (Array.isArray(rule.find) ? rule.find : [rule.find]).map((query) =>
       this.absoluteFind(packageDir, query),
     );
     const resultSet = await traversal.find(queries);
     const nodes: WorkspaceNode[] = [];
+    const matchedFiles: WorkspaceNode[] = [];
     resultSet.forEach((node) => {
       nodes.push(node);
       const path = node.getProperty('path');
       if (path) {
         filesScanned.add(path);
       }
+      if (node.type === 'file') {
+        matchedFiles.push(node);
+      }
     });
 
-    const diagnostics: Diagnostic[] = [];
     const findLabel = this.findLabel(rule.find);
-    for (const { name, outcome } of runAsserts(nodes, rule.asserts)) {
+    const recommendation = this.buildRecommendation(rule);
+    const checks: CheckResult[] = [];
+
+    // A rule with no asserts is purely a file selector for its `code` block;
+    // we skip emitting a top-level check so it isn't reported as PASS noise.
+    if (rule.asserts && Object.keys(rule.asserts).length > 0) {
+      const diagnostics = this.diagnosticsFor(nodes, rule.asserts, findLabel, recommendation);
+      checks.push({
+        find: findLabel,
+        recommendation,
+        passed: diagnostics.length === 0,
+        diagnostics,
+        durationMs: Math.round(performance.now() - ruleStart),
+      });
+    }
+
+    for (const codeRule of rule.code ?? []) {
+      for (const fileNode of matchedFiles) {
+        checks.push(await this.runCodeRule(traversal, packageDir, codeRule, rule, fileNode));
+      }
+    }
+
+    return checks;
+  }
+
+  private async runCodeRule(
+    traversal: CodeTraversal,
+    packageDir: string,
+    codeRule: CodeRule,
+    parent: StructureRule,
+    fileNode: WorkspaceNode,
+  ): Promise<CheckResult> {
+    const start = performance.now();
+    const filePath = fileNode.getProperty('path') ?? '';
+    const astQueries = Array.isArray(codeRule.find) ? codeRule.find : [codeRule.find];
+    const queries = astQueries.map((astQuery) => `${this.ensureGlobPattern(filePath)}#${astQuery}`);
+    const resultSet = await traversal.find(queries);
+    const nodes: WorkspaceNode[] = [];
+    resultSet.forEach((node) => {
+      nodes.push(node);
+    });
+
+    const findLabel = `${relative(packageDir, filePath)}#${this.findLabel(codeRule.find)}`;
+    const recommendation = this.buildRecommendation(parent, codeRule);
+    const asserts = codeRule.asserts ?? {};
+    const diagnostics = this.diagnosticsFor(nodes, asserts, findLabel, recommendation, filePath);
+
+    return {
+      find: findLabel,
+      recommendation,
+      passed: diagnostics.length === 0,
+      diagnostics,
+      durationMs: Math.round(performance.now() - start),
+    };
+  }
+
+  private diagnosticsFor(
+    nodes: WorkspaceNode[],
+    asserts: NonNullable<StructureRule['asserts']>,
+    find: string,
+    recommendation: string,
+    file?: string,
+  ): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+    for (const { name, outcome } of runAsserts(nodes, asserts)) {
       if (outcome.passed) {
         continue;
       }
       diagnostics.push({
-        recommendation: rule.recommendation,
+        recommendation,
         description: outcome.description ?? `${name} assertion failed.`,
-        find: findLabel,
+        find,
         assertion: name as AssertName,
+        file,
       });
     }
+    return diagnostics;
+  }
 
-    return {
-      find: findLabel,
-      recommendation: rule.recommendation,
-      passed: diagnostics.length === 0,
-      diagnostics,
-      durationMs: Math.round(performance.now() - ruleStart),
-    };
+  // Builds a stack-trace style recommendation by walking outer-to-inner. For
+  // each rule in the chain we add its leading comment (from the guard file)
+  // followed by its `recommendation`. The result joins everything with
+  // newlines so a failed assert surfaces the full authoring context.
+  private buildRecommendation(rule: StructureRule, codeRule?: CodeRule) {
+    const parts: string[] = [];
+    parts.push(...leadingCommentsOf(rule));
+    if (rule.recommendation) {
+      parts.push(rule.recommendation);
+    }
+    if (codeRule) {
+      parts.push(...leadingCommentsOf(codeRule));
+      if (codeRule.recommendation) {
+        parts.push(codeRule.recommendation);
+      }
+    }
+    return parts.join('\n');
   }
 
   private absoluteFind(packageDir: string, query: string) {

@@ -41,7 +41,12 @@ function formatFailureSection(check: CheckResult) {
   );
   for (const diagnostic of check.diagnostics) {
     lines.push(`${DETAIL_INDENT}${diagnostic.description}`);
-    lines.push(`${DETAIL_INDENT}${pc.cyan('fix:')} ${diagnostic.recommendation}`);
+    const recommendationLines = diagnostic.recommendation.split('\n');
+    const [firstRec, ...restRec] = recommendationLines;
+    lines.push(`${DETAIL_INDENT}${pc.cyan('fix:')} ${firstRec ?? ''}`);
+    for (const continued of restRec) {
+      lines.push(`${DETAIL_INDENT}     ${continued}`);
+    }
     lines.push(`${DETAIL_INDENT}${pc.dim(`assertion: ${diagnostic.assertion}`)}`);
   }
   return lines;

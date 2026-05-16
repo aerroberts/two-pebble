@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { parseGuardConfig } from './guard-config-parser';
+import { leadingCommentsOf, parseGuardConfig } from './guard-config-parser';
 
 /**
  * Testing philosophy:
@@ -38,6 +38,34 @@ describe('feature: guard config parser', () => {
 
     expect(config.structure).toHaveLength(1);
     expect(config.structure?.[0]?.find).toBe('src/asserts/exists.ts');
+  });
+
+  test('happy: links leading comments to structure and code rule objects', () => {
+    const config = parseGuardConfig(`
+      {
+        "structure": [
+          // First include this string
+          {
+            "find": "src/**/index.ts",
+            "recommendation": "included next",
+            "code": [
+              // Then also include this
+              {
+                "find": ["class", "interface"],
+                "recommendation": "then include this",
+                "asserts": { "exists": false }
+              }
+            ]
+          }
+        ]
+      }
+    `);
+
+    const structureRule = config.structure?.[0];
+    const codeRule = structureRule?.code?.[0];
+
+    expect(leadingCommentsOf(structureRule)).toEqual(['First include this string']);
+    expect(leadingCommentsOf(codeRule)).toEqual(['Then also include this']);
   });
 
   test('happy: preserves comment markers inside strings', () => {

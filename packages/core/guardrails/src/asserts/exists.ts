@@ -1,5 +1,5 @@
 import type { WorkspaceNode } from '@two-pebble/traversal';
-import type { AssertOutcome } from './types';
+import type { AssertOutcome } from '../types';
 
 /**
  * Asserts that a structure find returned (or did not return) any nodes.

@@ -1,18 +1,28 @@
 import type { WorkspaceNode } from '@two-pebble/traversal';
-import type { AssertConfig } from '../types';
+import type { AssertConfig, AssertName, AssertOutcome } from '../types';
 import { existsAssertion } from './exists';
-import type { AssertName, AssertOutcome } from './types';
+import { linesAssertion } from './lines';
+import { matchesAssertion } from './matches';
+import { typeAssertion } from './type';
 
-export type { AssertOutcome } from './types';
+type AssertionImpl<Name extends AssertName> = (
+  nodes: WorkspaceNode[],
+  config: NonNullable<AssertConfig[Name]>,
+) => AssertOutcome;
+
+type Registry = {
+  [Name in AssertName]: AssertionImpl<Name>;
+};
 
 /**
  * Maps each supported assertion name to its implementation. To add a new
  * assertion, drop a file in this folder and register it here.
  */
-const REGISTRY: {
-  [Name in AssertName]: (nodes: WorkspaceNode[], config: NonNullable<AssertConfig[Name]>) => AssertOutcome;
-} = {
+const REGISTRY: Registry = {
   exists: existsAssertion,
+  type: typeAssertion,
+  matches: matchesAssertion,
+  lines: linesAssertion,
 };
 
 /**

@@ -69,4 +69,74 @@ describe('feature: controller', () => {
 
     expect(result.passed).toBe(true);
   });
+
+  test('happy: type assertion validates the returned node kind', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'src/present.ts must be a file.',
+          asserts: { type: 'file' },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('happy: matches assertion enforces an exact count', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'Each present file must have exactly one exported const.',
+          asserts: { exists: true },
+          code: [
+            {
+              find: 'export/const',
+              asserts: { matches: { exactly: 1 } },
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+    expect(result.results).toHaveLength(2);
+    expect(result.results[1]?.passed).toBe(true);
+  });
+
+  test('happy: failed assert recommendation stacks leading comments and recommendations top-down', async () => {
+    const { parseGuardConfig } = await import('./guard-config-parser');
+    const config = parseGuardConfig(`
+      {
+        "structure": [
+          // First include this string
+          {
+            "find": "src/present.ts",
+            "recommendation": "included next",
+            "code": [
+              // Then also include this
+              {
+                "find": "export/function",
+                "recommendation": "then include this",
+                "asserts": { "matches": { "exactly": 1 } }
+              }
+            ]
+          }
+        ]
+      }
+    `);
+
+    const result = await new Controller().run(fixtureRoot, config);
+    const codeCheck = result.results.find((check) => check.find.includes('export/function'));
+
+    expect(codeCheck?.diagnostics[0]?.recommendation).toBe(
+      ['First include this string', 'included next', 'Then also include this', 'then include this'].join('\n'),
+    );
+  });
 });

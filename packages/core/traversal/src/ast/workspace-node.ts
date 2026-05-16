@@ -9,6 +9,11 @@ export class WorkspaceNode {
   // Nodes own children
   public readonly children: WorkspaceNode[];
 
+  // 1-indexed line range covered by the underlying source. Optional because some
+  // workspace-level nodes (folders) are not backed by a single source range.
+  public startLine?: number;
+  public endLine?: number;
+
   // Nodes can store additional arbitrary data
   private data: Record<string, string>;
 
@@ -23,6 +28,12 @@ export class WorkspaceNode {
     return this;
   }
 
+  public withRange(startLine: number, endLine: number) {
+    this.startLine = startLine;
+    this.endLine = endLine;
+    return this;
+  }
+
   public addChild(child: WorkspaceNode) {
     this.children.push(child);
     return this;
@@ -30,5 +41,13 @@ export class WorkspaceNode {
 
   public getProperty(name: string) {
     return this.data[name];
+  }
+
+  // Number of source lines this node spans, inclusive on both ends.
+  public get lines() {
+    if (this.startLine === undefined || this.endLine === undefined) {
+      return undefined;
+    }
+    return this.endLine - this.startLine + 1;
   }
 }
