@@ -92,7 +92,11 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   private spawnTool(references: SubAgentReference[]) {
     const spawnSchema = z.object({
       referenceName: referenceNameSchema(references),
-      message: z.string(),
+      message: z
+        .string()
+        .describe(
+          'Complete instruction brief for the child (aim for 500+ words). State the goal, deliverables, constraints, success criteria, and relevant background context. Vague one-liners produce unreliable, off-target output.',
+        ),
     });
     return new NativeTool({
       description: spawnToolDescription(references),
