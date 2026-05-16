@@ -150,10 +150,10 @@ export function TaskBoardPage() {
                   delegating={state.delegating}
                   onDelegate={(agentRegistryId) => void state.delegateTaskById(taskId, agentRegistryId)}
                   onUndelegate={() => void state.undelegateTaskById(taskId)}
-                  onStatusChange={(status) => void state.setTaskStatusById(taskId, status)}
                 />
               );
             }}
+            onChangeStatus={(taskId, status) => void state.setTaskStatusById(taskId, status)}
           />
         ) : (
           <TaskBoardSettingsView
