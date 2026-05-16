@@ -22,7 +22,7 @@
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "guard": "bunx guardrails",
+    "guard": "bun ../../core/guardrails/bin/guardrails.mjs",
     "lint": "biome check --write .",
     "test": "bun test",
     "test:coverage": "bun test --coverage",

@@ -1,3 +1,6 @@
 {
-  "rules": []
+  // This package previously used an empty top-level `rules` list, so it did not opt into shared TypeScript checks.
+  // Keep the migrated structure empty to preserve that behavior; add package-local checks here when components has
+  // guardrails that fit the structure-only format.
+  "structure": []
 }
