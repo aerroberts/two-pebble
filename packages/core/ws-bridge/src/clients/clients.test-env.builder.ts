@@ -5,29 +5,47 @@ import type { BridgePayload, BridgePayloadObject, BridgeProtocol, Message, WsBri
 import { WsBridgeClient } from './ws-bridge-client';
 import { WsBridgeServer } from './ws-bridge-server';
 
+/**
+ * Shared payload used by websocket bridge operation test protocols.
+ */
 export interface PingValue extends BridgePayloadObject {
   value: number;
 }
 
+/**
+ * Lifecycle row recorded when the websocket client connects.
+ */
 export interface ClientConnectedLifecycleEntry extends BridgePayloadObject {
   type: 'connect';
 }
 
+/**
+ * Lifecycle row recorded when the websocket client disconnects.
+ */
 export interface ClientDisconnectedLifecycleEntry extends BridgePayloadObject {
   type: 'disconnect';
 }
 
+/**
+ * Lifecycle row recorded after a full client/server conversation.
+ */
 export interface ClientConversationLifecycleEntry extends BridgePayloadObject {
   receivedClientAnnouncement: string;
   result: PingValue;
   serverAnnouncement: string;
 }
 
+/**
+ * Union of lifecycle rows captured during websocket bridge tests.
+ */
 export type ClientLifecycleEntry =
   | ClientConnectedLifecycleEntry
   | ClientConversationLifecycleEntry
   | ClientDisconnectedLifecycleEntry;
 
+/**
+ * Client-side websocket protocol used by integration tests.
+ */
 export interface ClientProtocol
   extends BridgeProtocol<
     {
@@ -40,6 +58,9 @@ export interface ClientProtocol
     { operations: []; events: [{ name: 'announce'; payload: string }] }
   > {}
 
+/**
+ * Server-side websocket protocol mirroring the client protocol in reverse.
+ */
 export interface ServerProtocol
   extends BridgeProtocol<
     { operations: []; events: [{ name: 'announce'; payload: string }] },
@@ -52,6 +73,9 @@ export interface ServerProtocol
     }
   > {}
 
+/**
+ * Builds a websocket client/server test harness with wire capture.
+ */
 export function wsClientServerTestEnv() {
   const wire: WsBridgeWireMessage[] = [];
   const lifecycle: ClientLifecycleEntry[] = [];
@@ -137,6 +161,9 @@ export function wsClientServerTestEnv() {
   };
 }
 
+/**
+ * Builds a websocket server harness for HTTP health checks.
+ */
 export function healthServerTestEnv() {
   const server = new WsBridgeServer<ServerProtocol>({
     hostname: '127.0.0.1',
@@ -164,6 +191,9 @@ export function healthServerTestEnv() {
   };
 }
 
+/**
+ * Writes or checks a JSONL snapshot for deterministic websocket messages.
+ */
 export async function expectJsonlSnapshot(name: string, rows: BridgePayload[]) {
   const snapshotPath = resolve(import.meta.dirname, 'snapshots', name);
   const content = `${rows.map((row) => JSON.stringify(row)).join('\n')}\n`;
@@ -176,6 +206,9 @@ export async function expectJsonlSnapshot(name: string, rows: BridgePayload[]) {
   expect(await Bun.file(snapshotPath).text()).toBe(content);
 }
 
+/**
+ * Waits until the lifecycle capture observes a client disconnect.
+ */
 export async function waitForDisconnect(lifecycle: ClientLifecycleEntry[]) {
   const startedAt = Date.now();
   while (!lifecycle.some((entry) => isLifecycleEntry(entry, 'disconnect'))) {

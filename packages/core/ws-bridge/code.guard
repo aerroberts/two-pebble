@@ -1,3 +1,4 @@
 {
-  "inherit": "@group/guardrails-typescript"
+  "inherit": "@group/guardrails-typescript",
+  "structure": []
 }
