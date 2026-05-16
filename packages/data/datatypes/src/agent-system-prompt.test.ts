@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   agentSystemPromptFromText,
   emptyAgentSystemPrompt,
+  extractAgentSystemPromptDocumentReferences,
   parseAgentSystemPrompt,
   renderAgentSystemPromptToText,
   serializeAgentSystemPrompt,
@@ -67,5 +68,38 @@ describe('feature: agent system prompt rendering to text', () => {
       ],
     };
     expect(renderAgentSystemPromptToText(doc)).toBe('See @Plan for context.');
+  });
+});
+
+describe('feature: agent system prompt document reference extraction', () => {
+  test('happy: collects unique documentMention nodes in order', () => {
+    const doc = {
+      type: 'doc' as const,
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'documentMention', attrs: { documentId: 'a', name: 'Plan' } },
+            { type: 'text', text: ' and ' },
+            { type: 'documentMention', attrs: { documentId: 'b', name: 'Brief' } },
+            { type: 'documentMention', attrs: { documentId: 'a', name: 'Plan' } },
+          ],
+        },
+      ],
+    };
+    expect(extractAgentSystemPromptDocumentReferences(doc)).toEqual([
+      { documentId: 'a', name: 'Plan' },
+      { documentId: 'b', name: 'Brief' },
+    ]);
+  });
+
+  test('happy: skips nodes with an empty documentId', () => {
+    const doc = {
+      type: 'doc' as const,
+      content: [
+        { type: 'paragraph', content: [{ type: 'documentMention', attrs: { documentId: '', name: 'Empty' } }] },
+      ],
+    };
+    expect(extractAgentSystemPromptDocumentReferences(doc)).toEqual([]);
   });
 });

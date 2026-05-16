@@ -107,3 +107,39 @@ export function renderAgentSystemPromptToText(doc: TipTapDocument): string {
 export function emptyAgentSystemPrompt(): TipTapDocument {
   return createEmptyTipTapDocument();
 }
+
+export interface AgentSystemPromptDocumentReference {
+  documentId: string;
+  name: string;
+}
+
+/**
+ * Walks a system prompt and collects every `documentMention` node into
+ * a flat list. Document order is preserved; duplicates are dropped on
+ * `documentId` (a prompt may legitimately mention the same doc twice
+ * but downstream wiring only needs one binding per id). Empty ids are
+ * skipped — they can only land here from corrupt state.
+ */
+export function extractAgentSystemPromptDocumentReferences(doc: TipTapDocument): AgentSystemPromptDocumentReference[] {
+  const out: AgentSystemPromptDocumentReference[] = [];
+  const seen = new Set<string>();
+  const visit = (node: TipTapNode | undefined): void => {
+    if (node === undefined) {
+      return;
+    }
+    if (node.type === 'documentMention') {
+      const documentId = typeof node.attrs?.documentId === 'string' ? node.attrs.documentId : '';
+      const name = typeof node.attrs?.name === 'string' ? node.attrs.name : '';
+      if (documentId.length > 0 && !seen.has(documentId)) {
+        seen.add(documentId);
+        out.push({ documentId, name });
+      }
+      return;
+    }
+    for (const child of node.content ?? []) {
+      visit(child);
+    }
+  };
+  visit(doc as TipTapNode);
+  return out;
+}

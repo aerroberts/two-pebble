@@ -1,4 +1,5 @@
 import type { Datastore } from '@two-pebble/datastore';
+import { extractAgentSystemPromptDocumentReferences, type TipTapDocument } from '@two-pebble/datatypes';
 import type { Logger } from '@two-pebble/logger';
 import type { Agent } from '@two-pebble/pebble';
 import { Cell, FrameworkAgent, PebbleAgent } from '@two-pebble/pebble';
@@ -447,6 +448,7 @@ export class AgentRegistryService {
             integrationId: buildInput.params.integration.id,
           }
         : {};
+    const combinedExtras = combineLaunchExtras(registry.systemPrompt, input.extraCapabilities);
     await this.runAgent({
       agent: runtimeAgent,
       agentId: agent.id,
@@ -455,7 +457,7 @@ export class AgentRegistryService {
       ...(input.cells === undefined ? {} : { cells: input.cells }),
       registry,
       ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
-      ...(input.extraCapabilities === undefined ? {} : { extraCapabilities: input.extraCapabilities }),
+      ...(combinedExtras === undefined ? {} : { extraCapabilities: combinedExtras }),
       ...profileIds,
       workspaceId: launchWorkspace.workspace.id,
     }).catch((error) => {
@@ -522,6 +524,37 @@ export class AgentRegistryService {
       }),
     });
   }
+}
+
+/**
+ * Builds the effective launch-time extras list. The system prompt's
+ * `documentMention` nodes seed an implicit `progressive-task-list`
+ * binding so an agent whose prompt references a document with todos
+ * gets the capability without the user having to configure it twice.
+ *
+ * Precedence (lower wins to higher):
+ *   registry.capabilities < systemPrompt mentions < explicit launch extras
+ *
+ * The `mergeCapabilitySpecs` map dedupe means the last entry per id
+ * wins; explicit launch extras are appended after the systemPrompt
+ * binding so an editor-driven launch (which carries `sourceDocumentId`)
+ * can still override the prompt's mention.
+ */
+function combineLaunchExtras(
+  systemPrompt: TipTapDocument,
+  explicit: ExtraCapabilitySpec[] | undefined,
+): ExtraCapabilitySpec[] | undefined {
+  const promptRefs = extractAgentSystemPromptDocumentReferences(systemPrompt);
+  if (promptRefs.length === 0) {
+    return explicit;
+  }
+  const fromPrompt: ExtraCapabilitySpec[] = [
+    { id: 'progressive-task-list', config: { documentId: promptRefs[0].documentId } },
+  ];
+  if (explicit === undefined) {
+    return fromPrompt;
+  }
+  return [...fromPrompt, ...explicit];
 }
 
 /**
