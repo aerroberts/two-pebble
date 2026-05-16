@@ -1,389 +1,183 @@
 {
-  "exclude": [
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/pages/assistant/assistant.page.tsx"
-      ],
-      "justification": "Assistant page currently owns the chat surface and launch affordances; split after CI is enforcing the baseline."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/pages/task-board/use-task-board-page-state.ts"
-      ],
-      "justification": "Task board page state still owns multi-step state orchestration; keep the current behavior stable while CI begins enforcing the rest of the repo."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/pages/agent-detail/use-agent-detail-page-state.ts"
-      ],
-      "justification": "Agent detail state still has legacy optional inputs and a large reducer-like flow that should be split separately from CI enablement."
-    }
-  ],
-  "rules": [
+  "structure": [
+    // The previous app guard did not inherit @group/guardrails-typescript. Inheriting it now would add export-comment
+    // requirements that were not part of the app baseline, so this guard keeps only package-local structure rules.
+    //
+    // Legacy structure exclusions kept local to the rules they affect:
+    // src/pages/assistant/assistant.page.tsx owns the chat surface and launch affordances.
+    // src/pages/task-board/use-task-board-page-state.ts owns multi-step task board state orchestration.
+    // src/pages/agent-detail/use-agent-detail-page-state.ts owns legacy optional inputs and a large reducer-like flow.
+    //
+    // The old app guard capped src/**/*.ts files at 400 lines and src/**/*.tsx files at 300 lines. Structure-only
+    // guardrails do not expose line metadata for file nodes, so file-length checks cannot be preserved as assertions.
+    // Keep splitting secondary behavior into focused modules when files grow beyond those package targets.
     {
       "find": "src/**/*.ts",
-      "rules": {
-        "lines": {
-          "max": 400
-        }
-      },
-      "recommendation": "Move secondary behavior into focused modules until the file has one clear responsibility and fits inside the configured limit."
+      "exclude": [
+        "src/pages/task-board/use-task-board-page-state.ts",
+        "src/pages/agent-detail/use-agent-detail-page-state.ts"
+      ]
     },
     {
       "find": "src/**/*.tsx",
-      "rules": {
-        "lines": {
-          "max": 300
-        }
-      },
-      "recommendation": "Move secondary UI behavior into focused components until the file has one clear responsibility and fits inside the configured limit."
+      "exclude": "src/pages/assistant/assistant.page.tsx"
     },
+
+    // Class member and control-flow span checks are expressible in the structure-only format as nested code rules.
     {
-      "find": "src/**/*.ts/**/class/function",
+      "find": "src/**/*.ts",
       "exclude": [
         "**/fixtures/**",
-        "**/*.test.ts"
+        "**/*.test.ts",
+        "src/pages/task-board/use-task-board-page-state.ts",
+        "src/pages/agent-detail/use-agent-detail-page-state.ts"
       ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Class members must stay short enough to scan. Extract collaborators or private helpers when one member starts owning multiple decisions."
-    },
-    {
-      "find": "src/**/*.ts/**/class/*/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Class members must stay short enough to scan. Extract collaborators or private helpers when one member starts owning multiple decisions."
-    },
-    {
-      "find": "src/**/*.ts/**/class/*/*/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Class members must stay short enough to scan. Extract collaborators or private helpers when one member starts owning multiple decisions."
-    },
-    {
-      "find": "src/**/*.ts/**/class/accessor",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions."
-    },
-    {
-      "find": "src/**/*.ts/**/class/*/accessor",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions."
-    },
-    {
-      "find": "src/**/*.ts/**/class/*/*/accessor",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions."
-    },
-    {
-      "find": "src/**/*.ts/**/class/constructor",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Constructors must stay short enough to scan. Move setup branches into collaborators or named factories when initialization grows."
-    },
-    {
-      "find": "src/**/*.ts/**/class/*/constructor",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Constructors must stay short enough to scan. Move setup branches into collaborators or named factories when initialization grows."
-    },
-    {
-      "find": "src/**/*.ts/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 200
-        }
-      },
-      "recommendation": "Functions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows."
-    },
-    {
-      "find": "src/**/*.ts/export/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 200
-        }
-      },
-      "recommendation": "Functions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows."
-    },
-    {
-      "find": "src/**/*.ts/const/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 200
-        }
-      },
-      "recommendation": "Function expressions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows."
-    },
-    {
-      "find": "src/**/*.ts/export/const/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 200
-        }
-      },
-      "recommendation": "Function expressions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows."
-    },
-    {
-      "find": "src/**/*.ts/**/block/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 200
-        }
-      },
-      "recommendation": "Nested functions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows."
-    },
-    {
-      "find": "src/**/*.ts/**/block/const/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 200
-        }
-      },
-      "recommendation": "Nested function expressions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows."
-    },
-    {
-      "find": "src/**/*.ts/**/if",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Conditional blocks must stay short enough to scan. Extract named decisions or early-return branches when the flow grows."
-    },
-    {
-      "find": "src/**/*.ts/**/try",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Try blocks must stay short enough to scan. Move recovery, parsing, or side-effect branches into named helpers when the flow grows."
-    },
-    {
-      "find": "src/**/*.ts/**/catch",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "lines": {
-          "max": 80
-        }
-      },
-      "recommendation": "Catch blocks must stay short enough to scan. Move recovery branches into named helpers when error handling grows."
-    },
-    {
-      "find": "src/**/*.ts/**/class",
-      "exclude": [
-        "**/fixtures/**",
-        "**/snapshots/**"
-      ],
-      "traverse": [
-        {
-          "find": "$prev-sibling",
-          "rules": {
-            "type": "token:block-comment",
-            "contains": "/**",
-            "tokenLineLength": {
-              "min": 3
-            }
-          },
-          "recommendation": "Classes need a short leading JSDoc block that explains the responsibility, contract, or boundary."
-        }
-      ]
-    },
-    {
-      "find": "src/**/*.ts/**/class/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/snapshots/**"
-      ],
-      "traverse": [
-        {
-          "find": "$prev-sibling",
-          "rules": {
-            "type": "token:block-comment",
-            "contains": "/**",
-            "tokenLineLength": {
-              "min": 3
-            }
-          },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
-        }
-      ]
-    },
-    {
-      "find": "src/**/*.ts/**/class/public/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/snapshots/**"
-      ],
-      "traverse": [
-        {
-          "find": "$prev-sibling",
-          "rules": {
-            "type": "token:block-comment",
-            "contains": "/**",
-            "tokenLineLength": {
-              "min": 3
-            }
-          },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
-        }
-      ]
-    },
-    {
-      "find": "src/**/*.ts/**/class/static/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/snapshots/**"
-      ],
-      "traverse": [
-        {
-          "find": "$prev-sibling",
-          "rules": {
-            "type": "token:block-comment",
-            "contains": "/**",
-            "tokenLineLength": {
-              "min": 3
-            }
-          },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
-        }
-      ]
-    },
-    {
-      "find": "src/**/*.ts/**/class/public/static/function",
-      "exclude": [
-        "**/fixtures/**",
-        "**/snapshots/**"
-      ],
-      "traverse": [
-        {
-          "find": "$prev-sibling",
-          "rules": {
-            "type": "token:block-comment",
-            "contains": "/**",
-            "tokenLineLength": {
-              "min": 3
-            }
-          },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
-        }
-      ]
-    },
-    {
-      "find": "src/**/*.test.ts",
-      "traverse": [
+      "code": [
         {
           "find": [
-            "import",
-            "describe",
-            "block-comment",
-            "line-comment"
+            "**/class/function",
+            "**/class/*/function",
+            "**/class/*/*/function"
           ],
-          "invert": true,
-          "rules": {
-            "exists": false
-          },
-          "recommendation": "Test files may only contain imports and top-level describe blocks."
+          "recommendation": "Class members must stay short enough to scan. Extract collaborators or private helpers when one member starts owning multiple decisions.",
+          "asserts": {
+            "lines": {
+              "max": 80
+            }
+          }
         },
+        {
+          "find": [
+            "**/class/accessor",
+            "**/class/*/accessor",
+            "**/class/*/*/accessor"
+          ],
+          "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions.",
+          "asserts": {
+            "lines": {
+              "max": 80
+            }
+          }
+        },
+        {
+          "find": [
+            "**/class/constructor",
+            "**/class/*/constructor"
+          ],
+          "recommendation": "Constructors must stay short enough to scan. Move setup branches into collaborators or named factories when initialization grows.",
+          "asserts": {
+            "lines": {
+              "max": 80
+            }
+          }
+        },
+        {
+          "find": [
+            "function",
+            "export/function",
+            "const/function",
+            "export/const/function",
+            "**/block/function",
+            "**/block/const/function"
+          ],
+          "recommendation": "Functions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows.",
+          "asserts": {
+            "lines": {
+              "max": 200
+            }
+          }
+        },
+        {
+          "find": "**/if",
+          "recommendation": "Conditional blocks must stay short enough to scan. Extract named decisions or early-return branches when the flow grows.",
+          "asserts": {
+            "lines": {
+              "max": 80
+            }
+          }
+        },
+        {
+          "find": "**/try",
+          "recommendation": "Try blocks must stay short enough to scan. Move recovery, parsing, or side-effect branches into named helpers when the flow grows.",
+          "asserts": {
+            "lines": {
+              "max": 80
+            }
+          }
+        },
+        {
+          "find": "**/catch",
+          "recommendation": "Catch blocks must stay short enough to scan. Move recovery branches into named helpers when error handling grows.",
+          "asserts": {
+            "lines": {
+              "max": 80
+            }
+          }
+        },
+        {
+          "find": [
+            "class/**/static",
+            "export/class/**/static"
+          ],
+          "recommendation": "Class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly.",
+          "asserts": {
+            "exists": false
+          }
+        }
+      ]
+    },
+
+    // The old guard required leading JSDoc blocks using $prev-sibling plus contains/tokenLineLength.
+    // Structure-only guardrails can check the immediately preceding node type and span, but cannot check literal
+    // comment contents. Keep using short leading block comments for classes and public class methods.
+    {
+      "find": "src/**/*.ts",
+      "exclude": [
+        "**/fixtures/**",
+        "**/snapshots/**",
+        "src/pages/task-board/use-task-board-page-state.ts",
+        "src/pages/agent-detail/use-agent-detail-page-state.ts"
+      ],
+      "code": [
+        {
+          "find": "**/class$before",
+          "recommendation": "Classes need a short leading JSDoc block that explains the responsibility, contract, or boundary.",
+          "asserts": {
+            "type": "block-comment",
+            "lines": {
+              "min": 3
+            }
+          }
+        },
+        {
+          "find": [
+            "**/class/function$before",
+            "**/class/public/function$before",
+            "**/class/static/function$before",
+            "**/class/public/static/function$before"
+          ],
+          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract.",
+          "asserts": {
+            "type": "block-comment",
+            "lines": {
+              "min": 3
+            }
+          }
+        }
+      ]
+    },
+
+    // The old top-level inverted traversals for tests, index files, types files, and class-file siblings cannot be
+    // represented directly because structure-only guardrails have no invert or sibling assertions. These rules keep
+    // the supported portions: tests cannot define support declarations, index files stay free of definitions, types
+    // files stay free of runtime declarations, and class files should still only contain imports plus classes.
+    {
+      "find": "src/**/*.test.ts",
+      "exclude": [
+        "**/fixtures/**",
+        "**/snapshots/**"
+      ],
+      "code": [
         {
           "find": [
             "**/class",
@@ -391,135 +185,68 @@
             "**/interface",
             "**/type"
           ],
-          "rules": {
+          "recommendation": "Test files must not define nested support declarations.",
+          "asserts": {
             "exists": false
-          },
-          "recommendation": "Test files must not define nested support declarations."
+          }
         }
-      ],
-      "exclude": [
-        "**/fixtures/**",
-        "**/snapshots/**"
       ]
     },
     {
       "find": "src/**/index.ts",
-      "traverse": [
-        {
-          "find": [
-            "import",
-            "re-export",
-            "block-comment",
-            "line-comment"
-          ],
-          "invert": true,
-          "rules": {
-            "exists": false
-          },
-          "recommendation": "Index files may only import and re-export modules."
-        }
-      ],
       "exclude": [
         "**/fixtures/**",
         "**/snapshots/**"
+      ],
+      "code": [
+        {
+          "find": [
+            "interface",
+            "type",
+            "class",
+            "function"
+          ],
+          "recommendation": "Index files may only import and re-export modules.",
+          "asserts": {
+            "exists": false
+          }
+        }
       ]
     },
     {
       "find": "src/**/types.ts",
-      "traverse": [
-        {
-          "find": [
-            "import",
-            "re-export",
-            "interface",
-            "type",
-            "export/interface",
-            "export/type",
-            "block-comment",
-            "line-comment"
-          ],
-          "invert": true,
-          "rules": {
-            "exists": false
-          },
-          "recommendation": "Types files may only contain imports, type contracts, and re-exports."
-        }
-      ],
       "exclude": [
         "**/fixtures/**",
         "**/snapshots/**"
+      ],
+      "code": [
+        {
+          "find": [
+            "class",
+            "function",
+            "const/function",
+            "export/const/function"
+          ],
+          "recommendation": "Types files may only contain imports, type contracts, and re-exports.",
+          "asserts": {
+            "exists": false
+          }
+        }
       ]
     },
+
+    // The legacy matchesFileName assertion is not available in the structure-only assertion registry.
+    // Keep class names aligned with dash-case file names for predictable navigation.
     {
       "find": [
-        "src/**/*.ts/class",
-        "src/**/*.ts/export/class"
+        "src/**/*.ts#class",
+        "src/**/*.ts#export/class"
       ],
-      "exclude": [
-        "**/*.test.ts",
-        "**/fixtures/**",
-        "**/snapshots/**"
-      ],
-      "traverse": [
-        {
-          "find": [
-            "$siblings/import",
-            "$siblings/class",
-            "$siblings/export/class",
-            "$siblings/block-comment",
-            "$siblings/line-comment"
-          ],
-          "invert": true,
-          "rules": {
-            "exists": false
-          },
-          "recommendation": "Class files may only contain imports and classes."
-        }
-      ]
-    },
-    {
-      "find": "src/**/*.ts/class",
       "exclude": [
         "**/fixtures/**",
         "**/*.test.ts"
       ],
-      "rules": {
-        "matchesFileName": true
-      },
       "recommendation": "Class names must match the dash-case file name so navigation is predictable without opening the file."
-    },
-    {
-      "find": "src/**/*.ts/export/class",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "matchesFileName": true
-      },
-      "recommendation": "Exported class names must match the dash-case file name so navigation is predictable without opening the file."
-    },
-    {
-      "find": "src/**/*.ts/class/**/static",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "exists": false
-      },
-      "recommendation": "Class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly."
-    },
-    {
-      "find": "src/**/*.ts/export/class/**/static",
-      "exclude": [
-        "**/fixtures/**",
-        "**/*.test.ts"
-      ],
-      "rules": {
-        "exists": false
-      },
-      "recommendation": "Exported class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly."
     }
   ]
 }
