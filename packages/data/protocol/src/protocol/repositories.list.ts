@@ -1,3 +1,7 @@
+/**
+ * Defines the RepositoryRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface RepositoryRecord {
   id: string;
   createdAt: number;
@@ -7,6 +11,10 @@ export interface RepositoryRecord {
   baseBranch: string;
 }
 
+/**
+ * Defines the RepositoriesListOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface RepositoriesListOperation {
   name: 'listRepositories';
   request: {

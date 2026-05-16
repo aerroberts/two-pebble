@@ -1,5 +1,9 @@
 import type { ConversationThreadCell, DataCells } from '@two-pebble/pebble';
 
+/**
+ * Defines the ThreadSnapshotReadOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface ThreadSnapshotReadOperation {
   name: 'readThreadSnapshot';
   request: {
