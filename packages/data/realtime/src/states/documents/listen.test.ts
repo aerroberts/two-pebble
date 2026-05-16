@@ -8,8 +8,8 @@ type ListenerMap = {
   documentUpdated?: (payload: DocumentRecord) => void;
 };
 
-describe('documents realtime listeners', () => {
-  test('documentUpdated replaces the registry entry', () => {
+describe('feature: documents realtime listeners', () => {
+  test('happy: documentUpdated replaces the registry entry', () => {
     const listeners: ListenerMap = {};
     const datastore = createFakeDatastore(listeners);
     const record = sampleDocument({ name: 'Updated' });
@@ -20,7 +20,7 @@ describe('documents realtime listeners', () => {
     expect(datastore.state.documents.getItem(record.id)?.value?.name).toBe('Updated');
   });
 
-  test('documentDeleted removes the registry entry', () => {
+  test('happy: documentDeleted removes the registry entry', () => {
     const listeners: ListenerMap = {};
     const datastore = createFakeDatastore(listeners);
     const record = sampleDocument({ name: 'Deleted' });

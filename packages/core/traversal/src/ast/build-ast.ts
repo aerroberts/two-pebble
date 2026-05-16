@@ -39,6 +39,9 @@ export class CodeAstBuilder {
     if (ts.isImportDeclaration(statement)) {
       return this.consumeImportDeclaration(statement);
     }
+    if (ts.isExpressionStatement(statement)) {
+      return this.consumeExpressionStatement(statement);
+    }
 
     const declaration = this.consumeDeclaration(statement);
     if (!declaration) {
@@ -77,6 +80,10 @@ export class CodeAstBuilder {
       importingFrom: statement.moduleSpecifier.getText(this.sourceFile),
     });
     return this.applyRange(node, statement);
+  }
+
+  private consumeExpressionStatement(statement: ts.ExpressionStatement) {
+    return this.consumeTestFrameworkCall(statement.expression);
   }
 
   private consumeFunctionDeclaration(statement: ts.FunctionDeclaration) {
@@ -227,7 +234,83 @@ export class CodeAstBuilder {
     for (const awaitNode of this.collectAwaits(block)) {
       node.addChild(awaitNode);
     }
+    for (const testNode of this.collectTestFrameworkCalls(block)) {
+      node.addChild(testNode);
+    }
     return node;
+  }
+
+  private consumeTestFrameworkCall(expression: ts.Expression): WorkspaceNode | undefined {
+    if (!ts.isCallExpression(expression) || !ts.isIdentifier(expression.expression)) {
+      return undefined;
+    }
+    const callName = expression.expression.text;
+    const type = this.testFrameworkNodeType(callName);
+    if (!type) {
+      return undefined;
+    }
+    const node = new WorkspaceNode(type).withData({
+      name: this.firstStringArgument(expression),
+      callName,
+    });
+    this.applyRange(node, expression);
+    if (type === 'describe') {
+      for (const child of this.collectDescribeChildren(expression)) {
+        node.addChild(child);
+      }
+    }
+    return node;
+  }
+
+  private collectDescribeChildren(expression: ts.CallExpression): WorkspaceNode[] {
+    const callback = expression.arguments.find(
+      (argument): argument is ts.ArrowFunction | ts.FunctionExpression =>
+        ts.isArrowFunction(argument) || ts.isFunctionExpression(argument),
+    );
+    if (!callback || !ts.isBlock(callback.body)) {
+      return [];
+    }
+    return this.collectTestFrameworkCalls(callback.body);
+  }
+
+  private collectTestFrameworkCalls(root: ts.Node): WorkspaceNode[] {
+    const calls: WorkspaceNode[] = [];
+    const visit = (current: ts.Node) => {
+      if (ts.isCallExpression(current)) {
+        const node = this.consumeTestFrameworkCall(current);
+        if (node) {
+          calls.push(node);
+          return;
+        }
+      }
+      ts.forEachChild(current, visit);
+    };
+    ts.forEachChild(root, visit);
+    return calls;
+  }
+
+  private testFrameworkNodeType(callName: string): 'describe' | 'test' | undefined {
+    if (callName === 'describe') {
+      return 'describe';
+    }
+    if (callName === 'test' || callName === 'it') {
+      return 'test';
+    }
+    return undefined;
+  }
+
+  private firstStringArgument(expression: ts.CallExpression) {
+    const [first] = expression.arguments;
+    if (!first) {
+      return '';
+    }
+    if (ts.isStringLiteral(first) || ts.isNoSubstitutionTemplateLiteral(first)) {
+      return first.text;
+    }
+    if (ts.isTemplateExpression(first)) {
+      return first.head.text;
+    }
+    return '';
   }
 
   private collectAwaits(node: ts.Node): WorkspaceNode[] {

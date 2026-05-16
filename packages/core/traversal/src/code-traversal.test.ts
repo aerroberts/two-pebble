@@ -14,6 +14,7 @@ import type { TraversalResultSet } from './result-set';
 
 const fixtureRoot = resolve(import.meta.dirname, '../testing-resources/sample-project');
 const srcGlob = `${fixtureRoot}/src/**/*.ts`;
+const testGlob = `${fixtureRoot}/tests/**/*.test.ts`;
 
 function toArray(results: TraversalResultSet): WorkspaceNode[] {
   const collected: WorkspaceNode[] = [];
@@ -220,5 +221,31 @@ describe('feature: code traversal find', () => {
       'interface:UserRecord',
       'interface:UserServiceOptions',
     ]);
+  });
+
+  test('happy: exposes describe and test title metadata', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const describes = await traversal.find(`${testGlob}#describe`);
+    const tests = await traversal.find(`${testGlob}#**/test`);
+    const describeNames = toArray(describes).map((node) => node.getProperty('name'));
+    const testNames = toArray(tests)
+      .map((node) => `${node.getProperty('callName')}:${node.getProperty('name')}`)
+      .sort();
+
+    expect(describeNames).toEqual(['feature: sample test extraction']);
+    expect(testNames).toEqual([
+      'it:snapshot: extracts template literal titles ',
+      'test:happy: extracts direct test titles',
+    ]);
+  });
+
+  test('happy: double-star traverses descendants at any depth', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const results = await traversal.find(`${testGlob}#**/describe`);
+    const names = toArray(results).map((node) => node.getProperty('name'));
+
+    expect(names).toEqual(['feature: sample test extraction']);
   });
 });

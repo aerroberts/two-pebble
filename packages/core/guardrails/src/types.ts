@@ -42,9 +42,19 @@ export interface AssertConfig {
   exists?: boolean;
   type?: string;
   named?: string;
+  startsWith?: StartsWithAssert;
   matches?: NumberRange;
   lines?: NumberRange;
   content?: ContentAssert;
+}
+
+/**
+ * String-prefix assertion for AST node metadata. Defaults to the `name`
+ * property because most semantic nodes expose their human label there.
+ */
+export interface StartsWithAssert {
+  property?: string;
+  values: string | string[];
 }
 
 /**

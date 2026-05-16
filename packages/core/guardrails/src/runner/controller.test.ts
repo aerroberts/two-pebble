@@ -143,6 +143,27 @@ describe('feature: controller', () => {
     expect(codeCheck?.diagnostics[0]?.assertion).toBe('named');
   });
 
+  test('happy: startsWith assertion matches node metadata prefixes', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'present.ts exports should use present-prefixed names.',
+          code: [
+            {
+              find: 'export/const',
+              asserts: { startsWith: { property: 'name', values: 'pre' } },
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
   test('happy: exclude removes files that the find would have matched', async () => {
     const config: GuardrailConfig = {
       structure: [

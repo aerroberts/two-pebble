@@ -45,5 +45,30 @@
         },
       ],
     },
+
+    // Test suite names should read like durable behavioral documentation.
+    // Every describe block starts with `feature:` so failures point at the user-facing behavior under test.
+    // Every test block starts with `happy:`, `unhappy:`, or `snapshot:` so the expected outcome is visible before reading the assertions.
+    {
+      "find": ["src/**/*.test.ts", "src/**/*.test.tsx"],
+      "code": [
+        {
+          "find": "**/describe",
+          "asserts": {
+            "startsWith": {
+              "values": "feature:",
+            },
+          },
+        },
+        {
+          "find": "**/test",
+          "asserts": {
+            "startsWith": {
+              "values": ["happy:", "unhappy:", "snapshot:"],
+            },
+          },
+        },
+      ],
+    },
   ],
 }

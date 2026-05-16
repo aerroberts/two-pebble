@@ -26,6 +26,10 @@ function recurseSegment(segments: string[], node: WorkspaceNode): WorkspaceNode[
     return [];
   }
 
+  if (segment === '**') {
+    return matchDescendants(segments, node, rest);
+  }
+
   const { type, modifier } = parseSegment(segment);
 
   // Modifier-driven selection looks at sibling relationships rather than direct
@@ -43,6 +47,14 @@ function recurseSegment(segments: string[], node: WorkspaceNode): WorkspaceNode[
     }
   }
 
+  return results;
+}
+
+function matchDescendants(segments: string[], node: WorkspaceNode, rest: string[]): WorkspaceNode[] {
+  const results = recurseSegment(rest, node);
+  for (const child of node.children) {
+    results.push(...recurseSegment(segments, child));
+  }
   return results;
 }
 
