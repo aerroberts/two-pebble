@@ -1,3 +1,4 @@
+import { emptyAgentSystemPrompt } from '@two-pebble/datatypes';
 import type { CreateInferenceProfileInput } from '../../states/inference-profiles/types';
 import type { CreateIntegrationInput, UpdateIntegrationInput } from '../../states/integrations/types';
 import type { RealtimeDaemonDriver } from '../realtime-daemon-driver';
@@ -76,7 +77,7 @@ export function openAiInferenceProfileInput(integrationId: string): CreateInfere
 }
 
 export function helloWorldAgentRegistryInput(inferenceProfileId: string) {
-  return { inferenceProfileId, name: 'Hello World Agent', systemPrompt: '' };
+  return { inferenceProfileId, name: 'Hello World Agent', systemPrompt: emptyAgentSystemPrompt() };
 }
 
 /**

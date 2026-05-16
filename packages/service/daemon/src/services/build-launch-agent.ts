@@ -1,3 +1,4 @@
+import { renderAgentSystemPromptToText, type TipTapDocument } from '@two-pebble/datatypes';
 import type { Agent } from '@two-pebble/pebble';
 import {
   FrameworkAgent,
@@ -60,18 +61,20 @@ function buildFrameworkAdapter(input: BuildLaunchAgentInput_Framework): ThirdPar
   throw new Error(`Unsupported third-party agent framework: ${(input.install as { frameworkId: string }).frameworkId}`);
 }
 
-function composeFrameworkSystemPrompt(agentId: string, registrySystemPrompt: string): string {
+function composeFrameworkSystemPrompt(agentId: string, registrySystemPrompt: TipTapDocument): string {
   const naming = renderAgentNamingInstruction(agentId);
-  if (registrySystemPrompt.length === 0) {
+  const body = renderAgentSystemPromptToText(registrySystemPrompt);
+  if (body.length === 0) {
     return naming;
   }
-  return `${naming}\n\n${registrySystemPrompt}`;
+  return `${naming}\n\n${body}`;
 }
 
-function composePebbleSystemPrompt(agentId: string, registrySystemPrompt: string): string {
+function composePebbleSystemPrompt(agentId: string, registrySystemPrompt: TipTapDocument): string {
   const naming = renderPebbleAgentNamingInstruction(agentId);
-  if (registrySystemPrompt.length === 0) {
+  const body = renderAgentSystemPromptToText(registrySystemPrompt);
+  if (body.length === 0) {
     return naming;
   }
-  return `${naming}\n\n${registrySystemPrompt}`;
+  return `${naming}\n\n${body}`;
 }

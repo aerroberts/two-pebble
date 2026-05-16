@@ -6,7 +6,8 @@ import {
   TaskStatusIcon,
   type TaskStatusIconStatus,
 } from '@two-pebble/components';
-import type { ReactNode } from 'react';
+import { markdownToTipTap } from '@two-pebble/datatypes';
+import { type ReactNode, useMemo } from 'react';
 import { RichTextFieldHost } from '../../shared/agent-input/rich-text-field-host';
 
 export interface TaskDetailSidebarTask {
@@ -63,6 +64,7 @@ const STATUS_LABEL: Record<TaskStatusIconStatus, string> = {
  * description textarea at the bottom.
  */
 export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
+  const descriptionDoc = useMemo(() => markdownToTipTap(props.description), [props.description]);
   return (
     <>
       <AppBox variant="task-detail-header">
@@ -83,7 +85,7 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         minHeight={120}
         onCommit={(payload) => props.onDescriptionSave(payload.markdown)}
         placeholder="Describe this task — / to reference a document"
-        value={props.description}
+        value={descriptionDoc}
       />
       {props.deliverables.length > 0 ? (
         <div className="flex flex-col gap-2 pt-3">

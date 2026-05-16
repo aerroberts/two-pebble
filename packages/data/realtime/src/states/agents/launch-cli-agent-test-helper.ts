@@ -1,3 +1,4 @@
+import { emptyAgentSystemPrompt } from '@two-pebble/datatypes';
 import { useAgents } from '../../index';
 import { buildRealtimeContext } from '../../testing/realtime-context.builder';
 import { installProviderFetchForTesting } from '../../testing/support/provider-fetch';
@@ -20,7 +21,7 @@ export async function launchCliAgentAndReadName(): Promise<AgentNameResult> {
     const registry = await ctx.daemon.do('createAgentRegistry', {
       inferenceProfileId: profile.id,
       name: 'CLI Agent Test',
-      systemPrompt: '',
+      systemPrompt: emptyAgentSystemPrompt(),
     });
     const launched = await ctx.daemon.do('launchAgent', {
       agentRegistryId: registry.id,

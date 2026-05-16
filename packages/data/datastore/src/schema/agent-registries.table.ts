@@ -19,8 +19,11 @@ export const agentRegistriesTable = customTable('agent_registries', {
   // Reference to the third-party agent install (framework agents).
   thirdPartyAgentInstallId: text('third_party_agent_install_id'),
 
-  // The system prompt the agent runs with.
-  systemPrompt: text('system_prompt').notNull(),
+  // The system prompt as a serialized TipTap document. Parsing and
+  // rendering live in `@two-pebble/datatypes` (parseAgentSystemPrompt,
+  // renderAgentSystemPromptToText). Rows persisted before the JSON
+  // migration get auto-wrapped from plain text on read.
+  systemPrompt: text('system_prompt').notNull().default('{"type":"doc","content":[]}'),
 
   // JSON list of capability specs the launch flow attaches to the agent.
   // Each entry is `{ id, config }`; ids resolve through the in-tree

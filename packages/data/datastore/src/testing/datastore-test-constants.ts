@@ -1,7 +1,9 @@
+import { agentSystemPromptFromText } from '@two-pebble/datatypes';
+
 export const sampleAgentRegistryInput = {
   inferenceProfileId: 'profile-1',
   name: 'Sample Agent',
-  systemPrompt: 'You are a helpful assistant.',
+  systemPrompt: agentSystemPromptFromText('You are a helpful assistant.'),
 };
 
 export const sampleRepositoryInput = {

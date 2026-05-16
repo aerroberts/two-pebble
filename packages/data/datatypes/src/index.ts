@@ -1,4 +1,5 @@
 export * from './agent-registries/types';
+export * from './agent-system-prompt';
 export * from './app-settings';
 export * from './document-content';
 export * from './document-references';
