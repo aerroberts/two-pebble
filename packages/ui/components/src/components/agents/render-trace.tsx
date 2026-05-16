@@ -6,6 +6,7 @@ import { CapabilityDeregisterTrace } from './capability-deregister';
 import { CapabilityExitBlockedTrace } from './capability-exit-blocked';
 import { CapabilityRegisterTrace } from './capability-register';
 import { ConversationThreadSnapshotTrace } from './conversation-thread-snapshot';
+import { DocumentUpdatedTrace } from './document-updated';
 import { ModelCallFailureTrace } from './model-call-failure';
 import { ModelCallStartTrace } from './model-call-start';
 import { ModelCallSuccessTrace } from './model-call-success';
@@ -42,6 +43,8 @@ export function renderAgentTrace(trace: AgentTraceRecord, options: AgentTraceRen
       return <CapabilityRegisterTrace trace={trace} />;
     case 'conversation-thread-snapshot':
       return <ConversationThreadSnapshotTrace trace={trace} onThreadSnapshotClick={options.onThreadSnapshotClick} />;
+    case 'document-updated':
+      return <DocumentUpdatedTrace trace={trace} onDocumentClick={options.onDocumentClick} />;
     case 'model-call-failure':
       return <ModelCallFailureTrace trace={trace} onModelCallClick={options.onModelCallClick} />;
     case 'model-call-start':

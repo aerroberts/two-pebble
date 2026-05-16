@@ -7,6 +7,7 @@ export type { PebbleAgentCapabilityExitBlockedTrace } from './agent-traces/capab
 export type { PebbleAgentCapabilityHydrateTrace } from './agent-traces/capability-hydrate';
 export type { PebbleAgentCapabilityRegisterTrace } from './agent-traces/capability-registered';
 export type { PebbleAgentConversationThreadSnapshotTrace } from './agent-traces/conversation-thread-snapshot';
+export type { PebbleAgentDocumentUpdatedTrace } from './agent-traces/document-updated';
 export type { PebbleAgentModelCallFailureTrace } from './agent-traces/model-call-failure';
 export type { PebbleAgentModelCallStartTrace } from './agent-traces/model-call-start';
 export type { PebbleAgentModelCallSuccessTrace } from './agent-traces/model-call-success';

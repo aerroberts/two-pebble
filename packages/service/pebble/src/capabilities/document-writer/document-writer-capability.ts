@@ -68,6 +68,10 @@ export class DocumentWriterCapability extends AgentCapability<Record<string, nev
           markdown: input.markdown,
           ...(input.name === undefined ? {} : { name: input.name }),
         });
+        this.agent.emit('trace', {
+          type: 'document-updated',
+          data: { documentId: result.id, documentName: result.name },
+        });
         return ToolResponse.success([Cell.text(`Updated document "${result.name}" (id: ${result.id}).`)]);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);

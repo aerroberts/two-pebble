@@ -13,6 +13,7 @@ export interface AgentTraceProps {
   onTaskClick?: (boardId: string, taskId: string) => void;
   onThreadSnapshotClick?: (threadCursor: string) => void;
   onWorktreeOpenClick?: (worktreeId: string) => void;
+  onDocumentClick?: (documentId: string) => void;
   traces: AgentTraceRecord[];
 }
 
@@ -66,6 +67,7 @@ export function AgentTrace(props: AgentTraceProps) {
                 onTaskClick: props.onTaskClick,
                 onThreadSnapshotClick: props.onThreadSnapshotClick,
                 onWorktreeOpenClick: props.onWorktreeOpenClick,
+                onDocumentClick: props.onDocumentClick,
               })
             )}
           </div>
