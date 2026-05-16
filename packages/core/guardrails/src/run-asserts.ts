@@ -4,6 +4,7 @@ import { validate as existsValidate } from './asserts/exists';
 import { validate as linesValidate } from './asserts/lines';
 import { validate as matchesValidate } from './asserts/matches';
 import { validate as namedValidate } from './asserts/named';
+import { validate as startsWithValidate } from './asserts/starts-with';
 import { validate as typeValidate } from './asserts/type';
 import type { AssertConfig, AssertName, AssertOutcome } from './types';
 
@@ -25,6 +26,7 @@ const REGISTRY: Registry = {
   exists: existsValidate,
   type: typeValidate,
   named: namedValidate,
+  startsWith: startsWithValidate,
   matches: matchesValidate,
   lines: linesValidate,
   content: contentValidate,

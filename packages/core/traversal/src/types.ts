@@ -9,6 +9,7 @@ export type CustomAstTokenEnums =
   | 'class'
   | 'const'
   | 'constructor'
+  | 'describe'
   | 'export'
   | 'function'
   | 'import'
@@ -18,4 +19,5 @@ export type CustomAstTokenEnums =
   | 'private'
   | 'public'
   | 'static'
+  | 'test'
   | 'type';
