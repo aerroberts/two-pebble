@@ -1,14 +1,17 @@
 import { statSync } from 'node:fs';
 import { basename, dirname } from 'node:path';
-import { TypeScriptTranslator } from '../ast/typescript-translator';
+import { TypescriptTranslator } from '../ast/typescript-translator';
 import type { SerializedTraversalTree, TraversalCacheExpandContext, TraversalNodeRecord } from '../types';
 import { recordFrom } from './record-utils';
 
+/**
+ * Builds the serialized traversal tree from filesystem entries and translated AST records.
+ */
 export class TraversalTreeBuilder {
-  private readonly translator: TypeScriptTranslator;
+  private readonly translator: TypescriptTranslator;
 
   public constructor(private readonly context: TraversalCacheExpandContext) {
-    this.translator = new TypeScriptTranslator(context);
+    this.translator = new TypescriptTranslator(context);
   }
 
   public async build(): Promise<SerializedTraversalTree> {

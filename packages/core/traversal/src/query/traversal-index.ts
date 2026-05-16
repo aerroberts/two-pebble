@@ -1,5 +1,8 @@
 import type { SerializedTraversalTree, TraversalNodeRecord } from '../types';
 
+/**
+ * Indexes serialized traversal records by id and filesystem path.
+ */
 export class TraversalIndex {
   private readonly records = new Map<string, TraversalNodeRecord>();
   private readonly pathIds = new Map<string, string>();

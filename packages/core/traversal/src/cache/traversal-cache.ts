@@ -11,9 +11,11 @@ import type {
 import { sha256 } from '../utils/hash';
 import { normalizeTraversalPath } from '../utils/path';
 
-const CACHE_VERSION = 3;
-
+/**
+ * Caches traversal trees in memory and on disk for one traversal root.
+ */
 export class TraversalCache {
+  private readonly cacheVersion = 3;
   private tree?: SerializedTraversalTree;
   private readonly fileSnapshots = new Map<string, TraversalFileSnapshot>();
   private readonly rootPath: string;
@@ -118,7 +120,7 @@ export class TraversalCache {
     }
     try {
       const tree = JSON.parse(readFileSync(path, 'utf-8')) as SerializedTraversalTree;
-      return tree.version === CACHE_VERSION && tree.rootHash === rootHash && tree.rootPath === this.rootPath
+      return tree.version === this.cacheVersion && tree.rootHash === rootHash && tree.rootPath === this.rootPath
         ? tree
         : undefined;
     } catch {

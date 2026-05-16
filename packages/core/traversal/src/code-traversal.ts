@@ -10,6 +10,9 @@ import { TraversalTreeBuilder } from './tree/traversal-tree-builder';
 import type { CodeTraversalInput, TraversalCacheLike, TraversalPropertyValue } from './types';
 import { normalizeTraversalPath } from './utils/path';
 
+/**
+ * Provides cached filesystem and AST lookup operations for one absolute root path.
+ */
 export class CodeTraversal {
   private readonly rootPath: string;
   private readonly cache: TraversalCacheLike;

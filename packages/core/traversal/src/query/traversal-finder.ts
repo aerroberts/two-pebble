@@ -2,6 +2,9 @@ import type { TraversalNodeRecord } from '../types';
 import { matchesGlob } from '../utils/glob';
 import type { TraversalIndex } from './traversal-index';
 
+/**
+ * Resolves traversal query strings against indexed traversal records.
+ */
 export class TraversalFinder {
   public constructor(private readonly index: TraversalIndex) {}
 

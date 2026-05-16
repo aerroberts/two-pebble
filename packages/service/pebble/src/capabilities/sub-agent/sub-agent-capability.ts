@@ -37,11 +37,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   private readonly pendingChildQuestionsSlot = this.useState<PendingChildQuestion[]>('pending-child-questions', []);
 
   /**
-   * Injects a one-time orientation cell explaining the sub-agent lifecycle.
-   * Without this primer small models tend to treat framework children as
-   * always-on background workers and loop "asking" them for updates that
-   * will never come. Only runs on fresh launch; rehydration replays
-   * earlier user-context cells so we do not duplicate the message.
+   * Injects a one-time orientation cell explaining the child lifecycle.
    */
   public override initialize(_config: SubAgentCapabilityConfig): void {
     this.agent.addUserContext('Sub-agent Lifecycle Primer', [
@@ -51,10 +47,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   }
 
   /**
-   * Adds a 'Sub-agent Status' cell at the start of every turn when at
-   * least one child has been spawned. Models that look only at the latest
-   * context (rather than rebuilding history) get an honest snapshot of
-   * every child's current state, with prescriptive next-action wording.
+   * Adds child status context at the start of every parent turn.
    */
   public override hookBeforeAgentTurn(): void {
     const children = this.childrenSlot.value;
@@ -71,8 +64,6 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   /**
    * Registers child-agent tools for the parent agent.
-   *
-   * Tool calls use the installed runner for lifecycle and signals for messages.
    */
   public override hookOnRegister(config: SubAgentCapabilityConfig) {
     const references = readReferences(config);
@@ -297,8 +288,6 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   /**
    * Handles child-originated durable signals.
-   *
-   * Responses become trace output; child asks block parent exit until answered.
    */
   public override hookOnSignal(signal: AgentSignal): void {
     const data = objectData(signal.data);
@@ -366,8 +355,6 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   /**
    * Blocks exit while child agents are waiting on parent answers.
-   *
-   * This preserves the awaited signal contract between parent and child.
    */
   public override hookOnAgentExit() {
     if (this.pendingChildQuestionsSlot.value.length > 0) {

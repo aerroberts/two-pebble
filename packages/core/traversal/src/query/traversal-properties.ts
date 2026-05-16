@@ -1,6 +1,9 @@
 import { basename } from 'node:path';
 import type { TraversalNodeRecord, TraversalPropertyName, TraversalPropertyValue } from '../types';
 
+/**
+ * Exposes validated property reads for traversal node records.
+ */
 export class TraversalProperties {
   public read(record: TraversalNodeRecord, name: string): TraversalPropertyValue {
     if (!this.validProperties(record).has(name)) {

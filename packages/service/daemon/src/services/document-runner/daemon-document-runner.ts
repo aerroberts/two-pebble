@@ -24,15 +24,6 @@ import type {
 } from '@two-pebble/pebble';
 import type { DaemonBridge } from '../../types';
 
-interface DaemonDocumentRunnerContext {
-  agentId: string;
-  bridge: DaemonBridge;
-  datastore: Datastore;
-  logger: Logger;
-}
-
-const DEFAULT_LIST_LIMIT = 50;
-
 /**
  * Daemon implementation of the `DocumentRunner` contract used by the
  * `document-writer` capability. Owns the agent id so every write goes out
@@ -42,12 +33,13 @@ const DEFAULT_LIST_LIMIT = 50;
  * editor stays in sync.
  */
 export class DaemonDocumentRunner implements DocumentRunner {
+  private readonly defaultListLimit = 50;
   private readonly agentId: string;
   private readonly bridge: DaemonBridge;
   private readonly datastore: Datastore;
   private readonly logger: Logger;
 
-  public constructor(context: DaemonDocumentRunnerContext) {
+  public constructor(context: { agentId: string; bridge: DaemonBridge; datastore: Datastore; logger: Logger }) {
     this.agentId = context.agentId;
     this.bridge = context.bridge;
     this.datastore = context.datastore;
@@ -93,7 +85,7 @@ export class DaemonDocumentRunner implements DocumentRunner {
 
   public async listDocuments(input: DocumentListInput): Promise<DocumentListOutput> {
     const result = await this.datastore.documents.list({
-      limit: input.limit ?? DEFAULT_LIST_LIMIT,
+      limit: input.limit ?? this.defaultListLimit,
       offset: input.offset ?? 0,
     });
     return {
