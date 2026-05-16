@@ -124,6 +124,24 @@
       "recommendation": "Constructors must stay short enough to scan. Move setup branches into collaborators or named factories when initialization grows."
     },
     {
+      "find": "src/**/*.ts/**/constructor",
+      "exclude": [
+        "**/fixtures/**",
+        "**/*.test.ts"
+      ],
+      "traverse": [
+        {
+          "find": "parameters/parameter",
+          "rules": {
+            "count": {
+              "max": 1
+            }
+          },
+          "recommendation": "Constructors may accept at most one parameter. Group constructor dependencies into a named input object."
+        }
+      ]
+    },
+    {
       "find": "src/**/*.ts/function",
       "exclude": [
         "**/fixtures/**",
@@ -276,7 +294,7 @@
               "min": 3
             }
           },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+          "recommendation": "Public class methods need a leading block comment that explains the method contract."
         }
       ]
     },
@@ -296,7 +314,7 @@
               "min": 3
             }
           },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+          "recommendation": "Public class methods need a leading block comment that explains the method contract."
         }
       ]
     },
@@ -316,7 +334,7 @@
               "min": 3
             }
           },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+          "recommendation": "Public class methods need a leading block comment that explains the method contract."
         }
       ]
     },
@@ -336,7 +354,7 @@
               "min": 3
             }
           },
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract."
+          "recommendation": "Public class methods need a leading block comment that explains the method contract."
         }
       ]
     },
@@ -493,6 +511,22 @@
         "exists": false
       },
       "recommendation": "Exported class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly."
+    },
+    {
+      "find": [
+        "src/**/*.ts/**/constructor/parameters/**/private",
+        "src/**/*.ts/**/constructor/parameters/**/protected",
+        "src/**/*.ts/**/constructor/parameters/**/public",
+        "src/**/*.ts/**/constructor/parameters/**/readonly"
+      ],
+      "exclude": [
+        "**/fixtures/**",
+        "**/*.test.ts"
+      ],
+      "rules": {
+        "exists": false
+      },
+      "recommendation": "Constructors must not use parameter property modifiers. Declare class fields explicitly and assign them inside the constructor."
     }
   ]
 }

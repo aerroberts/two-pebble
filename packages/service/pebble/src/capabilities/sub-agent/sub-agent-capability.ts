@@ -27,7 +27,6 @@ import type {
 
 /**
  * Capability installed on parent agents so they can manage child agents.
- *
  * It owns spawn references, durable child messaging, and child ask tracking.
  */
 export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig> {

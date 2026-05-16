@@ -12,9 +12,11 @@ export class RetryTestSpeechProvider extends SpeechProvider {
   public readonly modelId = 'retry-test-speech';
   public readonly providerId = 'retry-test-provider';
   public calls = 0;
+  private readonly script: SpeechScriptStep[];
 
-  public constructor(private readonly script: SpeechScriptStep[]) {
+  public constructor(script: SpeechScriptStep[]) {
     super();
+    this.script = script;
   }
 
   protected async synthesizeOnce(_input: SpeechInput, callId: string): Promise<SpeechResult> {

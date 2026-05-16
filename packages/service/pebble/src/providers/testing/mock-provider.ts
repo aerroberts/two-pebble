@@ -11,9 +11,11 @@ export class MockProvider extends ModelProvider {
   public readonly modelId = 'mock-model';
   public readonly providerId = 'mock-provider';
   public readonly calls: ProviderResult[] = [];
+  private readonly outputs: ProviderOutputBlock[][];
 
-  public constructor(private readonly outputs: ProviderOutputBlock[][]) {
+  public constructor(outputs: ProviderOutputBlock[][]) {
     super();
+    this.outputs = outputs;
   }
 
   protected async invokeProvider(thread: ConversationThread, modelCallId: string): Promise<ProviderResult> {

@@ -17,9 +17,11 @@ export class RetryTestProvider extends ModelProvider {
   public readonly modelId = 'retry-test-model';
   public readonly providerId = 'retry-test-provider';
   public calls = 0;
+  private readonly script: ScriptStep[];
 
-  public constructor(private readonly script: ScriptStep[]) {
+  public constructor(script: ScriptStep[]) {
     super();
+    this.script = script;
   }
 
   protected async invokeProvider(_thread: ConversationThread, _modelCallId: string) {

@@ -42,7 +42,9 @@ interface ApplyTodosInput {
  * list. Returns the next task array plus a boolean signalling whether
  * any task moved — callers persist only on change to keep traces tight.
  */
-export async function syncTasksFromDocumentBinding(input: DocumentBindingSyncInput): Promise<DocumentBindingSyncResult> {
+export async function syncTasksFromDocumentBinding(
+  input: DocumentBindingSyncInput,
+): Promise<DocumentBindingSyncResult> {
   const runner = getCapabilityRunners(input.agent).documentWriter;
   if (runner === undefined) {
     return { tasks: input.tasks, changed: false };

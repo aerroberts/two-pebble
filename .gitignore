@@ -12,3 +12,4 @@ packages/pebble/daemon/var
 packages/data/datastore/.test
 docs
 .claude
+.traversal
