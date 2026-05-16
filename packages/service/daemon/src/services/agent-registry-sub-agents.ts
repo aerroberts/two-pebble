@@ -64,6 +64,10 @@ async function ensureSubAgentRecord(ctx: EnsureContext, input: EnsureSubAgentInp
     parentAgentId: input.parentAgentId,
     workspaceId: input.workspaceId,
   });
+  // Only emit `agentRecorded` for newly persisted rows. Reusing an existing
+  // record (because the framework re-emits sub-agent-invoke traces or the
+  // daemon lost the pending-map entry across rehydrate) would otherwise
+  // cause downstream subscribers to treat the same agent as freshly created.
   if (result.created) {
     input.bridge.emit('agentRecorded', result.record);
   }
