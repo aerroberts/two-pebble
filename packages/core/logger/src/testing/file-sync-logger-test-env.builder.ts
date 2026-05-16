@@ -6,12 +6,24 @@ import { FileSyncSink } from '../sinks/file-sync-sink';
 import { JsonlFileSyncSink } from '../sinks/jsonl-file-sync-sink';
 import type { LoggerContextValue, LoggerEntry } from '../types';
 
+/**
+ * Creates a file-backed pretty logger test harness.
+ *
+ * The harness writes to a temporary file and exposes normalized readers so
+ * snapshot tests can assert deterministic pretty log output.
+ */
 export function setupPrettyFileSyncLoggerTest() {
   const filePath = createFilePath('log');
   const logger = new Logger(new FileSyncSink({ filePath }));
   return createFileSyncLoggerTest(filePath, logger);
 }
 
+/**
+ * Creates a file-backed JSONL logger test harness.
+ *
+ * The harness writes to a temporary file and exposes normalized readers so
+ * snapshot tests can assert deterministic JSONL log output.
+ */
 export function setupJsonlFileSyncLoggerTest() {
   const filePath = createFilePath('jsonl');
   const logger = new Logger(new JsonlFileSyncSink({ filePath }));
