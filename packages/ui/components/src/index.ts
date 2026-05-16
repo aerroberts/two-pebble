@@ -288,3 +288,8 @@ export {
   type TaskStatusIconSize,
   type TaskStatusIconStatus,
 } from './components/tasks/task-status-icon/task-status-icon';
+export {
+  TaskStatusIconSelect,
+  type TaskStatusIconSelectProps,
+  type SettableTaskStatus as TaskStatusIconSelectStatus,
+} from './components/tasks/task-status-icon-select/task-status-icon-select';

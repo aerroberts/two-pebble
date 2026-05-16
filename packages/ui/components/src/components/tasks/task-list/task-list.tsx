@@ -1,6 +1,10 @@
 import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../../content/icon/icon';
 import { Select, type SelectOption } from '../../input/select/select';
+import {
+  type SettableTaskStatus as TaskListSettableStatus,
+  TaskStatusIconSelect,
+} from '../task-status-icon-select/task-status-icon-select';
 import { TaskStatusIcon } from '../task-status-icon/task-status-icon';
 import type { TaskStatusIconStatus } from '../task-status-icon/types';
 import { collectFlatTaskOrder } from './flat-order';
@@ -44,6 +48,13 @@ export interface TaskListProps {
    * usages without controls (e.g. read-only embeds) stay unchanged.
    */
   renderTaskAccessory?: (taskId: string) => ReactNode;
+  /**
+   * Optional handler invoked when the user changes a task's status via
+   * the leading status icon. When provided, the icon doubles as a
+   * dropdown trigger so the user can flip status without a separate
+   * control.
+   */
+  onChangeStatus?: (taskId: string, status: TaskListSettableStatus) => void;
 }
 
 export function TaskList(props: TaskListProps) {
@@ -140,6 +151,7 @@ export function TaskList(props: TaskListProps) {
           onEnter={handleEnter}
           onMoveFocus={moveFocus}
           renderTaskAccessory={props.renderTaskAccessory}
+          onChangeStatus={props.onChangeStatus}
         />
       ))}
       {canCreate ? (
@@ -180,6 +192,7 @@ interface TaskListNodeRowProps {
   onEnter: (taskId: string) => void;
   onMoveFocus: (taskId: string, offset: number) => void;
   renderTaskAccessory: ((taskId: string) => ReactNode) | undefined;
+  onChangeStatus: ((taskId: string, status: TaskListSettableStatus) => void) | undefined;
 }
 
 function TaskListNodeRow(props: TaskListNodeRowProps) {
@@ -199,6 +212,7 @@ function TaskListNodeRow(props: TaskListNodeRowProps) {
         onRenameTask={props.onRenameTask}
         onSelectTask={props.onSelectTask}
         renderTaskAccessory={props.renderTaskAccessory}
+        onChangeStatus={props.onChangeStatus}
       />
     );
   }
@@ -230,6 +244,7 @@ function TaskListNodeRow(props: TaskListNodeRowProps) {
               onEnter={props.onEnter}
               onMoveFocus={props.onMoveFocus}
               renderTaskAccessory={props.renderTaskAccessory}
+              onChangeStatus={props.onChangeStatus}
             />
           ))}
         </ul>
@@ -249,6 +264,7 @@ interface TaskListCellRowProps {
   onEnter: (taskId: string) => void;
   onMoveFocus: (taskId: string, offset: number) => void;
   renderTaskAccessory: ((taskId: string) => ReactNode) | undefined;
+  onChangeStatus: ((taskId: string, status: TaskListSettableStatus) => void) | undefined;
 }
 
 function TaskListCellRow(props: TaskListCellRowProps) {
@@ -311,7 +327,15 @@ function TaskListCellRow(props: TaskListCellRowProps) {
         style={{ paddingLeft: indentPaddingPx(props.depth), paddingRight: 12 }}
       >
         <span className="inline-block w-3.5 shrink-0" />
-        <TaskStatusIcon status={node.status} size="sm" />
+        {props.onChangeStatus ? (
+          <TaskStatusIconSelect
+            status={node.status}
+            ariaLabel={`Change status of ${node.name}`}
+            onChange={(status) => props.onChangeStatus?.(node.id, status)}
+          />
+        ) : (
+          <TaskStatusIcon status={node.status} size="sm" />
+        )}
         <input
           ref={setRef}
           aria-label="Task name"
