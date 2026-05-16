@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import type { CustomAstTokenEnums } from '../types';
 
+/**
+ * Represents one node in the traversal package's simplified workspace AST.
+ * The node owns child relationships, source ranges, and string metadata used
+ * by query matching without exposing the TypeScript compiler AST directly.
+ */
 export class WorkspaceNode {
   public readonly id: string = randomUUID();
 
