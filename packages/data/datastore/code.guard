@@ -3,100 +3,76 @@
   "exclude": [
     {
       "rules": [
-        "@rule/structure",
-        "@rule/typescript-type-safety"
+        "structure"
       ],
       "paths": [
         "src/types.ts"
       ],
       "justification": "Datastore shared row types include legacy heartbeat JSON detail shapes and now exceed the package length target; split and type those contracts separately from CI enablement."
-    },
-    {
-      "rules": [
-        "@rule/typescript-function-shape"
-      ],
-      "paths": [
-        "src/operations/automations.read.ts"
-      ],
-      "justification": "Automation read currently returns the generated nullable record shape inline; preserve the operation contract while CI starts enforcing the package."
-    },
-    {
-      "rules": [
-        "@rule/test-case-structure"
-      ],
-      "paths": [
-        "src/tests/automations.test.ts",
-        "src/tests/task-boards.test.ts"
-      ],
-      "justification": "These datastore suites contain existing longer integration cases; extract fixtures in a focused cleanup after CI is active."
     }
   ],
-  "additional": {
-    "@rule/structure": {
-      "find": [
-        {
-          "find": "src/schema/*",
-          "recommendation": "Datastore schema modules stay flat so every table is visible in one directory.",
-          "assert": {
-            "type": "file"
-          },
-          "allowEmpty": true
-        },
-        {
-          "find": "src/schema/folder/*",
-          "recommendation": "Datastore schema must not use nested folders.",
-          "assert": {
-            "exists": false
-          }
-        },
-        {
-          "find": "src/operations/*",
-          "recommendation": "Datastore operations stay flat so the proxy surface is easy to scan. Each operation defines its own input type inline and exports a function which itself returns a handler function using this input type. Operations do not import types to reuse across operations.",
-          "assert": {
-            "type": "file",
-            "contains": [
-              "return async function handler(input: OperationHandlerInput)",
-              "type OperationHandlerInput = {"
-            ],
-            "missing": [
-              "export type",
-              "export interface"
-            ]
-          },
-          "allowEmpty": true,
-          "extract": {
-            "$operationFile": "$name"
-          }
-        },
-        {
-          "find": "src/operations/folder/*",
-          "recommendation": "Datastore operation modules must not use nested folders.",
-          "assert": {
-            "exists": false
-          }
-        },
-        {
-          "find": "src/tests/*",
-          "recommendation": "Datastore test-scope files must use the .test.ts suffix so the whole tests folder follows one visible naming convention.",
-          "assert": {
-            "type": "file",
-            "fileName": {
-              "endsWith": ".test.ts"
-            }
-          },
-          "allowEmpty": true
-        },
-        {
-          "find": "src/tests/*.test.ts",
-          "recommendation": "Each datastore operation must have its own describe block somewhere in the testing scope",
-          "assert": {
-            "type": "file"
-          },
-          "exhaustiveContains": [
-            "describe('feature: operation $operationFile', () => {"
-          ]
+  "rules": [
+    {
+      "find": "src/schema/*",
+      "recommendation": "Datastore schema modules stay flat so every table is visible in one directory.",
+      "rules": {
+        "type": "file"
+      },
+      "allowEmpty": true
+    },
+    {
+      "find": "src/schema/folder/*",
+      "recommendation": "Datastore schema must not use nested folders.",
+      "rules": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/operations/*",
+      "recommendation": "Datastore operations stay flat so the proxy surface is easy to scan. Each operation defines its own input type inline and exports a function which itself returns a handler function using this input type. Operations do not import types to reuse across operations.",
+      "rules": {
+        "type": "file",
+        "contains": [
+          "return async function handler(input: OperationHandlerInput)",
+          "type OperationHandlerInput = {"
+        ],
+        "missing": [
+          "export type",
+          "export interface"
+        ]
+      },
+      "allowEmpty": true,
+      "extract": {
+        "$operationFile": "$name"
+      }
+    },
+    {
+      "find": "src/operations/folder/*",
+      "recommendation": "Datastore operation modules must not use nested folders.",
+      "rules": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/tests/*",
+      "recommendation": "Datastore test-scope files must use the .test.ts suffix so the whole tests folder follows one visible naming convention.",
+      "rules": {
+        "type": "file",
+        "fileName": {
+          "endsWith": ".test.ts"
         }
+      },
+      "allowEmpty": true
+    },
+    {
+      "find": "src/tests/*.test.ts",
+      "recommendation": "Each datastore operation must have its own describe block somewhere in the testing scope",
+      "rules": {
+        "type": "file"
+      },
+      "exhaustiveContains": [
+        "describe('feature: operation $operationFile', () => {"
       ]
     }
-  }
+  ]
 }

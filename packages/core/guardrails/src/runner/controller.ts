@@ -1,74 +1,43 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { InvalidGuardrailConfigError, UnknownDefinitionError, UnknownRuleError } from '../errors';
-import type { CheckResult, ExcludeList, GuardrailConfig, GuardrailContext, RuleConfig } from '../types';
+import { InvalidGuardrailConfigError, UnknownDefinitionError } from '../errors';
+import { StructureRunner } from '../structure/structure-runner';
+import type { GuardrailConfig } from '../types';
 import { validateGuardrailConfig } from './config-validator';
-import { rules } from './registry';
-import type { MergeableRuleConfig } from './types';
 
 /**
- * Expands a guardrail config into concrete rule executions for one package.
+ * Expands inherited structure config and runs it for one package.
  */
 export class Controller {
   /**
-   * Runs configured rules against one package directory.
-   * Results are aggregated by rule for reporter formatting.
+   * Runs the configured structure checks against one package directory.
    */
   public async run(packageDir: string, config: GuardrailConfig) {
     validateGuardrailConfig(config);
 
-    const ruleMap = new Map<string, RuleConfig>();
-
-    if (config.inherit) {
-      const definition = this.findDefinitionConfig(packageDir, config.inherit);
-
-      for (const [ruleName, ruleConfig] of Object.entries(definition.additional ?? {})) {
-        this.addRuleConfig(ruleMap, ruleName, ruleConfig);
-      }
-    }
-
-    for (const [ruleName, ruleConfig] of Object.entries(config.additional ?? {})) {
-      this.addRuleConfig(ruleMap, ruleName, ruleConfig);
-    }
-
-    const excludes = config.exclude ?? [];
-    const results: CheckResult[] = [];
+    const merged = this.mergeInheritedConfig(packageDir, config);
     const totalStart = performance.now();
+    const ruleStart = performance.now();
+    const structureResult = await new StructureRunner(packageDir, merged).check();
+    const reporters = structureResult.reporters;
+    const diagnostics = reporters.flatMap((reporter) => reporter.diagnostics);
+    const filesScanned = new Set(structureResult.filesScanned);
 
-    for (const [ruleName, ruleConfig] of ruleMap) {
-      const registration = rules.find((ruleEntry) => ruleEntry.name === ruleName);
-      if (!registration) {
-        throw new UnknownRuleError(ruleName);
+    for (const reporter of reporters) {
+      if (reporter.file) {
+        filesScanned.add(reporter.file);
       }
+    }
 
-      const context: GuardrailContext = {
-        packageDir,
-        exclude: this.getExcludesForRule(ruleName, excludes),
-        options: ruleConfig,
-      };
-
-      const ruleStart = performance.now();
-      const rule = registration.create(context);
-      await rule.check();
-      const reporters = rule.getReport();
-      const durationMs = Math.round(performance.now() - ruleStart);
-      const diagnostics = reporters.flatMap((reporter) => reporter.diagnostics);
-      const filesScanned = new Set<string>();
-
-      for (const reporter of reporters) {
-        if (reporter.file) {
-          filesScanned.add(reporter.file);
-        }
-      }
-
-      results.push({
-        rule: ruleName,
+    const results = [
+      {
+        rule: 'structure',
         passed: diagnostics.length === 0,
         diagnostics,
         filesScanned,
-        durationMs,
-      });
-    }
+        durationMs: Math.round(performance.now() - ruleStart),
+      },
+    ];
 
     return {
       passed: results.every((result) => result.passed),
@@ -77,31 +46,13 @@ export class Controller {
     };
   }
 
-  private stripPrefix(name: string, prefix: string) {
-    return name.startsWith(prefix) ? name.slice(prefix.length) : name;
-  }
-
-  private addRuleConfig(ruleMap: Map<string, RuleConfig>, ruleName: string, ruleConfig: RuleConfig) {
-    const name = this.stripPrefix(ruleName, '@rule/');
-    ruleMap.set(name, this.mergeRuleConfig(ruleMap.get(name), ruleConfig));
-  }
-
-  private mergeRuleConfig(existing: RuleConfig | undefined, next: RuleConfig): RuleConfig {
-    if (existing === undefined) {
-      return next;
-    }
-
-    const existingConfig = existing as MergeableRuleConfig;
-    const nextConfig = next as MergeableRuleConfig;
-
-    if (existingConfig.rules !== undefined && nextConfig.rules !== undefined) {
-      return { ...existingConfig, ...nextConfig, rules: [...existingConfig.rules, ...nextConfig.rules] };
-    }
-    if (Array.isArray(existingConfig.find) && Array.isArray(nextConfig.find)) {
-      return { ...existingConfig, ...nextConfig, find: [...existingConfig.find, ...nextConfig.find] };
-    }
-
-    return next;
+  private mergeInheritedConfig(packageDir: string, config: GuardrailConfig): GuardrailConfig {
+    const definition = config.inherit ? this.findDefinitionConfig(packageDir, config.inherit) : undefined;
+    return {
+      cacheDirectory: config.cacheDirectory ?? definition?.cacheDirectory,
+      exclude: [...(definition?.exclude ?? []), ...(config.exclude ?? [])],
+      rules: [...(definition?.rules ?? []), ...(config.rules ?? [])],
+    };
   }
 
   private findDefinitionConfig(packageDir: string, definition: string) {
@@ -162,17 +113,5 @@ export class Controller {
     } catch {
       return false;
     }
-  }
-
-  private getExcludesForRule(ruleName: string, excludes: ExcludeList) {
-    const paths: string[] = [];
-
-    for (const entry of excludes) {
-      if (entry.rules.some((pattern) => pattern === '*' || this.stripPrefix(pattern, '@rule/') === ruleName)) {
-        paths.push(...entry.paths);
-      }
-    }
-
-    return paths;
   }
 }

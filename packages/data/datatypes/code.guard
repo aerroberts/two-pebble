@@ -1,67 +1,63 @@
 {
   "inherit": "@group/guardrails-typescript",
-  "additional": {
-    "@rule/structure": {
-      "find": [
-        {
-          "find": "src/integrations/types.ts",
-          "recommendation": "Integration domain types expose one simple union from the folder-level types file.",
-          "assert": {
-            "exists": true,
-            "type": "file",
-            "contains": [
-              "export type Integration ="
-            ]
-          }
-        },
-        {
-          "find": "src/inference-profiles/types.ts",
-          "recommendation": "Inference profile domain types expose one simple union from the folder-level types file.",
-          "assert": {
-            "exists": true,
-            "type": "file",
-            "contains": [
-              "export type InferenceProfile ="
-            ]
-          }
-        },
-        {
-          "find": "src/integrations/protocol/*",
-          "recommendation": "Each integration provider protocol definition must stay as a pure type file.",
-          "assert": {
-            "exists": true,
-            "type": "file",
-            "contains": [
-              "export interface Integration_"
-            ]
-          }
-        },
-        {
-          "find": "src/inference-profiles/protocol/*",
-          "recommendation": "Each inference profile provider protocol definition must stay as a pure type file.",
-          "assert": {
-            "exists": true,
-            "type": "file",
-            "contains": [
-              "export interface InferenceProfile_"
-            ]
-          }
-        },
-        {
-          "find": "src/integrations/protocol/folder/*",
-          "recommendation": "Integration provider protocol definitions must stay as one file per provider.",
-          "assert": {
-            "exists": false
-          }
-        },
-        {
-          "find": "src/inference-profiles/protocol/folder/*",
-          "recommendation": "Inference profile provider protocol definitions must stay as one file per provider.",
-          "assert": {
-            "exists": false
-          }
-        }
-      ]
+  "rules": [
+    {
+      "find": "src/integrations/types.ts",
+      "recommendation": "Integration domain types expose one simple union from the folder-level types file.",
+      "rules": {
+        "exists": true,
+        "type": "file",
+        "contains": [
+          "export type Integration ="
+        ]
+      }
+    },
+    {
+      "find": "src/inference-profiles/types.ts",
+      "recommendation": "Inference profile domain types expose one simple union from the folder-level types file.",
+      "rules": {
+        "exists": true,
+        "type": "file",
+        "contains": [
+          "export type InferenceProfile ="
+        ]
+      }
+    },
+    {
+      "find": "src/integrations/protocol/*",
+      "recommendation": "Each integration provider protocol definition must stay as a pure type file.",
+      "rules": {
+        "exists": true,
+        "type": "file",
+        "contains": [
+          "export interface Integration_"
+        ]
+      }
+    },
+    {
+      "find": "src/inference-profiles/protocol/*",
+      "recommendation": "Each inference profile provider protocol definition must stay as a pure type file.",
+      "rules": {
+        "exists": true,
+        "type": "file",
+        "contains": [
+          "export interface InferenceProfile_"
+        ]
+      }
+    },
+    {
+      "find": "src/integrations/protocol/folder/*",
+      "recommendation": "Integration provider protocol definitions must stay as one file per provider.",
+      "rules": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/inference-profiles/protocol/folder/*",
+      "recommendation": "Inference profile provider protocol definitions must stay as one file per provider.",
+      "rules": {
+        "exists": false
+      }
     }
-  }
+  ]
 }

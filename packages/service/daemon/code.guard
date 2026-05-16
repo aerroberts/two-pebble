@@ -3,9 +3,7 @@
   "exclude": [
     {
       "rules": [
-        "@rule/structure",
-        "@rule/typescript-type-safety",
-        "@rule/typescript-function-shape"
+        "structure"
       ],
       "paths": [
         "src/services/agent-registry-service.ts"
@@ -14,7 +12,7 @@
     },
     {
       "rules": [
-        "@rule/structure"
+        "structure"
       ],
       "paths": [
         "src/services/task-board-service.ts"
@@ -23,10 +21,7 @@
     },
     {
       "rules": [
-        "@rule/class-name",
-        "@rule/structure",
-        "@rule/typescript-function-shape",
-        "@rule/typescript-variable-type"
+        "structure"
       ],
       "paths": [
         "src/services/task-dispatcher/task-dispatcher.ts"
@@ -35,7 +30,7 @@
     },
     {
       "rules": [
-        "@rule/structure"
+        "structure"
       ],
       "paths": [
         "src/services/agent-naming/daemon-agent-naming-runner.ts"
@@ -44,11 +39,7 @@
     },
     {
       "rules": [
-        "@rule/class-name",
-        "@rule/structure",
-        "@rule/typescript-type-safety",
-        "@rule/typescript-function-shape",
-        "@rule/typescript-variable-type"
+        "structure"
       ],
       "paths": [
         "src/handlers/task-deliverable-submissions.list.handler.ts",
@@ -74,33 +65,29 @@
       "justification": "Task board dispatch, automation, heartbeat, and template handlers landed before daemon guard was enforced; normalize those contracts in a focused follow-up while CI protects the rest of the package."
     }
   ],
-  "additional": {
-    "@rule/structure": {
-      "find": [
-        {
-          "find": "src/handlers/*.handler.ts",
-          "recommendation": "Each handler exports a handler which wraps the actual handler function for consistent error handling and logging. State changes must broadcast through ctx.multicastBridge.emit so every connected UI sees the mutation — handlers must not call ctx.bridge.emit or any other per-client bridge emit, because the caller is often a one-shot CLI client and other UIs would never receive the event.",
-          "assert": {
-            "type": "file",
-            "contains": [
-              "export function handler(ctx: DaemonHandlerContext) {",
-              "return async function wrappedHandler("
-            ],
-            "missing": [
-              "ctx.bridge",
-              "bridge.emit"
-            ]
-          },
-          "allowEmpty": true
-        },
-        {
-          "find": "src/handlers/*.test.ts",
-          "recommendation": "Daemon handler tests live in src/tests, not alongside handler files. Keep src/handlers free of test-only files so the protocol surface stays scannable.",
-          "assert": {
-            "exists": false
-          }
-        }
-      ]
+  "rules": [
+    {
+      "find": "src/handlers/*.handler.ts",
+      "recommendation": "Each handler exports a handler which wraps the actual handler function for consistent error handling and logging. State changes must broadcast through ctx.multicastBridge.emit so every connected UI sees the mutation — handlers must not call ctx.bridge.emit or any other per-client bridge emit, because the caller is often a one-shot CLI client and other UIs would never receive the event.",
+      "rules": {
+        "type": "file",
+        "contains": [
+          "export function handler(ctx: DaemonHandlerContext) {",
+          "return async function wrappedHandler("
+        ],
+        "missing": [
+          "ctx.bridge",
+          "bridge.emit"
+        ]
+      },
+      "allowEmpty": true
+    },
+    {
+      "find": "src/handlers/*.test.ts",
+      "recommendation": "Daemon handler tests live in src/tests, not alongside handler files. Keep src/handlers free of test-only files so the protocol surface stays scannable.",
+      "rules": {
+        "exists": false
+      }
     }
-  }
+  ]
 }

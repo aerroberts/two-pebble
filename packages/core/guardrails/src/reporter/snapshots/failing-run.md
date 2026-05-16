@@ -1,6 +1,6 @@
 
 
-   FAIL  @rule/sample-rule/sample-error  —  1 error in 1 file  7ms
+   FAIL  sample-rule/sample-error  —  1 error in 1 file  7ms
          A sample diagnostic was reported.
          fix: Fix the sample diagnostic.
 
