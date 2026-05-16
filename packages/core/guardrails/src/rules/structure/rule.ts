@@ -1,6 +1,6 @@
 import { CodeTraversal, type TraversalNode } from '@two-pebble/traversal';
 import { Guardrail } from '../../constructs/guardrail';
-import { structureAssertions } from './asserts/assertions';
+import { structureAssertions } from './assertions';
 import { structureDiagnostic } from './errors';
 import type { StructureConfig, StructureFindRuleConfig, StructureRuleConfig } from './types';
 

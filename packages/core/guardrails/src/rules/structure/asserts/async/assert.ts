@@ -1,10 +1,10 @@
 import type { TraversalNode } from '@two-pebble/traversal';
-import { StructureAssertion } from './structure-assertion';
+import { StructureAssertion } from '../../structure-assertion';
 
 /**
  * Checks whether selected function nodes are async.
  */
-export class AsyncAssertion extends StructureAssertion<boolean> {
+export class Assert extends StructureAssertion<boolean> {
   public readonly key = 'async';
 
   protected evaluateNode(node: TraversalNode, value: boolean) {

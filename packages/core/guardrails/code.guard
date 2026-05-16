@@ -102,6 +102,49 @@
               "recommendation": "Each guardrail rule directory must own its local rule types."
             }
           ]
+        },
+        {
+          "find": "src/rules/structure/asserts/*",
+          "assert": {
+            "exists": true,
+            "type": "folder"
+          },
+          "recommendation": "Each structure assertion must live in its own directory.",
+          "traverse": [
+            {
+              "find": "./assert.ts",
+              "assert": {
+                "exists": true,
+                "type": "file"
+              },
+              "recommendation": "Each structure assertion directory must define the assertion implementation."
+            },
+            {
+              "find": "./assert.test.ts",
+              "assert": {
+                "exists": true,
+                "type": "file"
+              },
+              "recommendation": "Each structure assertion directory must test its assertion through guardrails."
+            },
+            {
+              "find": "./fixtures",
+              "assert": {
+                "exists": true,
+                "type": "folder"
+              },
+              "recommendation": "Each structure assertion directory must include focused fixtures.",
+              "traverse": [
+                {
+                  "find": "*",
+                  "assert": {
+                    "exists": true
+                  },
+                  "recommendation": "Structure assertion fixtures must not be empty."
+                }
+              ]
+            }
+          ]
         }
       ]
     }

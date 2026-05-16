@@ -1,13 +1,13 @@
 import type { TraversalNode } from '@two-pebble/traversal';
-import type { StructureRangeAssertConfig } from '../types';
-import { StructureAssertion } from './structure-assertion';
+import { StructureAssertion } from '../../structure-assertion';
+import type { StructureRangeAssertConfig } from '../../types';
 
 /**
  * Checks the line count of selected token text.
  * Non-token nodes fail because the assertion is token-specific.
  * Min and max bounds can be used independently.
  */
-export class TokenLineLengthAssertion extends StructureAssertion<StructureRangeAssertConfig> {
+export class Assert extends StructureAssertion<StructureRangeAssertConfig> {
   public readonly key = 'tokenLineLength';
 
   protected evaluateNode(node: TraversalNode, value: StructureRangeAssertConfig) {

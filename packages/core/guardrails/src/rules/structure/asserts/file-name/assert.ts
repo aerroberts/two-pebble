@@ -1,13 +1,13 @@
 import type { TraversalNode } from '@two-pebble/traversal';
-import type { StructureFileNameAssertConfig } from '../types';
-import { StructureAssertion } from './structure-assertion';
+import { StructureAssertion } from '../../structure-assertion';
+import type { StructureFileNameAssertConfig } from '../../types';
 
 /**
  * Checks file name constraints against selected file nodes.
  * String values are treated as exact file-name matches.
  * Object values can check prefixes, suffixes, or equality.
  */
-export class FileNameAssertion extends StructureAssertion<string | StructureFileNameAssertConfig> {
+export class Assert extends StructureAssertion<string | StructureFileNameAssertConfig> {
   public readonly key = 'fileName';
 
   protected evaluateNode(node: TraversalNode, value: string | StructureFileNameAssertConfig) {

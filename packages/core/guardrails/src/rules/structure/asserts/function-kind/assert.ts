@@ -1,10 +1,10 @@
 import type { TraversalFunctionKind, TraversalNode } from '@two-pebble/traversal';
-import { StructureAssertion } from './structure-assertion';
+import { StructureAssertion } from '../../structure-assertion';
 
 /**
  * Checks whether selected function tokens are declarations, methods, arrows, or expressions.
  */
-export class FunctionKindAssertion extends StructureAssertion<TraversalFunctionKind> {
+export class Assert extends StructureAssertion<TraversalFunctionKind> {
   public readonly key = 'functionKind';
 
   protected evaluateNode(node: TraversalNode, value: TraversalFunctionKind) {

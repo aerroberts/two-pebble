@@ -1,12 +1,12 @@
 import type { TraversalNode } from '@two-pebble/traversal';
-import { StructureAssertion } from './structure-assertion';
+import { StructureAssertion } from '../../structure-assertion';
 
 /**
  * Checks whether a structure query selected at least one node.
  * This assertion is the only one where an empty set can pass.
  * It supports both must-exist and must-not-exist policies.
  */
-export class ExistsAssertion extends StructureAssertion<boolean> {
+export class Assert extends StructureAssertion<boolean> {
   public readonly key = 'exists';
 
   /**

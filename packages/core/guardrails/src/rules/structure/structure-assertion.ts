@@ -1,5 +1,5 @@
 import type { TraversalNode } from '@two-pebble/traversal';
-import type { StructureAssertConfig, StructureAssertionFailure, StructureStringAssertConfig } from '../types';
+import type { StructureAssertConfig, StructureAssertionFailure, StructureStringAssertConfig } from './types';
 
 /**
  * Base class for one assertion against a selected structure node set.
