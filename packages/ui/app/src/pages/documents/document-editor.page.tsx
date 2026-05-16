@@ -52,6 +52,7 @@ export function DocumentEditorPage() {
   return (
     <PageLayout width="fixed">
       <Header
+        compact
         actionItems={
           <>
             <IconButton
@@ -84,7 +85,9 @@ export function DocumentEditorPage() {
           value={state.nameDraft}
         />
       </Header>
-      {state.document === null ? null : <DocumentAgentPills references={state.document.references} />}
+      <div className="mt-1 pb-6">
+        {state.document === null ? null : <DocumentAgentPills references={state.document.references} />}
+      </div>
       {state.error.length > 0 ? <Surface>{state.error}</Surface> : null}
       {state.document === null ? (
         <Surface>Loading document.</Surface>
