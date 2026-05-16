@@ -14,6 +14,11 @@ interface CallToolOptions {
   url?: string;
 }
 
+/**
+ * Registers the CLI entrypoint for invoking an agent-owned tool.
+ * Owns argument wiring and error reporting for the command.
+ * Leaves daemon discovery and tool input validation in local helpers.
+ */
 export function registerCallToolCommand(program: Command) {
   program
     .command('call-tool')
