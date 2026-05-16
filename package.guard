@@ -1,0 +1,31 @@
+{
+  "definition": "guardrails-package",
+  "structure": [
+    // The package json for a package needs to have defined known structure so its easy to work with many packages in the repo
+    {
+      "find": "package.json",
+      "asserts": {
+        "exists": true,
+        "content": {
+          "includes": [
+            "\"guard\": \"guardrails\"",
+            "\"lint\": \"biome check --write .\"",
+            "\"test\": \"bun test\""
+          ]
+        }
+      }
+    },
+
+    // Every package also needs a readme which has detailed code examples, make sure the readme shows a clear developer facing example of the syntax / usage of this package
+    // Treat this as a chance to show off how easy and useful this package makes the developer's experience
+    {
+      "find": "readme.md",
+      "asserts": {
+        "exists": true,
+        "content": {
+          "includes": ["## usage example", "```typescript"]
+        }
+      }
+    }
+  ]
+}
