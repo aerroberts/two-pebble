@@ -652,6 +652,13 @@ body {
 }
 
 /* Rich message composer — TipTap editor body */
+.composer-editor {
+  /* Constrain the editor to its column so long unbroken text wraps inside
+     the composer instead of stretching the parent flex/grid container. */
+  min-width: 0;
+  max-width: 100%;
+}
+
 .composer-editor .ProseMirror {
   padding: 6px 40px 6px 8px;
   font-size: 12px;
@@ -659,6 +666,10 @@ body {
   line-height: 16px;
   color: var(--color-content);
   outline: none;
+  /* Force long words/URLs/paths to break so the composer never overflows
+     horizontally past its container. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .composer-editor .ProseMirror:focus {
