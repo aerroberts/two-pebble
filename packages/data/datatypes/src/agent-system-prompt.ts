@@ -108,6 +108,11 @@ export function emptyAgentSystemPrompt(): TipTapDocument {
   return createEmptyTipTapDocument();
 }
 
+/**
+ * Document mention reference extracted from a system prompt.
+ * The id is used for downstream document binding while the name preserves
+ * the label shown in the prompt text.
+ */
 export interface AgentSystemPromptDocumentReference {
   documentId: string;
   name: string;
