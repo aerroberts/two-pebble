@@ -1,4 +1,4 @@
-import { count, desc } from 'drizzle-orm';
+import { count, desc, isNull } from 'drizzle-orm';
 import type { DatastoreContext, DocumentRecord } from '../types';
 
 type OperationHandlerInput = {
@@ -11,11 +11,19 @@ export function documentsListOperation(ctx: DatastoreContext) {
     const rows = await ctx.database
       .select()
       .from(ctx.schema.documentsTable)
+      .where(isNull(ctx.schema.documentsTable.archivedAt))
       .orderBy(desc(ctx.schema.documentsTable.updatedAt))
       .limit(input.limit)
       .offset(input.offset)
       .all();
-    const total = (await ctx.database.select({ value: count() }).from(ctx.schema.documentsTable).get())?.value ?? 0;
+    const total =
+      (
+        await ctx.database
+          .select({ value: count() })
+          .from(ctx.schema.documentsTable)
+          .where(isNull(ctx.schema.documentsTable.archivedAt))
+          .get()
+      )?.value ?? 0;
 
     return {
       items: rows as DocumentRecord[],
