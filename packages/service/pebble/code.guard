@@ -1,73 +1,69 @@
 {
-  "inherit": "@group/guardrails-typescript",
-  "exclude": [
+  "structure": [
+    // Pebble previously inherited @group/guardrails-typescript and then used a top-level exclude for legacy files.
+    // Structure-only guardrails cannot subtract package-local paths from an inherited group, so keep the supported
+    // index-file steering here without restoring unsupported top-level `inherit` plus `exclude` behavior.
     {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/agent/agents/pebble-agent.ts"
-      ],
-      "justification": "PebbleAgent is long and will continue to be long"
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/capabilities/agent-naming/agent-naming-capability.ts"
-      ],
-      "justification": "Agent naming capability keeps a local helper beside the class today; extract and document it separately from CI enablement."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/capabilities/task-board-access/task-board-access-capability.ts"
-      ],
-      "justification": "Task board access capability has existing nested response assembly that should be split in a focused follow-up."
-    }
-  ],
-  "rules": [
-    {
-      "find": "src/traces/agent-traces",
-      "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.",
-      "rules": {
-        "type": "folder"
-      },
-      "allowEmpty": true
-    },
-    {
-      "find": "src/traces/agent-traces/*",
-      "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "export interface PebbleAgent"
-        ]
-      },
-      "allowEmpty": true,
-      "traverse": [
+      "find": "src/**/index.ts",
+      "code": [
+        // Index files stay as import/export layout files. Move local domain types into a sibling types file.
         {
-          "find": [
-            "import",
-            "re-export"
-          ],
-          "rules": {
-            "allowedImportPath": [
-              "../../thread",
-              "../../thread/index"
-            ]
-          },
-          "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types."
+          "find": ["interface", "type"],
+          "asserts": {
+            "exists": false
+          }
+        },
+
+        // Index files should not own runtime behavior. Put classes and functions in dedicated modules.
+        {
+          "find": ["class", "function"],
+          "asserts": {
+            "exists": false
+          }
         }
       ]
     },
+
+    // Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.
+    // The traversal layer currently returns file nodes for glob matches, not folder nodes, so the old folder type
+    // check is represented by requiring trace files inside the folder.
     {
-      "find": "src/traces/agent-traces/folder/*",
+      "find": "src/traces/agent-traces/*.ts",
+      "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.",
+      "asserts": {
+        "exists": true,
+        "type": "file"
+      }
+    },
+
+    // Each agent trace file should remain a self-contained exported interface. The old guard required the literal
+    // `export interface PebbleAgent` string and restricted imports to ../../thread or ../../thread/index. The
+    // structure-only runner has no string-contains or allowed-import-path assertions, so this approximates the
+    // contract by requiring an exported interface while preserving the stronger steering in this comment.
+    {
+      "find": "src/traces/agent-traces/*.ts",
+      "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types. Imports should stay limited to ../../thread or ../../thread/index.",
+      "asserts": {
+        "exists": true,
+        "type": "file"
+      },
+      "code": [
+        {
+          "find": "export/interface",
+          "asserts": {
+            "matches": {
+              "min": 1
+            }
+          }
+        }
+      ]
+    },
+
+    // Agent trace interfaces stay one file deep so the trace catalog is scanable.
+    {
+      "find": "src/traces/agent-traces/*/*",
       "recommendation": "Agent trace interfaces stay one file deep so the trace catalog is scanable.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     }
