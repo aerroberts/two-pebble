@@ -167,6 +167,10 @@ export function useAgentDetailPageState() {
     navigate(`/tasks/${boardId}?selectedTask=${taskId}`);
   };
 
+  const openDocument = (documentId: string) => {
+    navigate(`/documents/${documentId}`);
+  };
+
   const sendChatMessage = async (input: { markdown: string; cells: CellContent[] }) => {
     const trimmed = input.markdown.trim();
     if ((trimmed.length === 0 && input.cells.length === 0) || agentId.length === 0) {
@@ -222,6 +226,7 @@ export function useAgentDetailPageState() {
     loadingPriceLineItems,
     openAgent,
     openAgentRegistry,
+    openDocument,
     openModelCall,
     openTask,
     openThreadSnapshot,

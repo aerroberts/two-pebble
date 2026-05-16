@@ -24,6 +24,7 @@ interface AgentDetailChatViewBodyProps {
   chatError: string;
   liveness: AgentRunningIndicatorProps['liveness'];
   onAgentClick: (agentId: string) => void;
+  onDocumentClick: (documentId: string) => void;
   onModelCallClick: (modelCallId: string) => void;
   onStop?: () => void;
   stopping?: boolean;
@@ -45,6 +46,7 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
       {chatTraces.length > 0 ? (
         <AgentTrace
           onAgentClick={props.onAgentClick}
+          onDocumentClick={props.onDocumentClick}
           onModelCallClick={props.onModelCallClick}
           speakController={speech.available ? speech : undefined}
           onTaskClick={props.onTaskClick}

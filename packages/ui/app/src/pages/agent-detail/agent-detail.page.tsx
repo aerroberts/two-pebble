@@ -86,6 +86,7 @@ export function AgentDetailPage() {
           chatError={state.chatError}
           liveness={state.liveness}
           onAgentClick={state.openAgent}
+          onDocumentClick={state.openDocument}
           onModelCallClick={state.openModelCall}
           onStop={() => void state.stopAgentRun()}
           onTaskClick={state.openTask}
@@ -107,6 +108,7 @@ export function AgentDetailPage() {
           agentLoaded={state.agent !== null}
           agentTraces={state.agentTraces}
           onAgentClick={state.openAgent}
+          onDocumentClick={state.openDocument}
           onModelCallClick={state.openModelCall}
           onTaskClick={state.openTask}
           onThreadSnapshotClick={state.openThreadSnapshot}

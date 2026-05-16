@@ -43,6 +43,10 @@ export class DocumentWriterCapability extends AgentCapability<Record<string, nev
       }
       try {
         const result = await runner.createDocument({ name: input.name, markdown: input.markdown });
+        this.agent.emit('trace', {
+          type: 'document-created',
+          data: { documentId: result.id, documentName: result.name },
+        });
         return ToolResponse.success([Cell.text(`Created document "${result.name}" (id: ${result.id}).`)]);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
