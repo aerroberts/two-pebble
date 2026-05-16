@@ -1,48 +1,26 @@
 {
   "inherit": "@group/guardrails-typescript",
-  "rules": [
+  "structure": [
     {
-      "find": "src/rules/folder",
-      "rules": {
-        "exists": true,
-        "type": "folder"
-      },
-      "recommendation": "Each structure rule must live in its own directory.",
-      "traverse": [
-        {
-          "find": "./rule.ts",
-          "rules": {
-            "exists": true,
-            "type": "file"
-          },
-          "recommendation": "Each structure rule directory must define the rule implementation."
-        },
-        {
-          "find": "./rule.test.ts",
-          "rules": {
-            "exists": true,
-            "type": "file"
-          },
-          "recommendation": "Each structure rule directory must test the rule through guardrails."
-        },
-        {
-          "find": "./fixtures",
-          "rules": {
-            "exists": true,
-            "type": "folder"
-          },
-          "recommendation": "Each structure rule directory must include focused fixtures.",
-          "traverse": [
-            {
-              "find": "*",
-              "rules": {
-                "exists": true
-              },
-              "recommendation": "Structure rule fixtures must not be empty."
-            }
-          ]
-        }
-      ]
+      "find": "src/asserts/index.ts",
+      "recommendation": "src/asserts/index.ts must exist so the runner can register the assertion implementations.",
+      "asserts": {
+        "exists": true
+      }
+    },
+    {
+      "find": "src/asserts/exists.ts",
+      "recommendation": "The exists assertion is the foundational structure assertion and must live in src/asserts/exists.ts.",
+      "asserts": {
+        "exists": true
+      }
+    },
+    {
+      "find": "src/runner/controller.ts",
+      "recommendation": "The structure runner entry point belongs in src/runner/controller.ts.",
+      "asserts": {
+        "exists": true
+      }
     }
   ]
 }

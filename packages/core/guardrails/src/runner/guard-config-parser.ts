@@ -1,5 +1,9 @@
 import type { GuardrailConfig } from '../types';
 
+/**
+ * Parses a code.guard file. The format is JSON but allows line and block
+ * comments so authors can keep notes alongside their rules.
+ */
 export function parseGuardConfig(raw: string) {
   return JSON.parse(stripComments(raw)) as GuardrailConfig;
 }
@@ -38,7 +42,6 @@ function stripComments(raw: string) {
 
     if (inString) {
       stripped += char;
-
       if (escaped) {
         escaped = false;
       } else if (char === '\\') {

@@ -1,10 +1,11 @@
 import pc from 'picocolors';
-import type { CheckResult, Diagnostic, RunResult } from '../types';
-import type { DiagnosticGroups, DiagnosticKeyFunction } from './types';
+import type { CheckResult, RunResult } from '../types';
 
 const DETAIL_INDENT = '         ';
-const SNIPPET_INDENT = '           ';
 
+/**
+ * Renders a run result as a colorized terminal report.
+ */
 export function formatResults(result: RunResult) {
   const lines = [''];
 
@@ -16,7 +17,7 @@ export function formatResults(result: RunResult) {
 
   for (const check of result.results) {
     if (!check.passed) {
-      lines.push(...formatFailureSections(check));
+      lines.push(...formatFailureSection(check));
     }
   }
 
@@ -25,102 +26,43 @@ export function formatResults(result: RunResult) {
 }
 
 function formatPassLine(check: CheckResult) {
-  return `  ${pc.bgGreen(pc.black(' PASS '))} ${pc.green(ruleId(check.rule))}  ${pc.dim(`${check.durationMs}ms`)}`;
+  return `  ${pc.bgGreen(pc.black(' PASS '))} ${pc.green(check.find)}  ${pc.dim(`${check.durationMs}ms`)}`;
 }
 
-function formatFailureSections(check: CheckResult) {
-  const lines: string[] = [];
-
-  for (const [error, diagnostics] of groupDiagnostics(check.diagnostics, (diagnostic) => diagnostic.error)) {
-    const first = diagnostics[0];
-    if (!first) {
-      continue;
-    }
-
-    lines.push('');
-    lines.push(formatFailureHeader(check, error, diagnostics));
-    lines.push(`${DETAIL_INDENT}${first.description}`);
-    lines.push(`${DETAIL_INDENT}${pc.cyan('fix:')} ${first.recommendation}`);
-    lines.push(...formatDiagnosticFiles(diagnostics));
+function formatFailureSection(check: CheckResult) {
+  const lines: string[] = [''];
+  lines.push(
+    [
+      `  ${pc.bgRed(pc.white(' FAIL '))} ${pc.red(pc.bold(check.find))}`,
+      pc.dim('—'),
+      pc.yellow(`${check.diagnostics.length} error${check.diagnostics.length === 1 ? '' : 's'}`),
+      pc.dim(`${check.durationMs}ms`),
+    ].join('  '),
+  );
+  for (const diagnostic of check.diagnostics) {
+    lines.push(`${DETAIL_INDENT}${diagnostic.description}`);
+    lines.push(`${DETAIL_INDENT}${pc.cyan('fix:')} ${diagnostic.recommendation}`);
+    lines.push(`${DETAIL_INDENT}${pc.dim(`assertion: ${diagnostic.assertion}`)}`);
   }
-
   return lines;
-}
-
-function formatFailureHeader(check: CheckResult, error: string, diagnostics: Diagnostic[]) {
-  const errorId = `${ruleId(check.rule)}/${error}`;
-  const errorText = pc.yellow(pluralize(diagnostics.length, 'error'));
-  const fileText = pc.yellow(pluralize(countDiagnosticFiles(diagnostics), 'file'));
-
-  return [
-    `  ${pc.bgRed(pc.white(' FAIL '))} ${pc.red(pc.bold(errorId))}`,
-    pc.dim('—'),
-    `${errorText} in ${fileText}`,
-    pc.dim(`${check.durationMs}ms`),
-  ].join('  ');
-}
-
-function formatDiagnosticFiles(diagnostics: Diagnostic[]) {
-  const lines: string[] = [];
-
-  for (const [file, fileDiagnostics] of groupDiagnostics(diagnostics, diagnosticFile)) {
-    lines.push('');
-    lines.push(`${DETAIL_INDENT}${pc.underline(file)}`);
-
-    for (const diagnostic of fileDiagnostics) {
-      lines.push(...formatSnippet(diagnostic));
-    }
-  }
-
-  return lines;
-}
-
-function formatSnippet(diagnostic: Diagnostic) {
-  if (!diagnostic.snippet) {
-    return [];
-  }
-
-  return [...diagnostic.snippet.split('\n').map(formatSnippetLine), ''];
-}
-
-function formatSnippetLine(line: string) {
-  return `${SNIPPET_INDENT}${line.startsWith('>') ? pc.red(line) : pc.dim(line)}`;
 }
 
 function formatSummaryLine(result: RunResult) {
-  const checked = checkedRulesText(result);
-  const scanned = scannedFilesText(result);
+  const checked = `${pc.bold(String(result.results.length))} rule${result.results.length === 1 ? '' : 's'} checked`;
+  const scanned = `${pc.bold(String(result.filesScanned.size))} file${result.filesScanned.size === 1 ? '' : 's'} scanned`;
   const elapsed = pc.dim(`${result.totalDurationMs}ms`);
 
   if (result.passed) {
     return joinSummaryParts(`  ${pc.green('✓')} ${checked}`, scanned, pc.green('0 errors'), elapsed);
   }
 
+  const errorCount = result.results.reduce((sum, check) => sum + check.diagnostics.length, 0);
   return joinSummaryParts(
     `  ${pc.red('✗')} ${checked}`,
     scanned,
-    `${errorCountText(result)} across ${failedFilesText(result)}`,
+    `${pc.red(pc.bold(String(errorCount)))} error${errorCount === 1 ? '' : 's'}`,
     elapsed,
   );
-}
-
-function checkedRulesText(result: RunResult) {
-  return `${pc.bold(String(result.results.length))} rule${result.results.length === 1 ? '' : 's'} checked`;
-}
-
-function scannedFilesText(result: RunResult) {
-  const fileCount = new Set(result.results.flatMap((check) => [...check.filesScanned])).size;
-  return `${pc.bold(String(fileCount))} file${fileCount === 1 ? '' : 's'} scanned`;
-}
-
-function errorCountText(result: RunResult) {
-  const errorCount = result.results.reduce((sum, check) => sum + check.diagnostics.length, 0);
-  return `${pc.red(pc.bold(String(errorCount)))} error${errorCount === 1 ? '' : 's'}`;
-}
-
-function failedFilesText(result: RunResult) {
-  const fileCount = countDiagnosticFiles(result.results.flatMap((check) => check.diagnostics));
-  return `${pc.red(pc.bold(String(fileCount)))} file${fileCount === 1 ? '' : 's'} with errors`;
 }
 
 function joinSummaryParts(...parts: string[]) {
@@ -129,33 +71,4 @@ function joinSummaryParts(...parts: string[]) {
 
 function formatSeparator() {
   return pc.dim('  ─'.repeat(30));
-}
-
-function ruleId(rule: string) {
-  return rule;
-}
-
-function diagnosticFile(diagnostic: Diagnostic) {
-  return diagnostic.file ?? '<unknown>';
-}
-
-function countDiagnosticFiles(diagnostics: Diagnostic[]) {
-  return new Set(diagnostics.map((diagnostic) => diagnostic.file).filter(Boolean)).size;
-}
-
-function groupDiagnostics(diagnostics: Diagnostic[], keyFor: DiagnosticKeyFunction): DiagnosticGroups {
-  const groups = new Map<string, Diagnostic[]>();
-
-  for (const diagnostic of diagnostics) {
-    const key = keyFor(diagnostic);
-    const group = groups.get(key) ?? [];
-    group.push(diagnostic);
-    groups.set(key, group);
-  }
-
-  return groups;
-}
-
-function pluralize(count: number, noun: string) {
-  return `${count} ${noun}${count === 1 ? '' : 's'}`;
 }

@@ -1,13 +1,10 @@
 export { formatResults, Reporter } from './reporter';
 export { Controller } from './runner/controller';
 export type {
+  AssertConfig,
   CheckResult,
   Diagnostic,
-  DiagnosticError,
-  ExcludeEntry,
   GuardrailConfig,
   RunResult,
-  StructureFindRuleConfig,
-  StructureRuleAssertions,
-  StructureRuleConfig,
+  StructureRule,
 } from './types';
