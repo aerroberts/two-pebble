@@ -1,6 +1,11 @@
 import { expect } from 'bun:test';
 import type { TipTapDocument } from './document-content';
 
+/**
+ * Markdown fixture covering the StarterKit nodes and marks supported by the
+ * document conversion helpers. Tests use this single sample to verify both
+ * markdown-to-TipTap and TipTap-to-markdown behavior.
+ */
 export const STARTER_KIT_MARKDOWN: string = [
   '## Heading',
   '',
@@ -19,6 +24,11 @@ export const STARTER_KIT_MARKDOWN: string = [
   '---',
 ].join('\n');
 
+/**
+ * Asserts that a converted TipTap document retained the StarterKit node and
+ * mark names expected by the editor. This keeps individual tests focused on
+ * conversion behavior instead of repeated JSON inspection.
+ */
 export function expectStarterKitNodes(doc: TipTapDocument): void {
   expect(doc.content?.map((node) => node.type)).toEqual(
     expect.arrayContaining(['bulletList', 'orderedList', 'codeBlock', 'horizontalRule']),
@@ -27,6 +37,11 @@ export function expectStarterKitNodes(doc: TipTapDocument): void {
   expect(JSON.stringify(doc)).toContain('"type":"italic"');
 }
 
+/**
+ * Asserts that markdown serialization preserves the visible StarterKit
+ * constructs used by the fixture. The checks intentionally focus on stable
+ * markdown fragments rather than exact whitespace.
+ */
 export function expectStarterKitMarkdown(markdown: string): void {
   expect(markdown).toContain('## Heading');
   expect(markdown).toContain('**Bold**');

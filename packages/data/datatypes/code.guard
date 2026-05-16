@@ -1,61 +1,118 @@
 {
   "inherit": "@group/guardrails-typescript",
-  "rules": [
+  "structure": [
     {
       "find": "src/integrations/types.ts",
       "recommendation": "Integration domain types expose one simple union from the folder-level types file.",
-      "rules": {
+      "asserts": {
         "exists": true,
-        "type": "file",
-        "contains": [
-          "export type Integration ="
-        ]
-      }
+        "type": "file"
+      },
+      "code": [
+        // The old guard used a literal `contains: "export type Integration ="` check. The structure-only runner
+        // has no string-contains assertion, so keep the same steering by asserting the exported type node exists.
+        {
+          "find": "export/type",
+          "asserts": {
+            "matches": {
+              "exactly": 1
+            },
+            "named": "Integration"
+          }
+        }
+      ]
     },
     {
       "find": "src/inference-profiles/types.ts",
       "recommendation": "Inference profile domain types expose one simple union from the folder-level types file.",
-      "rules": {
+      "asserts": {
         "exists": true,
-        "type": "file",
-        "contains": [
-          "export type InferenceProfile ="
-        ]
-      }
+        "type": "file"
+      },
+      "code": [
+        // The old literal `contains: "export type InferenceProfile ="` check cannot be represented exactly
+        // because selectors cannot filter type aliases by name. Keep the union-file steering here.
+        {
+          "find": "export/type",
+          "asserts": {
+            "matches": {
+              "min": 1
+            }
+          }
+        }
+      ]
     },
     {
       "find": "src/integrations/protocol/*",
       "recommendation": "Each integration provider protocol definition must stay as a pure type file.",
-      "rules": {
+      "asserts": {
         "exists": true,
-        "type": "file",
-        "contains": [
-          "export interface Integration_"
-        ]
-      }
+        "type": "file"
+      },
+      "code": [
+        // The old literal prefix check for `export interface Integration_` is approximated by requiring
+        // an exported interface; selector name-prefix checks are not supported in the new guard format.
+        {
+          "find": "export/interface",
+          "asserts": {
+            "matches": {
+              "min": 1
+            }
+          }
+        },
+        {
+          "find": [
+            "export/class",
+            "export/const",
+            "export/function"
+          ],
+          "asserts": {
+            "exists": false
+          }
+        }
+      ]
     },
     {
       "find": "src/inference-profiles/protocol/*",
       "recommendation": "Each inference profile provider protocol definition must stay as a pure type file.",
-      "rules": {
+      "asserts": {
         "exists": true,
-        "type": "file",
-        "contains": [
-          "export interface InferenceProfile_"
-        ]
-      }
+        "type": "file"
+      },
+      "code": [
+        // The old literal prefix check for `export interface InferenceProfile_` is approximated by requiring
+        // an exported interface; selector name-prefix checks are not supported in the new guard format.
+        {
+          "find": "export/interface",
+          "asserts": {
+            "matches": {
+              "min": 1
+            }
+          }
+        },
+        {
+          "find": [
+            "export/class",
+            "export/const",
+            "export/function"
+          ],
+          "asserts": {
+            "exists": false
+          }
+        }
+      ]
     },
     {
-      "find": "src/integrations/protocol/folder/*",
+      "find": "src/integrations/protocol/folder",
       "recommendation": "Integration provider protocol definitions must stay as one file per provider.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     },
     {
-      "find": "src/inference-profiles/protocol/folder/*",
+      "find": "src/inference-profiles/protocol/folder",
       "recommendation": "Inference profile provider protocol definitions must stay as one file per provider.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     }

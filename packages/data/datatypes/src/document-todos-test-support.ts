@@ -1,5 +1,10 @@
 import type { TipTapDocument } from './document-content';
 
+/**
+ * Builds a representative TipTap document for todo extraction tests.
+ * The fixture includes open, completed, invalid, and nested todo nodes so
+ * callers can exercise traversal without repeating verbose document JSON.
+ */
 export function sampleDoc(): TipTapDocument {
   return {
     type: 'doc',

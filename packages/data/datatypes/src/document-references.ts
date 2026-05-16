@@ -6,12 +6,22 @@
  */
 export type DocumentReference = DocumentAgentReference;
 
+/**
+ * Reference variant for documents that mention or bind to an agent.
+ * The `targetId` points at the agent record and `createdAt` captures
+ * when the reference was first introduced into the document.
+ */
 export interface DocumentAgentReference {
   type: 'agent';
   targetId: string;
   createdAt: number;
 }
 
+/**
+ * Parses the serialized reference list stored with a document.
+ * Invalid JSON, non-array payloads, and unknown reference variants are
+ * treated as an empty or filtered reference set.
+ */
 export function parseDocumentReferences(serialized: string): DocumentReference[] {
   let parsed: unknown;
   try {
@@ -39,6 +49,11 @@ export function parseDocumentReferences(serialized: string): DocumentReference[]
   return result;
 }
 
+/**
+ * Serializes document references for storage.
+ * The references are already validated by callers, so this preserves the
+ * discriminated union shape without further normalization.
+ */
 export function serializeDocumentReferences(refs: DocumentReference[]): string {
   return JSON.stringify(refs);
 }

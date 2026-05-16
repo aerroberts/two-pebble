@@ -1,8 +1,24 @@
 import type { TipTapAttrs, TipTapDocument, TipTapNode } from './document-content';
 
+/**
+ * Status values stored on TipTap todo item nodes.
+ * `invalid` represents malformed or unrecognized source state that callers
+ * can surface without treating it as completed work.
+ */
 export type DocumentTodoStatus = 'open' | 'completed' | 'invalid';
+
+/**
+ * Completion source recorded when a todo transitions to completed.
+ * Manual completions come from explicit user action; automatic completions
+ * are applied by higher-level automation.
+ */
 export type DocumentTodoCompletionType = 'manual' | 'automatic';
 
+/**
+ * Flattened todo record extracted from a rich-text document.
+ * The record carries the node id, normalized status, display text, and an
+ * optional completion source when the source node provides one.
+ */
 export interface DocumentTodo {
   id: string;
   status: DocumentTodoStatus;
