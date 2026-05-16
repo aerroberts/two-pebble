@@ -94,7 +94,7 @@ export function AssistantCommandK() {
         ref={containerRef}
         aria-label="Assistant input"
         aria-modal="true"
-        className="-translate-x-1/2 -translate-y-1/2 fixed top-[30%] left-1/2 z-[901] w-[min(36rem,calc(100%-2rem))] rounded-xl bg-surface-raised px-6 py-5 shadow-modal focus:outline-none"
+        className="-translate-x-1/2 -translate-y-1/2 fixed top-[30%] left-1/2 z-[901] w-[min(36rem,calc(100%-2rem))] focus:outline-none"
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault();
@@ -104,7 +104,6 @@ export function AssistantCommandK() {
         role="dialog"
         tabIndex={-1}
       >
-        <p className="mb-3 text-center font-medium text-content-muted text-sm">Send to your Assistant</p>
         <AgentInput
           ariaLabel="Assistant message"
           initialMode={startInVoiceMode ? 'voice' : 'text'}
@@ -112,7 +111,6 @@ export function AssistantCommandK() {
           placeholder="Type or speak — Enter to send, / for documents"
           submitDisabled={registryId === null}
         />
-        <p className="mt-3 text-center text-content-muted text-xs">Press Esc to cancel</p>
       </div>
     </>
   );
