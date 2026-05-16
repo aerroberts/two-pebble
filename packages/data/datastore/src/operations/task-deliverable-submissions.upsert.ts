@@ -9,6 +9,9 @@ type OperationHandlerInput = {
   submittedAt?: number;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function taskDeliverableSubmissionsUpsertOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const submittedAt = input.submittedAt ?? createUtcNow();

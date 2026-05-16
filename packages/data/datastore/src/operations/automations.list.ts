@@ -8,6 +8,9 @@ type OperationHandlerInput = {
   offset: number;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function automationsListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const where =

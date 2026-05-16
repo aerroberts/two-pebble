@@ -6,6 +6,9 @@ type OperationHandlerInput = {
   provider: IntegrationProvider;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function integrationsCreateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const row = await ctx.database

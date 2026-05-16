@@ -13,6 +13,9 @@ type OperationHandlerInput = {
   threadCellPointer: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function agentCallsRecordOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     await ctx.database

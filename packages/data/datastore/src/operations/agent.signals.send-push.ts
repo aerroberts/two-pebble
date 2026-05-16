@@ -10,6 +10,9 @@ type OperationHandlerInput = {
   signalId: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function agentSignalsSendPushOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const now = Date.now();

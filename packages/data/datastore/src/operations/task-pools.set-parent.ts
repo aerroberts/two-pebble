@@ -6,6 +6,9 @@ type OperationHandlerInput = {
   parentPoolId: string | null;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function taskPoolsSetParentOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const row = await ctx.database

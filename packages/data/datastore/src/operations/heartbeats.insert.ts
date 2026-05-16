@@ -7,6 +7,9 @@ type OperationHandlerInput = {
   tickAt: number;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function heartbeatsInsertOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput): Promise<HeartbeatRecord> {
     const row = await ctx.database

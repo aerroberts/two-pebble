@@ -3,8 +3,14 @@ import type { Datastore } from '../datastore';
 import type { MetricAggregateBucket } from '../types';
 import { useDatastoreForTesting } from './datastore-test-env';
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export const METRICS_BUCKET_MS = 60_000;
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export interface MetricSeedSample {
   name: string;
   value: number;
@@ -12,6 +18,9 @@ export interface MetricSeedSample {
   timestamp: number;
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function seedMetrics(datastore: Datastore, samples: MetricSeedSample[]) {
   for (const sample of samples) {
     await datastore.metrics.write({
@@ -23,6 +32,9 @@ export async function seedMetrics(datastore: Datastore, samples: MetricSeedSampl
   }
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function writeMetricSample() {
   const datastore = await useDatastoreForTesting();
   const written = await datastore.metrics.write({
@@ -35,6 +47,9 @@ export async function writeMetricSample() {
   return written;
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function querySingleBucketMetrics() {
   const datastore = await useDatastoreForTesting();
   await seedMetrics(datastore, [
@@ -51,6 +66,9 @@ export async function querySingleBucketMetrics() {
   return { datastore, result };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function queryDistinctBucketMetrics() {
   const datastore = await useDatastoreForTesting();
   const t0 = 1_700_000_000_000;
@@ -69,6 +87,9 @@ export async function queryDistinctBucketMetrics() {
   return { datastore, result };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function expectDistinctBucketsInOrder(buckets: MetricAggregateBucket[]) {
   const firstBucket = buckets[0];
   const secondBucket = buckets[1];
@@ -80,6 +101,9 @@ export function expectDistinctBucketsInOrder(buckets: MetricAggregateBucket[]) {
   expect(secondBucket.bucketStart).toBeGreaterThan(firstBucket.bucketStart);
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function queryDimensionFilteredMetrics() {
   const datastore = await useDatastoreForTesting();
   const t0 = 1_700_000_000_000;
@@ -98,6 +122,9 @@ export async function queryDimensionFilteredMetrics() {
   return { datastore, result };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function querySingleMetricNameOnly() {
   const datastore = await useDatastoreForTesting();
   const t0 = 1_700_000_000_000;
@@ -114,6 +141,9 @@ export async function querySingleMetricNameOnly() {
   return { datastore, result };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function listMetricNamesWithSamples() {
   const datastore = await useDatastoreForTesting();
   await seedMetrics(datastore, [
@@ -125,6 +155,9 @@ export async function listMetricNamesWithSamples() {
   return { datastore, result };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function listMetricVariantsWithSamples() {
   const datastore = await useDatastoreForTesting();
   const t0 = 1_700_000_000_000;

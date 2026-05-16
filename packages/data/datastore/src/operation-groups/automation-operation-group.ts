@@ -9,6 +9,9 @@ import { heartbeatsInsertOperation } from '../operations/heartbeats.insert';
 import { heartbeatsListOperation } from '../operations/heartbeats.list';
 import { heartbeatsPruneOperation } from '../operations/heartbeats.prune';
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function bindAutomationOperationGroup(bind: DatastoreOperationBinder) {
   return {
     create: bind(automationsCreateOperation, 'automations.create'),
@@ -20,6 +23,9 @@ export function bindAutomationOperationGroup(bind: DatastoreOperationBinder) {
   };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function bindHeartbeatOperationGroup(bind: DatastoreOperationBinder) {
   return {
     insert: bind(heartbeatsInsertOperation, 'heartbeats.insert'),

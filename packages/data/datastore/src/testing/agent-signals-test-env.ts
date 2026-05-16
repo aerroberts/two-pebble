@@ -1,6 +1,9 @@
 import type { Datastore } from '../datastore';
 import { firstAgentInput } from './datastore-test-constants';
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function seedAgentSignal(datastore: Datastore) {
   const agent = await datastore.agent.create(firstAgentInput);
   const signal = await datastore.agent.signals.register({
@@ -13,6 +16,9 @@ export async function seedAgentSignal(datastore: Datastore) {
   return { agent, signal };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function seedReceivedAgentSignal(datastore: Datastore) {
   const { agent } = await seedAgentSignal(datastore);
   const received = await datastore.agent.signals.resolve({
@@ -24,6 +30,9 @@ export async function seedReceivedAgentSignal(datastore: Datastore) {
   return { agent, received };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function seedPushAgentSignal(datastore: Datastore) {
   const agent = await datastore.agent.create(firstAgentInput);
   const signal = await datastore.agent.signals.sendPush({

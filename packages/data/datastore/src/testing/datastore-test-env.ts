@@ -6,6 +6,9 @@ import { Datastore } from '../datastore';
 const testDatabasesDirectory = path.resolve(import.meta.dirname, '..', '..', '.test');
 logger.useSink(new MemorySink());
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function useDatastoreForTesting() {
   fs.mkdirSync(testDatabasesDirectory, { recursive: true });
 

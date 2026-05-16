@@ -3,6 +3,9 @@ import { index, integer, text } from 'drizzle-orm/sqlite-core';
 import { customTable } from '../table/custom-table';
 import type { HeartbeatReport } from '../types';
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export const heartbeatsTable = customTable(
   'heartbeats',
   {

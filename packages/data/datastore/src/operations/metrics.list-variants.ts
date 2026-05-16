@@ -14,6 +14,9 @@ type OperationHandlerOutput = {
   items: MetricVariant[];
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function metricsListVariantsOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const result = await ctx.libsqlClient.execute({

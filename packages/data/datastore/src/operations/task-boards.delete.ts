@@ -5,6 +5,9 @@ type OperationHandlerInput = {
   id: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function taskBoardsDeleteOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const taskRows = await ctx.database

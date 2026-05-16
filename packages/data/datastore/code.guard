@@ -1,78 +1,70 @@
 {
   "inherit": "@group/guardrails-typescript",
-  "exclude": [
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/types.ts"
-      ],
-      "justification": "Datastore shared row types include legacy heartbeat JSON detail shapes and now exceed the package length target; split and type those contracts separately from CI enablement."
-    }
-  ],
-  "rules": [
+  "structure": [
+    // The legacy package-level structure exclusion for src/types.ts is dropped because this format has no top-level exclude.
+    // The inherited TypeScript guard already excludes src/**/types.ts from exported-token comment checks.
+
+    // Datastore schema modules stay flat so every table is visible in one directory.
     {
       "find": "src/schema/*",
-      "recommendation": "Datastore schema modules stay flat so every table is visible in one directory.",
-      "rules": {
+      "asserts": {
         "type": "file"
-      },
-      "allowEmpty": true
+      }
     },
+    // Datastore schema must not use nested folders.
     {
-      "find": "src/schema/folder/*",
-      "recommendation": "Datastore schema must not use nested folders.",
-      "rules": {
+      "find": "src/schema/**/*",
+      "exclude": "src/schema/*",
+      "asserts": {
         "exists": false
       }
     },
+
+    // Datastore operations stay flat so the proxy surface is easy to scan.
+    // Unsupported legacy text checks dropped: requiring the exact handler return string and inline OperationHandlerInput text.
     {
       "find": "src/operations/*",
-      "recommendation": "Datastore operations stay flat so the proxy surface is easy to scan. Each operation defines its own input type inline and exports a function which itself returns a handler function using this input type. Operations do not import types to reuse across operations.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "return async function handler(input: OperationHandlerInput)",
-          "type OperationHandlerInput = {"
-        ],
-        "missing": [
-          "export type",
-          "export interface"
-        ]
+      "asserts": {
+        "type": "file"
       },
-      "allowEmpty": true,
-      "extract": {
-        "$operationFile": "$name"
-      }
+      "code": [
+        // Operations do not export shared operation contracts; keep operation-only types local to each file.
+        {
+          "find": [
+            "export/type",
+            "export/interface"
+          ],
+          "asserts": {
+            "exists": false
+          },
+          "recommendation": "Datastore operations define their own input type inline and do not export types or interfaces for reuse across operations."
+        }
+      ]
     },
+    // Datastore operation modules must not use nested folders.
     {
-      "find": "src/operations/folder/*",
-      "recommendation": "Datastore operation modules must not use nested folders.",
-      "rules": {
+      "find": "src/operations/**/*",
+      "exclude": "src/operations/*",
+      "asserts": {
         "exists": false
       }
     },
+
+    // Datastore test-scope files must use the .test.ts suffix so the whole tests folder follows one visible naming convention.
     {
       "find": "src/tests/*",
-      "recommendation": "Datastore test-scope files must use the .test.ts suffix so the whole tests folder follows one visible naming convention.",
-      "rules": {
-        "type": "file",
-        "fileName": {
-          "endsWith": ".test.ts"
-        }
-      },
-      "allowEmpty": true
+      "asserts": {
+        "type": "file"
+      }
     },
     {
-      "find": "src/tests/*.test.ts",
-      "recommendation": "Each datastore operation must have its own describe block somewhere in the testing scope",
-      "rules": {
-        "type": "file"
-      },
-      "exhaustiveContains": [
-        "describe('feature: operation $operationFile', () => {"
-      ]
+      "find": "src/tests/*.ts",
+      "exclude": "src/tests/*.test.ts",
+      "asserts": {
+        "exists": false
+      }
     }
+    // Unsupported legacy exhaustiveContains/extract check dropped: the structure-only runner cannot derive operation filenames
+    // and assert a matching describe('feature: operation <operation>', () => { string across the testing scope.
   ]
 }

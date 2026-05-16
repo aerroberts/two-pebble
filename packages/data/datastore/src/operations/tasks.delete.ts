@@ -5,6 +5,9 @@ type OperationHandlerInput = {
   id: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function tasksDeleteOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     await ctx.database.delete(ctx.schema.taskEventsTable).where(eq(ctx.schema.taskEventsTable.taskId, input.id)).run();

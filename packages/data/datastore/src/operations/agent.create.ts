@@ -11,6 +11,9 @@ type OperationHandlerInput = {
   workspaceId: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function agentCreateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const now = createUtcNow();

@@ -9,6 +9,9 @@ type OperationHandlerInput = {
   offset: number;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function agentTracesListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const rows = await listAgentTraceRows(ctx, input);

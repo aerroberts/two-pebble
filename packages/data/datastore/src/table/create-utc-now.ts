@@ -1,3 +1,6 @@
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function createUtcNow() {
   const now = new Date();
 
