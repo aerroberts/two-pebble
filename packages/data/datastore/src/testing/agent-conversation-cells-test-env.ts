@@ -14,6 +14,9 @@ interface TestThreadCellInput {
   threadId?: string;
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function useConversationCellFixture() {
   const datastore = await useDatastoreForTesting();
   const agent = await datastore.agent.create(conversationCellAgentInput);
@@ -21,6 +24,9 @@ export async function useConversationCellFixture() {
   return { agent, datastore };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function recordSnapshotScenario(datastore: TestDatastore, agentId: string) {
   await datastore.agent.conversationCells.record({ ...conversationCellRecordInput, agentId });
   await recordThreadCell(datastore, { agentId, orderId: 2, content: [textCell('second')], role: 'assistant' });
@@ -34,6 +40,9 @@ export async function recordSnapshotScenario(datastore: TestDatastore, agentId: 
   });
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function recordSecondThreadCell(datastore: TestDatastore, agentId: string) {
   await recordThreadCell(datastore, {
     agentId,
@@ -43,6 +52,9 @@ export async function recordSecondThreadCell(datastore: TestDatastore, agentId: 
   });
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function readPointerThreadSnapshot() {
   const { agent, datastore } = await useConversationCellFixture();
   await recordSnapshotScenario(datastore, agent.id);
@@ -52,6 +64,9 @@ export async function readPointerThreadSnapshot() {
   return snapshot;
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function readFullThreadSnapshot() {
   const { agent, datastore } = await useConversationCellFixture();
   await datastore.agent.conversationCells.record({ ...conversationCellRecordInput, agentId: agent.id });

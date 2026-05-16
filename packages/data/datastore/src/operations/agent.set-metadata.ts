@@ -7,6 +7,9 @@ type OperationHandlerInput = {
   metadata: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function agentSetMetadataOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const existing = await ctx.database

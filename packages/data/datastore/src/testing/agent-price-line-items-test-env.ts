@@ -2,22 +2,34 @@ import type { useDatastoreForTesting } from './datastore-test-env';
 
 type TestingDatastore = Awaited<ReturnType<typeof useDatastoreForTesting>>;
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export interface PriceLineItemTestContext {
   agentId: string;
   callId: string;
   datastore: TestingDatastore;
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export interface PriceLineItemRecordContext {
   agentId: string;
   callId: string;
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export async function recordPriceLineItem(context: PriceLineItemTestContext) {
   const written = await context.datastore.agent.priceLineItems.record(priceLineItemRecord(context));
   return { ...written };
 }
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function priceLineItemRecord(context: PriceLineItemRecordContext) {
   return {
     agentId: context.agentId,

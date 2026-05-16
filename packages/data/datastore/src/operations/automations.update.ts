@@ -12,6 +12,9 @@ type OperationHandlerInput = {
   name?: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function automationsUpdateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput): Promise<AutomationRecord> {
     const existing = await ctx.database

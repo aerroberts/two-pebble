@@ -7,6 +7,9 @@ type OperationHandlerInput = {
   ranAt: number;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function automationsRecordRunOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput): Promise<AutomationRecord> {
     const row = await ctx.database

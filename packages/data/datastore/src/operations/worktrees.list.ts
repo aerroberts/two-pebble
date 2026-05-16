@@ -9,6 +9,9 @@ type OperationHandlerInput = {
   status?: WorktreeStatus;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function worktreesListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const filters: SQL[] = [];

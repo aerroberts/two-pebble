@@ -6,6 +6,9 @@ type OperationHandlerInput = {
   readonly __noInput?: never;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function appSettingsReadOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     void input;

@@ -7,6 +7,9 @@ type OperationHandlerInput = {
   timestamp: number;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function metricsWriteOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const row = await ctx.database

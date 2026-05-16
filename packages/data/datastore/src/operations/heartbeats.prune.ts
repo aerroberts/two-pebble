@@ -6,6 +6,9 @@ type OperationHandlerInput = {
   retain: number;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function heartbeatsPruneOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const overflow = await ctx.database

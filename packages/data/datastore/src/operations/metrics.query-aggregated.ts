@@ -13,6 +13,9 @@ type OperationHandlerOutput = {
   buckets: MetricAggregateBucket[];
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function metricsQueryAggregatedOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     if (!Number.isInteger(input.bucketSizeMs) || input.bucketSizeMs <= 0) {

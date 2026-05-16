@@ -8,6 +8,9 @@ type OperationHandlerInput = {
   references?: string;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function documentsCreateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const row = await ctx.database

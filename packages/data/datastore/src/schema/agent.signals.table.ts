@@ -3,6 +3,9 @@ import { index, integer, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export const agentSignalsTable = customTable(
   'agent_signals',
   {

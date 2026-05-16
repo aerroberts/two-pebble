@@ -8,6 +8,9 @@ type OperationHandlerOutput = {
   items: MetricNameSummary[];
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function metricsListNamesOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     void input;

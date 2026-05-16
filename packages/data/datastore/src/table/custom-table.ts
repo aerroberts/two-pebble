@@ -3,6 +3,9 @@ import { index, sqliteTable } from 'drizzle-orm/sqlite-core';
 import { defaultColumns } from './default-columns';
 import type { CustomTableConfigInput, CustomTableIndexColumns, TableColumns } from './types';
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function customTable<TableName extends string, Columns extends TableColumns>(
   name: TableName,
   columns: Columns,

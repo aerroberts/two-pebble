@@ -29,4 +29,7 @@ export const appSettingsTable = customTable('app_settings', {
     .default(false),
 });
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export const APP_SETTINGS_SINGLETON_ID = 'singleton';

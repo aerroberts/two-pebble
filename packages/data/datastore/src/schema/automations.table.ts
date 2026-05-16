@@ -2,6 +2,9 @@ import { integer, text } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export const automationsTable = customTable('automations', {
   name: text('name').notNull(),
   agentRegistryId: text('agent_registry_id').notNull(),

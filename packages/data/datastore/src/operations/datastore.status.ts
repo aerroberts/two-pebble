@@ -6,6 +6,9 @@ type OperationHandlerInput = {
   empty?: never;
 };
 
+/**
+ * Exposes this datastore module contract for package-local callers.
+ */
 export function datastoreStatusOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     void input;
