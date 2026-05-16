@@ -67,7 +67,7 @@ export function AgentRegistrySettingsPage() {
             ariaLabel="System prompt"
             label="System prompt"
             minHeight={160}
-            onCommit={(payload) => state.updateSystemPrompt(payload.markdown)}
+            onCommit={(payload) => state.updateSystemPrompt(payload.doc)}
             placeholder="System prompt — / to reference a document"
             value={state.registry.value.systemPrompt}
           />

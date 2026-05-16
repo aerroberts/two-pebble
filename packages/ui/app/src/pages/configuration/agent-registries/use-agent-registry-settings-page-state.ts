@@ -1,4 +1,6 @@
+import type { JSONContent } from '@tiptap/core';
 import { ClaudeCodeLogo, CodexLogo, ProviderLogo } from '@two-pebble/components';
+import { emptyAgentSystemPrompt, type TipTapDocument } from '@two-pebble/datatypes';
 import {
   useAgentRegistries,
   useDeleteAgentRegistry,
@@ -32,7 +34,7 @@ export function useAgentRegistrySettingsPageState() {
   const deleteAgentRegistry = useDeleteAgentRegistry();
 
   const [name, setName] = useState('');
-  const [systemPrompt, setSystemPrompt] = useState('');
+  const [systemPrompt, setSystemPrompt] = useState<TipTapDocument>(emptyAgentSystemPrompt);
   const [inferenceProfileId, setInferenceProfileId] = useState('');
   const [thirdPartyAgentInstallId, setThirdPartyAgentInstallId] = useState('');
   const [capabilitiesJson, setCapabilitiesJson] = useState('[]');
@@ -111,12 +113,16 @@ export function useAgentRegistrySettingsPageState() {
     void updateAgentRegistry({ id: registryId, name });
   };
 
-  const updateSystemPrompt = (nextSystemPrompt: string) => {
-    if (registry?.value === null || registry?.value === undefined || nextSystemPrompt === registry.value.systemPrompt) {
+  const updateSystemPrompt = (nextSystemPrompt: JSONContent) => {
+    if (registry?.value === null || registry?.value === undefined) {
       return;
     }
-    setSystemPrompt(nextSystemPrompt);
-    void updateAgentRegistry({ id: registryId, systemPrompt: nextSystemPrompt });
+    const nextDoc = nextSystemPrompt as TipTapDocument;
+    if (JSON.stringify(nextDoc) === JSON.stringify(registry.value.systemPrompt)) {
+      return;
+    }
+    setSystemPrompt(nextDoc);
+    void updateAgentRegistry({ id: registryId, systemPrompt: nextDoc });
   };
 
   const updateInferenceProfileId = (value: string) => {

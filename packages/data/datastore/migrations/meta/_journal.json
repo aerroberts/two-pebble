@@ -309,6 +309,13 @@
       "when": 1782244800000,
       "tag": "0043_document_references",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "6",
+      "when": 1789344000000,
+      "tag": "0044_agent_registries_system_prompt_json",
+      "breakpoints": true
     }
   ]
 }

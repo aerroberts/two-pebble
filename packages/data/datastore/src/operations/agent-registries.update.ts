@@ -1,3 +1,4 @@
+import { serializeAgentSystemPrompt, type TipTapDocument } from '@two-pebble/datatypes';
 import { eq } from 'drizzle-orm';
 import { attachDerivedAgentRegistryKind } from '../operation-support/agent-registries-utils';
 import type { DatastoreContext } from '../types';
@@ -7,7 +8,7 @@ type OperationHandlerInput = {
   id: string;
   inferenceProfileId?: string | null;
   name?: string;
-  systemPrompt?: string;
+  systemPrompt?: TipTapDocument;
   thirdPartyAgentInstallId?: string | null;
   workspaceConfig?: string;
 };
@@ -31,7 +32,8 @@ export function agentRegistriesUpdateOperation(ctx: DatastoreContext) {
         inferenceProfileId:
           input.inferenceProfileId === undefined ? existing.inferenceProfileId : input.inferenceProfileId,
         name: input.name ?? existing.name,
-        systemPrompt: input.systemPrompt ?? existing.systemPrompt,
+        systemPrompt:
+          input.systemPrompt === undefined ? existing.systemPrompt : serializeAgentSystemPrompt(input.systemPrompt),
         thirdPartyAgentInstallId:
           input.thirdPartyAgentInstallId === undefined
             ? existing.thirdPartyAgentInstallId

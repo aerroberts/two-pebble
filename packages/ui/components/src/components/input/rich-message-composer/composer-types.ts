@@ -1,3 +1,4 @@
+import type { JSONContent } from '@tiptap/core';
 import type { CellContent } from '@two-pebble/pebble';
 
 export interface RichComposerDocument {
@@ -8,6 +9,12 @@ export interface RichComposerDocument {
 export interface RichComposerSubmitPayload {
   markdown: string;
   cells: CellContent[];
+  /**
+   * Raw TipTap document the editor committed. Lets callers that
+   * persist the JSON itself (system prompts, document bodies) skip
+   * the lossy markdown bounce and store the canonical shape.
+   */
+  doc: JSONContent;
 }
 
 export interface RichComposerSlashTrigger {

@@ -6,6 +6,7 @@ import type {
   Integration,
   ThirdPartyAgentFrameworkId,
   ThirdPartyAgentInstall,
+  TipTapDocument,
   WorkspaceConfig,
 } from '@two-pebble/datatypes';
 import type { PebbleJsonValue } from '@two-pebble/pebble';
@@ -230,7 +231,13 @@ export interface AgentRegistryRecord {
   kind: AgentRegistryKind;
   inferenceProfileId: string | null;
   thirdPartyAgentInstallId: string | null;
-  systemPrompt: string;
+  /**
+   * TipTap document the user authored in the registry settings page.
+   * Stored as JSON; parsed at the datastore boundary so consumers
+   * never see the raw column string. Render to text for the model
+   * with `renderAgentSystemPromptToText` from `@two-pebble/datatypes`.
+   */
+  systemPrompt: TipTapDocument;
   /**
    * Serialized JSON list of `{ id, config }` capability specs the launch
    * flow attaches to each agent run. The wire shape is opaque to the

@@ -133,7 +133,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
       return;
     }
     const markdown = tipTapDocToMarkdown(doc);
-    props.onSubmit({ markdown, cells });
+    props.onSubmit({ markdown, cells, doc });
     current.commands.setContent(emptyComposerDoc());
     setSlashTrigger(null);
     if (draftStorageKey !== undefined) {
