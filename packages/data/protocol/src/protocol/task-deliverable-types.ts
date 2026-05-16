@@ -1,7 +1,19 @@
+/**
+ * Defines the TaskDeliverableType protocol alias shared across daemon bridge messages.
+ * Keep this exported type explicit so consumers can rely on the wire shape.
+ */
 export type TaskDeliverableType = 'text' | 'pr_url';
 
+/**
+ * Defines the TaskDeliverablePayload protocol alias shared across daemon bridge messages.
+ * Keep this exported type explicit so consumers can rely on the wire shape.
+ */
 export type TaskDeliverablePayload = { type: 'text'; content: string } | { type: 'pr_url'; url: string };
 
+/**
+ * Defines the TaskTemplateRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskTemplateRecord {
   id: string;
   createdAt: number;
@@ -11,6 +23,10 @@ export interface TaskTemplateRecord {
   prompt: string;
 }
 
+/**
+ * Defines the TaskTemplateDeliverableRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskTemplateDeliverableRecord {
   id: string;
   createdAt: number;
@@ -22,6 +38,10 @@ export interface TaskTemplateDeliverableRecord {
   orderIndex: number;
 }
 
+/**
+ * Defines the TaskDeliverableRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskDeliverableRecord {
   id: string;
   createdAt: number;
@@ -33,6 +53,10 @@ export interface TaskDeliverableRecord {
   orderIndex: number;
 }
 
+/**
+ * Defines the TaskDeliverableSubmissionRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskDeliverableSubmissionRecord {
   id: string;
   createdAt: number;

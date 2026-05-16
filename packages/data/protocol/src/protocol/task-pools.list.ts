@@ -1,3 +1,7 @@
+/**
+ * Defines the TaskPoolRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskPoolRecord {
   id: string;
   createdAt: number;
@@ -7,6 +11,10 @@ export interface TaskPoolRecord {
   name: string;
 }
 
+/**
+ * Defines the TaskPoolsListOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskPoolsListOperation {
   name: 'listTaskPools';
   request: {

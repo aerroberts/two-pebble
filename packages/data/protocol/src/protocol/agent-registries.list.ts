@@ -1,5 +1,9 @@
 import type { AgentRegistryKind, TipTapDocument } from '@two-pebble/datatypes';
 
+/**
+ * Defines the AgentRegistryRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface AgentRegistryRecord {
   id: string;
   createdAt: number;
@@ -27,6 +31,10 @@ export interface AgentRegistryRecord {
   workspaceConfig: string;
 }
 
+/**
+ * Defines the AgentRegistriesListOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface AgentRegistriesListOperation {
   name: 'listAgentRegistries';
   request: {

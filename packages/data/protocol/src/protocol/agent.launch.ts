@@ -1,5 +1,9 @@
 import type { CellContent } from '@two-pebble/pebble';
 
+/**
+ * Defines the AgentLaunchOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface AgentLaunchOperation {
   name: 'launchAgent';
   request: {

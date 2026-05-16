@@ -142,6 +142,10 @@ import type { WorktreesListOperation } from './protocol/worktrees.list';
 import type { WorktreesOpenOperation } from './protocol/worktrees.open';
 import type { WorktreesUpdatedEvent } from './protocol/worktrees.updated';
 
+/**
+ * Lists every operation the daemon accepts from connected clients.
+ * Keep this tuple explicit so the bridge protocol remains easy to audit.
+ */
 export type DaemonOperations = [
   AgentListOperation,
   AgentReadOperation,
@@ -254,6 +258,10 @@ export type DaemonOperations = [
   MetricsQueryAggregatedOperation,
 ];
 
+/**
+ * Lists every event the daemon can publish to connected clients.
+ * Keep this tuple explicit so bridge subscribers can rely on the event surface.
+ */
 export type DaemonEvents = [
   AgentLivenessEvent,
   AgentRecordedEvent,
@@ -296,6 +304,10 @@ export type DaemonEvents = [
   HeartbeatRecordedEvent,
 ];
 
+/**
+ * Describes the protocol surface available to the client side of the bridge.
+ * Client code sends daemon operations and receives daemon events through this type.
+ */
 export interface ClientProtocol
   extends BridgeProtocol<
     {
@@ -308,6 +320,10 @@ export interface ClientProtocol
     }
   > {}
 
+/**
+ * Describes the protocol surface implemented by the daemon side of the bridge.
+ * Daemon code receives client operations and publishes daemon events through this type.
+ */
 export interface DaemonProtocol
   extends BridgeProtocol<
     {

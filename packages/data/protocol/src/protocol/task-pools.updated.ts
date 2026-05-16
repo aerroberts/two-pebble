@@ -1,3 +1,7 @@
+/**
+ * Defines the TaskPoolUpdatedEvent protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskPoolUpdatedEvent {
   name: 'taskPoolUpdated';
   payload: {
@@ -10,6 +14,10 @@ export interface TaskPoolUpdatedEvent {
   };
 }
 
+/**
+ * Defines the TaskPoolDeletedEvent protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface TaskPoolDeletedEvent {
   name: 'taskPoolDeleted';
   payload: {

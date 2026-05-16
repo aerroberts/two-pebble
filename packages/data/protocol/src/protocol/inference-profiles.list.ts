@@ -7,6 +7,10 @@ type InferenceProfileRecord = InferenceProfile & {
   updatedAt: number;
 };
 
+/**
+ * Defines the InferenceProfilesListOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface InferenceProfilesListOperation {
   name: 'listInferenceProfiles';
   request: {

@@ -1,5 +1,9 @@
 import type { PebbleJsonValue } from '@two-pebble/pebble';
 
+/**
+ * Defines the AgentSignalWireRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface AgentSignalWireRecord {
   id: string;
   createdAt: number;
@@ -16,6 +20,10 @@ export interface AgentSignalWireRecord {
   status: 'open' | 'received' | 'resolved';
 }
 
+/**
+ * Defines the AgentSignalsListOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface AgentSignalsListOperation {
   name: 'listAgentSignals';
   request: {

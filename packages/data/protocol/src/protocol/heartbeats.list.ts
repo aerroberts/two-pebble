@@ -1,3 +1,7 @@
+/**
+ * Defines the HeartbeatReport protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface HeartbeatReport {
   listenerId: string;
   kind: 'automation';
@@ -5,6 +9,10 @@ export interface HeartbeatReport {
   detail: Record<string, unknown>;
 }
 
+/**
+ * Defines the HeartbeatRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface HeartbeatRecord {
   id: string;
   createdAt: number;
@@ -15,6 +23,10 @@ export interface HeartbeatRecord {
   reports: HeartbeatReport[];
 }
 
+/**
+ * Defines the HeartbeatsListOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface HeartbeatsListOperation {
   name: 'listHeartbeats';
   request: {

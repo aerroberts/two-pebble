@@ -1,175 +1,88 @@
 {
   "inherit": "@group/guardrails-typescript",
-  "rules": [
+  "structure": [
+    // Protocol operation modules stay flat and domain-named so the bridge contract is visible in one directory.
+    // Import allowlists are not supported by structure-only guardrails; keep imports limited to datatypes, pebble, task-events, and explicit sibling protocol dependencies.
     {
       "find": "src/protocol/*",
       "recommendation": "Protocol operation modules stay flat and domain-named so the bridge contract is visible in one directory.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "export interface"
-        ]
+      "asserts": {
+        "type": "file"
       },
-      "allowEmpty": true,
-      "traverse": [
+      "code": [
         {
-          "find": [
-            "import",
-            "re-export"
-          ],
-          "rules": {
-            "allowedImportPath": [
-              "@two-pebble/datatypes",
-              "@two-pebble/pebble",
-              "../task-events",
-              "../task-events/index",
-              "./automations.list",
-              "./heartbeats.list",
-              "./task-deliverable-types"
-            ]
-          },
-          "recommendation": "Protocol operation modules stay flat and domain-named so the bridge contract is visible in one directory."
+          "find": "export/interface",
+          "recommendation": "Protocol operation modules expose their wire contract through exported interfaces.",
+          "asserts": {
+            "exists": true
+          }
         }
       ]
     },
+
+    // Protocol operation modules must not use nested folders; encode hierarchy in the file name.
     {
-      "find": "src/protocol/folder/*",
+      "find": "src/protocol/*/*",
       "recommendation": "Protocol operation modules must not use nested folders; encode hierarchy in the file name.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     },
+
+    // Each task event kind lives in its own flat file with a single self-contained interface so wire shapes are easy to scan.
+    // Import allowlists and literal `export type` string checks are not supported by structure-only guardrails.
     {
-      "find": "src/task-events/status.ts",
+      "find": ["src/task-events/status.ts", "src/task-events/delegated.ts", "src/task-events/undelegated.ts"],
       "recommendation": "Each task event kind lives in its own flat file with a single self-contained interface so wire shapes are easy to scan.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "export interface"
-        ],
-        "missing": [
-          "export type"
-        ]
+      "asserts": {
+        "exists": true,
+        "type": "file"
       },
-      "allowEmpty": true,
-      "traverse": [
+      "code": [
         {
-          "find": [
-            "import",
-            "re-export"
-          ],
-          "rules": {
-            "allowedImportPath": []
-          },
-          "recommendation": "Each task event kind lives in its own flat file with a single self-contained interface so wire shapes are easy to scan."
+          "find": "export/interface",
+          "recommendation": "Each task event kind exports a self-contained interface.",
+          "asserts": {
+            "exists": true
+          }
+        },
+        {
+          "find": "export/type",
+          "recommendation": "Task event kind files should not export type aliases; keep shared unions in task-events/types.ts.",
+          "asserts": {
+            "exists": false
+          }
         }
       ]
     },
-    {
-      "find": "src/task-events/delegated.ts",
-      "recommendation": "Each task event kind lives in its own flat file with a single self-contained interface so wire shapes are easy to scan.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "export interface"
-        ],
-        "missing": [
-          "export type"
-        ]
-      },
-      "allowEmpty": true,
-      "traverse": [
-        {
-          "find": [
-            "import",
-            "re-export"
-          ],
-          "rules": {
-            "allowedImportPath": []
-          },
-          "recommendation": "Each task event kind lives in its own flat file with a single self-contained interface so wire shapes are easy to scan."
-        }
-      ]
-    },
-    {
-      "find": "src/task-events/undelegated.ts",
-      "recommendation": "Each task event kind lives in its own flat file with a single self-contained interface so wire shapes are easy to scan.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "export interface"
-        ],
-        "missing": [
-          "export type"
-        ]
-      },
-      "allowEmpty": true,
-      "traverse": [
-        {
-          "find": [
-            "import",
-            "re-export"
-          ],
-          "rules": {
-            "allowedImportPath": []
-          },
-          "recommendation": "Each task event kind lives in its own flat file with a single self-contained interface so wire shapes are easy to scan."
-        }
-      ]
-    },
+
+    // task-events/index.ts is a flat re-export barrel for the per-kind event interfaces and the TaskEventRecord union.
+    // Re-export path allowlists are not supported by structure-only guardrails; keep this barrel limited to status, delegated, undelegated, and types.
     {
       "find": "src/task-events/index.ts",
       "recommendation": "task-events/index.ts is a flat re-export barrel for the per-kind event interfaces and the TaskEventRecord union.",
-      "rules": {
+      "asserts": {
+        "exists": true,
         "type": "file"
-      },
-      "allowEmpty": true,
-      "traverse": [
-        {
-          "find": [
-            "import",
-            "re-export"
-          ],
-          "rules": {
-            "allowedImportPath": [
-              "./status",
-              "./delegated",
-              "./undelegated",
-              "./types"
-            ]
-          },
-          "recommendation": "task-events/index.ts is a flat re-export barrel for the per-kind event interfaces and the TaskEventRecord union."
-        }
-      ]
+      }
     },
+
+    // task-events/types.ts holds the discriminated TaskEventRecord union derived from the per-kind interfaces.
+    // Import allowlists are not supported by structure-only guardrails; keep imports limited to status, delegated, and undelegated.
     {
       "find": "src/task-events/types.ts",
       "recommendation": "task-events/types.ts holds the discriminated TaskEventRecord union derived from the per-kind interfaces.",
-      "rules": {
+      "asserts": {
+        "exists": true,
         "type": "file"
-      },
-      "allowEmpty": true,
-      "traverse": [
-        {
-          "find": [
-            "import",
-            "re-export"
-          ],
-          "rules": {
-            "allowedImportPath": [
-              "./status",
-              "./delegated",
-              "./undelegated"
-            ]
-          },
-          "recommendation": "task-events/types.ts holds the discriminated TaskEventRecord union derived from the per-kind interfaces."
-        }
-      ]
+      }
     },
+
+    // Task event modules must not use nested folders.
     {
-      "find": "src/task-events/folder/*",
+      "find": "src/task-events/*/*",
       "recommendation": "Task event modules must not use nested folders.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     }

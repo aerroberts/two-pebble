@@ -1,3 +1,7 @@
+/**
+ * Defines the WorktreeRecord protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface WorktreeRecord {
   id: string;
   createdAt: number;
@@ -8,6 +12,10 @@ export interface WorktreeRecord {
   status: 'creating' | 'active' | 'deleted';
 }
 
+/**
+ * Defines the WorktreesListOperation protocol contract for daemon bridge messages.
+ * Request and response fields stay explicit so callers can rely on the wire shape.
+ */
 export interface WorktreesListOperation {
   name: 'listWorktrees';
   request: {
