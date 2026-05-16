@@ -1,6 +1,6 @@
 import { mergeAttributes, Node } from '@tiptap/core';
-import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
+import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 
 export type TodoItemStatus = 'open' | 'completed' | 'invalid';
 export type TodoItemCompletionType = 'manual' | 'automatic';

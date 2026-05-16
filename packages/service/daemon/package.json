@@ -9,7 +9,7 @@
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
     "dev": "bun --watch scripts/daemon.ts",
     "start": "bun scripts/daemon.ts",
-    "guard": "bunx guardrails",
+    "guard": "guardrails",
     "lint": "biome check --write .",
     "test": "echo 'No daemon tests configured'",
     "test:coverage": "echo 'No daemon tests configured'",

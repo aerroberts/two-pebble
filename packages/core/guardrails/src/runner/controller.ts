@@ -227,12 +227,16 @@ export class Controller {
     const inherits = this.toInheritList(config.inherit);
     const inheritedStructure: StructureRule[] = [];
     for (const definition of inherits) {
-      const inherited = this.findDefinitionConfig(packageDir, definition);
+      const inherited = this.findDefinitionConfig(packageDir, this.normalizeDefinitionName(definition));
       inheritedStructure.push(...(inherited.structure ?? []));
     }
     return {
       structure: [...inheritedStructure, ...(config.structure ?? [])],
     };
+  }
+
+  private normalizeDefinitionName(definition: string) {
+    return definition.startsWith('@group/') ? definition.slice('@group/'.length) : definition;
   }
 
   private toInheritList(value: string | string[] | undefined): string[] {

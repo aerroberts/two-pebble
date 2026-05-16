@@ -47,10 +47,7 @@ export function AgentDetailPage() {
             </Button>
           ) : null}
           {state.agent?.agentRegistryId ? (
-            <Button
-              leftIcon="BookMarked"
-              onClick={() => state.openAgentRegistry(state.agent?.agentRegistryId ?? '')}
-            >
+            <Button leftIcon="BookMarked" onClick={() => state.openAgentRegistry(state.agent?.agentRegistryId ?? '')}>
               Registry
             </Button>
           ) : null}

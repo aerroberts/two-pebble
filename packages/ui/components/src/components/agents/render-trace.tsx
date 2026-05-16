@@ -13,12 +13,7 @@ import { ModelCallFailureTrace } from './model-call-failure';
 import { ModelCallStartTrace } from './model-call-start';
 import { ModelCallSuccessTrace } from './model-call-success';
 import { ParentMessageTrace } from './parent-message';
-import {
-  AgentWaitingTrace,
-  SignalReceivedTrace,
-  SignalRegisteredTrace,
-  SignalResolvedTrace,
-} from './signal-trace';
+import { AgentWaitingTrace, SignalReceivedTrace, SignalRegisteredTrace, SignalResolvedTrace } from './signal-trace';
 import { StateSnapshotTrace } from './state-snapshot';
 import { SubAgentTrace } from './sub-agent';
 import { SystemMessageTrace } from './system-message';

@@ -1,4 +1,5 @@
 {
+  "inherit": ["guardrails-package"],
   "structure": [
     // The previous daemon guard inherited @group/guardrails-typescript and used top-level structure exclusions for
     // legacy orchestration files. Structure-only package guards cannot subtract package-local paths from an inherited

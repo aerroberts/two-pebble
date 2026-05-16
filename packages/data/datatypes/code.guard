@@ -1,5 +1,5 @@
 {
-  "inherit": "@group/guardrails-typescript",
+  "inherit": ["guardrails-typescript", "guardrails-package"],
   "structure": [
     {
       "find": "src/integrations/types.ts",
