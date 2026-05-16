@@ -36,54 +36,69 @@
         "spyOn"
       ]
     },
-    "@rule/code-structure": {
-      "rules": [
+    "@rule/structure": {
+      "find": [
         {
-          "match": "src/rules/*",
-          "type": "must-be-dir",
+          "find": "src/rules/*",
+          "assert": {
+            "exists": true,
+            "type": "folder"
+          },
           "recommendation": "Each guardrail rule must live in its own directory.",
-          "rules": [
+          "traverse": [
             {
-              "match": "./rule.ts",
-              "existence": "must-exist",
-              "type": "must-be-file",
+              "find": "./rule.ts",
+              "assert": {
+                "exists": true,
+                "type": "file"
+              },
               "recommendation": "Each guardrail rule directory must define the rule implementation."
             },
             {
-              "match": "./rule.test.ts",
-              "existence": "must-exist",
-              "type": "must-be-file",
+              "find": "./rule.test.ts",
+              "assert": {
+                "exists": true,
+                "type": "file"
+              },
               "recommendation": "Each guardrail rule directory must test the rule through guardrails."
             },
             {
-              "match": "./readme.md",
-              "existence": "must-exist",
-              "type": "must-be-file",
-              "contains": [
-                "## failing code example",
-                "## passing code example",
-                "## default config",
-                "## usage in code.guard example"
-              ],
+              "find": "./readme.md",
+              "assert": {
+                "exists": true,
+                "type": "file",
+                "contains": [
+                  "## failing code example",
+                  "## passing code example",
+                  "## default config",
+                  "## usage in code.guard example"
+                ]
+              },
               "recommendation": "Each guardrail rule directory must document failing, passing, and usage examples."
             },
             {
-              "match": "./fixtures",
-              "existence": "must-exist",
-              "type": "must-be-dir",
+              "find": "./fixtures",
+              "assert": {
+                "exists": true,
+                "type": "folder"
+              },
               "recommendation": "Each guardrail rule directory must include focused fixtures.",
-              "rules": [
+              "traverse": [
                 {
-                  "match": "*",
-                  "existence": "must-exist",
+                  "find": "*",
+                  "assert": {
+                    "exists": true
+                  },
                   "recommendation": "Rule fixtures must not be empty."
                 }
               ]
             },
             {
-              "match": "./types.ts",
-              "existence": "must-exist",
-              "type": "must-be-file",
+              "find": "./types.ts",
+              "assert": {
+                "exists": true,
+                "type": "file"
+              },
               "recommendation": "Each guardrail rule directory must own its local rule types."
             }
           ]

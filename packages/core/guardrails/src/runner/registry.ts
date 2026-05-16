@@ -9,6 +9,7 @@ import { Rule as IndentRule } from '../rules/indent/rule';
 import { Rule as ReactExportedComponentRule } from '../rules/react-exported-component/rule';
 import { Rule as ReactFunctionParameterRule } from '../rules/react-function-parameter/rule';
 import { Rule as ReactJsxStyleRule } from '../rules/react-jsx-style/rule';
+import { Rule as StructureRule } from '../rules/structure/rule';
 import { Rule as TestCaseStructureRule } from '../rules/test-case-structure/rule';
 import { Rule as TestConstOrderRule } from '../rules/test-const-order/rule';
 import { Rule as TestDescribeStructureRule } from '../rules/test-describe-structure/rule';
@@ -105,5 +106,9 @@ export const rules: RuleRegistration[] = [
   {
     name: 'code-structure',
     create: (context) => new CodeStructureRule(context),
+  },
+  {
+    name: 'structure',
+    create: (context) => new StructureRule(context),
   },
 ];
