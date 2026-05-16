@@ -1,16 +1,17 @@
 'use client';
 
+import type { JSONContent } from '@tiptap/core';
 import { type RichComposerDocument, type RichComposerSubmitPayload, RichTextField } from '@two-pebble/components';
-import { markdownToTipTap } from '@two-pebble/datatypes';
 import { useDocuments } from '@two-pebble/realtime';
 import { useMemo } from 'react';
 
 export interface RichTextFieldHostProps {
   /**
-   * Current value in markdown form. Used to seed the editor; the field
-   * keeps its own state thereafter and commits a new value on blur.
+   * Initial TipTap document the editor renders. The host treats this
+   * as a seed for first render; the field keeps its own state
+   * thereafter and commits a new doc on blur.
    */
-  value: string;
+  value: JSONContent;
   onCommit: (payload: RichComposerSubmitPayload) => void;
   label?: string;
   placeholder?: string;
@@ -20,13 +21,11 @@ export interface RichTextFieldHostProps {
 }
 
 /**
- * Application-side host for `RichTextField`.
- *
- * Pulls documents from the realtime store, parses the incoming markdown
- * value into a TipTap document for the initial render, and passes the
- * commit payload back to the caller. Use this anywhere a plain text
- * area used to live — system prompts, task descriptions — to get
- * `/doc` mentions for free.
+ * Application-side host for `RichTextField`. Pulls documents from the
+ * realtime store and threads them into the editor's `/doc` slash
+ * command. Used by any field that persists a TipTap document directly
+ * (e.g. agent system prompts) so document mention pills round-trip
+ * without the markdown bounce that drops their `documentId`.
  */
 export function RichTextFieldHost(props: RichTextFieldHostProps) {
   const documents = useDocuments();
@@ -45,14 +44,12 @@ export function RichTextFieldHost(props: RichTextFieldHostProps) {
     return rows;
   }, [documents.value]);
 
-  const initialContent = useMemo(() => markdownToTipTap(props.value), [props.value]);
-
   return (
     <RichTextField
       ariaLabel={props.ariaLabel}
       disabled={props.disabled}
       documents={items}
-      initialContent={initialContent}
+      initialContent={props.value}
       label={props.label}
       minHeight={props.minHeight}
       onCommit={props.onCommit}

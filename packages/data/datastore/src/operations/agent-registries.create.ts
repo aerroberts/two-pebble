@@ -1,3 +1,4 @@
+import { serializeAgentSystemPrompt, type TipTapDocument } from '@two-pebble/datatypes';
 import { attachDerivedAgentRegistryKind } from '../operation-support/agent-registries-utils';
 import type { DatastoreContext } from '../types';
 
@@ -5,7 +6,7 @@ type OperationHandlerInput = {
   capabilities?: string;
   inferenceProfileId?: string | null;
   name: string;
-  systemPrompt: string;
+  systemPrompt: TipTapDocument;
   thirdPartyAgentInstallId?: string | null;
   workspaceConfig?: string;
 };
@@ -18,7 +19,7 @@ export function agentRegistriesCreateOperation(ctx: DatastoreContext) {
         capabilities: input.capabilities ?? '[]',
         inferenceProfileId: input.inferenceProfileId ?? null,
         name: input.name,
-        systemPrompt: input.systemPrompt,
+        systemPrompt: serializeAgentSystemPrompt(input.systemPrompt),
         thirdPartyAgentInstallId: input.thirdPartyAgentInstallId ?? null,
         workspaceConfig: input.workspaceConfig ?? '{"kind":"cwd"}',
       })

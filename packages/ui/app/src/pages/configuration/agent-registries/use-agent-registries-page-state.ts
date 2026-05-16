@@ -1,3 +1,4 @@
+import { emptyAgentSystemPrompt } from '@two-pebble/datatypes';
 import {
   useAgentRegistries,
   useCreateAgentRegistry,
@@ -29,7 +30,7 @@ export function useAgentRegistriesPageState() {
       const created = await createAgentRegistry({
         inferenceProfileId: profile.id,
         name: '',
-        systemPrompt: '',
+        systemPrompt: emptyAgentSystemPrompt(),
       });
       navigate(`/configuration/agent-registries/${created.id}`);
     } catch (error) {
@@ -51,7 +52,7 @@ export function useAgentRegistriesPageState() {
     try {
       const created = await createAgentRegistry({
         name: '',
-        systemPrompt: '',
+        systemPrompt: emptyAgentSystemPrompt(),
         thirdPartyAgentInstallId: install.id,
       });
       navigate(`/configuration/agent-registries/${created.id}`);
