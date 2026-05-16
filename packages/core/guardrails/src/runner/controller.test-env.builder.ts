@@ -17,21 +17,21 @@ const typeSafetyRuleConfig = {
   forbiddenSyntax: ['any', 'unknown', 'satisfies', 'globalThis'],
 };
 
-const inheritedCodeStructureRuleConfig = {
-  rules: [
+const inheritedStructureRuleConfig = {
+  find: [
     {
-      match: 'src/inherited.ts',
-      existence: 'must-exist',
+      find: 'src/inherited.ts',
+      assert: { exists: true },
       recommendation: 'Inherited structure rules should still run.',
     },
   ],
 };
 
-const localCodeStructureRuleConfig = {
-  rules: [
+const localStructureRuleConfig = {
+  find: [
     {
-      match: 'src/local.ts',
-      contains: ['local marker'],
+      find: 'src/local.ts',
+      assert: { contains: ['local marker'] },
       recommendation: 'Local structure rules should append to inherited rules.',
     },
   ],
@@ -65,13 +65,13 @@ export function controllerTestEnv() {
         return new Controller().run(packageDir, { inherit: '@group/missing' });
       });
     },
-    async runMergedCodeStructureDefinitions() {
+    async runMergedStructureDefinitions() {
       return withRepo(async (repoDir) => {
         writePackageJson(repoDir);
         writeGuardDefinition(repoDir, 'guardrails-example.guard', {
           definition: '@group/example',
           additional: {
-            '@rule/code-structure': inheritedCodeStructureRuleConfig,
+            '@rule/structure': inheritedStructureRuleConfig,
           },
         });
 
@@ -81,7 +81,7 @@ export function controllerTestEnv() {
         return new Controller().run(packageDir, {
           inherit: '@group/example',
           additional: {
-            '@rule/code-structure': localCodeStructureRuleConfig,
+            '@rule/structure': localStructureRuleConfig,
           },
         });
       });

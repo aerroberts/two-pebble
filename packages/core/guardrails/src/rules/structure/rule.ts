@@ -1,4 +1,4 @@
-import { posix, relative } from 'node:path';
+import { basename, extname, posix, relative } from 'node:path';
 import { CodeTraversal, type TraversalNode } from '@two-pebble/traversal';
 import { Guardrail } from '../../constructs/guardrail';
 import { structureAssertions } from './assertions';
@@ -10,6 +10,7 @@ import type { StructureConfig, StructureFindRuleConfig, StructureRuleConfig } fr
  */
 export class Rule extends Guardrail<StructureConfig> {
   public readonly name = 'structure';
+  private readonly variables = new Map<string, Set<string>>();
 
   /**
    * Runs every configured root query.
@@ -24,7 +25,9 @@ export class Rule extends Guardrail<StructureConfig> {
 
     for (const rule of this.rootRules()) {
       const nodes = this.withoutExcludedNodes(await this.resolveRootNodes(traversal, rule), rule);
+      this.captureExtracts(rule, nodes);
       this.checkAssertions(rule, nodes);
+      this.checkExhaustiveContains(rule, nodes);
       await this.checkTraverse(traversal, rule, nodes);
     }
   }
@@ -48,7 +51,9 @@ export class Rule extends Guardrail<StructureConfig> {
         await this.resolveChildNodes(traversal, childRule, nodes),
         childRule,
       );
+      this.captureExtracts(childRule, childNodes);
       this.checkAssertions(childRule, childNodes);
+      this.checkExhaustiveContains(childRule, childNodes);
       await this.checkTraverse(traversal, childRule, childNodes);
     }
   }
@@ -94,6 +99,9 @@ export class Rule extends Guardrail<StructureConfig> {
 
   private checkAssertions(rule: StructureRuleConfig, nodes: TraversalNode[]) {
     const assert = rule.assert ?? {};
+    if (rule.allowEmpty && nodes.length === 0 && assert.exists === undefined) {
+      return;
+    }
 
     for (const assertion of structureAssertions()) {
       const value = assert[assertion.key];
@@ -112,6 +120,71 @@ export class Rule extends Guardrail<StructureConfig> {
         }
       }
     }
+  }
+
+  private captureExtracts(rule: StructureRuleConfig, nodes: TraversalNode[]) {
+    if (rule.extract === undefined) {
+      return;
+    }
+
+    for (const node of nodes) {
+      for (const [name, template] of Object.entries(rule.extract)) {
+        const variableName = name.replace(/^\$/, '');
+        if (!this.variables.has(variableName)) {
+          this.variables.set(variableName, new Set());
+        }
+
+        this.variables.get(variableName)?.add(this.expandNodeTemplate(node, template));
+      }
+    }
+  }
+
+  private checkExhaustiveContains(rule: StructureRuleConfig, nodes: TraversalNode[]) {
+    for (const template of rule.exhaustiveContains ?? rule.exhaustivelyContains ?? []) {
+      for (const expected of this.expandGlobalTemplate(template)) {
+        const found = nodes.some((node) => {
+          const text = this.optionalProperty(node, 'text');
+          return typeof text === 'string' && text.includes(expected);
+        });
+
+        if (!found) {
+          this.getReporter(this.nodePath(nodes[0])).fail(
+            structureDiagnostic('exhaustiveContains', `Expected a selected node to contain ${expected}.`, rule),
+          );
+        }
+      }
+    }
+  }
+
+  private expandGlobalTemplate(template: string) {
+    const variableName = this.variableName(template);
+    if (variableName === null) {
+      return [template];
+    }
+
+    return Array.from(this.variables.get(variableName) ?? []).map((value) =>
+      template.replaceAll(`$${variableName}`, value),
+    );
+  }
+
+  private expandNodeTemplate(node: TraversalNode, template: string) {
+    return template.replaceAll(/\{\$(\w+)\}|\$(\w+)/g, (_match, braced: string, bare: string) => {
+      return this.nodeVariable(node, braced ?? bare);
+    });
+  }
+
+  private nodeVariable(node: TraversalNode, name: string) {
+    if (name === 'name') {
+      const nodeName = String(this.optionalProperty(node, 'name') ?? '');
+      return extname(nodeName) ? basename(nodeName, extname(nodeName)) : nodeName;
+    }
+
+    return String(this.optionalProperty(node, name) ?? '');
+  }
+
+  private variableName(template: string) {
+    const match = /\$(\w+)/.exec(template);
+    return match?.[1] ?? null;
   }
 
   private nodePath(node: TraversalNode | undefined) {

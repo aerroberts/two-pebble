@@ -1,5 +1,4 @@
 import { Rule as ClassNameRule } from '../rules/class-name/rule';
-import { Rule as CodeStructureRule } from '../rules/code-structure/rule';
 import { Rule as IndentRule } from '../rules/indent/rule';
 import { Rule as ReactExportedComponentRule } from '../rules/react-exported-component/rule';
 import { Rule as ReactFunctionParameterRule } from '../rules/react-function-parameter/rule';
@@ -72,10 +71,6 @@ export const rules: RuleRegistration[] = [
   {
     name: 'typescript-variable-type',
     create: (context) => new TypescriptVariableTypeRule(context),
-  },
-  {
-    name: 'code-structure',
-    create: (context) => new CodeStructureRule(context),
   },
   {
     name: 'structure',

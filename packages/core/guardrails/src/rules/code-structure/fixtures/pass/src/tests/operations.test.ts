@@ -1,2 +1,0 @@
-describe('create');
-describe('delete');

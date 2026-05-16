@@ -1,3 +1,4 @@
+import { Assert as AllowedImportPathAssertion } from './asserts/allowed-import-path/assert';
 import { Assert as AsyncAssertion } from './asserts/async/assert';
 import { Assert as CommentContentAssertion } from './asserts/comment-content/assert';
 import { Assert as ContainsAssertion } from './asserts/contains/assert';
@@ -16,6 +17,7 @@ export function structureAssertions() {
   return [
     new ExistsAssertion(),
     new TypeAssertion(),
+    new AllowedImportPathAssertion(),
     new AsyncAssertion(),
     new FunctionKindAssertion(),
     new ImportPathAssertion(),

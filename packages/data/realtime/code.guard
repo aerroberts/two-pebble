@@ -75,78 +75,114 @@
     }
   ],
   "additional": {
-    "@rule/code-structure": {
-      "rules": [
+    "@rule/structure": {
+      "find": [
         {
-          "match": "src/operations",
-          "type": "must-be-dir",
-          "recommendation": "Realtime bridge behavior belongs in the operations directory."
+          "find": "src/operations",
+          "recommendation": "Realtime bridge behavior belongs in the operations directory.",
+          "assert": {
+            "type": "folder"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/operations/*",
-          "type": "must-be-file",
-          "recommendation": "Realtime operations stay flat so bridge command behavior is easy to scan."
+          "find": "src/operations/*",
+          "recommendation": "Realtime operations stay flat so bridge command behavior is easy to scan.",
+          "assert": {
+            "type": "file"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/operations/*/*",
-          "existence": "must-not-exist",
-          "recommendation": "Realtime operations should not grow nested folders."
+          "find": "src/operations/folder/*",
+          "recommendation": "Realtime operations should not grow nested folders.",
+          "assert": {
+            "exists": false
+          }
         },
         {
-          "match": "src/states",
-          "type": "must-be-dir",
-          "recommendation": "Realtime Zustand state belongs in the states directory."
+          "find": "src/states",
+          "recommendation": "Realtime Zustand state belongs in the states directory.",
+          "assert": {
+            "type": "folder"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/states/*",
-          "type": "must-be-dir",
-          "recommendation": "Each realtime state owns a folder for state, listeners, and hooks."
+          "find": "src/states/*",
+          "recommendation": "Each realtime state owns a folder for state, listeners, and hooks.",
+          "assert": {
+            "type": "folder"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/states/*/state.ts",
-          "type": "must-be-file",
-          "recommendation": "Each realtime state folder must define its Zustand state shape in state.ts."
+          "find": "src/states/*/state.ts",
+          "recommendation": "Each realtime state folder must define its Zustand state shape in state.ts.",
+          "assert": {
+            "type": "file"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/states/*/listen.ts",
-          "type": "must-be-file",
-          "recommendation": "Each realtime state folder must own the daemon event listeners that update that state."
+          "find": "src/states/*/listen.ts",
+          "recommendation": "Each realtime state folder must own the daemon event listeners that update that state.",
+          "assert": {
+            "type": "file"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/states/*/hooks",
-          "type": "must-be-dir",
-          "recommendation": "Realtime state hooks live beside the state they read or mutate."
+          "find": "src/states/*/hooks",
+          "recommendation": "Realtime state hooks live beside the state they read or mutate.",
+          "assert": {
+            "type": "folder"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/states/*/hooks/*.hook.ts",
-          "type": "must-be-file",
-          "recommendation": "Realtime state hooks should be explicit one-hook modules."
+          "find": "src/states/*/hooks/*.hook.ts",
+          "recommendation": "Realtime state hooks should be explicit one-hook modules.",
+          "assert": {
+            "type": "file"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/states/*/hooks/*/*",
-          "existence": "must-not-exist",
-          "recommendation": "Realtime state hook folders should stay flat."
+          "find": "src/states/*/hooks/folder/*",
+          "recommendation": "Realtime state hook folders should stay flat.",
+          "assert": {
+            "exists": false
+          }
         },
         {
-          "match": "src/states/*/store.test.ts",
-          "type": "must-be-file",
-          "contains": [
-            "test('happy: backfill, hooks load current state'",
-            "test('happy: backfill + realtime, hooks load current state and realtime hook listens to state changes'",
-            "test('happy: realtime, hook listens to state changes'",
-            "test('happy: backfill empty, hooks load empty state'"
-          ],
-          "recommendation": "Every realtime state must own a store.test.ts file proving backfill, backfill plus realtime, realtime-only, and empty backfill behavior."
+          "find": "src/states/*/store.test.ts",
+          "recommendation": "Every realtime state must own a store.test.ts file proving backfill, backfill plus realtime, realtime-only, and empty backfill behavior.",
+          "assert": {
+            "type": "file",
+            "contains": [
+              "test('happy: backfill, hooks load current state'",
+              "test('happy: backfill + realtime, hooks load current state and realtime hook listens to state changes'",
+              "test('happy: realtime, hook listens to state changes'",
+              "test('happy: backfill empty, hooks load empty state'"
+            ]
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/testing",
-          "type": "must-be-dir",
-          "recommendation": "Realtime integration testing utilities belong in src/testing beside the package they validate."
+          "find": "src/testing",
+          "recommendation": "Realtime integration testing utilities belong in src/testing beside the package they validate.",
+          "assert": {
+            "type": "folder"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/testing/stores",
-          "existence": "must-not-exist",
-          "recommendation": "Store behavior suites belong beside each realtime state as src/states/<state>/store.test.ts."
+          "find": "src/testing/stores",
+          "recommendation": "Store behavior suites belong beside each realtime state as src/states/<state>/store.test.ts.",
+          "assert": {
+            "exists": false
+          }
         }
       ]
     }

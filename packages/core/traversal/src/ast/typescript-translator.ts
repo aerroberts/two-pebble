@@ -65,6 +65,7 @@ export class TypeScriptTranslator {
         node: statement,
         token: 're-export',
         name: 're-export',
+        importPath: this.reExportPath(sourceFile, statement),
         childIds: [],
       });
     }
@@ -615,6 +616,12 @@ export class TypeScriptTranslator {
     }
 
     return node.getText(sourceFile);
+  }
+
+  private reExportPath(sourceFile: ts.SourceFile, node: ts.ExportDeclaration) {
+    return node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)
+      ? node.moduleSpecifier.text
+      : node.getText(sourceFile);
   }
 
   private functionKind(node: ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration) {

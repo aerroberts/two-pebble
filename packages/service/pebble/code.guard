@@ -41,29 +41,48 @@
     }
   ],
   "additional": {
-    "@rule/code-structure": {
-      "rules": [
+    "@rule/structure": {
+      "find": [
         {
-          "match": "src/traces/agent-traces",
-          "type": "must-be-dir",
-          "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership."
+          "find": "src/traces/agent-traces",
+          "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.",
+          "assert": {
+            "type": "folder"
+          },
+          "allowEmpty": true
         },
         {
-          "match": "src/traces/agent-traces/*",
-          "type": "must-be-file",
-          "allowedImports": [
-            "../../thread",
-            "../../thread/index"
-          ],
-          "contains": [
-            "export interface PebbleAgent"
-          ],
-          "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types."
+          "find": "src/traces/agent-traces/*",
+          "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types.",
+          "assert": {
+            "type": "file",
+            "contains": [
+              "export interface PebbleAgent"
+            ]
+          },
+          "allowEmpty": true,
+          "traverse": [
+            {
+              "find": [
+                "import",
+                "re-export"
+              ],
+              "assert": {
+                "allowedImportPath": [
+                  "../../thread",
+                  "../../thread/index"
+                ]
+              },
+              "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types."
+            }
+          ]
         },
         {
-          "match": "src/traces/agent-traces/*/*",
-          "existence": "must-not-exist",
-          "recommendation": "Agent trace interfaces stay one file deep so the trace catalog is scanable."
+          "find": "src/traces/agent-traces/folder/*",
+          "recommendation": "Agent trace interfaces stay one file deep so the trace catalog is scanable.",
+          "assert": {
+            "exists": false
+          }
         }
       ]
     }

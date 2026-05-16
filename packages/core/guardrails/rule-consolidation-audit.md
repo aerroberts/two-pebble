@@ -3,6 +3,7 @@
 ## consolidated
 
 - Legacy class, TypeScript, and React file line-count checks became `structure` line-count assertions.
+- Legacy filesystem structure checks became `structure` filesystem assertions.
 - `typescript-indent` and `react-indent` became `indent`.
 - `class-top-level-definition`, `test-file-definition`, and the `index.ts` / `types.ts` statement checks from `typescript-module-role` became `structure` inverted sibling assertions.
 - The remaining re-export-only behavior from `typescript-module-role` became `typescript-re-export-only-file`.
@@ -21,4 +22,3 @@
 - `typescript-type-safety`: type escape hatch policy is a TypeScript type-node concern.
 - `typescript-function-shape`: function body and signature shape is a TypeScript AST concern.
 - `typescript-variable-type`: variable type shape is a TypeScript AST concern.
-- `code-structure`: filesystem structure policy is not an AST rule.

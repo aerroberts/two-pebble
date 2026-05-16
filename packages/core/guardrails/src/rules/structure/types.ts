@@ -13,8 +13,12 @@ export interface StructureFindRuleConfig extends StructureRuleConfig {
 }
 
 export interface StructureRuleConfig {
+  allowEmpty?: boolean;
   assert?: StructureAssertConfig;
   exclude?: string[];
+  exhaustiveContains?: string[];
+  exhaustivelyContains?: string[];
+  extract?: Record<string, string>;
   invert?: boolean;
   recommendation?: string;
   recommendations?: string;
@@ -23,6 +27,7 @@ export interface StructureRuleConfig {
 }
 
 export interface StructureAssertConfig {
+  allowedImportPath?: string[];
   exists?: boolean;
   type?: TraversalNodeType;
   async?: boolean;

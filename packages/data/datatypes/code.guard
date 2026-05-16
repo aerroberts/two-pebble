@@ -1,45 +1,65 @@
 {
   "inherit": "@group/guardrails-typescript",
   "additional": {
-    "@rule/code-structure": {
-      "rules": [
+    "@rule/structure": {
+      "find": [
         {
-          "match": "src/integrations/types.ts",
-          "existence": "must-exist",
-          "type": "must-be-file",
-          "contains": ["export type Integration ="],
-          "recommendation": "Integration domain types expose one simple union from the folder-level types file."
+          "find": "src/integrations/types.ts",
+          "recommendation": "Integration domain types expose one simple union from the folder-level types file.",
+          "assert": {
+            "exists": true,
+            "type": "file",
+            "contains": [
+              "export type Integration ="
+            ]
+          }
         },
         {
-          "match": "src/inference-profiles/types.ts",
-          "existence": "must-exist",
-          "type": "must-be-file",
-          "contains": ["export type InferenceProfile ="],
-          "recommendation": "Inference profile domain types expose one simple union from the folder-level types file."
+          "find": "src/inference-profiles/types.ts",
+          "recommendation": "Inference profile domain types expose one simple union from the folder-level types file.",
+          "assert": {
+            "exists": true,
+            "type": "file",
+            "contains": [
+              "export type InferenceProfile ="
+            ]
+          }
         },
         {
-          "match": "src/integrations/protocol/*",
-          "existence": "must-exist",
-          "type": "must-be-file",
-          "contains": ["export interface Integration_"],
-          "recommendation": "Each integration provider protocol definition must stay as a pure type file."
+          "find": "src/integrations/protocol/*",
+          "recommendation": "Each integration provider protocol definition must stay as a pure type file.",
+          "assert": {
+            "exists": true,
+            "type": "file",
+            "contains": [
+              "export interface Integration_"
+            ]
+          }
         },
         {
-          "match": "src/inference-profiles/protocol/*",
-          "existence": "must-exist",
-          "type": "must-be-file",
-          "contains": ["export interface InferenceProfile_"],
-          "recommendation": "Each inference profile provider protocol definition must stay as a pure type file."
+          "find": "src/inference-profiles/protocol/*",
+          "recommendation": "Each inference profile provider protocol definition must stay as a pure type file.",
+          "assert": {
+            "exists": true,
+            "type": "file",
+            "contains": [
+              "export interface InferenceProfile_"
+            ]
+          }
         },
         {
-          "match": "src/integrations/protocol/*/*",
-          "existence": "must-not-exist",
-          "recommendation": "Integration provider protocol definitions must stay as one file per provider."
+          "find": "src/integrations/protocol/folder/*",
+          "recommendation": "Integration provider protocol definitions must stay as one file per provider.",
+          "assert": {
+            "exists": false
+          }
         },
         {
-          "match": "src/inference-profiles/protocol/*/*",
-          "existence": "must-not-exist",
-          "recommendation": "Inference profile provider protocol definitions must stay as one file per provider."
+          "find": "src/inference-profiles/protocol/folder/*",
+          "recommendation": "Inference profile provider protocol definitions must stay as one file per provider.",
+          "assert": {
+            "exists": false
+          }
         }
       ]
     }

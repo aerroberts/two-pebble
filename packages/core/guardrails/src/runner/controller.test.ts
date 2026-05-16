@@ -18,11 +18,14 @@ describe('feature: guardrail definition inheritance', () => {
     );
   });
 
-  test('happy: appends local code structure rules to inherited code structure rules', async () => {
-    const result = await controllerTestEnv().runMergedCodeStructureDefinitions();
+  test('happy: appends local structure rules to inherited structure rules', async () => {
+    const result = await controllerTestEnv().runMergedStructureDefinitions();
     const diagnostics = result.results.flatMap((entry) => entry.diagnostics);
 
-    expect(result.results.map((entry) => entry.rule)).toEqual(['code-structure']);
-    expect(diagnostics.map((diagnostic) => diagnostic.error).sort()).toEqual(['missing-content', 'missing-path']);
+    expect(result.results.map((entry) => entry.rule)).toEqual(['structure']);
+    expect(diagnostics.map((diagnostic) => diagnostic.error)).toEqual([
+      'structure-assertion-failed',
+      'structure-assertion-failed',
+    ]);
   });
 });
