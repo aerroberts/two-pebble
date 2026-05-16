@@ -27,6 +27,12 @@ export const appSettingsTable = customTable('app_settings', {
   assistantCommandKVoiceModeEnabled: integer('assistant_command_k_voice_mode_enabled', { mode: 'boolean' })
     .notNull()
     .default(false),
+
+  // After submitting from the Command-K overlay, keep the overlay open and re-focus the input
+  // instead of closing it, so users can fire follow-up messages without re-triggering the shortcut.
+  assistantCommandKKeepOpenAfterSend: integer('assistant_command_k_keep_open_after_send', { mode: 'boolean' })
+    .notNull()
+    .default(false),
 });
 
 export const APP_SETTINGS_SINGLETON_ID = 'singleton';

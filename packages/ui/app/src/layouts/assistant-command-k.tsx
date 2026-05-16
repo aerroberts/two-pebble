@@ -26,6 +26,8 @@ export function AssistantCommandK() {
   const settings = appSettings.value;
   const enabled = settings?.assistantCommandKEnabled ?? false;
   const startInVoiceMode = settings?.assistantCommandKVoiceModeEnabled ?? false;
+  const keepOpenAfterSend = settings?.assistantCommandKKeepOpenAfterSend ?? false;
+  const [submissionKey, setSubmissionKey] = useState(0);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -73,7 +75,14 @@ export function AssistantCommandK() {
     if (trimmed.length === 0 && payload.cells.length === 0) {
       return;
     }
-    close();
+    if (keepOpenAfterSend) {
+      setSubmissionKey((prev) => prev + 1);
+      requestAnimationFrame(() => {
+        containerRef.current?.focus();
+      });
+    } else {
+      close();
+    }
     if (registryId === null) {
       toast('Pick an Assistant agent in Settings before sending.', 'error');
       return;
@@ -106,6 +115,7 @@ export function AssistantCommandK() {
       >
         <p className="mb-3 text-center font-medium text-content-muted text-sm">Send to your Assistant</p>
         <AgentInput
+          key={submissionKey}
           ariaLabel="Assistant message"
           initialMode={startInVoiceMode ? 'voice' : 'text'}
           onSubmit={(payload) => void sendToAssistant(payload)}

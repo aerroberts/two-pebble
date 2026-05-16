@@ -9,6 +9,7 @@ type OperationHandlerInput = {
   assistantAgentId: string | null;
   assistantCommandKEnabled: boolean;
   assistantCommandKVoiceModeEnabled: boolean;
+  assistantCommandKKeepOpenAfterSend: boolean;
 };
 
 export function appSettingsUpdateOperation(ctx: DatastoreContext) {
@@ -30,6 +31,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
           assistantAgentId: input.assistantAgentId,
           assistantCommandKEnabled: input.assistantCommandKEnabled,
           assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
+          assistantCommandKKeepOpenAfterSend: input.assistantCommandKKeepOpenAfterSend,
         })
         .returning()
         .get();
@@ -45,6 +47,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         assistantAgentId: input.assistantAgentId,
         assistantCommandKEnabled: input.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
+        assistantCommandKKeepOpenAfterSend: input.assistantCommandKKeepOpenAfterSend,
       })
       .where(eq(ctx.schema.appSettingsTable.id, APP_SETTINGS_SINGLETON_ID))
       .returning()

@@ -26,6 +26,7 @@ export function VoiceSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      assistantCommandKKeepOpenAfterSend: settings.assistantCommandKKeepOpenAfterSend,
     });
   };
 
@@ -40,6 +41,7 @@ export function VoiceSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      assistantCommandKKeepOpenAfterSend: settings.assistantCommandKKeepOpenAfterSend,
     });
   };
 
