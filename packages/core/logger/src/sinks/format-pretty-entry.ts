@@ -23,7 +23,7 @@ const red = '\u001b[31m';
  * optional ANSI colors and compact context rendering for local diagnostics.
  */
 export function formatPrettyEntry(entry: LoggerEntry, input: PrettyFormatInput): string {
-  const app = colorize("two-pebble", gray, input);
+  const app = colorize('two-pebble', gray, input);
   const timestamp = colorize(entry.timestamp, gray, input);
   const level = colorize(entry.level, levelColor(entry.level), input);
   const message = colorize(entry.message, white, input);

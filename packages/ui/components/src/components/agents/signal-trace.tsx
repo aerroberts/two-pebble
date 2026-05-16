@@ -19,7 +19,11 @@ export function SignalRegisteredTrace(props: TraceComponentProps<'signal-registe
       timestamp={props.trace.createdAt}
       title={`Signal registered: ${data.name}`}
       status="atomic"
-      content={data.description.length > 0 ? <p className="text-sm leading-5 text-content-muted">{data.description}</p> : undefined}
+      content={
+        data.description.length > 0 ? (
+          <p className="text-sm leading-5 text-content-muted">{data.description}</p>
+        ) : undefined
+      }
     />
   );
 }
@@ -32,7 +36,11 @@ export function SignalReceivedTrace(props: TraceComponentProps<'signal-received'
       timestamp={props.trace.createdAt}
       title={`Signal received: ${data.name}`}
       status="atomic"
-      content={data.description.length > 0 ? <p className="text-sm leading-5 text-content-muted">{data.description}</p> : undefined}
+      content={
+        data.description.length > 0 ? (
+          <p className="text-sm leading-5 text-content-muted">{data.description}</p>
+        ) : undefined
+      }
     />
   );
 }
@@ -45,7 +53,11 @@ export function SignalResolvedTrace(props: TraceComponentProps<'signal-resolved'
       timestamp={props.trace.createdAt}
       title={`Signal resolved: ${data.name}`}
       status="atomic"
-      content={data.description.length > 0 ? <p className="text-sm leading-5 text-content-muted">{data.description}</p> : undefined}
+      content={
+        data.description.length > 0 ? (
+          <p className="text-sm leading-5 text-content-muted">{data.description}</p>
+        ) : undefined
+      }
     />
   );
 }

@@ -1,12 +1,12 @@
 import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../../content/icon/icon';
 import { Select, type SelectOption } from '../../input/select/select';
+import { TaskStatusIcon } from '../task-status-icon/task-status-icon';
+import type { TaskStatusIconStatus } from '../task-status-icon/types';
 import {
   type SettableTaskStatus as TaskListSettableStatus,
   TaskStatusIconSelect,
 } from '../task-status-icon-select/task-status-icon-select';
-import { TaskStatusIcon } from '../task-status-icon/task-status-icon';
-import type { TaskStatusIconStatus } from '../task-status-icon/types';
 import { collectFlatTaskOrder } from './flat-order';
 import { buildTaskListTree, type TaskListNode } from './tree';
 

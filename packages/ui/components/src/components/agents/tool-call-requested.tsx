@@ -6,7 +6,7 @@ export function ToolCallRequestedTrace(props: TraceComponentProps<'tool-call-req
   const data = props.trace.data;
   return (
     <AgentTraceItem
-      icon="ArrowRightCircle"
+      icon="ArrowRight"
       timestamp={props.trace.createdAt}
       title={`Tool requested: ${data.toolId}`}
       status="atomic"
