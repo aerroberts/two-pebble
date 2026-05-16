@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm';
-import { APP_SETTINGS_SINGLETON_ID } from '../schema/app-settings.table';
 import type { AppSettingsRecord, DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
@@ -19,14 +18,14 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
     const existing = await ctx.database
       .select()
       .from(ctx.schema.appSettingsTable)
-      .where(eq(ctx.schema.appSettingsTable.id, APP_SETTINGS_SINGLETON_ID))
+      .where(eq(ctx.schema.appSettingsTable.id, 'singleton'))
       .get();
 
     if (existing === undefined) {
       const inserted = await ctx.database
         .insert(ctx.schema.appSettingsTable)
         .values({
-          id: APP_SETTINGS_SINGLETON_ID,
+          id: 'singleton',
           defaultTranscriptionProfileId: input.defaultTranscriptionProfileId,
           defaultSpeechProfileId: input.defaultSpeechProfileId,
           assistantAgentRegistryId: input.assistantAgentRegistryId,
@@ -49,7 +48,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         assistantCommandKEnabled: input.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
       })
-      .where(eq(ctx.schema.appSettingsTable.id, APP_SETTINGS_SINGLETON_ID))
+      .where(eq(ctx.schema.appSettingsTable.id, 'singleton'))
       .returning()
       .get();
     return updated as AppSettingsRecord;

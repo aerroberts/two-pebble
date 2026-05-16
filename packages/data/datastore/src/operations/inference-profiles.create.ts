@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { attachInferenceProfileProvider } from '../operation-support/inference-profiles-utils';
-import type { DatastoreContext, InferenceProfileData, InferenceProfileKind } from '../types';
+import type { DatastoreContext, InferenceProfileData, InferenceProfileKind, InferenceProfileProvider } from '../types';
 
 type OperationHandlerInput = {
   data: InferenceProfileData;
@@ -35,6 +34,6 @@ export function inferenceProfilesCreateOperation(ctx: DatastoreContext) {
       .returning()
       .get();
 
-    return attachInferenceProfileProvider(ctx, row);
+    return { ...row, provider: integration.provider as InferenceProfileProvider };
   };
 }

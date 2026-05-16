@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm';
-import { APP_SETTINGS_SINGLETON_ID } from '../schema/app-settings.table';
 import type { AppSettingsRecord, DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
@@ -15,7 +14,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
     const row = await ctx.database
       .select()
       .from(ctx.schema.appSettingsTable)
-      .where(eq(ctx.schema.appSettingsTable.id, APP_SETTINGS_SINGLETON_ID))
+      .where(eq(ctx.schema.appSettingsTable.id, 'singleton'))
       .get();
 
     if (row !== undefined) {
@@ -24,7 +23,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
 
     const now = Date.now();
     const fallback: AppSettingsRecord = {
-      id: APP_SETTINGS_SINGLETON_ID,
+      id: 'singleton',
       createdAt: now,
       updatedAt: now,
       defaultTranscriptionProfileId: null,

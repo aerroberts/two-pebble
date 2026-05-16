@@ -40,7 +40,26 @@ export function agentPriceLineItemsRecordOperation(ctx: DatastoreContext) {
       .returning()
       .get();
 
-    emitPricingMetrics(row);
+    const dimensions: Record<string, string> = {
+      agentId: row.agentId,
+      provider: row.provider,
+      modelId: row.modelId,
+      charge: row.charge,
+    };
+    if (row.modelVariantId !== null) {
+      dimensions.modelVariantId = row.modelVariantId;
+    }
+    if (row.inferenceProfileId !== null) {
+      dimensions.inferenceProfileId = row.inferenceProfileId;
+    }
+    if (row.integrationId !== null) {
+      dimensions.integrationId = row.integrationId;
+    }
+    if (row.modelCallId !== null) {
+      dimensions.modelCallId = row.modelCallId;
+    }
+    metrics.emit('pricing.quantity', row.quantity, dimensions);
+    metrics.emit('pricing.total', row.total, dimensions);
 
     return {
       id: row.id,
@@ -58,41 +77,4 @@ export function agentPriceLineItemsRecordOperation(ctx: DatastoreContext) {
       total: row.total,
     };
   };
-}
-
-interface PricingMetricRow {
-  agentId: string;
-  modelCallId: string | null;
-  inferenceProfileId: string | null;
-  integrationId: string | null;
-  provider: string;
-  modelId: string;
-  modelVariantId: string | null;
-  charge: string;
-  quantity: number;
-  total: number;
-}
-
-function emitPricingMetrics(row: PricingMetricRow): void {
-  const dimensions: Record<string, string> = {
-    agentId: row.agentId,
-    provider: row.provider,
-    modelId: row.modelId,
-    charge: row.charge,
-  };
-  if (row.modelVariantId !== null) {
-    dimensions.modelVariantId = row.modelVariantId;
-  }
-  if (row.inferenceProfileId !== null) {
-    dimensions.inferenceProfileId = row.inferenceProfileId;
-  }
-  if (row.integrationId !== null) {
-    dimensions.integrationId = row.integrationId;
-  }
-  if (row.modelCallId !== null) {
-    dimensions.modelCallId = row.modelCallId;
-  }
-
-  metrics.emit('pricing.quantity', row.quantity, dimensions);
-  metrics.emit('pricing.total', row.total, dimensions);
 }

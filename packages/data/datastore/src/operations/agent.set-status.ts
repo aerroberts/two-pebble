@@ -3,11 +3,9 @@ import { eq } from 'drizzle-orm';
 import { createUtcNow } from '../table/create-utc-now';
 import type { DatastoreContext } from '../types';
 
-type AgentLifecycleStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
-
 type OperationHandlerInput = {
   id: string;
-  status: AgentLifecycleStatus;
+  status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
 };
 
 /**
@@ -41,7 +39,7 @@ export function agentSetStatusOperation(ctx: DatastoreContext) {
       parentAgentId: row.parentAgentId,
       parentResponseSignalId: row.parentResponseSignalId,
       startedAt: row.startedAt,
-      status: row.status as AgentLifecycleStatus,
+      status: row.status as OperationHandlerInput['status'],
     };
   };
 }

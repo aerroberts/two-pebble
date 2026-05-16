@@ -9,15 +9,19 @@ type OperationHandlerInput = {
   dimensions?: MetricDimensionsRecord;
 };
 
-type OperationHandlerOutput = {
-  buckets: MetricAggregateBucket[];
-};
-
 /**
  * Exposes this datastore module contract for package-local callers.
  */
 export function metricsQueryAggregatedOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput) {
+  return async function handler(input: OperationHandlerInput): Promise<{ buckets: MetricAggregateBucket[] }> {
+    // sqlite json_extract path segment: bare for safe identifiers, quoted otherwise.
+    const jsonPathSegment = (key: string): string => {
+      if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) {
+        return key;
+      }
+      return `"${key.replaceAll('"', '\\"')}"`;
+    };
+
     if (!Number.isInteger(input.bucketSizeMs) || input.bucketSizeMs <= 0) {
       throw new Error(`bucketSizeMs must be a positive integer; got ${input.bucketSizeMs}`);
     }
@@ -63,14 +67,6 @@ export function metricsQueryAggregatedOperation(ctx: DatastoreContext) {
         sum: Number(row.sum_value ?? 0),
       };
     });
-    return { buckets } as OperationHandlerOutput;
+    return { buckets };
   };
-}
-
-function jsonPathSegment(key: string): string {
-  // sqlite json_extract path segment: bare for safe identifiers, quoted otherwise.
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) {
-    return key;
-  }
-  return `"${key.replaceAll('"', '\\"')}"`;
 }

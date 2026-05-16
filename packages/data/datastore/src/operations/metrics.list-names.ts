@@ -4,15 +4,11 @@ type OperationHandlerInput = {
   empty?: never;
 };
 
-type OperationHandlerOutput = {
-  items: MetricNameSummary[];
-};
-
 /**
  * Exposes this datastore module contract for package-local callers.
  */
 export function metricsListNamesOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput) {
+  return async function handler(input: OperationHandlerInput): Promise<{ items: MetricNameSummary[] }> {
     void input;
     const result = await ctx.libsqlClient.execute(
       'SELECT name, COUNT(*) AS sample_count, MIN(created_at) AS first_seen, MAX(created_at) AS last_seen FROM metrics GROUP BY name ORDER BY name ASC',
@@ -25,6 +21,6 @@ export function metricsListNamesOperation(ctx: DatastoreContext) {
         lastSeenAt: Number(row.last_seen ?? 0),
       }),
     );
-    return { items } as OperationHandlerOutput;
+    return { items };
   };
 }

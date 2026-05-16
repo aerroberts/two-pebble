@@ -1,5 +1,5 @@
+import { parseAgentSystemPrompt } from '@two-pebble/datatypes';
 import { eq } from 'drizzle-orm';
-import { attachDerivedAgentRegistryKind } from '../operation-support/agent-registries-utils';
 import type { DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
@@ -21,6 +21,10 @@ export function agentRegistriesReadOperation(ctx: DatastoreContext) {
       throw new Error(`Agent registry not found: ${input.id}`);
     }
 
-    return attachDerivedAgentRegistryKind(row);
+    return {
+      ...row,
+      systemPrompt: parseAgentSystemPrompt(row.systemPrompt),
+      kind: row.thirdPartyAgentInstallId !== null ? ('framework' as const) : ('pebble' as const),
+    };
   };
 }

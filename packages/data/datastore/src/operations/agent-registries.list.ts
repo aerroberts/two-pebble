@@ -1,5 +1,5 @@
+import { parseAgentSystemPrompt } from '@two-pebble/datatypes';
 import { count } from 'drizzle-orm';
-import { attachDerivedAgentRegistryKind } from '../operation-support/agent-registries-utils';
 import type { DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
@@ -23,7 +23,11 @@ export function agentRegistriesListOperation(ctx: DatastoreContext) {
       (await ctx.database.select({ value: count() }).from(ctx.schema.agentRegistriesTable).get())?.value ?? 0;
 
     return {
-      items: rows.map((row) => attachDerivedAgentRegistryKind(row)),
+      items: rows.map((row) => ({
+        ...row,
+        systemPrompt: parseAgentSystemPrompt(row.systemPrompt),
+        kind: row.thirdPartyAgentInstallId !== null ? ('framework' as const) : ('pebble' as const),
+      })),
       page: {
         limit: input.limit,
         offset: input.offset,

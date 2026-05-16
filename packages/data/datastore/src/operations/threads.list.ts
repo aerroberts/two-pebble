@@ -5,14 +5,19 @@ type OperationHandlerInput = {
   empty?: never;
 };
 
-type AgentIdListSource = string | null;
-
 /**
  * Exposes this datastore module contract for package-local callers.
  */
 export function threadsListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     void input;
+    const parseAgentIds = (value: string | null): string[] => {
+      if (value === null || value.length === 0) {
+        return [];
+      }
+      return value.split(',').filter((id) => id.length > 0);
+    };
+
     const cells = ctx.schema.agentConversationCellsTable;
     const rows = await ctx.database
       .select({
@@ -36,11 +41,4 @@ export function threadsListOperation(ctx: DatastoreContext) {
       })),
     };
   };
-}
-
-function parseAgentIds(value: AgentIdListSource): string[] {
-  if (value === null || value.length === 0) {
-    return [];
-  }
-  return value.split(',').filter((id) => id.length > 0);
 }

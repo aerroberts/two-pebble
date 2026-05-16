@@ -1,6 +1,5 @@
-import { serializeAgentSystemPrompt, type TipTapDocument } from '@two-pebble/datatypes';
+import { parseAgentSystemPrompt, serializeAgentSystemPrompt, type TipTapDocument } from '@two-pebble/datatypes';
 import { eq } from 'drizzle-orm';
-import { attachDerivedAgentRegistryKind } from '../operation-support/agent-registries-utils';
 import type { DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
@@ -47,6 +46,10 @@ export function agentRegistriesUpdateOperation(ctx: DatastoreContext) {
       .returning()
       .get();
 
-    return attachDerivedAgentRegistryKind(row);
+    return {
+      ...row,
+      systemPrompt: parseAgentSystemPrompt(row.systemPrompt),
+      kind: row.thirdPartyAgentInstallId !== null ? ('framework' as const) : ('pebble' as const),
+    };
   };
 }

@@ -5,30 +5,126 @@ import { createClient } from '@libsql/client';
 import { logger } from '@two-pebble/logger';
 import { drizzle } from 'drizzle-orm/libsql';
 import type { DatastoreOperationBinder } from './datastore-operation-binder';
-import { bindAgentOperationGroup } from './operation-groups/agent-operation-group';
-import {
-  bindAutomationOperationGroup,
-  bindHeartbeatOperationGroup,
-} from './operation-groups/automation-operation-group';
-import {
-  bindAgentRegistryOperationGroup,
-  bindAppSettingsOperationGroup,
-  bindInferenceProfileOperationGroup,
-  bindIntegrationOperationGroup,
-  bindThirdPartyAgentInstallOperationGroup,
-} from './operation-groups/configuration-operation-group';
-import { bindDocumentOperationGroup } from './operation-groups/documents-operation-group';
-import {
-  bindMetricOperationGroup,
-  bindRepositoryOperationGroup,
-  bindThreadOperationGroup,
-  bindWorkspaceOperationGroup,
-  bindWorktreeOperationGroup,
-} from './operation-groups/storage-operation-group';
-import { bindTaskBoardOperationGroup } from './operation-groups/task-board-operation-group';
+import { agentCallsListOperation } from './operations/agent.calls.list';
+import { agentCallsReadOperation } from './operations/agent.calls.read';
+import { agentCallsRecordOperation } from './operations/agent.calls.record';
+import { agentCompleteOperation } from './operations/agent.complete';
+import { agentConversationCellsRecordOperation } from './operations/agent.conversation.cells.record';
+import { agentConversationCellsSnapshotOperation } from './operations/agent.conversation.cells.snapshot';
+import { agentCreateOperation } from './operations/agent.create';
+import { agentFailOperation } from './operations/agent.fail';
+import { agentListOperation } from './operations/agent.list';
+import { agentPriceLineItemsListOperation } from './operations/agent.price-line-items.list';
+import { agentPriceLineItemsRecordOperation } from './operations/agent.price-line-items.record';
+import { agentReadOperation } from './operations/agent.read';
+import { agentRenameOperation } from './operations/agent.rename';
+import { agentSetMetadataOperation } from './operations/agent.set-metadata';
+import { agentSetParentResponseSignalIdOperation } from './operations/agent.set-parent-response-signal-id';
+import { agentSetStatusOperation } from './operations/agent.set-status';
+import { agentSignalsListForAgentOperation } from './operations/agent.signals.list-for-agent';
+import { agentSignalsListOpenForAgentOperation } from './operations/agent.signals.list-open-for-agent';
+import { agentSignalsListReceivedForAgentOperation } from './operations/agent.signals.list-received-for-agent';
+import { agentSignalsMarkResolvedOperation } from './operations/agent.signals.mark-resolved';
+import { agentSignalsRegisterOperation } from './operations/agent.signals.register';
+import { agentSignalsResolveOperation } from './operations/agent.signals.resolve';
+import { agentSignalsSendPushOperation } from './operations/agent.signals.send-push';
+import { agentTracesListOperation } from './operations/agent.traces.list';
+import { agentTracesListByTypeOperation } from './operations/agent.traces.list-by-type';
+import { agentTracesRecordOperation } from './operations/agent.traces.record';
+import { agentRegistriesCreateOperation } from './operations/agent-registries.create';
+import { agentRegistriesDeleteOperation } from './operations/agent-registries.delete';
+import { agentRegistriesListOperation } from './operations/agent-registries.list';
+import { agentRegistriesReadOperation } from './operations/agent-registries.read';
+import { agentRegistriesUpdateOperation } from './operations/agent-registries.update';
+import { appSettingsReadOperation } from './operations/app-settings.read';
+import { appSettingsUpdateOperation } from './operations/app-settings.update';
+import { automationsCreateOperation } from './operations/automations.create';
+import { automationsDeleteOperation } from './operations/automations.delete';
+import { automationsListOperation } from './operations/automations.list';
+import { automationsReadOperation } from './operations/automations.read';
+import { automationsRecordRunOperation } from './operations/automations.record-run';
+import { automationsUpdateOperation } from './operations/automations.update';
 import { datastoreCloseOperation } from './operations/datastore.close';
 import { datastoreMigrateOperation } from './operations/datastore.migrate';
 import { datastoreStatusOperation } from './operations/datastore.status';
+import { documentsCreateOperation } from './operations/documents.create';
+import { documentsDeleteOperation } from './operations/documents.delete';
+import { documentsListOperation } from './operations/documents.list';
+import { documentsReadOperation } from './operations/documents.read';
+import { documentsUpdateOperation } from './operations/documents.update';
+import { heartbeatsInsertOperation } from './operations/heartbeats.insert';
+import { heartbeatsListOperation } from './operations/heartbeats.list';
+import { heartbeatsPruneOperation } from './operations/heartbeats.prune';
+import { inferenceProfilesCreateOperation } from './operations/inference-profiles.create';
+import { inferenceProfilesDeleteOperation } from './operations/inference-profiles.delete';
+import { inferenceProfilesListOperation } from './operations/inference-profiles.list';
+import { inferenceProfilesReadOperation } from './operations/inference-profiles.read';
+import { inferenceProfilesUpdateOperation } from './operations/inference-profiles.update';
+import { integrationsCreateOperation } from './operations/integrations.create';
+import { integrationsDeleteOperation } from './operations/integrations.delete';
+import { integrationsListOperation } from './operations/integrations.list';
+import { integrationsReadOperation } from './operations/integrations.read';
+import { integrationsUpdateOperation } from './operations/integrations.update';
+import { metricsListNamesOperation } from './operations/metrics.list-names';
+import { metricsListVariantsOperation } from './operations/metrics.list-variants';
+import { metricsQueryAggregatedOperation } from './operations/metrics.query-aggregated';
+import { metricsWriteOperation } from './operations/metrics.write';
+import { repositoriesCreateOperation } from './operations/repositories.create';
+import { repositoriesDeleteOperation } from './operations/repositories.delete';
+import { repositoriesListOperation } from './operations/repositories.list';
+import { repositoriesReadOperation } from './operations/repositories.read';
+import { repositoriesUpdateOperation } from './operations/repositories.update';
+import { taskBoardsCreateOperation } from './operations/task-boards.create';
+import { taskBoardsDeleteOperation } from './operations/task-boards.delete';
+import { taskBoardsListOperation } from './operations/task-boards.list';
+import { taskBoardsReadOperation } from './operations/task-boards.read';
+import { taskBoardsUpdateOperation } from './operations/task-boards.update';
+import { taskDeliverableSubmissionsListOperation } from './operations/task-deliverable-submissions.list';
+import { taskDeliverableSubmissionsReadOperation } from './operations/task-deliverable-submissions.read';
+import { taskDeliverableSubmissionsUpsertOperation } from './operations/task-deliverable-submissions.upsert';
+import { taskDeliverablesCreateOperation } from './operations/task-deliverables.create';
+import { taskDeliverablesDeleteOperation } from './operations/task-deliverables.delete';
+import { taskDeliverablesListOperation } from './operations/task-deliverables.list';
+import { taskDependenciesCreateOperation } from './operations/task-dependencies.create';
+import { taskDependenciesDeleteOperation } from './operations/task-dependencies.delete';
+import { taskDependenciesListOperation } from './operations/task-dependencies.list';
+import { taskEventsListOperation } from './operations/task-events.list';
+import { taskEventsRecordOperation } from './operations/task-events.record';
+import { taskPoolsCreateOperation } from './operations/task-pools.create';
+import { taskPoolsDeleteOperation } from './operations/task-pools.delete';
+import { taskPoolsListOperation } from './operations/task-pools.list';
+import { taskPoolsSetParentOperation } from './operations/task-pools.set-parent';
+import { taskTemplateDeliverablesCreateOperation } from './operations/task-template-deliverables.create';
+import { taskTemplateDeliverablesDeleteOperation } from './operations/task-template-deliverables.delete';
+import { taskTemplateDeliverablesListOperation } from './operations/task-template-deliverables.list';
+import { taskTemplateDeliverablesUpdateOperation } from './operations/task-template-deliverables.update';
+import { taskTemplatesCreateOperation } from './operations/task-templates.create';
+import { taskTemplatesDeleteOperation } from './operations/task-templates.delete';
+import { taskTemplatesListOperation } from './operations/task-templates.list';
+import { taskTemplatesReadOperation } from './operations/task-templates.read';
+import { taskTemplatesUpdateOperation } from './operations/task-templates.update';
+import { tasksCreateOperation } from './operations/tasks.create';
+import { tasksDeleteOperation } from './operations/tasks.delete';
+import { tasksListOperation } from './operations/tasks.list';
+import { tasksRenameOperation } from './operations/tasks.rename';
+import { tasksSetOwnerOperation } from './operations/tasks.set-owner';
+import { tasksSetPoolOperation } from './operations/tasks.set-pool';
+import { tasksUpdateOperation } from './operations/tasks.update';
+import { tasksUpdateDescriptionOperation } from './operations/tasks.update-description';
+import { thirdPartyAgentInstallsCreateOperation } from './operations/third-party-agent-installs.create';
+import { thirdPartyAgentInstallsDeleteOperation } from './operations/third-party-agent-installs.delete';
+import { thirdPartyAgentInstallsListOperation } from './operations/third-party-agent-installs.list';
+import { thirdPartyAgentInstallsReadOperation } from './operations/third-party-agent-installs.read';
+import { thirdPartyAgentInstallsUpdateOperation } from './operations/third-party-agent-installs.update';
+import { threadsListOperation } from './operations/threads.list';
+import { workspacesCreateOperation } from './operations/workspaces.create';
+import { workspacesListOperation } from './operations/workspaces.list';
+import { workspacesReadOperation } from './operations/workspaces.read';
+import { worktreesCreateOperation } from './operations/worktrees.create';
+import { worktreesDeleteOperation } from './operations/worktrees.delete';
+import { worktreesListOperation } from './operations/worktrees.list';
+import { worktreesReadOperation } from './operations/worktrees.read';
+import { worktreesUpdateOperation } from './operations/worktrees.update';
 import * as schema from './schema';
 import type {
   DatabaseColumnNames,
@@ -67,7 +163,45 @@ export class Datastore {
    * Callers receive bound functions and do not manage database context.
    */
   public get agent() {
-    return bindAgentOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      calls: {
+        list: bind(agentCallsListOperation, 'agent.calls.list'),
+        read: bind(agentCallsReadOperation, 'agent.calls.read'),
+        record: bind(agentCallsRecordOperation, 'agent.calls.record'),
+      },
+      complete: bind(agentCompleteOperation, 'agent.complete'),
+      conversationCells: {
+        record: bind(agentConversationCellsRecordOperation, 'agent.conversation-cells.record'),
+        snapshot: bind(agentConversationCellsSnapshotOperation, 'agent.conversation-cells.snapshot'),
+      },
+      create: bind(agentCreateOperation, 'agent.create'),
+      fail: bind(agentFailOperation, 'agent.fail'),
+      list: bind(agentListOperation, 'agent.list'),
+      setMetadata: bind(agentSetMetadataOperation, 'agent.set-metadata'),
+      setParentResponseSignalId: bind(agentSetParentResponseSignalIdOperation, 'agent.set-parent-response-signal-id'),
+      setStatus: bind(agentSetStatusOperation, 'agent.set-status'),
+      signals: {
+        listForAgent: bind(agentSignalsListForAgentOperation, 'agent.signals.list-for-agent'),
+        listOpenForAgent: bind(agentSignalsListOpenForAgentOperation, 'agent.signals.list-open-for-agent'),
+        listReceivedForAgent: bind(agentSignalsListReceivedForAgentOperation, 'agent.signals.list-received-for-agent'),
+        markResolved: bind(agentSignalsMarkResolvedOperation, 'agent.signals.mark-resolved'),
+        register: bind(agentSignalsRegisterOperation, 'agent.signals.register'),
+        resolve: bind(agentSignalsResolveOperation, 'agent.signals.resolve'),
+        sendPush: bind(agentSignalsSendPushOperation, 'agent.signals.send-push'),
+      },
+      priceLineItems: {
+        list: bind(agentPriceLineItemsListOperation, 'agent.price-line-items.list'),
+        record: bind(agentPriceLineItemsRecordOperation, 'agent.price-line-items.record'),
+      },
+      read: bind(agentReadOperation, 'agent.read'),
+      rename: bind(agentRenameOperation, 'agent.rename'),
+      traces: {
+        list: bind(agentTracesListOperation, 'agent.traces.list'),
+        listByType: bind(agentTracesListByTypeOperation, 'agent.traces.list-by-type'),
+        record: bind(agentTracesRecordOperation, 'agent.traces.record'),
+      },
+    };
   }
 
   /**
@@ -76,7 +210,14 @@ export class Datastore {
    * Callers receive bound functions and do not manage database context.
    */
   public get integrations() {
-    return bindIntegrationOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(integrationsCreateOperation, 'integrations.create'),
+      delete: bind(integrationsDeleteOperation, 'integrations.delete'),
+      list: bind(integrationsListOperation, 'integrations.list'),
+      read: bind(integrationsReadOperation, 'integrations.read'),
+      update: bind(integrationsUpdateOperation, 'integrations.update'),
+    };
   }
 
   /**
@@ -85,7 +226,14 @@ export class Datastore {
    * (e.g. a `claude` executable). Many installs per framework are allowed.
    */
   public get thirdPartyAgentInstalls() {
-    return bindThirdPartyAgentInstallOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(thirdPartyAgentInstallsCreateOperation, 'third-party-agent-installs.create'),
+      delete: bind(thirdPartyAgentInstallsDeleteOperation, 'third-party-agent-installs.delete'),
+      list: bind(thirdPartyAgentInstallsListOperation, 'third-party-agent-installs.list'),
+      read: bind(thirdPartyAgentInstallsReadOperation, 'third-party-agent-installs.read'),
+      update: bind(thirdPartyAgentInstallsUpdateOperation, 'third-party-agent-installs.update'),
+    };
   }
 
   /**
@@ -94,7 +242,10 @@ export class Datastore {
    * The list handler aggregates cells per thread for developer browsing.
    */
   public get threads() {
-    return bindThreadOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      list: bind(threadsListOperation, 'threads.list'),
+    };
   }
 
   /**
@@ -103,7 +254,14 @@ export class Datastore {
    * Pebble turns these records into concrete providers at launch time.
    */
   public get inferenceProfiles() {
-    return bindInferenceProfileOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(inferenceProfilesCreateOperation, 'inference-profiles.create'),
+      delete: bind(inferenceProfilesDeleteOperation, 'inference-profiles.delete'),
+      list: bind(inferenceProfilesListOperation, 'inference-profiles.list'),
+      read: bind(inferenceProfilesReadOperation, 'inference-profiles.read'),
+      update: bind(inferenceProfilesUpdateOperation, 'inference-profiles.update'),
+    };
   }
 
   /**
@@ -112,15 +270,32 @@ export class Datastore {
    * and update upserts.
    */
   public get appSettings() {
-    return bindAppSettingsOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      read: bind(appSettingsReadOperation, 'app-settings.read'),
+      update: bind(appSettingsUpdateOperation, 'app-settings.update'),
+    };
   }
 
   public get automations() {
-    return bindAutomationOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(automationsCreateOperation, 'automations.create'),
+      delete: bind(automationsDeleteOperation, 'automations.delete'),
+      list: bind(automationsListOperation, 'automations.list'),
+      read: bind(automationsReadOperation, 'automations.read'),
+      recordRun: bind(automationsRecordRunOperation, 'automations.record-run'),
+      update: bind(automationsUpdateOperation, 'automations.update'),
+    };
   }
 
   public get heartbeats() {
-    return bindHeartbeatOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      insert: bind(heartbeatsInsertOperation, 'heartbeats.insert'),
+      list: bind(heartbeatsListOperation, 'heartbeats.list'),
+      prune: bind(heartbeatsPruneOperation, 'heartbeats.prune'),
+    };
   }
 
   /**
@@ -129,7 +304,14 @@ export class Datastore {
    * so the launch flow can build an agent from a single user-configured record.
    */
   public get agentRegistries() {
-    return bindAgentRegistryOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(agentRegistriesCreateOperation, 'agent-registries.create'),
+      delete: bind(agentRegistriesDeleteOperation, 'agent-registries.delete'),
+      list: bind(agentRegistriesListOperation, 'agent-registries.list'),
+      read: bind(agentRegistriesReadOperation, 'agent-registries.read'),
+      update: bind(agentRegistriesUpdateOperation, 'agent-registries.update'),
+    };
   }
 
   /**
@@ -138,7 +320,13 @@ export class Datastore {
    * observations into buckets server-side so callers never receive raw rows.
    */
   public get metrics() {
-    return bindMetricOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      write: bind(metricsWriteOperation, 'metrics.write'),
+      listNames: bind(metricsListNamesOperation, 'metrics.list-names'),
+      listVariants: bind(metricsListVariantsOperation, 'metrics.list-variants'),
+      queryAggregated: bind(metricsQueryAggregatedOperation, 'metrics.query-aggregated'),
+    };
   }
 
   /**
@@ -147,7 +335,14 @@ export class Datastore {
    * Worktrees derived from a repository are tracked separately.
    */
   public get repositories() {
-    return bindRepositoryOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(repositoriesCreateOperation, 'repositories.create'),
+      delete: bind(repositoriesDeleteOperation, 'repositories.delete'),
+      list: bind(repositoriesListOperation, 'repositories.list'),
+      read: bind(repositoriesReadOperation, 'repositories.read'),
+      update: bind(repositoriesUpdateOperation, 'repositories.update'),
+    };
   }
 
   /**
@@ -155,7 +350,14 @@ export class Datastore {
    * Document content is serialized TipTap JSON; callers parse at the edge.
    */
   public get documents() {
-    return bindDocumentOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(documentsCreateOperation, 'documents.create'),
+      delete: bind(documentsDeleteOperation, 'documents.delete'),
+      list: bind(documentsListOperation, 'documents.list'),
+      read: bind(documentsReadOperation, 'documents.read'),
+      update: bind(documentsUpdateOperation, 'documents.update'),
+    };
   }
 
   /**
@@ -164,7 +366,14 @@ export class Datastore {
    * Filesystem operations live in the daemon, not in the datastore.
    */
   public get worktrees() {
-    return bindWorktreeOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(worktreesCreateOperation, 'worktrees.create'),
+      delete: bind(worktreesDeleteOperation, 'worktrees.delete'),
+      list: bind(worktreesListOperation, 'worktrees.list'),
+      read: bind(worktreesReadOperation, 'worktrees.read'),
+      update: bind(worktreesUpdateOperation, 'worktrees.update'),
+    };
   }
 
   /**
@@ -173,7 +382,12 @@ export class Datastore {
    * A workspace optionally references a worktree.
    */
   public get workspaces() {
-    return bindWorkspaceOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(workspacesCreateOperation, 'workspaces.create'),
+      list: bind(workspacesListOperation, 'workspaces.list'),
+      read: bind(workspacesReadOperation, 'workspaces.read'),
+    };
   }
 
   /**
@@ -182,7 +396,62 @@ export class Datastore {
    * TaskBoardService loads into the in-memory engine.
    */
   public get taskBoards() {
-    return bindTaskBoardOperationGroup(this.operationBinder());
+    const bind = this.operationBinder();
+    return {
+      create: bind(taskBoardsCreateOperation, 'task-boards.create'),
+      delete: bind(taskBoardsDeleteOperation, 'task-boards.delete'),
+      list: bind(taskBoardsListOperation, 'task-boards.list'),
+      read: bind(taskBoardsReadOperation, 'task-boards.read'),
+      update: bind(taskBoardsUpdateOperation, 'task-boards.update'),
+      pools: {
+        create: bind(taskPoolsCreateOperation, 'task-pools.create'),
+        delete: bind(taskPoolsDeleteOperation, 'task-pools.delete'),
+        list: bind(taskPoolsListOperation, 'task-pools.list'),
+        setParent: bind(taskPoolsSetParentOperation, 'task-pools.set-parent'),
+      },
+      templates: {
+        create: bind(taskTemplatesCreateOperation, 'task-templates.create'),
+        delete: bind(taskTemplatesDeleteOperation, 'task-templates.delete'),
+        list: bind(taskTemplatesListOperation, 'task-templates.list'),
+        read: bind(taskTemplatesReadOperation, 'task-templates.read'),
+        update: bind(taskTemplatesUpdateOperation, 'task-templates.update'),
+        deliverables: {
+          create: bind(taskTemplateDeliverablesCreateOperation, 'task-template-deliverables.create'),
+          delete: bind(taskTemplateDeliverablesDeleteOperation, 'task-template-deliverables.delete'),
+          list: bind(taskTemplateDeliverablesListOperation, 'task-template-deliverables.list'),
+          update: bind(taskTemplateDeliverablesUpdateOperation, 'task-template-deliverables.update'),
+        },
+      },
+      tasks: {
+        create: bind(tasksCreateOperation, 'tasks.create'),
+        delete: bind(tasksDeleteOperation, 'tasks.delete'),
+        list: bind(tasksListOperation, 'tasks.list'),
+        rename: bind(tasksRenameOperation, 'tasks.rename'),
+        setOwner: bind(tasksSetOwnerOperation, 'tasks.set-owner'),
+        setPool: bind(tasksSetPoolOperation, 'tasks.set-pool'),
+        update: bind(tasksUpdateOperation, 'tasks.update'),
+        updateDescription: bind(tasksUpdateDescriptionOperation, 'tasks.update-description'),
+      },
+      deliverables: {
+        create: bind(taskDeliverablesCreateOperation, 'task-deliverables.create'),
+        delete: bind(taskDeliverablesDeleteOperation, 'task-deliverables.delete'),
+        list: bind(taskDeliverablesListOperation, 'task-deliverables.list'),
+      },
+      deliverableSubmissions: {
+        list: bind(taskDeliverableSubmissionsListOperation, 'task-deliverable-submissions.list'),
+        read: bind(taskDeliverableSubmissionsReadOperation, 'task-deliverable-submissions.read'),
+        upsert: bind(taskDeliverableSubmissionsUpsertOperation, 'task-deliverable-submissions.upsert'),
+      },
+      dependencies: {
+        create: bind(taskDependenciesCreateOperation, 'task-dependencies.create'),
+        delete: bind(taskDependenciesDeleteOperation, 'task-dependencies.delete'),
+        list: bind(taskDependenciesListOperation, 'task-dependencies.list'),
+      },
+      events: {
+        list: bind(taskEventsListOperation, 'task-events.list'),
+        record: bind(taskEventsRecordOperation, 'task-events.record'),
+      },
+    };
   }
 
   /**

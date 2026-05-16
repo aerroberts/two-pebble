@@ -12,11 +12,13 @@ type OperationHandlerInput = {
  */
 export function agentConversationCellsSnapshotOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
-    const rows = await ctx.database
-      .select()
-      .from(ctx.schema.agentConversationCellsTable)
-      .where(readSnapshotFilter(ctx, input))
-      .orderBy(asc(ctx.schema.agentConversationCellsTable.orderId));
+    const cells = ctx.schema.agentConversationCellsTable;
+    const filter =
+      input.orderId === undefined
+        ? eq(cells.threadId, input.threadId)
+        : and(eq(cells.threadId, input.threadId), lte(cells.orderId, input.orderId));
+
+    const rows = await ctx.database.select().from(cells).where(filter).orderBy(asc(cells.orderId));
 
     return {
       orderId: input.orderId ?? null,
@@ -32,15 +34,4 @@ export function agentConversationCellsSnapshotOperation(ctx: DatastoreContext) {
       threadId: input.threadId,
     };
   };
-}
-
-function readSnapshotFilter(ctx: DatastoreContext, input: OperationHandlerInput) {
-  if (input.orderId === undefined) {
-    return eq(ctx.schema.agentConversationCellsTable.threadId, input.threadId);
-  }
-
-  return and(
-    eq(ctx.schema.agentConversationCellsTable.threadId, input.threadId),
-    lte(ctx.schema.agentConversationCellsTable.orderId, input.orderId),
-  );
 }

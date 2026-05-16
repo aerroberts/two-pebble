@@ -1,6 +1,5 @@
-import { count } from 'drizzle-orm';
-import { attachInferenceProfileProviders } from '../operation-support/inference-profiles-utils';
-import type { DatastoreContext } from '../types';
+import { count, inArray } from 'drizzle-orm';
+import type { DatastoreContext, InferenceProfileProvider } from '../types';
 
 type OperationHandlerInput = {
   limit: number;
@@ -22,8 +21,24 @@ export function inferenceProfilesListOperation(ctx: DatastoreContext) {
     const total =
       (await ctx.database.select({ value: count() }).from(ctx.schema.inferenceProfilesTable).get())?.value ?? 0;
 
+    const providerByIntegrationId = new Map<string, string>();
+    if (rows.length > 0) {
+      const integrationIds = Array.from(new Set(rows.map((row) => row.integrationId)));
+      const integrations = await ctx.database
+        .select({ id: ctx.schema.integrationsTable.id, provider: ctx.schema.integrationsTable.provider })
+        .from(ctx.schema.integrationsTable)
+        .where(inArray(ctx.schema.integrationsTable.id, integrationIds))
+        .all();
+      for (const integration of integrations) {
+        providerByIntegrationId.set(integration.id, integration.provider);
+      }
+    }
+
     return {
-      items: await attachInferenceProfileProviders(ctx, rows),
+      items: rows.map((row) => ({
+        ...row,
+        provider: (providerByIntegrationId.get(row.integrationId) ?? '') as InferenceProfileProvider,
+      })),
       page: {
         limit: input.limit,
         offset: input.offset,

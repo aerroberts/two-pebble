@@ -14,8 +14,21 @@ type OperationHandlerInput = {
  */
 export function agentTracesListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
-    const rows = await listAgentTraceRows(ctx, input);
-    const total = await countAgentTraceRows(ctx, input);
+    const traces = ctx.schema.agentTracesTable;
+    const rows = await ctx.database
+      .select()
+      .from(traces)
+      .where(eq(traces.agentId, input.agentId))
+      .orderBy(desc(traces.orderId))
+      .limit(input.limit)
+      .offset(input.offset)
+      .all();
+    const totalRow = await ctx.database
+      .select({ value: count() })
+      .from(traces)
+      .where(eq(traces.agentId, input.agentId))
+      .get();
+    const total = totalRow?.value ?? 0;
 
     return {
       items: rows.map((row) => ({
@@ -33,27 +46,4 @@ export function agentTracesListOperation(ctx: DatastoreContext) {
       },
     };
   };
-}
-
-function listAgentTraceRows(ctx: DatastoreContext, input: OperationHandlerInput) {
-  return ctx.database
-    .select()
-    .from(ctx.schema.agentTracesTable)
-    .where(eq(ctx.schema.agentTracesTable.agentId, input.agentId))
-    .orderBy(desc(ctx.schema.agentTracesTable.orderId))
-    .limit(input.limit)
-    .offset(input.offset)
-    .all();
-}
-
-async function countAgentTraceRows(ctx: DatastoreContext, input: OperationHandlerInput) {
-  return (
-    (
-      await ctx.database
-        .select({ value: count() })
-        .from(ctx.schema.agentTracesTable)
-        .where(eq(ctx.schema.agentTracesTable.agentId, input.agentId))
-        .get()
-    )?.value ?? 0
-  );
 }

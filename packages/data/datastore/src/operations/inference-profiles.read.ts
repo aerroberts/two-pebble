@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { attachInferenceProfileProvider } from '../operation-support/inference-profiles-utils';
-import type { DatastoreContext } from '../types';
+import type { DatastoreContext, InferenceProfileProvider } from '../types';
 
 type OperationHandlerInput = {
   id: string;
@@ -21,6 +20,11 @@ export function inferenceProfilesReadOperation(ctx: DatastoreContext) {
       throw new Error(`Inference profile not found: ${input.id}`);
     }
 
-    return attachInferenceProfileProvider(ctx, row);
+    const integration = await ctx.database
+      .select({ provider: ctx.schema.integrationsTable.provider })
+      .from(ctx.schema.integrationsTable)
+      .where(eq(ctx.schema.integrationsTable.id, row.integrationId))
+      .get();
+    return { ...row, provider: (integration?.provider ?? '') as InferenceProfileProvider };
   };
 }

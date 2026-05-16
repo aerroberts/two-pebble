@@ -13,8 +13,21 @@ type OperationHandlerInput = {
  */
 export function agentCallsListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
-    const rows = await listAgentCallRows(ctx, input);
-    const total = await countAgentCallRows(ctx, input);
+    const calls = ctx.schema.agentCallsTable;
+    const rows = await ctx.database
+      .select()
+      .from(calls)
+      .where(eq(calls.agentId, input.agentId))
+      .orderBy(desc(calls.startedAt))
+      .limit(input.limit)
+      .offset(input.offset)
+      .all();
+    const totalRow = await ctx.database
+      .select({ value: count() })
+      .from(calls)
+      .where(eq(calls.agentId, input.agentId))
+      .get();
+    const total = totalRow?.value ?? 0;
 
     return {
       items: rows.map((row) => ({
@@ -35,27 +48,4 @@ export function agentCallsListOperation(ctx: DatastoreContext) {
       },
     };
   };
-}
-
-function listAgentCallRows(ctx: DatastoreContext, input: OperationHandlerInput) {
-  return ctx.database
-    .select()
-    .from(ctx.schema.agentCallsTable)
-    .where(eq(ctx.schema.agentCallsTable.agentId, input.agentId))
-    .orderBy(desc(ctx.schema.agentCallsTable.startedAt))
-    .limit(input.limit)
-    .offset(input.offset)
-    .all();
-}
-
-async function countAgentCallRows(ctx: DatastoreContext, input: OperationHandlerInput) {
-  return (
-    (
-      await ctx.database
-        .select({ value: count() })
-        .from(ctx.schema.agentCallsTable)
-        .where(eq(ctx.schema.agentCallsTable.agentId, input.agentId))
-        .get()
-    )?.value ?? 0
-  );
 }
