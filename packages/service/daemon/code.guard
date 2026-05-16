@@ -15,7 +15,7 @@
       "rules": [
         "@rule/top-level-definitions",
         "@rule/class-name",
-        "@rule/class-static-member",
+        "@rule/structure",
         "@rule/typescript-function-shape",
         "@rule/typescript-variable-type"
       ],

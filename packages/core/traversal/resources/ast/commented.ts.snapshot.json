@@ -21,7 +21,7 @@
       "line": 4,
       "startLine": 4,
       "startColumn": 1,
-      "endLine": 8,
+      "endLine": 10,
       "endColumn": 2,
       "children": [
         {
@@ -31,7 +31,7 @@
           "line": 4,
           "startLine": 4,
           "startColumn": 1,
-          "endLine": 8,
+          "endLine": 10,
           "endColumn": 2,
           "children": [
             {
@@ -41,7 +41,42 @@
               "line": 5,
               "startLine": 5,
               "startColumn": 3,
-              "endLine": 7,
+              "endLine": 5,
+              "endColumn": 35,
+              "children": [
+                {
+                  "kind": "token",
+                  "name": "static",
+                  "token": "static",
+                  "line": 5,
+                  "startLine": 5,
+                  "startColumn": 3,
+                  "endLine": 5,
+                  "endColumn": 35,
+                  "children": [
+                    {
+                      "kind": "token",
+                      "name": "label",
+                      "token": "const",
+                      "line": 5,
+                      "startLine": 5,
+                      "startColumn": 3,
+                      "endLine": 5,
+                      "endColumn": 35,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "token",
+              "name": "public",
+              "token": "public",
+              "line": 7,
+              "startLine": 7,
+              "startColumn": 3,
+              "endLine": 9,
               "endColumn": 4,
               "children": [
                 {
@@ -50,20 +85,20 @@
                   "async": false,
                   "token": "function",
                   "functionKind": "method",
-                  "line": 5,
-                  "startLine": 5,
+                  "line": 7,
+                  "startLine": 7,
                   "startColumn": 3,
-                  "endLine": 7,
+                  "endLine": 9,
                   "endColumn": 4,
                   "children": [
                     {
                       "kind": "token",
                       "name": "parameters",
                       "token": "parameters",
-                      "line": 5,
-                      "startLine": 5,
+                      "line": 7,
+                      "startLine": 7,
                       "startColumn": 14,
-                      "endLine": 5,
+                      "endLine": 7,
                       "endColumn": 27,
                       "children": [
                         {
@@ -71,10 +106,10 @@
                           "name": "input",
                           "destructured": false,
                           "token": "parameter",
-                          "line": 5,
-                          "startLine": 5,
+                          "line": 7,
+                          "startLine": 7,
                           "startColumn": 14,
-                          "endLine": 5,
+                          "endLine": 7,
                           "endColumn": 27,
                           "children": []
                         }
@@ -84,10 +119,10 @@
                       "kind": "token",
                       "name": "block",
                       "token": "block",
-                      "line": 5,
-                      "startLine": 5,
+                      "line": 7,
+                      "startLine": 7,
                       "startColumn": 29,
-                      "endLine": 7,
+                      "endLine": 9,
                       "endColumn": 4,
                       "children": []
                     }
@@ -103,20 +138,20 @@
       "kind": "token",
       "name": "export",
       "token": "export",
-      "line": 10,
-      "startLine": 10,
+      "line": 12,
+      "startLine": 12,
       "startColumn": 1,
-      "endLine": 12,
+      "endLine": 14,
       "endColumn": 2,
       "children": [
         {
           "kind": "token",
           "name": "ExampleInput",
           "token": "interface",
-          "line": 10,
-          "startLine": 10,
+          "line": 12,
+          "startLine": 12,
           "startColumn": 1,
-          "endLine": 12,
+          "endLine": 14,
           "endColumn": 2,
           "children": []
         }

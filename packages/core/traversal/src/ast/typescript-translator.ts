@@ -8,6 +8,14 @@ import type {
   TraversalTokenNodeInput,
 } from '../types';
 
+type ParameterOwnerNode =
+  | ts.FunctionDeclaration
+  | ts.FunctionExpression
+  | ts.ArrowFunction
+  | ts.MethodDeclaration
+  | ts.GetAccessorDeclaration
+  | ts.SetAccessorDeclaration;
+
 export class TypeScriptTranslator {
   public constructor(private readonly context: TraversalCacheExpandContext) {}
 
@@ -118,7 +126,33 @@ export class TypeScriptTranslator {
         functionKind: 'method',
         childIds: children,
       });
-      return this.wrapVisibilityModifier(sourceFile, node, method, records);
+      return this.wrapClassMemberModifiers(sourceFile, node, method, records);
+    }
+    if (ts.isPropertyDeclaration(node)) {
+      const property = this.createTokenRecord(records, {
+        sourceFile,
+        node,
+        token: 'const',
+        name: node.name.getText(sourceFile),
+        childIds: [],
+      });
+      return this.wrapClassMemberModifiers(sourceFile, node, property, records);
+    }
+    if (ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node)) {
+      const children = [
+        this.parametersRecord(sourceFile, node, records).id,
+        ...this.blockRecord(sourceFile, node.body, records),
+      ];
+      const accessor = this.createTokenRecord(records, {
+        sourceFile,
+        node,
+        token: 'function',
+        name: node.name.getText(sourceFile),
+        async: false,
+        functionKind: 'method',
+        childIds: children,
+      });
+      return this.wrapClassMemberModifiers(sourceFile, node, accessor, records);
     }
 
     return undefined;
@@ -172,29 +206,40 @@ export class TypeScriptTranslator {
     });
   }
 
-  private wrapVisibilityModifier(
+  private wrapClassMemberModifiers(
     sourceFile: ts.SourceFile,
     node: ts.Node,
     declaration: TraversalNodeRecord,
     records: TraversalNodeRecord[],
   ) {
     const modifiers = ts.canHaveModifiers(node) ? (ts.getModifiers(node) ?? []) : [];
-    const modifier = modifiers.find((candidate) => {
-      return candidate.kind === ts.SyntaxKind.PrivateKeyword || candidate.kind === ts.SyntaxKind.PublicKeyword;
-    });
+    return modifiers.reduceRight((child, modifier) => {
+      const token = this.classMemberModifierToken(modifier);
+      if (!token) {
+        return child;
+      }
 
-    if (!modifier) {
-      return declaration;
+      return this.createTokenRecord(records, {
+        sourceFile,
+        node,
+        token,
+        name: token,
+        childIds: [child.id],
+      });
+    }, declaration);
+  }
+
+  private classMemberModifierToken(modifier: ts.Modifier): TraversalTokenName | undefined {
+    if (modifier.kind === ts.SyntaxKind.PrivateKeyword) {
+      return 'private';
     }
-
-    const token = modifier.kind === ts.SyntaxKind.PrivateKeyword ? 'private' : 'public';
-    return this.createTokenRecord(records, {
-      sourceFile,
-      node,
-      token,
-      name: token,
-      childIds: [declaration.id],
-    });
+    if (modifier.kind === ts.SyntaxKind.PublicKeyword) {
+      return 'public';
+    }
+    if (modifier.kind === ts.SyntaxKind.StaticKeyword) {
+      return 'static';
+    }
+    return undefined;
   }
 
   private parameterRecords(
@@ -216,7 +261,7 @@ export class TypeScriptTranslator {
 
   private parametersRecord(
     sourceFile: ts.SourceFile,
-    node: ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration,
+    node: ParameterOwnerNode,
     records: TraversalNodeRecord[],
   ) {
     const childIds = this.parameterRecords(sourceFile, node.parameters, records);
@@ -234,7 +279,7 @@ export class TypeScriptTranslator {
 
   private parameterListRange(
     sourceFile: ts.SourceFile,
-    node: ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration,
+    node: ParameterOwnerNode,
   ) {
     if (node.parameters.length > 0) {
       const first = node.parameters[0];

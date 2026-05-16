@@ -1,7 +1,7 @@
 [
   {
     "type": "token:function",
-    "name": "run",
+    "name": "create",
     "async": false,
     "token": "function",
     "functionKind": "method",
@@ -12,7 +12,7 @@
   },
   {
     "type": "token:function",
-    "name": "normalize",
+    "name": "run",
     "async": false,
     "token": "function",
     "functionKind": "method",
@@ -20,5 +20,16 @@
     "line": 9,
     "startLine": 9,
     "endLine": 11
+  },
+  {
+    "type": "token:function",
+    "name": "normalize",
+    "async": false,
+    "token": "function",
+    "functionKind": "method",
+    "path": "src/services/example-service.ts",
+    "line": 13,
+    "startLine": 13,
+    "endLine": 15
   }
 ]

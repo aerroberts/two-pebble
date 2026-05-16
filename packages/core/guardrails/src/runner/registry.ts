@@ -1,5 +1,4 @@
 import { Rule as ClassNameRule } from '../rules/class-name/rule';
-import { Rule as ClassStaticMemberRule } from '../rules/class-static-member/rule';
 import { Rule as CodeStructureRule } from '../rules/code-structure/rule';
 import { Rule as DefinitionLengthRule } from '../rules/definition-length/rule';
 import { Rule as DocumentationRule } from '../rules/documentation/rule';
@@ -28,10 +27,6 @@ export const rules: RuleRegistration[] = [
   {
     name: 'documentation',
     create: (context) => new DocumentationRule(context),
-  },
-  {
-    name: 'class-static-member',
-    create: (context) => new ClassStaticMemberRule(context),
   },
   {
     name: 'definition-length',

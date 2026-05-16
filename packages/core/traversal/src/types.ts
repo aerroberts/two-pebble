@@ -17,7 +17,8 @@ export type TraversalTokenName =
   | 'parameter-binding'
   | 'parameters'
   | 'private'
-  | 'public';
+  | 'public'
+  | 'static';
 
 export type TraversalNodeType = 'file' | 'folder' | `token:${TraversalTokenName}`;
 

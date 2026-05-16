@@ -87,6 +87,22 @@
             "matchesFileName": true
           },
           "recommendation": "Exported class names must match the dash-case file name so navigation is predictable without opening the file."
+        },
+        {
+          "find": "src/**/*.ts/class/**/static",
+          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "assert": {
+            "exists": false
+          },
+          "recommendation": "Class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly."
+        },
+        {
+          "find": "src/**/*.ts/export/class/**/static",
+          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "assert": {
+            "exists": false
+          },
+          "recommendation": "Exported class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly."
         }
       ]
     },
@@ -122,9 +138,6 @@
           "minimumJSDocLines": 3
         }
       ]
-    },
-    "@rule/class-static-member": {
-      "allowStaticMembers": false
     },
     "@rule/definition-length": {
       "excludeTestFiles": true,

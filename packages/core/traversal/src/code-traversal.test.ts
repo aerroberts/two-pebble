@@ -18,6 +18,7 @@ const findSnapshots = [
   { name: 'service-class-methods', query: 'src/services/**/*.ts/export/class/**/function' },
   { name: 'service-public-methods', query: 'src/services/**/*.ts/export/class/public/function' },
   { name: 'service-private-methods', query: 'src/services/**/*.ts/export/class/private/function' },
+  { name: 'service-static-members', query: 'src/services/**/*.ts/export/class/**/static' },
 ] as const;
 
 function snapshotRoot() {
@@ -85,10 +86,10 @@ describe('feature: code traversal', () => {
     expect(isAbsolute(String(classes[0]?.property('path')))).toBe(true);
     expect(classes[0]?.property('path')).toBe(commentedFile());
     expect(classes[0]?.property('startLine')).toBe(4);
-    expect(classes[0]?.property('endLine')).toBe(8);
+    expect(classes[0]?.property('endLine')).toBe(10);
 
     const [file] = await traversal.find('commented.ts');
-    expect(file?.property('lines')).toBe(13);
+    expect(file?.property('lines')).toBe(15);
 
     const previous = await classes[0]?.find('$prev-sibling');
     expect(previous?.map((node) => node.property('token'))).toEqual(['block-comment']);
