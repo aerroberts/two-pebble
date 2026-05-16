@@ -1,8 +1,8 @@
 'use client';
 
 import * as RadixSelect from '@radix-ui/react-select';
-import { SelectContent } from '../../input/select/select-content';
 import type { SelectOption } from '../../input/select/select';
+import { SelectContent } from '../../input/select/select-content';
 import { TaskStatusIcon } from '../task-status-icon/task-status-icon';
 import type { TaskStatusIconStatus } from '../task-status-icon/types';
 

@@ -52,7 +52,7 @@ function createFileSyncLoggerTest(filePath: string, logger: Logger) {
         .readFileSync(filePath, 'utf8')
         .trim()
         .split('\n')
-        .map((line) => line.replace(/^\S+/, '<timestamp>'))
+        .map((line) => line.replace(/^(\S+) \S+/, '$1 <timestamp>'))
         .map((line) => line.replace(/stack: "[^"]*"/, 'stack: "<stack>"'))
         .join('\n');
     },

@@ -70,6 +70,17 @@ describe('feature: controller', () => {
     expect(result.passed).toBe(true);
   });
 
+  test('happy: legacy @group inherit resolves root guard definitions', async () => {
+    const config: GuardrailConfig = {
+      inherit: '@group/guardrails-typescript',
+      structure: [],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
   test('happy: type assertion validates the returned node kind', async () => {
     const config: GuardrailConfig = {
       structure: [

@@ -9,7 +9,11 @@ export function CapabilityHydrateTrace(props: TraceComponentProps<'capability-hy
       timestamp={props.trace.createdAt}
       title={`Capability hydrated: ${data.name}`}
       status="atomic"
-      content={data.description.length > 0 ? <p className="text-sm leading-5 text-content-muted">{data.description}</p> : undefined}
+      content={
+        data.description.length > 0 ? (
+          <p className="text-sm leading-5 text-content-muted">{data.description}</p>
+        ) : undefined
+      }
     />
   );
 }

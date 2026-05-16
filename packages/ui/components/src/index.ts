@@ -290,7 +290,7 @@ export {
   type TaskStatusIconStatus,
 } from './components/tasks/task-status-icon/task-status-icon';
 export {
+  type SettableTaskStatus as TaskStatusIconSelectStatus,
   TaskStatusIconSelect,
   type TaskStatusIconSelectProps,
-  type SettableTaskStatus as TaskStatusIconSelectStatus,
 } from './components/tasks/task-status-icon-select/task-status-icon-select';
