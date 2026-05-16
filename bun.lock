@@ -53,16 +53,6 @@
         "@two-pebble/guardrails": "workspace:*",
       },
     },
-    "packages/core/old-guardrails": {
-      "name": "@two-pebble/old-guardrails",
-      "version": "0.1.0",
-      "dependencies": {
-        "@two-pebble/traversal": "workspace:*",
-        "picocolors": "1.1.1",
-        "tinyglobby": "0.2.15",
-        "typescript": "6.0.2",
-      },
-    },
     "packages/core/tasks": {
       "name": "@two-pebble/tasks",
       "version": "0.1.0",
@@ -757,8 +747,6 @@
     "@two-pebble/metrics": ["@two-pebble/metrics@workspace:packages/core/metrics"],
 
     "@two-pebble/names": ["@two-pebble/names@workspace:packages/core/names"],
-
-    "@two-pebble/old-guardrails": ["@two-pebble/old-guardrails@workspace:packages/core/old-guardrails"],
 
     "@two-pebble/pebble": ["@two-pebble/pebble@workspace:packages/service/pebble"],
 
