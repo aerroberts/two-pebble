@@ -1,4 +1,4 @@
-import { text } from 'drizzle-orm/sqlite-core';
+import { integer, text } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
@@ -9,9 +9,15 @@ import { customTable } from '../table/custom-table';
  * `references` is a JSON array of typed back-pointers (e.g. agents that
  * authored or edited the doc). Maintained by the document-writer capability
  * runner on the daemon — the editor UI reads it to show "Written by …" pills.
+ *
+ * `archivedAt` is a soft-delete timestamp (milliseconds). When non-null the
+ * row is hidden from default listings but preserved on disk so it can be
+ * restored. The "Delete document" UX archives via this column instead of a
+ * hard DELETE.
  */
 export const documentsTable = customTable('documents', {
   name: text('name').notNull().default('Untitled'),
   content: text('content').notNull().default('{"type":"doc","content":[]}'),
   references: text('references').notNull().default('[]'),
+  archivedAt: integer('archived_at'),
 });

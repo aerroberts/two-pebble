@@ -68,8 +68,8 @@ export function DocumentEditorPage() {
               variant="secondary"
             />
             <IconButton
-              aria-label="Delete document"
-              icon="trash-2"
+              aria-label="Archive document"
+              icon="archive"
               onClick={() => void state.deleteDocument()}
               type="button"
               variant="secondary"

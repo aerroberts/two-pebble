@@ -309,6 +309,13 @@
       "when": 1782244800000,
       "tag": "0043_document_references",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "6",
+      "when": 1782417600000,
+      "tag": "0045_documents_archive",
+      "breakpoints": true
     }
   ]
 }

@@ -197,6 +197,7 @@ export interface DocumentRecord {
   name: string;
   content: string;
   references: string;
+  archivedAt: number | null;
 }
 
 export interface WorktreeRecord {
