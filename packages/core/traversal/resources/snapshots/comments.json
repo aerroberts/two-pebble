@@ -15,9 +15,9 @@
     "token": "block-comment",
     "commentContent": "Runs the example service.\nNormalizes caller input.",
     "path": "src/services/example-service.ts",
-    "line": 11,
-    "startLine": 11,
-    "endLine": 14
+    "line": 13,
+    "startLine": 13,
+    "endLine": 16
   },
   {
     "type": "token:block-comment",

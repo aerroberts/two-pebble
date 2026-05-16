@@ -1,22 +1,38 @@
 {
   "exclude": [
     {
-      "rules": ["@rule/structure"],
-      "paths": ["src/pages/assistant/assistant.page.tsx"],
+      "rules": [
+        "@rule/structure"
+      ],
+      "paths": [
+        "src/pages/assistant/assistant.page.tsx"
+      ],
       "justification": "Assistant page currently owns the chat surface and launch affordances; split after CI is enforcing the baseline."
     },
     {
-      "rules": ["@rule/structure", "@rule/indent"],
-      "paths": ["src/pages/task-board/use-task-board-page-state.ts"],
+      "rules": [
+        "@rule/structure",
+        "@rule/indent"
+      ],
+      "paths": [
+        "src/pages/task-board/use-task-board-page-state.ts"
+      ],
       "justification": "Task board page state still owns multi-step state orchestration; keep the current behavior stable while CI begins enforcing the rest of the repo."
     },
     {
-      "rules": ["@rule/structure", "@rule/typescript-function-shape"],
-      "paths": ["src/pages/agent-detail/use-agent-detail-page-state.ts"],
+      "rules": [
+        "@rule/structure",
+        "@rule/typescript-function-shape"
+      ],
+      "paths": [
+        "src/pages/agent-detail/use-agent-detail-page-state.ts"
+      ],
       "justification": "Agent detail state still has legacy optional inputs and a large reducer-like flow that should be split separately from CI enablement."
     },
     {
-      "rules": ["@rule/typescript-function-shape"],
+      "rules": [
+        "@rule/typescript-function-shape"
+      ],
       "paths": [
         "src/pages/assistant/use-assistant-page-state.ts",
         "src/pages/automations/automation-format.ts",
@@ -25,7 +41,9 @@
       "justification": "Assistant page state exposes a legacy optional branch; preserve behavior while introducing CI enforcement."
     },
     {
-      "rules": ["@rule/react-exported-component"],
+      "rules": [
+        "@rule/react-exported-component"
+      ],
       "paths": [
         "src/pages/assistant/assistant-direct-input.tsx",
         "src/shared/agents/agent-registry-icon.tsx"
@@ -33,7 +51,9 @@
       "justification": "These exported component names predate the filename rule; renaming them is a follow-up because imports span page and shared UI code."
     },
     {
-      "rules": ["@rule/react-jsx-style"],
+      "rules": [
+        "@rule/react-jsx-style"
+      ],
       "paths": [
         "src/App.tsx",
         "src/layouts/assistant-command-k.tsx",
@@ -74,7 +94,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -84,7 +107,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -94,7 +120,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/*/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -104,7 +133,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/accessor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -114,7 +146,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/accessor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -124,7 +159,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/*/accessor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -134,7 +172,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/constructor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -144,7 +185,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/constructor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -154,7 +198,10 @@
         },
         {
           "find": "src/**/*.ts/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -164,7 +211,10 @@
         },
         {
           "find": "src/**/*.ts/export/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -174,7 +224,10 @@
         },
         {
           "find": "src/**/*.ts/const/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -184,7 +237,10 @@
         },
         {
           "find": "src/**/*.ts/export/const/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -194,7 +250,10 @@
         },
         {
           "find": "src/**/*.ts/**/block/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -204,7 +263,10 @@
         },
         {
           "find": "src/**/*.ts/**/block/const/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -214,7 +276,10 @@
         },
         {
           "find": "src/**/*.ts/**/if",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -224,7 +289,10 @@
         },
         {
           "find": "src/**/*.ts/**/try",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -234,7 +302,10 @@
         },
         {
           "find": "src/**/*.ts/**/catch",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -244,7 +315,10 @@
         },
         {
           "find": "src/**/*.ts/**/class",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -261,7 +335,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -278,7 +355,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/public/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -295,7 +375,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/static/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -312,7 +395,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/public/static/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -328,8 +414,120 @@
           ]
         },
         {
+          "find": "src/**/*.test.ts",
+          "traverse": [
+            {
+              "find": [
+                "import",
+                "describe",
+                "block-comment",
+                "line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Test files may only contain imports and top-level describe blocks."
+            },
+            {
+              "find": [
+                "**/class",
+                "**/function",
+                "**/interface",
+                "**/type"
+              ],
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Test files must not define nested support declarations."
+            }
+          ],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ]
+        },
+        {
+          "find": "src/**/index.ts",
+          "traverse": [
+            {
+              "find": [
+                "import",
+                "re-export",
+                "block-comment",
+                "line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Index files may only import and re-export modules."
+            }
+          ],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ]
+        },
+        {
+          "find": "src/**/types.ts",
+          "traverse": [
+            {
+              "find": [
+                "import",
+                "re-export",
+                "interface",
+                "type",
+                "export/interface",
+                "export/type",
+                "block-comment",
+                "line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Types files may only contain imports, type contracts, and re-exports."
+            }
+          ],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ]
+        },
+        {
+          "find": [
+            "src/**/*.ts/class",
+            "src/**/*.ts/export/class"
+          ],
+          "exclude": [
+            "**/*.test.ts",
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
+          "traverse": [
+            {
+              "find": [
+                "$siblings/import",
+                "$siblings/class",
+                "$siblings/export/class",
+                "$siblings/block-comment",
+                "$siblings/line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Class files may only contain imports and classes."
+            }
+          ]
+        },
+        {
           "find": "src/**/*.ts/class",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "matchesFileName": true
           },
@@ -337,7 +535,10 @@
         },
         {
           "find": "src/**/*.ts/export/class",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "matchesFileName": true
           },
@@ -345,7 +546,10 @@
         },
         {
           "find": "src/**/*.ts/class/**/static",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "exists": false
           },
@@ -353,30 +557,16 @@
         },
         {
           "find": "src/**/*.ts/export/class/**/static",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "exists": false
           },
           "recommendation": "Exported class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly."
         }
       ]
-    },
-    "@rule/top-level-definitions": {
-      "files": {
-        "classFile": {
-          "allowedTopLevelStatements": ["import", "class"]
-        },
-        "testFile": {
-          "allowedTopLevelStatements": ["import", "describe"],
-          "bannedNestedDefinitions": ["class", "function", "interface", "type"]
-        },
-        "indexFile": {
-          "allowedTopLevelStatements": ["import", "export"]
-        },
-        "typesFile": {
-          "allowedTopLevelStatements": ["import", "export", "interface", "type"]
-        }
-      }
     },
     "@rule/class-name": {
       "classNamePattern": "^[A-Z][A-Za-z0-9]*$",
@@ -398,7 +588,12 @@
       "allowReExportOnlyFiles": false
     },
     "@rule/typescript-type-safety": {
-      "forbiddenSyntax": ["any", "unknown", "satisfies", "globalThis"]
+      "forbiddenSyntax": [
+        "any",
+        "unknown",
+        "satisfies",
+        "globalThis"
+      ]
     },
     "@rule/typescript-function-shape": {
       "maxFunctionParameters": 3,
@@ -419,23 +614,42 @@
       "allowNestedDescribe": false
     },
     "@rule/test-case-structure": {
-      "testCallNames": ["test", "it"],
+      "testCallNames": [
+        "test",
+        "it"
+      ],
       "requiredDescribeDepth": 1,
-      "allowedTestNamePrefixes": ["happy: ", "unhappy: ", "snapshot: "],
+      "allowedTestNamePrefixes": [
+        "happy: ",
+        "unhappy: ",
+        "snapshot: "
+      ],
       "maxTestLines": 12
     },
     "@rule/test-hook": {
-      "bannedHookNames": ["beforeEach", "afterEach", "beforeAll", "afterAll"]
+      "bannedHookNames": [
+        "beforeEach",
+        "afterEach",
+        "beforeAll",
+        "afterAll"
+      ]
     },
     "@rule/test-mock": {
-      "bannedMockNames": ["mock", "spy", "spyOn"]
+      "bannedMockNames": [
+        "mock",
+        "spy",
+        "spyOn"
+      ]
     },
     "@rule/react-exported-component": {
       "maxExportedFunctions": 1,
       "enforceFileNameMatch": true
     },
     "@rule/react-jsx-style": {
-      "bannedJsxAttributes": ["className", "style"]
+      "bannedJsxAttributes": [
+        "className",
+        "style"
+      ]
     },
     "@rule/react-function-parameter": {
       "allowDestructuredFunctionParameters": false

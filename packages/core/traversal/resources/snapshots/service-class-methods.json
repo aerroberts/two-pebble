@@ -6,9 +6,9 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 7,
-    "startLine": 7,
-    "endLine": 9
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
   },
   {
     "type": "token:function",
@@ -17,9 +17,9 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 17
+    "line": 17,
+    "startLine": 17,
+    "endLine": 19
   },
   {
     "type": "token:function",
@@ -28,8 +28,8 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 19,
-    "startLine": 19,
-    "endLine": 21
+    "line": 21,
+    "startLine": 21,
+    "endLine": 23
   }
 ]

@@ -34,6 +34,11 @@ export class CodeTraversal {
     return new TraversalFinder(index).resolveRoot(query).map((id) => this.node(id));
   }
 
+  public async invertSiblings(nodes: TraversalNode[]) {
+    const index = await this.ensureIndex();
+    return new TraversalFinder(index).invertSiblings(nodes.map((node) => node.debugId())).map((id) => this.node(id));
+  }
+
   public async findFrom(id: string, query: string) {
     const index = await this.ensureIndex();
     return new TraversalFinder(index).resolveFrom(id, query).map((nodeId) => this.node(nodeId));

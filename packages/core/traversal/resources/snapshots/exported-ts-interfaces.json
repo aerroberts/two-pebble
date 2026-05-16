@@ -22,8 +22,8 @@
     "name": "ExampleServiceInput",
     "token": "interface",
     "path": "src/services/example-service.ts",
-    "line": 24,
-    "startLine": 24,
-    "endLine": 26
+    "line": 26,
+    "startLine": 26,
+    "endLine": 28
   }
 ]

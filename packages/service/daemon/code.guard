@@ -2,34 +2,48 @@
   "inherit": "@group/guardrails-typescript",
   "exclude": [
     {
-      "rules": ["@rule/structure", "@rule/typescript-type-safety", "@rule/typescript-function-shape"],
-      "paths": ["src/services/agent-registry-service.ts"],
+      "rules": [
+        "@rule/structure",
+        "@rule/typescript-type-safety",
+        "@rule/typescript-function-shape"
+      ],
+      "paths": [
+        "src/services/agent-registry-service.ts"
+      ],
       "justification": "Agent registry service is existing orchestration code with broad persistence and launch contracts; refactor separately after CI is active."
     },
     {
-      "rules": ["@rule/structure"],
-      "paths": ["src/services/task-board-service.ts"],
+      "rules": [
+        "@rule/structure"
+      ],
+      "paths": [
+        "src/services/task-board-service.ts"
+      ],
       "justification": "Task board service already exceeds the package length target; split it in a behavior-preserving follow-up."
     },
     {
       "rules": [
-        "@rule/top-level-definitions",
         "@rule/class-name",
         "@rule/structure",
         "@rule/typescript-function-shape",
         "@rule/typescript-variable-type"
       ],
-      "paths": ["src/services/task-dispatcher/task-dispatcher.ts"],
+      "paths": [
+        "src/services/task-dispatcher/task-dispatcher.ts"
+      ],
       "justification": "Task dispatcher is legacy scheduling orchestration with static helpers and local contract shapes; preserve it while CI starts enforcing new changes."
     },
     {
-      "rules": ["@rule/top-level-definitions", "@rule/structure"],
-      "paths": ["src/services/agent-naming/daemon-agent-naming-runner.ts"],
+      "rules": [
+        "@rule/structure"
+      ],
+      "paths": [
+        "src/services/agent-naming/daemon-agent-naming-runner.ts"
+      ],
       "justification": "Agent naming runner mixes local helpers with its class boundary today; extract helpers and docs in a focused follow-up."
     },
     {
       "rules": [
-        "@rule/top-level-definitions",
         "@rule/class-name",
         "@rule/structure",
         "@rule/typescript-type-safety",
@@ -66,8 +80,14 @@
         {
           "match": "src/handlers/*.handler.ts",
           "type": "must-be-file",
-          "contains": ["export function handler(ctx: DaemonHandlerContext) {", "return async function wrappedHandler("],
-          "excludes": ["ctx.bridge", "bridge.emit"],
+          "contains": [
+            "export function handler(ctx: DaemonHandlerContext) {",
+            "return async function wrappedHandler("
+          ],
+          "excludes": [
+            "ctx.bridge",
+            "bridge.emit"
+          ],
           "recommendation": "Each handler exports a handler which wraps the actual handler function for consistent error handling and logging. State changes must broadcast through ctx.multicastBridge.emit so every connected UI sees the mutation — handlers must not call ctx.bridge.emit or any other per-client bridge emit, because the caller is often a one-shot CLI client and other UIs would never receive the event."
         },
         {

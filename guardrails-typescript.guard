@@ -23,7 +23,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -33,7 +36,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -43,7 +49,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/*/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -53,7 +62,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/accessor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -63,7 +75,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/accessor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -73,7 +88,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/*/accessor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -83,7 +101,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/constructor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -93,7 +114,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/*/constructor",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -103,7 +127,10 @@
         },
         {
           "find": "src/**/*.ts/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -113,7 +140,10 @@
         },
         {
           "find": "src/**/*.ts/export/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -123,7 +153,10 @@
         },
         {
           "find": "src/**/*.ts/const/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -133,7 +166,10 @@
         },
         {
           "find": "src/**/*.ts/export/const/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -143,7 +179,10 @@
         },
         {
           "find": "src/**/*.ts/**/block/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -153,7 +192,10 @@
         },
         {
           "find": "src/**/*.ts/**/block/const/function",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 200
@@ -163,7 +205,10 @@
         },
         {
           "find": "src/**/*.ts/**/if",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -173,7 +218,10 @@
         },
         {
           "find": "src/**/*.ts/**/try",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -183,7 +231,10 @@
         },
         {
           "find": "src/**/*.ts/**/catch",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "lines": {
               "max": 80
@@ -193,7 +244,10 @@
         },
         {
           "find": "src/**/*.ts/**/class",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -210,7 +264,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -227,7 +284,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/public/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -244,7 +304,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/static/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -261,7 +324,10 @@
         },
         {
           "find": "src/**/*.ts/**/class/public/static/function",
-          "exclude": ["**/fixtures/**", "**/snapshots/**"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
           "traverse": [
             {
               "find": "$prev-sibling",
@@ -277,8 +343,120 @@
           ]
         },
         {
+          "find": "src/**/*.test.ts",
+          "traverse": [
+            {
+              "find": [
+                "import",
+                "describe",
+                "block-comment",
+                "line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Test files may only contain imports and top-level describe blocks."
+            },
+            {
+              "find": [
+                "**/class",
+                "**/function",
+                "**/interface",
+                "**/type"
+              ],
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Test files must not define nested support declarations."
+            }
+          ],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ]
+        },
+        {
+          "find": "src/**/index.ts",
+          "traverse": [
+            {
+              "find": [
+                "import",
+                "re-export",
+                "block-comment",
+                "line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Index files may only import and re-export modules."
+            }
+          ],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ]
+        },
+        {
+          "find": "src/**/types.ts",
+          "traverse": [
+            {
+              "find": [
+                "import",
+                "re-export",
+                "interface",
+                "type",
+                "export/interface",
+                "export/type",
+                "block-comment",
+                "line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Types files may only contain imports, type contracts, and re-exports."
+            }
+          ],
+          "exclude": [
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ]
+        },
+        {
+          "find": [
+            "src/**/*.ts/class",
+            "src/**/*.ts/export/class"
+          ],
+          "exclude": [
+            "**/*.test.ts",
+            "**/fixtures/**",
+            "**/snapshots/**"
+          ],
+          "traverse": [
+            {
+              "find": [
+                "$siblings/import",
+                "$siblings/class",
+                "$siblings/export/class",
+                "$siblings/block-comment",
+                "$siblings/line-comment"
+              ],
+              "invert": true,
+              "assert": {
+                "exists": false
+              },
+              "recommendation": "Class files may only contain imports and classes."
+            }
+          ]
+        },
+        {
           "find": "src/**/*.ts/class",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "matchesFileName": true
           },
@@ -286,7 +464,10 @@
         },
         {
           "find": "src/**/*.ts/export/class",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "matchesFileName": true
           },
@@ -294,7 +475,10 @@
         },
         {
           "find": "src/**/*.ts/class/**/static",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "exists": false
           },
@@ -302,49 +486,16 @@
         },
         {
           "find": "src/**/*.ts/export/class/**/static",
-          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "exclude": [
+            "**/fixtures/**",
+            "**/*.test.ts"
+          ],
           "assert": {
             "exists": false
           },
           "recommendation": "Exported class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly."
         }
       ]
-    },
-    "@rule/top-level-definitions": {
-      "files": {
-        "classFile": {
-          "allowedTopLevelStatements": [
-            "import",
-            "class"
-          ]
-        },
-        "testFile": {
-          "allowedTopLevelStatements": [
-            "import",
-            "describe"
-          ],
-          "bannedNestedDefinitions": [
-            "class",
-            "function",
-            "interface",
-            "type"
-          ]
-        },
-        "indexFile": {
-          "allowedTopLevelStatements": [
-            "import",
-            "export"
-          ]
-        },
-        "typesFile": {
-          "allowedTopLevelStatements": [
-            "import",
-            "export",
-            "interface",
-            "type"
-          ]
-        }
-      }
     },
     "@rule/class-name": {
       "classNamePattern": "^[A-Z][A-Za-z0-9]*$",

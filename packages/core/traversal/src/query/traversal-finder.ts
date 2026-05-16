@@ -18,7 +18,26 @@ export class TraversalFinder {
       const sibling = this.previousSibling(id);
       return sibling ? this.resolveSyntax(sibling, query.slice('$prev-sibling/'.length)) : [];
     }
+    if (query === '$siblings') {
+      return this.siblings(id);
+    }
+    if (query.startsWith('$siblings/')) {
+      return this.matchCurrentSegments(this.siblings(id), this.segments(query.slice('$siblings/'.length)));
+    }
     return this.resolveSyntax(id, query);
+  }
+
+  public invertSiblings(ids: string[]) {
+    const originals = new Set(ids.map((id) => this.siblingGroupMemberId(id)));
+    const parentIds = new Set(
+      [...originals].flatMap((id) => {
+        const parentId = this.index.record(id).parentId;
+        return parentId ? [parentId] : [];
+      }),
+    );
+    return [...parentIds].flatMap((parentId) => {
+      return this.index.record(parentId).childIds.filter((childId) => !originals.has(childId));
+    });
   }
 
   private resolveSyntax(id: string, syntaxPattern: string) {
@@ -44,16 +63,49 @@ export class TraversalFinder {
     return this.matchSegments(candidates, rest);
   }
 
+  private matchCurrentSegments(ids: string[], segments: string[]): string[] {
+    if (segments.length === 0) {
+      return ids;
+    }
+
+    const [segment, ...rest] = segments;
+    if (segment === '**') {
+      const candidates = ids.flatMap((id) => [id, ...this.descendantIds(id)]);
+      return this.matchCurrentSegments(candidates, rest);
+    }
+
+    const candidates = ids.filter((id) => this.matchesSegment(this.index.record(id), segment ?? ''));
+    return this.matchSegments(candidates, rest);
+  }
+
   private previousSibling(id: string): string | undefined {
-    const record = this.index.record(id);
+    const record = this.index.record(this.siblingGroupMemberId(id));
     const parent = record.parentId ? this.index.record(record.parentId) : undefined;
     const siblings = parent?.childIds ?? [];
-    const index = siblings.indexOf(id);
-    if (index > 0) {
-      return siblings[index - 1];
+    const siblingIndex = siblings.indexOf(record.id);
+    if (siblingIndex > 0) {
+      return siblings[siblingIndex - 1];
     }
 
     return parent && this.unwrapPreviousSibling(parent) ? this.previousSibling(parent.id) : undefined;
+  }
+
+  private siblings(id: string) {
+    const record = this.index.record(this.siblingGroupMemberId(id));
+    const parent = record.parentId ? this.index.record(record.parentId) : undefined;
+    return parent?.childIds ?? [];
+  }
+
+  private siblingGroupMemberId(id: string): string {
+    let record = this.index.record(id);
+    while (record.parentId) {
+      const parent = this.index.record(record.parentId);
+      if (!this.unwrapPreviousSibling(parent)) {
+        break;
+      }
+      record = parent;
+    }
+    return record.id;
   }
 
   private unwrapPreviousSibling(record: TraversalNodeRecord | undefined) {

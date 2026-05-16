@@ -6,8 +6,8 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 17
+    "line": 17,
+    "startLine": 17,
+    "endLine": 19
   }
 ]

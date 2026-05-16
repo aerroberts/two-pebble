@@ -59,6 +59,18 @@ export class TypeScriptTranslator {
         childIds: [],
       });
     }
+    if (ts.isExportDeclaration(statement)) {
+      return this.createTokenRecord(records, {
+        sourceFile,
+        node: statement,
+        token: 're-export',
+        name: 're-export',
+        childIds: [],
+      });
+    }
+    if (this.isTopLevelDescribe(statement)) {
+      return this.describeRecord(sourceFile, statement, records);
+    }
     if (ts.isIfStatement(statement)) {
       return this.ifRecord(sourceFile, statement, records);
     }
@@ -121,6 +133,24 @@ export class TypeScriptTranslator {
         childIds: [],
       });
     }
+    if (ts.isTypeAliasDeclaration(node)) {
+      return this.createTokenRecord(records, {
+        sourceFile,
+        node,
+        token: 'type',
+        name: node.name.text,
+        childIds: [],
+      });
+    }
+    if (ts.isEnumDeclaration(node)) {
+      return this.createTokenRecord(records, {
+        sourceFile,
+        node,
+        token: 'enum',
+        name: node.name.text,
+        childIds: [],
+      });
+    }
     if (ts.isVariableStatement(node)) {
       const declaration = node.declarationList.declarations[0];
       const name = declaration?.name.getText(sourceFile) ?? 'const';
@@ -148,14 +178,14 @@ export class TypeScriptTranslator {
         this.parametersRecord(sourceFile, node, records).id,
         ...this.blockRecord(sourceFile, node.body, records),
       ];
-      const constructor = this.createTokenRecord(records, {
+      const constructorRecord = this.createTokenRecord(records, {
         sourceFile,
         node,
         token: 'constructor',
         name: 'constructor',
         childIds: children,
       });
-      return this.wrapClassMemberModifiers(sourceFile, node, constructor, records);
+      return this.wrapClassMemberModifiers(sourceFile, node, constructorRecord, records);
     }
     if (ts.isPropertyDeclaration(node)) {
       const property = this.createTokenRecord(records, {
@@ -184,6 +214,31 @@ export class TypeScriptTranslator {
     }
 
     return undefined;
+  }
+
+  private describeRecord(
+    sourceFile: ts.SourceFile,
+    node: ts.ExpressionStatement,
+    records: TraversalNodeRecord[],
+  ): TraversalNodeRecord {
+    const expression = node.expression;
+    const children = ts.isCallExpression(expression) ? this.describeChildRecords(sourceFile, expression, records) : [];
+    return this.createTokenRecord(records, {
+      sourceFile,
+      node,
+      token: 'describe',
+      name: 'describe',
+      childIds: children,
+    });
+  }
+
+  private describeChildRecords(sourceFile: ts.SourceFile, node: ts.CallExpression, records: TraversalNodeRecord[]) {
+    const callback = node.arguments.find((argument) => this.isFunctionLike(argument));
+    if (!callback || !('body' in callback)) {
+      return [];
+    }
+
+    return ts.isBlock(callback.body) ? this.blockRecord(sourceFile, callback.body, records) : [];
   }
 
   private ifRecord(
@@ -349,11 +404,7 @@ export class TypeScriptTranslator {
     });
   }
 
-  private parametersRecord(
-    sourceFile: ts.SourceFile,
-    node: ParameterOwnerNode,
-    records: TraversalNodeRecord[],
-  ) {
+  private parametersRecord(sourceFile: ts.SourceFile, node: ParameterOwnerNode, records: TraversalNodeRecord[]) {
     const childIds = this.parameterRecords(sourceFile, node.parameters, records);
     const range = this.parameterListRange(sourceFile, node);
     return this.createTokenRecord(records, {
@@ -367,10 +418,7 @@ export class TypeScriptTranslator {
     });
   }
 
-  private parameterListRange(
-    sourceFile: ts.SourceFile,
-    node: ParameterOwnerNode,
-  ) {
+  private parameterListRange(sourceFile: ts.SourceFile, node: ParameterOwnerNode) {
     if (node.parameters.length > 0) {
       const first = node.parameters[0];
       const last = node.parameters[node.parameters.length - 1];
@@ -587,6 +635,15 @@ export class TypeScriptTranslator {
     return (
       ts.canHaveModifiers(node) &&
       (ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword) ?? false)
+    );
+  }
+
+  private isTopLevelDescribe(statement: ts.Statement): statement is ts.ExpressionStatement {
+    return (
+      ts.isExpressionStatement(statement) &&
+      ts.isCallExpression(statement.expression) &&
+      ts.isIdentifier(statement.expression.expression) &&
+      statement.expression.expression.text === 'describe'
     );
   }
 

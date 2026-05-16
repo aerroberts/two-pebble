@@ -5,6 +5,7 @@ import { structureDiagnosticSummary } from './structure-diagnostic-summary';
 import {
   excludedStructureRuleConfig,
   passingStructureRuleConfig,
+  topLevelStructureRuleConfig,
   traversalPropertyStructureRuleConfig,
 } from './structure-rule-test-config';
 
@@ -34,6 +35,28 @@ describe('feature: structure rule', () => {
     );
 
     expect(result.passed).toBe(true);
+  });
+
+  test('happy: supports inverted sibling groups for top-level file policies', async () => {
+    const result = await new Controller().run(
+      resolve(import.meta.dirname, 'fixtures/top-level-pass'),
+      topLevelStructureRuleConfig(),
+    );
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('unhappy: reports inverted sibling group violations', async () => {
+    const root = resolve(import.meta.dirname, 'fixtures/top-level-fail');
+    const result = await new Controller().run(root, topLevelStructureRuleConfig());
+    const diagnostics = result.results.flatMap((entry) => entry.diagnostics);
+
+    expect(structureDiagnosticSummary(root, diagnostics)).toEqual([
+      { error: 'structure-assertion-failed', file: 'src/example.test.ts' },
+      { error: 'structure-assertion-failed', file: 'src/index.ts' },
+      { error: 'structure-assertion-failed', file: 'src/types.ts' },
+      { error: 'structure-assertion-failed', file: 'src/example-class.ts' },
+    ]);
   });
 
   test('unhappy: reports failed filesystem and AST assertions', async () => {

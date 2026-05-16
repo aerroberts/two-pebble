@@ -41,7 +41,7 @@ export class TraversalTreeBuilder {
     }
 
     return {
-      version: 2,
+      version: 3,
       rootHash: this.context.rootHash,
       rootId,
       rootPath: this.context.rootPath,

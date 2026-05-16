@@ -2,23 +2,41 @@
   "inherit": "@group/guardrails-typescript",
   "exclude": [
     {
-      "rules": ["@rule/structure"],
-      "paths": ["src/agent/agents/pebble-agent.ts"],
+      "rules": [
+        "@rule/structure"
+      ],
+      "paths": [
+        "src/agent/agents/pebble-agent.ts"
+      ],
       "justification": "PebbleAgent is long and will continue to be long"
     },
     {
-      "rules": ["@rule/top-level-definitions", "@rule/structure"],
-      "paths": ["src/capabilities/agent-naming/agent-naming-capability.ts"],
+      "rules": [
+        "@rule/structure"
+      ],
+      "paths": [
+        "src/capabilities/agent-naming/agent-naming-capability.ts"
+      ],
       "justification": "Agent naming capability keeps a local helper beside the class today; extract and document it separately from CI enablement."
     },
     {
-      "rules": ["@rule/structure", "@rule/indent"],
-      "paths": ["src/capabilities/task-board-access/task-board-access-capability.ts"],
+      "rules": [
+        "@rule/structure",
+        "@rule/indent"
+      ],
+      "paths": [
+        "src/capabilities/task-board-access/task-board-access-capability.ts"
+      ],
       "justification": "Task board access capability has existing nested response assembly that should be split in a focused follow-up."
     },
     {
-      "rules": ["@rule/indent", "@rule/typescript-function-shape"],
-      "paths": ["src/capabilities/task-lifecycle/task-lifecycle-capability.ts"],
+      "rules": [
+        "@rule/indent",
+        "@rule/typescript-function-shape"
+      ],
+      "paths": [
+        "src/capabilities/task-lifecycle/task-lifecycle-capability.ts"
+      ],
       "justification": "Task lifecycle capability currently exposes a complex operation signature; preserve the runtime contract while CI starts running."
     }
   ],
@@ -33,8 +51,13 @@
         {
           "match": "src/traces/agent-traces/*",
           "type": "must-be-file",
-          "allowedImports": ["../../thread", "../../thread/index"],
-          "contains": ["export interface PebbleAgent"],
+          "allowedImports": [
+            "../../thread",
+            "../../thread/index"
+          ],
+          "contains": [
+            "export interface PebbleAgent"
+          ],
           "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types."
         },
         {

@@ -417,16 +417,16 @@
     "path": "src/services/example-service.ts",
     "line": 4,
     "startLine": 4,
-    "endLine": 22
+    "endLine": 24
   },
   {
     "type": "token:export",
     "name": "export",
     "token": "export",
     "path": "src/services/example-service.ts",
-    "line": 24,
-    "startLine": 24,
-    "endLine": 26
+    "line": 26,
+    "startLine": 26,
+    "endLine": 28
   },
   {
     "type": "token:class",
@@ -435,7 +435,7 @@
     "path": "src/services/example-service.ts",
     "line": 4,
     "startLine": 4,
-    "endLine": 22
+    "endLine": 24
   },
   {
     "type": "token:public",
@@ -444,16 +444,16 @@
     "path": "src/services/example-service.ts",
     "line": 5,
     "startLine": 5,
-    "endLine": 5
+    "endLine": 7
   },
   {
     "type": "token:public",
     "name": "public",
     "token": "public",
     "path": "src/services/example-service.ts",
-    "line": 7,
-    "startLine": 7,
-    "endLine": 9
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
   },
   {
     "type": "token:block-comment",
@@ -461,27 +461,27 @@
     "token": "block-comment",
     "commentContent": "Runs the example service.\nNormalizes caller input.",
     "path": "src/services/example-service.ts",
-    "line": 11,
-    "startLine": 11,
-    "endLine": 14
+    "line": 13,
+    "startLine": 13,
+    "endLine": 16
   },
   {
     "type": "token:public",
     "name": "public",
     "token": "public",
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 17
+    "line": 17,
+    "startLine": 17,
+    "endLine": 19
   },
   {
     "type": "token:private",
     "name": "private",
     "token": "private",
     "path": "src/services/example-service.ts",
-    "line": 19,
-    "startLine": 19,
-    "endLine": 21
+    "line": 21,
+    "startLine": 21,
+    "endLine": 23
   },
   {
     "type": "token:constructor",
@@ -490,7 +490,7 @@
     "path": "src/services/example-service.ts",
     "line": 5,
     "startLine": 5,
-    "endLine": 5
+    "endLine": 7
   },
   {
     "type": "token:parameters",
@@ -505,6 +505,16 @@
     "type": "token:block",
     "name": "block",
     "token": "block",
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:parameter",
+    "name": "label",
+    "token": "parameter",
+    "destructured": false,
     "path": "src/services/example-service.ts",
     "line": 5,
     "startLine": 5,
@@ -515,9 +525,9 @@
     "name": "static",
     "token": "static",
     "path": "src/services/example-service.ts",
-    "line": 7,
-    "startLine": 7,
-    "endLine": 9
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
   },
   {
     "type": "token:function",
@@ -526,27 +536,27 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 7,
-    "startLine": 7,
-    "endLine": 9
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
   },
   {
     "type": "token:parameters",
     "name": "parameters",
     "token": "parameters",
     "path": "src/services/example-service.ts",
-    "line": 7,
-    "startLine": 7,
-    "endLine": 7
+    "line": 9,
+    "startLine": 9,
+    "endLine": 9
   },
   {
     "type": "token:block",
     "name": "block",
     "token": "block",
     "path": "src/services/example-service.ts",
-    "line": 7,
-    "startLine": 7,
-    "endLine": 9
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
   },
   {
     "type": "token:function",
@@ -555,27 +565,27 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 17
+    "line": 17,
+    "startLine": 17,
+    "endLine": 19
   },
   {
     "type": "token:parameters",
     "name": "parameters",
     "token": "parameters",
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 15
+    "line": 17,
+    "startLine": 17,
+    "endLine": 17
   },
   {
     "type": "token:block",
     "name": "block",
     "token": "block",
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 17
+    "line": 17,
+    "startLine": 17,
+    "endLine": 19
   },
   {
     "type": "token:parameter",
@@ -583,9 +593,9 @@
     "token": "parameter",
     "destructured": false,
     "path": "src/services/example-service.ts",
-    "line": 15,
-    "startLine": 15,
-    "endLine": 15
+    "line": 17,
+    "startLine": 17,
+    "endLine": 17
   },
   {
     "type": "token:function",
@@ -594,27 +604,27 @@
     "token": "function",
     "functionKind": "method",
     "path": "src/services/example-service.ts",
-    "line": 19,
-    "startLine": 19,
-    "endLine": 21
+    "line": 21,
+    "startLine": 21,
+    "endLine": 23
   },
   {
     "type": "token:parameters",
     "name": "parameters",
     "token": "parameters",
     "path": "src/services/example-service.ts",
-    "line": 19,
-    "startLine": 19,
-    "endLine": 19
+    "line": 21,
+    "startLine": 21,
+    "endLine": 21
   },
   {
     "type": "token:block",
     "name": "block",
     "token": "block",
     "path": "src/services/example-service.ts",
-    "line": 19,
-    "startLine": 19,
-    "endLine": 21
+    "line": 21,
+    "startLine": 21,
+    "endLine": 23
   },
   {
     "type": "token:parameter",
@@ -622,18 +632,18 @@
     "token": "parameter",
     "destructured": false,
     "path": "src/services/example-service.ts",
-    "line": 19,
-    "startLine": 19,
-    "endLine": 19
+    "line": 21,
+    "startLine": 21,
+    "endLine": 21
   },
   {
     "type": "token:interface",
     "name": "ExampleServiceInput",
     "token": "interface",
     "path": "src/services/example-service.ts",
-    "line": 24,
-    "startLine": 24,
-    "endLine": 26
+    "line": 26,
+    "startLine": 26,
+    "endLine": 28
   },
   {
     "type": "file",

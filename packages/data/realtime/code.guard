@@ -2,36 +2,49 @@
   "inherit": "@group/guardrails-typescript",
   "exclude": [
     {
-      "rules": ["@rule/structure"],
-      "paths": ["src/realtime-datastore.ts"],
+      "rules": [
+        "@rule/structure"
+      ],
+      "paths": [
+        "src/realtime-datastore.ts"
+      ],
       "justification": "RealtimeDatastore wires every state slice and is intentionally a single facade."
     },
     {
       "rules": [
-        "@rule/top-level-definitions",
         "@rule/structure",
         "@rule/typescript-type-safety",
         "@rule/typescript-function-shape"
       ],
-      "paths": ["src/testing/realtime-test-context.ts"],
+      "paths": [
+        "src/testing/realtime-test-context.ts"
+      ],
       "justification": "Realtime integration test context intentionally centralizes fake daemon and render helpers; split after CI guards the package."
     },
     {
       "rules": [
-        "@rule/top-level-definitions",
+        "@rule/structure",
         "@rule/test-describe-structure",
         "@rule/test-case-structure"
       ],
-      "paths": ["src/states/documents/listen.test.ts"],
+      "paths": [
+        "src/states/documents/listen.test.ts"
+      ],
       "justification": "Document listener tests predate the stricter test-file shape; keep coverage while enabling CI enforcement."
     },
     {
-      "rules": ["@rule/test-case-structure"],
-      "paths": ["src/states/app-settings/assistant-message.test.ts"],
+      "rules": [
+        "@rule/test-case-structure"
+      ],
+      "paths": [
+        "src/states/app-settings/assistant-message.test.ts"
+      ],
       "justification": "Assistant message integration tests need to seed registry, settings, and provider fetch before exercising the launch+relaunch flow; shrinking below maxTestLines would push that scaffolding into shared helpers in a separate pass."
     },
     {
-      "rules": ["@rule/typescript-function-shape"],
+      "rules": [
+        "@rule/typescript-function-shape"
+      ],
       "paths": [
         "src/operations/assistant.message.operation.ts",
         "src/operations/documents.list.operation.ts",
@@ -52,8 +65,12 @@
       "justification": "Assistant message and document/task-template operations expose existing protocol shapes with nullable agent lookups; normalize their signatures in a separate behavior-preserving pass."
     },
     {
-      "rules": ["@rule/typescript-function-shape"],
-      "paths": ["src/operations/documents.list.operation.ts"],
+      "rules": [
+        "@rule/typescript-function-shape"
+      ],
+      "paths": [
+        "src/operations/documents.list.operation.ts"
+      ],
       "justification": "Documents list operation has a default parameter in the current API wrapper; keep behavior stable for CI enablement."
     }
   ],

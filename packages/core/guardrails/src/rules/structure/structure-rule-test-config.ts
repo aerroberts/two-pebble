@@ -65,6 +65,74 @@ const excludedStructureRuleFind = [
   },
 ];
 
+const topLevelStructureRuleFind = [
+  {
+    find: 'src/**/*.test.ts',
+    traverse: [
+      {
+        find: ['import', 'describe', 'block-comment', 'line-comment'],
+        invert: true,
+        assert: { exists: false },
+        recommendation: 'Test files may only contain imports and top-level describe blocks.',
+      },
+      {
+        find: ['**/class', '**/function', '**/interface', '**/type'],
+        assert: { exists: false },
+        recommendation: 'Test files must not define nested support declarations.',
+      },
+    ],
+  },
+  {
+    find: 'src/**/index.ts',
+    traverse: [
+      {
+        find: ['import', 're-export', 'block-comment', 'line-comment'],
+        invert: true,
+        assert: { exists: false },
+        recommendation: 'Index files may only import and re-export modules.',
+      },
+    ],
+  },
+  {
+    find: 'src/**/types.ts',
+    traverse: [
+      {
+        find: [
+          'import',
+          're-export',
+          'interface',
+          'type',
+          'export/interface',
+          'export/type',
+          'block-comment',
+          'line-comment',
+        ],
+        invert: true,
+        assert: { exists: false },
+        recommendation: 'Types files may only contain imports, type contracts, and re-exports.',
+      },
+    ],
+  },
+  {
+    find: ['src/**/*.ts/class', 'src/**/*.ts/export/class'],
+    exclude: ['**/*.test.ts'],
+    traverse: [
+      {
+        find: [
+          '$siblings/import',
+          '$siblings/class',
+          '$siblings/export/class',
+          '$siblings/block-comment',
+          '$siblings/line-comment',
+        ],
+        invert: true,
+        assert: { exists: false },
+        recommendation: 'Class files may only contain imports and classes.',
+      },
+    ],
+  },
+];
+
 export function passingStructureRuleConfig() {
   return {
     additional: {
@@ -97,6 +165,16 @@ export function excludedStructureRuleConfig() {
     additional: {
       '@rule/structure': {
         find: excludedStructureRuleFind,
+      },
+    },
+  };
+}
+
+export function topLevelStructureRuleConfig() {
+  return {
+    additional: {
+      '@rule/structure': {
+        find: topLevelStructureRuleFind,
       },
     },
   };

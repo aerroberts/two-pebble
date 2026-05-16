@@ -10,7 +10,6 @@ import { Rule as TestConstOrderRule } from '../rules/test-const-order/rule';
 import { Rule as TestDescribeStructureRule } from '../rules/test-describe-structure/rule';
 import { Rule as TestHookRule } from '../rules/test-hook/rule';
 import { Rule as TestMockRule } from '../rules/test-mock/rule';
-import { Rule as TopLevelDefinitionsRule } from '../rules/top-level-definitions/rule';
 import { Rule as TypescriptFunctionShapeRule } from '../rules/typescript-function-shape/rule';
 import { Rule as TypescriptReExportOnlyFileRule } from '../rules/typescript-re-export-only-file/rule';
 import { Rule as TypescriptTypeSafetyRule } from '../rules/typescript-type-safety/rule';
@@ -57,10 +56,6 @@ export const rules: RuleRegistration[] = [
   {
     name: 'indent',
     create: (context) => new IndentRule(context),
-  },
-  {
-    name: 'top-level-definitions',
-    create: (context) => new TopLevelDefinitionsRule(context),
   },
   {
     name: 'typescript-re-export-only-file',

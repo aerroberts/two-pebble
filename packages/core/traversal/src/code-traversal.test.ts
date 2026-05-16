@@ -117,6 +117,16 @@ describe('feature: code traversal', () => {
     ]);
   });
 
+  test('happy: finds siblings and inverted sibling groups', async () => {
+    const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
+    const [exportedClass] = await traversal.find('commented.ts/export/class');
+    const allowed = await exportedClass?.find('$siblings/export/class');
+    const inverted = await traversal.invertSiblings(allowed ?? []);
+
+    expect(allowed?.map((node) => node.property('name'))).toEqual(['ExampleService']);
+    expect(inverted.map((node) => node.property('token'))).toEqual(['block-comment', 'export']);
+  });
+
   test('happy: distinguishes arrow functions from declarations', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
 

@@ -9,12 +9,13 @@ export interface StructureConfig extends RuleConfig {
 }
 
 export interface StructureFindRuleConfig extends StructureRuleConfig {
-  find: string;
+  find: string | string[];
 }
 
 export interface StructureRuleConfig {
   assert?: StructureAssertConfig;
   exclude?: string[];
+  invert?: boolean;
   recommendation?: string;
   recommendations?: string;
   recomendations?: string;

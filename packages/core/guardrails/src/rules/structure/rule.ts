@@ -23,9 +23,9 @@ export class Rule extends Guardrail<StructureConfig> {
     });
 
     for (const rule of this.rootRules()) {
-      const nodes = this.withoutExcludedNodes(await traversal.find(rule.find), rule);
+      const nodes = this.withoutExcludedNodes(await this.resolveRootNodes(traversal, rule), rule);
       this.checkAssertions(rule, nodes);
-      await this.checkTraverse(rule, nodes);
+      await this.checkTraverse(traversal, rule, nodes);
     }
   }
 
@@ -38,19 +38,58 @@ export class Rule extends Guardrail<StructureConfig> {
     return Object.entries(find).map(([pattern, rule]) => ({ ...rule, find: pattern }));
   }
 
-  private async checkTraverse(rule: StructureFindRuleConfig, nodes: TraversalNode[]) {
+  private async checkTraverse(traversal: CodeTraversal, rule: StructureFindRuleConfig, nodes: TraversalNode[]) {
     if (nodes.length === 0) {
       return;
     }
 
     for (const childRule of rule.traverse ?? []) {
       const childNodes = this.withoutExcludedNodes(
-        (await Promise.all(nodes.map((node) => node.find(childRule.find)))).flat(),
+        await this.resolveChildNodes(traversal, childRule, nodes),
         childRule,
       );
       this.checkAssertions(childRule, childNodes);
-      await this.checkTraverse(childRule, childNodes);
+      await this.checkTraverse(traversal, childRule, childNodes);
     }
+  }
+
+  private async resolveRootNodes(traversal: CodeTraversal, rule: StructureFindRuleConfig) {
+    const nodes = this.uniqueNodes(
+      (await Promise.all(this.findQueries(rule).map((query) => traversal.find(query)))).flat(),
+    );
+    return rule.invert ? traversal.invertSiblings(nodes) : nodes;
+  }
+
+  private async resolveChildNodes(traversal: CodeTraversal, rule: StructureFindRuleConfig, parents: TraversalNode[]) {
+    const childGroups = await Promise.all(
+      parents.map(async (parent) => {
+        const nodes = this.uniqueNodes(
+          (await Promise.all(this.findQueries(rule).map((query) => parent.find(query)))).flat(),
+        );
+        if (!rule.invert) {
+          return nodes;
+        }
+
+        return nodes.length > 0 ? traversal.invertSiblings(nodes) : parent.find('*');
+      }),
+    );
+    return this.uniqueNodes(childGroups.flat());
+  }
+
+  private findQueries(rule: StructureFindRuleConfig) {
+    return Array.isArray(rule.find) ? rule.find : [rule.find];
+  }
+
+  private uniqueNodes(nodes: TraversalNode[]) {
+    const seen = new Set<string>();
+    return nodes.filter((node) => {
+      const id = node.debugId();
+      if (seen.has(id)) {
+        return false;
+      }
+      seen.add(id);
+      return true;
+    });
   }
 
   private checkAssertions(rule: StructureRuleConfig, nodes: TraversalNode[]) {

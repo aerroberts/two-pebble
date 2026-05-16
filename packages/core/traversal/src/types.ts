@@ -11,6 +11,8 @@ export type TraversalTokenName =
   | 'catch'
   | 'const'
   | 'constructor'
+  | 'describe'
+  | 'enum'
   | 'export'
   | 'function'
   | 'import'
@@ -23,7 +25,9 @@ export type TraversalTokenName =
   | 'private'
   | 'protected'
   | 'public'
+  | 're-export'
   | 'static'
+  | 'type'
   | 'try';
 
 export type TraversalNodeType = 'file' | 'folder' | `token:${TraversalTokenName}`;

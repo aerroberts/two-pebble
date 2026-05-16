@@ -2,10 +2,12 @@
  * Coordinates example service work.
  */
 export class ExampleService {
-  public constructor() {}
+  public constructor(label: string) {
+    this.run(label);
+  }
 
   public static create() {
-    return new ExampleService();
+    return new ExampleService('example');
   }
 
   /**

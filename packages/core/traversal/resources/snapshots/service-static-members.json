@@ -4,8 +4,8 @@
     "name": "static",
     "token": "static",
     "path": "src/services/example-service.ts",
-    "line": 7,
-    "startLine": 7,
-    "endLine": 9
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
   }
 ]
