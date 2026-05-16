@@ -29,6 +29,7 @@ export function AgentDetailTraceView(props: AgentDetailTraceViewProps) {
           onThreadSnapshotClick={props.onThreadSnapshotClick}
           onWorktreeOpenClick={props.onWorktreeOpenClick}
           traces={props.agentTraces}
+          exhaustive
         />
       ) : null}
     </Section>
