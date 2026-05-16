@@ -1,13 +1,26 @@
 {
   "inherit": "@group/guardrails-typescript",
   "structure": [
-    // Every assert handler must itself live in its own file and every file in that directory must be an assert handler
+    // Guard files are comment JSON: keep package-local policy under `structure`, and inherit shared groups through `inherit`.
+    // Do not bring back legacy top-level `rules` or `exclude`; nested selectors own any filtering they need.
+    {
+      "find": "code.guard",
+      "asserts": {
+        "exists": true,
+        "type": "file"
+      }
+    },
+
+    // Assertion handlers are the guardrails extension points, so every module in src/asserts must be callable by the runner.
+    // Put one assertion per file and expose it through a single exported `validate` function.
     {
       "find": "src/asserts/*.ts",
       "asserts": {
-        "exists": true
+        "exists": true,
+        "type": "file"
       },
       "code": [
+        // The runner loads assertion modules by convention, so duplicate or renamed exported functions make the assertion unavailable.
         {
           "find": "export/function",
           "asserts": {
