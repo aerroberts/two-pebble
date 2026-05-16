@@ -21,6 +21,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "glob-fs": "^0.1.7",
     "tinyglobby": "0.2.15",
     "typescript": "6.0.2"
   }

@@ -1,92 +1,79 @@
-import { statSync } from 'node:fs';
-import { dirname, isAbsolute, join } from 'node:path';
-import { TraversalCache } from './cache/traversal-cache';
-import { TraversalFinder } from './query/traversal-finder';
-import { TraversalIndex } from './query/traversal-index';
-import { TraversalProperties } from './query/traversal-properties';
-import { TraversalSnapshotRenderer } from './query/traversal-snapshot-renderer';
-import { TraversalNode } from './traversal-node';
-import { TraversalTreeBuilder } from './tree/traversal-tree-builder';
-import type { CodeTraversalInput, TraversalCacheLike, TraversalPropertyValue } from './types';
-import { normalizeTraversalPath } from './utils/path';
+import { glob } from 'node:fs/promises';
+import { WorkspaceFileParser } from './ast/code-ast';
+import { traverse } from './ast/traverse';
+import { WorkspaceNode } from './ast/workspace-node';
+import { TraversalResultSet } from './result-set';
 
 /**
- * Provides cached filesystem and AST lookup operations for one absolute root path.
- */
+ * Exposes a way to run a "find" scoped operation against a codebase
+ * This is expressed in the format of a file glob followed by # and then an ast query
+ *
+ **/
+
 export class CodeTraversal {
-  private readonly rootPath: string;
-  private readonly cache: TraversalCacheLike;
-  private readonly properties = new TraversalProperties();
-  private index?: TraversalIndex;
+  // Where this traversal is rooted in the file tree
+  public readonly rootPath: string;
+  private readonly fileParser: WorkspaceFileParser;
 
-  public constructor(input: string | CodeTraversalInput) {
-    const rootPath = typeof input === 'string' ? input : input.rootPath;
-    if (!isAbsolute(rootPath)) {
-      throw new Error(`CodeTraversal requires an absolute path: ${rootPath}`);
+  /**
+   * Creates a traversal rooted at an absolute file or folder path.
+   */
+  public constructor(root: string) {
+    this.rootPath = root;
+    this.fileParser = new WorkspaceFileParser();
+  }
+
+  /**
+   * Runs the given query (or queries) against the codebase and returns a resultant set of nodes.
+   * Accepts a single query string or an array of strings whose results are merged.
+   */
+  public async find(query: string | string[]) {
+    const queries = Array.isArray(query) ? query : [query];
+    const results = new TraversalResultSet();
+    for (const single of queries) {
+      results.merge(await this.runQuery(single));
+    }
+    return results;
+  }
+
+  private async runQuery(query: string) {
+    const [fileQuery, astQuery] = query.split('#');
+
+    // First get all the matching files using glob matching pattern
+    // This results in a set of files which we can then do a further AST query against if required
+    const globResult = await this.filesForGlob(fileQuery);
+
+    // If we dont have an ast query, we can just return the files ResultSet
+    if (!astQuery) {
+      return globResult.resultSet;
     }
 
-    this.rootPath = normalizeTraversalPath(rootPath);
-    this.cache =
-      typeof input === 'string'
-        ? this.defaultCache(this.rootPath)
-        : (input.cache ?? this.defaultCache(this.rootPath, input.cacheDirectory));
-  }
-
-  public async find(query: string) {
-    const index = await this.ensureIndex();
-    return new TraversalFinder(index).resolveRoot(query).map((id) => this.node(id));
-  }
-
-  public async invertSiblings(nodes: TraversalNode[]) {
-    const index = await this.ensureIndex();
-    return new TraversalFinder(index).invertSiblings(nodes.map((node) => node.debugId())).map((id) => this.node(id));
-  }
-
-  public async findFrom(id: string, query: string) {
-    const index = await this.ensureIndex();
-    return new TraversalFinder(index).resolveFrom(id, query).map((nodeId) => this.node(nodeId));
-  }
-
-  public invalidate(options?: { disk?: boolean }) {
-    this.index = undefined;
-    this.cache.invalidate(options);
-  }
-
-  public property(id: string, name: string): TraversalPropertyValue {
-    if (!this.index) {
-      throw new Error('Traversal properties are only available after find has loaded the tree.');
+    // If we do have an ast query, we need to run it on each node.
+    const fileAstResults = new TraversalResultSet();
+    for (const filePath of globResult.fileNames) {
+      const fileAstResult = await this.resolveQueryInFile(filePath, astQuery);
+      fileAstResults.merge(fileAstResult);
     }
-
-    return this.properties.read(this.index.record(id), name);
+    return fileAstResults;
   }
 
-  public async renderForSnapshot() {
-    const index = await this.ensureIndex();
-    return new TraversalSnapshotRenderer(index).render();
-  }
-
-  private async ensureIndex() {
-    if (this.index) {
-      return this.index;
+  private async filesForGlob(globPattern: string) {
+    const files = await glob(globPattern);
+    const resultSet = new TraversalResultSet();
+    const fileNames: string[] = [];
+    for await (const filePath of files) {
+      resultSet.add(
+        new WorkspaceNode('file').withData({
+          path: filePath,
+        }),
+      );
+      fileNames.push(filePath);
     }
-
-    const tree = await this.cache.expand((context) => new TraversalTreeBuilder(context).build());
-    this.index = new TraversalIndex(tree);
-    return this.index;
+    return { resultSet, fileNames };
   }
 
-  private defaultCache(
-    rootPath: string,
-    cacheDirectory = join(this.cacheRoot(rootPath), 'node_modules', '.cache', 'two-pebble-traversal'),
-  ) {
-    return new TraversalCache({ rootPath, cacheDirectory });
-  }
-
-  private cacheRoot(rootPath: string) {
-    return statSync(rootPath).isDirectory() ? rootPath : dirname(rootPath);
-  }
-
-  private node(id: string) {
-    return new TraversalNode(this, id);
+  private async resolveQueryInFile(filePath: string, query: string) {
+    const fileAst = await this.fileParser.readAst(filePath);
+    return traverse(query, fileAst);
   }
 }

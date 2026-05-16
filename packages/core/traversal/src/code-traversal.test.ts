@@ -1,260 +1,224 @@
-import { beforeEach, describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
-import { basename, isAbsolute, resolve } from 'node:path';
-import { CodeTraversal, TraversalCache, type TraversalTreeFactory } from '.';
-import { codeTraversalTestSupport } from './code-traversal-test-support';
+import { describe, expect, test } from 'bun:test';
+import { resolve } from 'node:path';
+import type { WorkspaceNode } from './ast/workspace-node';
+import { CodeTraversal } from './code-traversal';
+import type { TraversalResultSet } from './result-set';
 
 /**
  * Testing philosophy:
- * The tested code operates by taking in file tree of source files and exposing a clean
- * interface by which callers can traverse this tree and grab matching nodes.
- * The tests will demonstrate building a new traversal instance, and running find commands against
- * static test data, resulting in example snapshots saved to disk for inspection and
- * performing direct assertions about intended results
+ * The tested code takes a multi-file TypeScript fixture and exposes a glob+AST
+ * find interface. The tests build a CodeTraversal rooted at the fixture and run
+ * representative queries, asserting both the shape of the result set and the
+ * data on selected nodes.
  */
 
-/**
- * Exercises direct traversal queries against single-file AST fixtures.
- * Each test checks one contract so failures identify the broken behavior.
- */
-describe('feature: code traversal', () => {
-  let traversal: CodeTraversal;
+const fixtureRoot = resolve(import.meta.dirname, '../testing-resources/sample-project');
+const srcGlob = `${fixtureRoot}/src/**/*.ts`;
 
-  beforeEach(() => {
-    traversal = new CodeTraversal({
-      rootPath: codeTraversalTestSupport.snapshotRoot(),
-      cacheDirectory: codeTraversalTestSupport.cacheDirectory(),
-    });
+function toArray(results: TraversalResultSet): WorkspaceNode[] {
+  const collected: WorkspaceNode[] = [];
+  results.forEach((node) => {
+    collected.push(node);
+  });
+  return collected;
+}
+
+describe('feature: code traversal find', () => {
+  test('happy: globs every typescript file in the fixture project', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const results = await traversal.find(srcGlob);
+    const types = new Set(toArray(results).map((node) => node.type));
+
+    expect(results.length).toBe(7);
+    expect(types).toEqual(new Set(['file']));
   });
 
-  test('happy: resolves exported class metadata', async () => {
-    const classes = await traversal.find('commented.ts/export/class');
-    const [node] = classes;
+  test('happy: returns import nodes with module specifier metadata', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    expect({
-      count: classes.length,
-      endLine: node?.property('endLine'),
-      name: node?.property('name'),
-      startLine: node?.property('startLine'),
-      type: node?.property('type'),
-    }).toEqual({ count: 1, endLine: 14, name: 'ExampleService', startLine: 4, type: 'token:class' });
-  });
+    const results = await traversal.find(`${srcGlob}#import`);
+    const importSources = toArray(results)
+      .map((node) => node.getProperty('importingFrom').trim())
+      .sort();
 
-  test('happy: exposes file source metadata', async () => {
-    const [file] = await traversal.find('commented.ts');
-    const path = String(file?.property('path'));
-
-    expect({
-      isAbsolute: isAbsolute(path),
-      lines: file?.property('lines'),
-      path,
-    }).toEqual({ isAbsolute: true, lines: 19, path: codeTraversalTestSupport.commentedFile() });
-  });
-
-  test('happy: finds previous sibling comments', async () => {
-    const [node] = await traversal.find('commented.ts/export/class');
-
-    const previous = await node?.find('$prev-sibling');
-
-    expect(previous?.map((item) => item.property('token'))).toEqual(['block-comment']);
-  });
-
-  test('happy: exposes import module specifiers', async () => {
-    const imports = await traversal.find('module.ts/import');
-
-    expect(imports.map((node) => node.property('importPath'))).toEqual(['node:fs/promises']);
-  });
-
-  test('happy: exposes stripped comment content', async () => {
-    const comments = await traversal.find('commented.ts/block-comment');
-
-    expect(comments.map((node) => node.property('commentContent'))).toEqual([
-      'Creates an example service used by traversal snapshots.',
+    expect(importSources).toEqual([
+      "'../types/user-record'",
+      "'node:crypto'",
+      "'node:fs/promises'",
+      "'node:fs/promises'",
+      "'node:util'",
     ]);
   });
 
-  test('happy: finds the first top-level node after imports', async () => {
-    const [file] = await traversal.find('module.ts');
+  test('happy: finds exported classes across folders', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    const nodes = await file?.find('$after-imports');
+    const results = await traversal.find(`${srcGlob}#export/class`);
+    const classNames = toArray(results)
+      .map((node) => node.getProperty('name'))
+      .sort();
 
-    expect(nodes?.map((node) => [node.property('token'), node.property('name')])).toEqual([['export', 'export']]);
+    expect(classNames).toEqual(['SessionService', 'UserService']);
   });
 
-  test('happy: finds inside the first top-level node after imports', async () => {
-    const [file] = await traversal.find('module.ts');
+  test('happy: finds exported functions including const-bound arrows', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    const constants = await file?.find('$after-imports/const');
+    const directResults = await traversal.find(`${srcGlob}#export/function`);
+    const constResults = await traversal.find(`${srcGlob}#export/const/function`);
+    const names = [...toArray(directResults), ...toArray(constResults)].map((node) => node.getProperty('name')).sort();
 
-    expect(constants?.map((node) => [node.property('token'), node.property('name')])).toEqual([['const', 'mode']]);
+    expect(names).toEqual(['formatDebug', 'formatLabel', 'loadJson']);
   });
 
-  test('happy: finds selected siblings', async () => {
-    const [node] = await traversal.find('commented.ts/export/class');
+  test('happy: finds exported interfaces and type aliases', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    const allowed = await node?.find('$siblings/export/class');
+    const interfaces = await traversal.find(`${srcGlob}#export/interface`);
+    const types = await traversal.find(`${srcGlob}#export/type`);
+    const interfaceNames = toArray(interfaces)
+      .map((node) => node.getProperty('name'))
+      .sort();
+    const typeNames = toArray(types).map((node) => node.getProperty('name'));
 
-    expect(allowed?.map((item) => item.property('name'))).toEqual(['ExampleService']);
+    expect({ interfaceNames, typeNames }).toEqual({
+      interfaceNames: ['UserRecord', 'UserServiceOptions'],
+      typeNames: ['UserId'],
+    });
   });
 
-  test('happy: inverts sibling selections', async () => {
-    const [node] = await traversal.find('commented.ts/export/class');
-    const allowed = await node?.find('$siblings/export/class');
+  test('happy: walks into class members through public and private modifiers', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    const inverted = await traversal.invertSiblings(allowed ?? []);
+    const publicMethods = await traversal.find(`${srcGlob}#export/class/public/function`);
+    const privateMethods = await traversal.find(`${srcGlob}#export/class/private/function`);
+    const publicNames = toArray(publicMethods)
+      .map((node) => node.getProperty('name'))
+      .sort();
+    const privateNames = toArray(privateMethods)
+      .map((node) => node.getProperty('name'))
+      .sort();
 
-    expect(inverted.map((item) => item.property('token'))).toEqual(['block-comment', 'export']);
+    expect({ publicNames, privateNames }).toEqual({
+      publicNames: ['describe', 'load', 'start'],
+      privateNames: ['normalize'],
+    });
   });
 
-  test('happy: classifies function kinds by function syntax', async () => {
-    const nodes = await traversal.find('nested-functions.ts/**/function');
-    const byName = new Map(nodes.map((node) => [node.property('name'), node.property('functionKind')]));
+  test('happy: finds static class members', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const results = await traversal.find(`${srcGlob}#export/class/public/static/function`);
+    const names = toArray(results).map((node) => node.getProperty('name'));
+
+    expect(names).toEqual(['create']);
+  });
+
+  test('happy: finds class constructors', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const results = await traversal.find(`${srcGlob}#export/class/public/constructor`);
+
+    expect(results.length).toBe(1);
+  });
+
+  test('happy: exposes function parameter trees', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const parameters = await traversal.find(`${srcGlob}#export/function/parameters/parameter`);
+    const names = toArray(parameters)
+      .map((node) => node.getProperty('name'))
+      .sort();
+
+    expect(names).toEqual(['path', 'value']);
+  });
+
+  test('happy: surfaces await expressions inside async functions', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const results = await traversal.find(`${srcGlob}#export/function/block/await`);
+
+    expect(results.length).toBe(1);
+  });
+
+  test('happy: marks async functions on the function node', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
+
+    const results = await traversal.find(`${srcGlob}#export/function`);
+    const byName = new Map(toArray(results).map((node) => [node.getProperty('name'), node.getProperty('async')]));
 
     expect(Object.fromEntries(byName)).toMatchObject({
-      arrowInsideFunction: 'arrow',
-      exportedArrow: 'arrow',
-      inner: 'declaration',
-      nestedArrow: 'arrow',
-      outer: 'declaration',
+      formatLabel: 'false',
+      loadJson: 'true',
     });
   });
 
-  test('happy: exposes async flags by function syntax', async () => {
-    const nodes = await traversal.find('nested-functions.ts/**/function');
-    const byName = new Map(nodes.map((node) => [node.property('name'), node.property('async')]));
+  test('happy: matches any single segment via a star wildcard', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    expect(Object.fromEntries(byName)).toMatchObject({ asyncArrow: true, asyncOuter: true });
+    const results = await traversal.find(`${srcGlob}#export/*`);
+    const tokens = toArray(results)
+      .map((node) => node.type)
+      .sort();
+
+    expect(tokens).toEqual([
+      'class',
+      'class',
+      'const',
+      'const',
+      'function',
+      'function',
+      'interface',
+      'interface',
+      'type',
+    ]);
   });
 
-  test('happy: exposes await expressions', async () => {
-    const awaits = await traversal.find('nested-functions.ts/**/await');
+  test('happy: combines wildcard with deeper segments', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    expect(awaits).toHaveLength(2);
+    const results = await traversal.find(`${srcGlob}#export/class/*/function`);
+    const names = toArray(results)
+      .map((node) => node.getProperty('name'))
+      .sort();
+
+    expect(names).toEqual(['describe', 'load', 'normalize', 'start']);
   });
 
-  test('happy: exposes destructured parameter trees', async () => {
-    const [parameters] = await traversal.find('component.tsx/export/function/parameters');
-    const nodes = await parameters?.find('parameter');
-    const bindings = await parameters?.find('**/parameter-binding');
+  test('happy: $before modifier finds the sibling immediately preceding a class', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    expect({
-      bindings: bindings?.map((node) => [node.property('name'), node.property('propertyName')]),
-      nodes: nodes?.map((node) => ({
-        destructured: node.property('destructured'),
-        name: node.property('name'),
-      })),
-      wrapper: {
-        name: parameters?.property('name'),
-        type: parameters?.property('type'),
-      },
-    }).toEqual({
-      bindings: [
-        ['title', 'title'],
-        ['children', 'children'],
-      ],
-      nodes: [{ destructured: true, name: '{ title, children }' }],
-      wrapper: { name: 'parameters', type: 'token:parameters' },
-    });
+    const results = await traversal.find(`${fixtureRoot}/src/**/siblings.ts#class$before`);
+    const summary = toArray(results).map((node) => ({ type: node.type, name: node.getProperty('name') }));
+
+    expect(summary).toEqual([{ type: 'function', name: 'siblingHelper' }]);
   });
 
-  test('unhappy: throws when a property is not valid for the node type', async () => {
-    const [node] = await traversal.find('commented.ts/export/class');
+  test('happy: $before modifier works with wildcard next-sibling type', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-    expect(() => node?.property('fileName')).toThrow('Property fileName is not valid for token node ExampleService.');
+    const results = await traversal.find(`${fixtureRoot}/src/**/siblings.ts#*$before`);
+    const tokens = toArray(results)
+      .map((node) => node.type)
+      .sort();
+
+    expect(tokens).toEqual(['class', 'const', 'function']);
   });
 
-  for (const file of codeTraversalTestSupport.snapshotSourceFiles()) {
-    test(`snapshot: translates ${basename(file)}`, async () => {
-      const traversal = new CodeTraversal({
-        rootPath: file,
-        cacheDirectory: codeTraversalTestSupport.cacheDirectory(),
-      });
-      const rendered = JSON.stringify(await traversal.renderForSnapshot(), null, 2);
-      const snapshot = readFileSync(`${file}.snapshot.json`, 'utf-8').trim();
+  test('happy: accepts an array of queries and merges their results', async () => {
+    const traversal = new CodeTraversal(fixtureRoot);
 
-      expect(rendered).toBe(snapshot);
-    });
-  }
-});
+    const results = await traversal.find([`${srcGlob}#export/class`, `${srcGlob}#export/interface`]);
+    const summary = toArray(results)
+      .map((node) => `${node.type}:${node.getProperty('name')}`)
+      .sort();
 
-/**
- * Locks complex find patterns against a directory-sized fixture corpus.
- * These snapshots make broad query semantics explicit and reviewable.
- */
-describe('feature: traversal find snapshots', () => {
-  for (const snapshot of codeTraversalTestSupport.findSnapshots) {
-    test(`snapshot: find ${snapshot.name}`, async () => {
-      const traversal = new CodeTraversal({
-        rootPath: codeTraversalTestSupport.findCorpusRoot(),
-        cacheDirectory: codeTraversalTestSupport.cacheDirectory(),
-      });
-      const nodes = await traversal.find(snapshot.query);
-      const rendered = JSON.stringify(
-        nodes.map((node) => codeTraversalTestSupport.nodeSummary(node)),
-        null,
-        2,
-      );
-      const expected = readFileSync(
-        resolve(codeTraversalTestSupport.findSnapshotRoot(), `${snapshot.name}.json`),
-        'utf-8',
-      ).trim();
-
-      expect(rendered).toBe(expected);
-    });
-  }
-});
-
-/**
- * Verifies traversal cache reuse and explicit invalidation behavior.
- * Cache tests guard the contract used by repeated structure queries.
- */
-describe('feature: traversal cache', () => {
-  test('happy: expands once and reuses the in-memory tree', async () => {
-    const cache = new TraversalCache({
-      rootPath: codeTraversalTestSupport.commentedFile(),
-      cacheDirectory: codeTraversalTestSupport.cacheDirectory(),
-    });
-    let calls = 0;
-    const factory: TraversalTreeFactory = async (context) => {
-      calls += 1;
-      return {
-        version: 1,
-        rootHash: context.rootHash,
-        rootId: 'node:0',
-        rootPath: context.rootPath,
-        pathIds: [[context.rootPath, 'node:0']],
-        records: [{ id: 'node:0', kind: 'folder', name: 'pass', path: context.rootPath, childIds: [] }],
-      };
-    };
-
-    await cache.expand(factory);
-    await cache.expand(factory);
-
-    expect(calls).toBe(1);
-  });
-
-  test('happy: invalidates in-memory cache and expands again', async () => {
-    const cache = new TraversalCache({
-      rootPath: codeTraversalTestSupport.commentedFile(),
-      cacheDirectory: codeTraversalTestSupport.cacheDirectory(),
-    });
-    let calls = 0;
-    const factory: TraversalTreeFactory = async (context) => {
-      calls += 1;
-      return {
-        version: 1,
-        rootHash: context.rootHash,
-        rootId: 'node:0',
-        rootPath: context.rootPath,
-        pathIds: [[context.rootPath, 'node:0']],
-        records: [{ id: 'node:0', kind: 'folder', name: 'pass', path: context.rootPath, childIds: [] }],
-      };
-    };
-
-    await cache.expand(factory);
-    cache.invalidate({ disk: true });
-    await cache.expand(factory);
-
-    expect(calls).toBe(2);
+    expect(summary).toEqual([
+      'class:SessionService',
+      'class:UserService',
+      'interface:UserRecord',
+      'interface:UserServiceOptions',
+    ]);
   });
 });
