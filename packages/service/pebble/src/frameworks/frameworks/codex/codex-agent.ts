@@ -55,8 +55,14 @@ export class CodexAgent extends ThirdPartyAgentFramework {
   public async submitMessage(input: AgentFrameworkSubmitMessageInput) {
     const wasIdle = !this.warm;
     this.warm = true;
-    this.emitStatusChange({ status: 'working' });
+    // Enqueue first, then announce 'working'. If we emit the status edge
+    // first, observers that synchronously react (FrameworkAgent emits a
+    // system-message trace and flips the durable status to running) can
+    // observe `running` with an empty pendingInputs queue, which makes
+    // the first user message look like it never launched the agent —
+    // the user retries and the "second" message appears to kick it.
     this.enqueueInput(this.cellsToPrompt(input.input, input.systemPrompt, !wasIdle));
+    this.emitStatusChange({ status: 'working' });
     if (wasIdle) {
       void this.runSession(input);
     }
