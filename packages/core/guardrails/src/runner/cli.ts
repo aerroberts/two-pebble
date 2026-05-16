@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { formatResults } from '../reporter';
 import type { GuardrailConfig } from '../types';
 import { Controller } from './controller';
+import { parseGuardConfig } from './guard-config-parser';
 
 const packageDir = process.cwd();
 const guardPath = resolve(packageDir, 'code.guard');
@@ -26,9 +27,9 @@ try {
 let config: GuardrailConfig;
 
 try {
-  config = JSON.parse(raw) as GuardrailConfig;
+  config = parseGuardConfig(raw);
 } catch {
-  process.stderr.write(`Could not parse ${guardPath} as JSON.\n`);
+  process.stderr.write(`Could not parse ${guardPath} as comment JSON.\n`);
   process.exit(1);
 }
 

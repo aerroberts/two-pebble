@@ -4,6 +4,7 @@ import { InvalidGuardrailConfigError, UnknownDefinitionError } from '../errors';
 import { StructureRunner } from '../structure/structure-runner';
 import type { GuardrailConfig } from '../types';
 import { validateGuardrailConfig } from './config-validator';
+import { parseGuardConfig } from './guard-config-parser';
 
 /**
  * Expands inherited structure config and runs it for one package.
@@ -76,9 +77,9 @@ export class Controller {
 
   private readGuardFile(path: string) {
     try {
-      return JSON.parse(readFileSync(path, 'utf-8')) as GuardrailConfig;
+      return parseGuardConfig(readFileSync(path, 'utf-8'));
     } catch {
-      throw new InvalidGuardrailConfigError(`Could not parse ${path} as JSON.`);
+      throw new InvalidGuardrailConfigError(`Could not parse ${path} as comment JSON.`);
     }
   }
 
