@@ -20,6 +20,22 @@
             }
           },
           "recommendation": "Move secondary UI behavior into focused components until the file has one clear responsibility and fits inside the configured limit."
+        },
+        {
+          "find": "src/**/*.ts/class",
+          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "assert": {
+            "matchesFileName": true
+          },
+          "recommendation": "Class names must match the dash-case file name so navigation is predictable without opening the file."
+        },
+        {
+          "find": "src/**/*.ts/export/class",
+          "exclude": ["**/fixtures/**", "**/*.test.ts"],
+          "assert": {
+            "matchesFileName": true
+          },
+          "recommendation": "Exported class names must match the dash-case file name so navigation is predictable without opening the file."
         }
       ]
     },

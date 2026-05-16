@@ -23,7 +23,7 @@ export class Rule extends Guardrail<StructureConfig> {
     });
 
     for (const rule of this.rootRules()) {
-      const nodes = this.withoutExcludedNodes(await traversal.find(rule.find));
+      const nodes = this.withoutExcludedNodes(await traversal.find(rule.find), rule);
       this.checkAssertions(rule, nodes);
       await this.checkTraverse(rule, nodes);
     }
@@ -42,6 +42,7 @@ export class Rule extends Guardrail<StructureConfig> {
     for (const childRule of rule.traverse ?? []) {
       const childNodes = this.withoutExcludedNodes(
         (await Promise.all(nodes.map((node) => node.find(childRule.find)))).flat(),
+        childRule,
       );
       this.checkAssertions(childRule, childNodes);
       await this.checkTraverse(childRule, childNodes);
@@ -88,20 +89,21 @@ export class Rule extends Guardrail<StructureConfig> {
     }
   }
 
-  private withoutExcludedNodes(nodes: TraversalNode[]) {
-    if (this.context.exclude.length === 0) {
+  private withoutExcludedNodes(nodes: TraversalNode[], rule: StructureRuleConfig) {
+    const excludes = [...this.context.exclude, ...(rule.exclude ?? [])];
+    if (excludes.length === 0) {
       return nodes;
     }
 
     return nodes.filter((node) => {
       const path = this.optionalProperty(node, 'path');
-      return !(typeof path === 'string' && this.excluded(path));
+      return !(typeof path === 'string' && this.excluded(path, excludes));
     });
   }
 
-  private excluded(path: string) {
+  private excluded(path: string, excludes: string[]) {
     const relativePath = relative(this.context.packageDir, path).replaceAll('\\', '/');
-    return this.context.exclude.some((excludePath) => this.matchesExclude(relativePath, excludePath));
+    return excludes.some((excludePath) => this.matchesExclude(relativePath, excludePath));
   }
 
   private matchesExclude(path: string, excludePath: string) {

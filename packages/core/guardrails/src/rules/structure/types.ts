@@ -14,6 +14,7 @@ export interface StructureFindRuleConfig extends StructureRuleConfig {
 
 export interface StructureRuleConfig {
   assert?: StructureAssertConfig;
+  exclude?: string[];
   recommendation?: string;
   recommendations?: string;
   recomendations?: string;
@@ -28,6 +29,7 @@ export interface StructureAssertConfig {
   importPath?: string | StructureStringAssertConfig;
   commentContent?: string | StructureStringAssertConfig;
   fileName?: string | StructureFileNameAssertConfig;
+  matchesFileName?: boolean;
   contains?: string | string[];
   missing?: string | string[];
   lines?: StructureRangeAssertConfig;

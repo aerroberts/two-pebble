@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { mkdtempSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join, relative, resolve } from 'node:path';
+import { basename, isAbsolute, join, relative, resolve } from 'node:path';
 import { CodeTraversal, TraversalCache, type TraversalTreeFactory } from '.';
 
 const findSnapshots = [
@@ -82,6 +82,8 @@ describe('feature: code traversal', () => {
     expect(classes).toHaveLength(1);
     expect(classes[0]?.property('name')).toBe('ExampleService');
     expect(classes[0]?.property('type')).toBe('token:class');
+    expect(isAbsolute(String(classes[0]?.property('path')))).toBe(true);
+    expect(classes[0]?.property('path')).toBe(commentedFile());
     expect(classes[0]?.property('startLine')).toBe(4);
     expect(classes[0]?.property('endLine')).toBe(8);
 
