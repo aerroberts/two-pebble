@@ -114,6 +114,10 @@ export function useAgentDetailPageState() {
     navigate(`/agents/${targetAgentId}`);
   };
 
+  const openAgentRegistry = (registryId: string) => {
+    navigate(`/configuration/agent-registries/${registryId}`);
+  };
+
   const openThreadSnapshot = (threadCursor: string) => {
     const path = threadSnapshotPath(threadCursor);
 
@@ -185,6 +189,7 @@ export function useAgentDetailPageState() {
     chatSending,
     loadingPriceLineItems,
     openAgent,
+    openAgentRegistry,
     openModelCall,
     openTask,
     openThreadSnapshot,
