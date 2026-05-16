@@ -1,12 +1,21 @@
 import { InvalidGuardrailConfigError } from '../errors';
+import { ASSERT_NAMES } from '../run-asserts';
 import type { CodeRule, GuardrailConfig, StructureRule } from '../types';
 
+const TOP_LEVEL_KEYS = new Set(['definition', 'inherit', 'structure']);
+const STRUCTURE_RULE_KEYS = new Set(['find', 'exclude', 'recommendation', 'asserts', 'code']);
+const CODE_RULE_KEYS = new Set(['find', 'exclude', 'recommendation', 'asserts']);
+const KNOWN_ASSERTS = new Set<string>(ASSERT_NAMES);
+
 /**
- * Validates a parsed guard config matches the structure-only schema.
+ * Validates a parsed guard config matches the structure-only schema. Rejects
+ * unknown top-level fields and unknown rule fields so misspellings like
+ * `assert` (instead of `asserts`) surface as errors rather than silent no-ops.
  */
 export function validateGuardrailConfig(config: GuardrailConfig) {
+  validateKnownKeys(config, TOP_LEVEL_KEYS, 'config', 'known fields');
   validateGroupReference(config.definition, 'definition');
-  validateGroupReference(config.inherit, 'inherit');
+  validateInherit(config.inherit);
 
   if (config.structure === undefined) {
     return;
@@ -21,19 +30,33 @@ export function validateGuardrailConfig(config: GuardrailConfig) {
   }
 }
 
-function validateGroupReference(value: string | undefined, field: string) {
+function validateGroupReference(value: unknown, field: string) {
   if (value === undefined) {
     return;
   }
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new InvalidGuardrailConfigError(`${field} must be a non-empty string.`);
   }
-  if (!value.startsWith('@group/')) {
-    throw new InvalidGuardrailConfigError(`${field} must start with @group/.`);
+}
+
+function validateInherit(value: unknown) {
+  if (value === undefined) {
+    return;
+  }
+  if (typeof value === 'string') {
+    validateGroupReference(value, 'inherit');
+    return;
+  }
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new InvalidGuardrailConfigError('inherit must be a non-empty string or array of strings.');
+  }
+  for (const [index, entry] of value.entries()) {
+    validateGroupReference(entry, `inherit[${index}]`);
   }
 }
 
 function validateStructureRule(rule: StructureRule, field: string) {
+  validateKnownKeys(rule, STRUCTURE_RULE_KEYS, field, 'structure rule fields');
   validateFind(rule, field);
   validateOptionalExclude(rule.exclude, field);
   validateOptionalRecommendation(rule.recommendation, field);
@@ -51,10 +74,24 @@ function validateStructureRule(rule: StructureRule, field: string) {
 }
 
 function validateCodeRule(rule: CodeRule, field: string) {
+  validateKnownKeys(rule, CODE_RULE_KEYS, field, 'code rule fields');
   validateFind(rule, field);
   validateOptionalExclude(rule.exclude, field);
   validateOptionalAsserts(rule.asserts, field);
   validateOptionalRecommendation(rule.recommendation, field);
+}
+
+function validateKnownKeys(value: unknown, allowed: Set<string>, field: string, label: string) {
+  if (value === null || typeof value !== 'object') {
+    return;
+  }
+  for (const key of Object.keys(value as object)) {
+    if (!allowed.has(key)) {
+      throw new InvalidGuardrailConfigError(
+        `${field} has unknown key "${key}". Allowed ${label}: ${[...allowed].join(', ')}.`,
+      );
+    }
+  }
 }
 
 function validateOptionalExclude(value: unknown, field: string) {
@@ -96,6 +133,13 @@ function validateOptionalAsserts(asserts: unknown, field: string) {
   }
   if (asserts === null || typeof asserts !== 'object' || Array.isArray(asserts)) {
     throw new InvalidGuardrailConfigError(`${field}.asserts must be an object when provided.`);
+  }
+  for (const key of Object.keys(asserts)) {
+    if (!KNOWN_ASSERTS.has(key)) {
+      throw new InvalidGuardrailConfigError(
+        `${field}.asserts has unknown assertion "${key}". Known assertions: ${[...KNOWN_ASSERTS].join(', ')}.`,
+      );
+    }
   }
 }
 

@@ -197,6 +197,72 @@ describe('feature: controller', () => {
     expect(result.results[1]?.passed).toBe(true);
   });
 
+  test('happy: content includes passes when every needle is in the file', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'present.ts must declare the present const.',
+          asserts: { content: { includes: ['export const present', '= true'] } },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('unhappy: content includes fails when a needle is missing', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'present.ts must mention TODO.',
+          asserts: { content: { includes: ['TODO: nothing here'] } },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(false);
+    expect(result.results[0]?.diagnostics[0]?.assertion).toBe('content');
+  });
+
+  test('happy: content lacks passes when no forbidden strings are present', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'present.ts must not contain debugger statements.',
+          asserts: { content: { lacks: ['debugger', 'console.log'] } },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('unhappy: content lacks fails when a forbidden string appears', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          recommendation: 'present.ts must not export anything.',
+          asserts: { content: { lacks: ['export const'] } },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(false);
+    expect(result.results[0]?.diagnostics[0]?.assertion).toBe('content');
+  });
+
   test('happy: failed assert recommendation stacks leading comments and recommendations top-down', async () => {
     const { parseGuardConfig } = await import('./guard-config-parser');
     const config = parseGuardConfig(`

@@ -7,47 +7,50 @@ other architectural rules that keep agent-generated code predictable.
 Use this package as a CLI from package scripts, or import the runner primitives
 when a tool needs to execute guardrails programmatically.
 
-## CLI
+## usage example
+
+Run the CLI from any workspace package that declares guardrails as a dev
+dependency:
 
 ```bash
 bun run guard
 ```
 
+Wire it into `package.json`:
+
 ```json
 {
   "scripts": {
-    "guard": "bunx guardrails"
+    "guard": "guardrails"
   }
 }
 ```
 
-## Programmatic Use
+Drive the runner programmatically when a tool needs more than the CLI:
 
-```ts
+```typescript
 import { Controller } from '@two-pebble/guardrails';
 
 const controller = new Controller();
 
 const result = await controller.run(process.cwd(), {
-  inherit: '@group/typescript',
+  inherit: 'guardrails-typescript',
 });
 
 console.log(result.passed);
 ```
 
-## Custom Rule Shape
+Author a new assertion by dropping a file in `src/asserts/` that exports a
+`validate` function and registering it in `src/run-asserts.ts`:
 
-```ts
-import { Guardrail } from '@two-pebble/guardrails';
+```typescript
+import type { WorkspaceNode } from '@two-pebble/traversal';
+import type { AssertOutcome } from '../types';
 
-export class MyRule extends Guardrail {
-  public async check() {
-    this.forEachFile((file) => {
-      this.getReporter(file).error({
-        message: 'Explain the specific convention being enforced.',
-        recommendation: 'Explain how to fix the file and why this matters.',
-      });
-    });
+export function validate(nodes: WorkspaceNode[], expected: string): AssertOutcome {
+  if (nodes.every((node) => node.type === expected)) {
+    return { passed: true };
   }
+  return { passed: false, description: `Expected every node to be ${expected}.` };
 }
 ```

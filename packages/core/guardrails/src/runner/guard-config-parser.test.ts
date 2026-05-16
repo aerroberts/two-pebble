@@ -22,6 +22,17 @@ describe('feature: guard config parser', () => {
     expect(config.structure).toEqual([]);
   });
 
+  test('happy: parses inherit as an array of definitions', () => {
+    const config = parseGuardConfig(`
+      {
+        "inherit": ["@group/guardrails-typescript", "@group/guardrails-tests"],
+        "structure": []
+      }
+    `);
+
+    expect(config.inherit).toEqual(['@group/guardrails-typescript', '@group/guardrails-tests']);
+  });
+
   test('happy: parses block comments between structure rules', () => {
     const config = parseGuardConfig(`
       {

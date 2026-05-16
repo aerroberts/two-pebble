@@ -1,5 +1,5 @@
 {
-  "definition": "@group/guardrails-typescript",
+  "definition": "guardrails-typescript",
   "structure": [
     // Index files are meant to be empty and only contain imports and re-exports.
     // They should not own any business logic and simply serve to layout how code is grouped together.
@@ -10,8 +10,8 @@
         {
           "find": ["interface", "type"],
           "asserts": {
-            "exists": false
-          }
+            "exists": false,
+          },
         },
 
         // If you find you are putting business logic, classes, function, ect in an index file then you should move them to a dedicated module file and re-export from the index file.
@@ -21,10 +21,10 @@
         {
           "find": ["class", "function"],
           "asserts": {
-            "exists": false
-          }
-        }
-      ]
+            "exists": false,
+          },
+        },
+      ],
     },
 
     // Code should be clear and readable, comments should be used throughout the codebase to describe functionality
@@ -39,11 +39,11 @@
           "asserts": {
             "type": "block-comment",
             "lines": {
-              "min": 3
-            }
-          }
-        }
-      ]
-    }
-  ]
+              "min": 3,
+            },
+          },
+        },
+      ],
+    },
+  ],
 }

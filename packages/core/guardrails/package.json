@@ -19,14 +19,15 @@
   "scripts": {
     "build": "tsc --project tsconfig.json --noEmit",
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
-    "guard": "bun run src/runner/cli.ts",
+    "guard": "guardrails",
     "lint": "biome check --write .",
-    "test": "find src -name '*.test.ts' -not -path '*/fixtures/*' -print0 | xargs -0 bun test",
-    "test:coverage": "find src -name '*.test.ts' -not -path '*/fixtures/*' -print0 | xargs -0 bun test --coverage",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@two-pebble/traversal": "workspace:*",
+    "jsonc-parser": "^3.3.1",
     "picocolors": "1.1.1",
     "tinyglobby": "0.2.15",
     "typescript": "6.0.2"

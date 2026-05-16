@@ -224,10 +224,22 @@ export class Controller {
   }
 
   private mergeInheritedConfig(packageDir: string, config: GuardrailConfig): GuardrailConfig {
-    const definition = config.inherit ? this.findDefinitionConfig(packageDir, config.inherit) : undefined;
+    const inherits = this.toInheritList(config.inherit);
+    const inheritedStructure: StructureRule[] = [];
+    for (const definition of inherits) {
+      const inherited = this.findDefinitionConfig(packageDir, definition);
+      inheritedStructure.push(...(inherited.structure ?? []));
+    }
     return {
-      structure: [...(definition?.structure ?? []), ...(config.structure ?? [])],
+      structure: [...inheritedStructure, ...(config.structure ?? [])],
     };
+  }
+
+  private toInheritList(value: string | string[] | undefined): string[] {
+    if (value === undefined) {
+      return [];
+    }
+    return Array.isArray(value) ? value : [value];
   }
 
   private findDefinitionConfig(packageDir: string, definition: string) {

@@ -4,7 +4,7 @@
  */
 export interface GuardrailConfig {
   definition?: string;
-  inherit?: string;
+  inherit?: string | string[];
   structure?: StructureRule[];
 }
 
@@ -44,6 +44,16 @@ export interface AssertConfig {
   named?: string;
   matches?: NumberRange;
   lines?: NumberRange;
+  content?: ContentAssert;
+}
+
+/**
+ * Raw-text assertion for file nodes. `includes` strings must all appear in the
+ * file's content; `lacks` strings must all be absent.
+ */
+export interface ContentAssert {
+  includes?: string[];
+  lacks?: string[];
 }
 
 /**

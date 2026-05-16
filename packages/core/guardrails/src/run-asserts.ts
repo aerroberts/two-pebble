@@ -1,4 +1,5 @@
 import type { WorkspaceNode } from '@two-pebble/traversal';
+import { validate as contentValidate } from './asserts/content';
 import { validate as existsValidate } from './asserts/exists';
 import { validate as linesValidate } from './asserts/lines';
 import { validate as matchesValidate } from './asserts/matches';
@@ -26,7 +27,14 @@ const REGISTRY: Registry = {
   named: namedValidate,
   matches: matchesValidate,
   lines: linesValidate,
+  content: contentValidate,
 };
+
+/**
+ * Names of every assertion the runner knows how to evaluate. Used by the
+ * config validator to reject misspelled or unsupported assert keys.
+ */
+export const ASSERT_NAMES = Object.keys(REGISTRY) as AssertName[];
 
 /**
  * Runs every assertion declared on a structure rule against its find result.
