@@ -5,6 +5,8 @@ import type { ReactNode } from 'react';
 import { Icon } from '../content/icon/icon';
 import { Status } from '../content/status/status';
 import { Duration } from '../data/duration/duration';
+import { formatAbsoluteTime } from '../data/duration/duration-utils';
+import { Tooltip } from '../providers/tooltip/tooltip-trigger';
 
 // Derive a literal-union icon name type from lucide's exported icon map so AgentTraceItem callers
 // pick from a known list (editor autocompletes, typos fail at compile time).
@@ -39,7 +41,9 @@ export function AgentTraceItem(props: AgentTraceItemProps) {
     <div className="flex w-full items-center gap-2">
       <div className="flex flex-1 items-center gap-3 min-w-0">
         <Icon name={props.icon} className="shrink-0 text-content-muted" />
-        <span className="truncate text-sm font-medium text-content capitalize">{props.title}</span>
+        <Tooltip content={formatAbsoluteTime(new Date(props.timestamp))}>
+          <span className="truncate text-sm font-medium text-content capitalize">{props.title}</span>
+        </Tooltip>
         {props.titleAction ? <span className="shrink-0">{props.titleAction}</span> : null}
       </div>
       <div className="flex items-center gap-2">
