@@ -1,22 +1,12 @@
-import { dirname, isAbsolute, join } from 'node:path';
-import type { TraversalFindParts, TraversalNodeRecord } from '../types';
+import type { TraversalNodeRecord } from '../types';
 import { matchesGlob } from '../utils/glob';
 import type { TraversalIndex } from './traversal-index';
 
 export class TraversalFinder {
-  public constructor(
-    private readonly index: TraversalIndex,
-    private readonly rootPath: string,
-  ) {}
+  public constructor(private readonly index: TraversalIndex) {}
 
   public resolveRoot(query: string) {
-    const parts = this.splitFind(query);
-    const pathIds = this.matchPaths(parts.pathPattern);
-    if (parts.syntaxPattern === undefined) {
-      return pathIds;
-    }
-
-    return pathIds.flatMap((id) => this.resolveSyntax(id, parts.syntaxPattern ?? ''));
+    return this.resolveSyntax(this.index.rootId(), query);
   }
 
   public resolveFrom(id: string, query: string) {
@@ -28,20 +18,11 @@ export class TraversalFinder {
       const sibling = this.previousSibling(id);
       return sibling ? this.resolveSyntax(sibling, query.slice('$prev-sibling/'.length)) : [];
     }
-    if (query.includes('::')) {
-      const parts = this.splitFind(query);
-      const base = this.baseDirectoryFor(id);
-      const pathIds = this.matchPaths(join(base, parts.pathPattern));
-      return parts.syntaxPattern === undefined
-        ? pathIds
-        : pathIds.flatMap((nodeId) => this.resolveSyntax(nodeId, parts.syntaxPattern ?? ''));
-    }
-
     return this.resolveSyntax(id, query);
   }
 
   private resolveSyntax(id: string, syntaxPattern: string) {
-    return this.matchSegments([id], syntaxPattern.split('/').filter(Boolean));
+    return this.matchSegments([id], this.segments(syntaxPattern));
   }
 
   private matchSegments(ids: string[], segments: string[]): string[] {
@@ -61,19 +42,6 @@ export class TraversalFinder {
         return this.matchesSegment(this.index.record(childId), segment ?? '');
       });
     return this.matchSegments(candidates, rest);
-  }
-
-  private matchPaths(pattern: string) {
-    const normalized = isAbsolute(pattern) ? pattern : join(this.rootPath, pattern);
-    return this.index
-      .entries()
-      .filter(([path]) => matchesGlob(path, normalized))
-      .map(([, id]) => id);
-  }
-
-  private splitFind(find: string): TraversalFindParts {
-    const [pathPattern, syntaxPattern] = find.split('::');
-    return { pathPattern: pathPattern ?? '', syntaxPattern };
   }
 
   private previousSibling(id: string): string | undefined {
@@ -101,14 +69,20 @@ export class TraversalFinder {
   }
 
   private matchesSegment(record: TraversalNodeRecord, segment: string) {
-    return segment === '*' || record.token === segment || record.kind === segment || record.name === segment;
+    return (
+      segment === '*' ||
+      record.token === segment ||
+      record.kind === segment ||
+      record.name === segment ||
+      matchesGlob(record.name, segment)
+    );
   }
 
-  private baseDirectoryFor(id: string) {
-    const record = this.index.record(id);
-    if (record.kind === 'folder') {
-      return record.path ?? this.rootPath;
-    }
-    return dirname(record.path ?? this.rootPath);
+  private segments(query: string) {
+    return this.normalizeRelativeQuery(query).split('/').filter(Boolean);
+  }
+
+  private normalizeRelativeQuery(query: string) {
+    return query.replace(/^\.\//, '');
   }
 }

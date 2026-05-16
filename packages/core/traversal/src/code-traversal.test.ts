@@ -8,16 +8,16 @@ const findSnapshots = [
   { name: 'all-src-paths', query: 'src/**/*' },
   { name: 'typescript-files', query: 'src/**/*.ts' },
   { name: 'tsx-files', query: 'src/**/*.tsx' },
-  { name: 'imports', query: 'src/**/*::import' },
-  { name: 'comments', query: 'src/**/*::block-comment' },
-  { name: 'awaits', query: 'src/**/*::**/await' },
-  { name: 'parameter-bindings', query: 'src/**/*.tsx::**/parameter-binding' },
-  { name: 'exported-ts-functions', query: 'src/**/*.ts::export/function' },
-  { name: 'exported-ts-interfaces', query: 'src/**/*.ts::export/interface' },
-  { name: 'exported-tsx-interfaces', query: 'src/**/*.tsx::export/interface' },
-  { name: 'service-class-methods', query: 'src/services/**/*.ts::export/class/**/function' },
-  { name: 'service-public-methods', query: 'src/services/**/*.ts::export/class/public/function' },
-  { name: 'service-private-methods', query: 'src/services/**/*.ts::export/class/private/function' },
+  { name: 'imports', query: 'src/**/import' },
+  { name: 'comments', query: 'src/**/block-comment' },
+  { name: 'awaits', query: 'src/**/await' },
+  { name: 'parameter-bindings', query: 'src/**/*.tsx/**/parameter-binding' },
+  { name: 'exported-ts-functions', query: 'src/**/*.ts/export/function' },
+  { name: 'exported-ts-interfaces', query: 'src/**/*.ts/export/interface' },
+  { name: 'exported-tsx-interfaces', query: 'src/**/*.tsx/export/interface' },
+  { name: 'service-class-methods', query: 'src/services/**/*.ts/export/class/**/function' },
+  { name: 'service-public-methods', query: 'src/services/**/*.ts/export/class/public/function' },
+  { name: 'service-private-methods', query: 'src/services/**/*.ts/export/class/private/function' },
 ] as const;
 
 function snapshotRoot() {
@@ -78,7 +78,7 @@ describe('feature: code traversal', () => {
   test('happy: finds AST nodes and exposes typed properties', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
 
-    const classes = await traversal.find('commented.ts::export/class');
+    const classes = await traversal.find('commented.ts/export/class');
     expect(classes).toHaveLength(1);
     expect(classes[0]?.property('name')).toBe('ExampleService');
     expect(classes[0]?.property('type')).toBe('token:class');
@@ -92,7 +92,7 @@ describe('feature: code traversal', () => {
   test('happy: exposes import module specifiers', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
 
-    const imports = await traversal.find('module.ts::import');
+    const imports = await traversal.find('module.ts/import');
 
     expect(imports.map((node) => node.property('importPath'))).toEqual(['node:fs/promises']);
   });
@@ -100,7 +100,7 @@ describe('feature: code traversal', () => {
   test('happy: exposes stripped comment content', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
 
-    const comments = await traversal.find('commented.ts::block-comment');
+    const comments = await traversal.find('commented.ts/block-comment');
 
     expect(comments.map((node) => node.property('commentContent'))).toEqual([
       'Creates an example service used by traversal snapshots.',
@@ -110,7 +110,7 @@ describe('feature: code traversal', () => {
   test('happy: distinguishes arrow functions from declarations', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
 
-    const functions = await traversal.find('nested-functions.ts::**/function');
+    const functions = await traversal.find('nested-functions.ts/**/function');
     const byName = new Map(functions.map((node) => [node.property('name'), node.property('functionKind')]));
 
     expect(byName.get('outer')).toBe('declaration');
@@ -123,9 +123,9 @@ describe('feature: code traversal', () => {
   test('happy: exposes async functions and await expressions', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
 
-    const functions = await traversal.find('nested-functions.ts::**/function');
+    const functions = await traversal.find('nested-functions.ts/**/function');
     const asyncByName = new Map(functions.map((node) => [node.property('name'), node.property('async')]));
-    const awaits = await traversal.find('nested-functions.ts::**/await');
+    const awaits = await traversal.find('nested-functions.ts/**/await');
 
     expect(asyncByName.get('asyncOuter')).toBe(true);
     expect(asyncByName.get('asyncArrow')).toBe(true);
@@ -135,7 +135,7 @@ describe('feature: code traversal', () => {
   test('happy: exposes a parameters node with one child per parameter', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
 
-    const [parameters] = await traversal.find('component.tsx::export/function/parameters');
+    const [parameters] = await traversal.find('component.tsx/export/function/parameters');
     const parameterNodes = await parameters?.find('parameter');
     const bindings = await parameters?.find('**/parameter-binding');
 
@@ -151,7 +151,7 @@ describe('feature: code traversal', () => {
 
   test('unhappy: throws when a property is not valid for the node type', async () => {
     const traversal = new CodeTraversal({ rootPath: snapshotRoot(), cacheDirectory: cacheDirectory() });
-    const [node] = await traversal.find('commented.ts::export/class');
+    const [node] = await traversal.find('commented.ts/export/class');
 
     expect(() => node?.property('fileName')).toThrow('Property fileName is not valid for token node ExampleService.');
   });

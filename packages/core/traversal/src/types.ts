@@ -112,11 +112,6 @@ export interface TraversalFileSnapshot {
   text: string;
 }
 
-export interface TraversalFindParts {
-  pathPattern: string;
-  syntaxPattern?: string;
-}
-
 export interface TraversalTokenNodeInput {
   sourceFile: ts.SourceFile;
   node: ts.Node;

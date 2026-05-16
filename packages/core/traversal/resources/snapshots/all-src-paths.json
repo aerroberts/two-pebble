@@ -11,16 +11,6 @@
   },
   {
     "type": "file",
-    "name": "async-repository.ts",
-    "path": "src/data/async-repository.ts"
-  },
-  {
-    "type": "file",
-    "name": "repository.ts",
-    "path": "src/data/repository.ts"
-  },
-  {
-    "type": "file",
     "name": "notes.md",
     "path": "src/notes.md"
   },
@@ -28,11 +18,6 @@
     "type": "folder",
     "name": "services",
     "path": "src/services"
-  },
-  {
-    "type": "file",
-    "name": "example-service.ts",
-    "path": "src/services/example-service.ts"
   },
   {
     "type": "file",
@@ -46,7 +31,524 @@
   },
   {
     "type": "file",
+    "name": "async-repository.ts",
+    "path": "src/data/async-repository.ts"
+  },
+  {
+    "type": "file",
+    "name": "repository.ts",
+    "path": "src/data/repository.ts"
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/data/async-repository.ts",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 3
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/data/async-repository.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 16
+  },
+  {
+    "type": "token:interface",
+    "name": "AsyncRepositoryOptions",
+    "token": "interface",
+    "path": "src/data/async-repository.ts",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 3
+  },
+  {
+    "type": "token:function",
+    "name": "readAsyncRepository",
+    "async": true,
+    "token": "function",
+    "functionKind": "declaration",
+    "path": "src/data/async-repository.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 16
+  },
+  {
+    "type": "token:parameters",
+    "name": "parameters",
+    "token": "parameters",
+    "path": "src/data/async-repository.ts",
+    "line": 6,
+    "startLine": 6,
+    "endLine": 7
+  },
+  {
+    "type": "token:block",
+    "name": "block",
+    "token": "block",
+    "path": "src/data/async-repository.ts",
+    "line": 8,
+    "startLine": 8,
+    "endLine": 16
+  },
+  {
+    "type": "token:parameter",
+    "name": "options",
+    "token": "parameter",
+    "destructured": false,
+    "path": "src/data/async-repository.ts",
+    "line": 6,
+    "startLine": 6,
+    "endLine": 6
+  },
+  {
+    "type": "token:parameter",
+    "name": "readText",
+    "token": "parameter",
+    "destructured": false,
+    "path": "src/data/async-repository.ts",
+    "line": 7,
+    "startLine": 7,
+    "endLine": 7
+  },
+  {
+    "type": "token:const",
+    "name": "contents",
+    "token": "const",
+    "path": "src/data/async-repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 9
+  },
+  {
+    "type": "token:const",
+    "name": "normalize",
+    "token": "const",
+    "path": "src/data/async-repository.ts",
+    "line": 10,
+    "startLine": 10,
+    "endLine": 13
+  },
+  {
+    "type": "token:await",
+    "name": "await",
+    "token": "await",
+    "path": "src/data/async-repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 9
+  },
+  {
+    "type": "token:function",
+    "name": "normalize",
+    "async": true,
+    "token": "function",
+    "functionKind": "arrow",
+    "path": "src/data/async-repository.ts",
+    "line": 10,
+    "startLine": 10,
+    "endLine": 13
+  },
+  {
+    "type": "token:parameters",
+    "name": "parameters",
+    "token": "parameters",
+    "path": "src/data/async-repository.ts",
+    "line": 10,
+    "startLine": 10,
+    "endLine": 10
+  },
+  {
+    "type": "token:block",
+    "name": "block",
+    "token": "block",
+    "path": "src/data/async-repository.ts",
+    "line": 10,
+    "startLine": 10,
+    "endLine": 13
+  },
+  {
+    "type": "token:parameter",
+    "name": "value",
+    "token": "parameter",
+    "destructured": false,
+    "path": "src/data/async-repository.ts",
+    "line": 10,
+    "startLine": 10,
+    "endLine": 10
+  },
+  {
+    "type": "token:const",
+    "name": "trimmed",
+    "token": "const",
+    "path": "src/data/async-repository.ts",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
+  },
+  {
+    "type": "token:await",
+    "name": "await",
+    "token": "await",
+    "path": "src/data/async-repository.ts",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
+  },
+  {
+    "type": "token:import",
+    "name": "import",
+    "token": "import",
+    "importPath": "node:fs/promises",
+    "path": "src/data/repository.ts",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 1
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/data/repository.ts",
+    "line": 3,
+    "startLine": 3,
+    "endLine": 3
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/data/repository.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/data/repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  },
+  {
+    "type": "token:const",
+    "name": "repositoryKind",
+    "token": "const",
+    "path": "src/data/repository.ts",
+    "line": 3,
+    "startLine": 3,
+    "endLine": 3
+  },
+  {
+    "type": "token:interface",
+    "name": "RepositoryOptions",
+    "token": "interface",
+    "path": "src/data/repository.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:function",
+    "name": "readRepository",
+    "async": false,
+    "token": "function",
+    "functionKind": "declaration",
+    "path": "src/data/repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  },
+  {
+    "type": "token:parameters",
+    "name": "parameters",
+    "token": "parameters",
+    "path": "src/data/repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 9
+  },
+  {
+    "type": "token:block",
+    "name": "block",
+    "token": "block",
+    "path": "src/data/repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  },
+  {
+    "type": "token:parameter",
+    "name": "options",
+    "token": "parameter",
+    "destructured": false,
+    "path": "src/data/repository.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 9
+  },
+  {
+    "type": "file",
+    "name": "example-service.ts",
+    "path": "src/services/example-service.ts"
+  },
+  {
+    "type": "token:block-comment",
+    "name": "block-comment",
+    "token": "block-comment",
+    "commentContent": "Coordinates example service work.",
+    "path": "src/services/example-service.ts",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 3
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/services/example-service.ts",
+    "line": 4,
+    "startLine": 4,
+    "endLine": 12
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/services/example-service.ts",
+    "line": 14,
+    "startLine": 14,
+    "endLine": 16
+  },
+  {
+    "type": "token:class",
+    "name": "ExampleService",
+    "token": "class",
+    "path": "src/services/example-service.ts",
+    "line": 4,
+    "startLine": 4,
+    "endLine": 12
+  },
+  {
+    "type": "token:public",
+    "name": "public",
+    "token": "public",
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:private",
+    "name": "private",
+    "token": "private",
+    "path": "src/services/example-service.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  },
+  {
+    "type": "token:function",
+    "name": "run",
+    "async": false,
+    "token": "function",
+    "functionKind": "method",
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:parameters",
+    "name": "parameters",
+    "token": "parameters",
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 5
+  },
+  {
+    "type": "token:block",
+    "name": "block",
+    "token": "block",
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 7
+  },
+  {
+    "type": "token:parameter",
+    "name": "input",
+    "token": "parameter",
+    "destructured": false,
+    "path": "src/services/example-service.ts",
+    "line": 5,
+    "startLine": 5,
+    "endLine": 5
+  },
+  {
+    "type": "token:function",
+    "name": "normalize",
+    "async": false,
+    "token": "function",
+    "functionKind": "method",
+    "path": "src/services/example-service.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  },
+  {
+    "type": "token:parameters",
+    "name": "parameters",
+    "token": "parameters",
+    "path": "src/services/example-service.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 9
+  },
+  {
+    "type": "token:block",
+    "name": "block",
+    "token": "block",
+    "path": "src/services/example-service.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 11
+  },
+  {
+    "type": "token:parameter",
+    "name": "input",
+    "token": "parameter",
+    "destructured": false,
+    "path": "src/services/example-service.ts",
+    "line": 9,
+    "startLine": 9,
+    "endLine": 9
+  },
+  {
+    "type": "token:interface",
+    "name": "ExampleServiceInput",
+    "token": "interface",
+    "path": "src/services/example-service.ts",
+    "line": 14,
+    "startLine": 14,
+    "endLine": 16
+  },
+  {
+    "type": "file",
     "name": "panel.tsx",
     "path": "src/ui/panel.tsx"
+  },
+  {
+    "type": "token:import",
+    "name": "import",
+    "token": "import",
+    "importPath": "react",
+    "path": "src/ui/panel.tsx",
+    "line": 1,
+    "startLine": 1,
+    "endLine": 1
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/ui/panel.tsx",
+    "line": 3,
+    "startLine": 3,
+    "endLine": 6
+  },
+  {
+    "type": "token:block-comment",
+    "name": "block-comment",
+    "token": "block-comment",
+    "commentContent": "Renders children with a title.",
+    "path": "src/ui/panel.tsx",
+    "line": 8,
+    "startLine": 8,
+    "endLine": 10
+  },
+  {
+    "type": "token:export",
+    "name": "export",
+    "token": "export",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 18
+  },
+  {
+    "type": "token:interface",
+    "name": "PanelProps",
+    "token": "interface",
+    "path": "src/ui/panel.tsx",
+    "line": 3,
+    "startLine": 3,
+    "endLine": 6
+  },
+  {
+    "type": "token:function",
+    "name": "Panel",
+    "async": false,
+    "token": "function",
+    "functionKind": "declaration",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 18
+  },
+  {
+    "type": "token:parameters",
+    "name": "parameters",
+    "token": "parameters",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
+  },
+  {
+    "type": "token:block",
+    "name": "block",
+    "token": "block",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 18
+  },
+  {
+    "type": "token:parameter",
+    "name": "{ title, children }",
+    "token": "parameter",
+    "destructured": true,
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
+  },
+  {
+    "type": "token:parameter-binding",
+    "name": "title",
+    "token": "parameter-binding",
+    "propertyName": "title",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
+  },
+  {
+    "type": "token:parameter-binding",
+    "name": "children",
+    "token": "parameter-binding",
+    "propertyName": "children",
+    "path": "src/ui/panel.tsx",
+    "line": 11,
+    "startLine": 11,
+    "endLine": 11
   }
 ]

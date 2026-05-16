@@ -31,12 +31,12 @@ export class CodeTraversal {
 
   public async find(query: string) {
     const index = await this.ensureIndex();
-    return new TraversalFinder(index, this.rootPath).resolveRoot(query).map((id) => this.node(id));
+    return new TraversalFinder(index).resolveRoot(query).map((id) => this.node(id));
   }
 
   public async findFrom(id: string, query: string) {
     const index = await this.ensureIndex();
-    return new TraversalFinder(index, this.rootPath).resolveFrom(id, query).map((nodeId) => this.node(nodeId));
+    return new TraversalFinder(index).resolveFrom(id, query).map((nodeId) => this.node(nodeId));
   }
 
   public invalidate(options?: { disk?: boolean }) {
