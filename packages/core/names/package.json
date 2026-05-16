@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json --noEmit",
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
-    "guard": "bunx guardrails",
+    "guard": "bun ../guardrails/bin/guardrails.mjs",
     "lint": "biome check --write .",
     "test": "echo 'No names tests configured'",
     "test:coverage": "echo 'No names tests configured'",

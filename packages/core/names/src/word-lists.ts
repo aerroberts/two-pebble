@@ -1,3 +1,8 @@
+/**
+ * Color and material terms used as the first segment of generated branch names.
+ * These words are intentionally short, lowercase, and filesystem-safe.
+ * Keep additions readable when joined with the other branch name segments.
+ */
 export const COLORS = [
   'silver',
   'golden',
@@ -41,6 +46,11 @@ export const COLORS = [
   'garnet',
 ];
 
+/**
+ * Descriptive terms used in both agent names and branch names.
+ * The list favors positive, concise words that stay readable in hyphenated identifiers.
+ * Keep entries lowercase and free of punctuation for shell-safe output.
+ */
 export const ADJECTIVES = [
   'large',
   'tiny',
@@ -98,6 +108,11 @@ export const ADJECTIVES = [
   'peppy',
 ];
 
+/**
+ * Human first names used as the second segment of generated agent names.
+ * Entries are lowercase so generated names are consistent across UI and daemon usage.
+ * Keep the list broad enough to reduce repeated names in active workspaces.
+ */
 export const HUMAN_NAMES = [
   'aaron',
   'alice',
@@ -206,6 +221,11 @@ export const HUMAN_NAMES = [
   'zara',
 ];
 
+/**
+ * Creature and mythology terms used as the final segment of generated branch names.
+ * These words provide memorable suffixes while staying lowercase and shell-safe.
+ * Keep additions short enough that generated branch names remain easy to scan.
+ */
 export const CREATURES = [
   'hamster',
   'otter',
