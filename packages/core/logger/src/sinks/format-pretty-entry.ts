@@ -16,6 +16,12 @@ const green = '\u001b[32m';
 const yellow = '\u001b[33m';
 const red = '\u001b[31m';
 
+/**
+ * Formats one logger entry for human-readable terminal output.
+ *
+ * The formatter keeps the same field order as structured logs while applying
+ * optional ANSI colors and compact context rendering for local diagnostics.
+ */
 export function formatPrettyEntry(entry: LoggerEntry, input: PrettyFormatInput): string {
   const app = colorize("two-pebble", gray, input);
   const timestamp = colorize(entry.timestamp, gray, input);
