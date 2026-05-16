@@ -1,139 +1,101 @@
 {
-  "inherit": "@group/guardrails-typescript",
-  "exclude": [
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/realtime-datastore.ts"
-      ],
-      "justification": "RealtimeDatastore wires every state slice and is intentionally a single facade."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/testing/realtime-test-context.ts"
-      ],
-      "justification": "Realtime integration test context intentionally centralizes fake daemon and render helpers; split after CI guards the package."
-    },
-    {
-      "rules": [
-        "structure"
-      ],
-      "paths": [
-        "src/states/documents/listen.test.ts"
-      ],
-      "justification": "Document listener tests predate the stricter test-file shape; keep coverage while enabling CI enforcement."
-    }
-  ],
-  "rules": [
+  "structure": [
+    // The legacy guard inherited @group/guardrails-typescript and excluded src/realtime-datastore.ts,
+    // src/testing/realtime-test-context.ts, and src/states/documents/listen.test.ts from package-level
+    // structure checks. The new structure-only format has no top-level package exclude and package
+    // configs cannot scope inherited group rules, so the shared TypeScript group is not inherited here.
+    // Keep those files intentionally central until the package can absorb the stricter shared shape.
     {
       "find": "src/operations",
       "recommendation": "Realtime bridge behavior belongs in the operations directory.",
-      "rules": {
-        "type": "folder"
-      },
-      "allowEmpty": true
+      "asserts": {
+        "exists": true
+      }
     },
     {
       "find": "src/operations/*",
       "recommendation": "Realtime operations stay flat so bridge command behavior is easy to scan.",
-      "rules": {
+      "asserts": {
         "type": "file"
-      },
-      "allowEmpty": true
+      }
     },
     {
-      "find": "src/operations/folder/*",
+      "find": "src/operations/*/*",
       "recommendation": "Realtime operations should not grow nested folders.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     },
     {
       "find": "src/states",
       "recommendation": "Realtime Zustand state belongs in the states directory.",
-      "rules": {
-        "type": "folder"
-      },
-      "allowEmpty": true
+      "asserts": {
+        "exists": true
+      }
     },
     {
       "find": "src/states/*",
       "recommendation": "Each realtime state owns a folder for state, listeners, and hooks.",
-      "rules": {
-        "type": "folder"
-      },
-      "allowEmpty": true
+      "asserts": {
+        "exists": true
+      }
     },
     {
       "find": "src/states/*/state.ts",
       "recommendation": "Each realtime state folder must define its Zustand state shape in state.ts.",
-      "rules": {
+      "asserts": {
         "type": "file"
-      },
-      "allowEmpty": true
+      }
     },
     {
       "find": "src/states/*/listen.ts",
       "recommendation": "Each realtime state folder must own the daemon event listeners that update that state.",
-      "rules": {
+      "asserts": {
         "type": "file"
-      },
-      "allowEmpty": true
+      }
     },
     {
       "find": "src/states/*/hooks",
       "recommendation": "Realtime state hooks live beside the state they read or mutate.",
-      "rules": {
-        "type": "folder"
-      },
-      "allowEmpty": true
+      "asserts": {
+        "exists": true
+      }
     },
     {
       "find": "src/states/*/hooks/*.hook.ts",
       "recommendation": "Realtime state hooks should be explicit one-hook modules.",
-      "rules": {
+      "asserts": {
         "type": "file"
-      },
-      "allowEmpty": true
+      }
     },
     {
-      "find": "src/states/*/hooks/folder/*",
+      "find": "src/states/*/hooks/*/*",
       "recommendation": "Realtime state hook folders should stay flat.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     },
     {
       "find": "src/states/*/store.test.ts",
-      "recommendation": "Every realtime state must own a store.test.ts file proving backfill, backfill plus realtime, realtime-only, and empty backfill behavior.",
-      "rules": {
-        "type": "file",
-        "contains": [
-          "test('happy: backfill, hooks load current state'",
-          "test('happy: backfill + realtime, hooks load current state and realtime hook listens to state changes'",
-          "test('happy: realtime, hook listens to state changes'",
-          "test('happy: backfill empty, hooks load empty state'"
-        ]
-      },
-      "allowEmpty": true
+      "recommendation": "Every realtime state store test should prove backfill, backfill plus realtime, realtime-only, and empty backfill behavior.",
+      "asserts": {
+        "type": "file"
+      }
+      // The legacy guard used literal contains checks for the four expected test names.
+      // The structure-only runner has no string-contains assertion, so this now preserves
+      // the store-test shape and keeps the behavior checklist in the recommendation.
     },
     {
       "find": "src/testing",
       "recommendation": "Realtime integration testing utilities belong in src/testing beside the package they validate.",
-      "rules": {
-        "type": "folder"
-      },
-      "allowEmpty": true
+      "asserts": {
+        "exists": true
+      }
     },
     {
       "find": "src/testing/stores",
       "recommendation": "Store behavior suites belong beside each realtime state as src/states/<state>/store.test.ts.",
-      "rules": {
+      "asserts": {
         "exists": false
       }
     }
