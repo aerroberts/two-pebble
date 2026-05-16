@@ -1,4 +1,3 @@
-import { Rule as ClassMemberOrderRule } from '../rules/class-member-order/rule';
 import { Rule as ClassNameRule } from '../rules/class-name/rule';
 import { Rule as ClassStaticMemberRule } from '../rules/class-static-member/rule';
 import { Rule as CodeStructureRule } from '../rules/code-structure/rule';
@@ -29,10 +28,6 @@ export const rules: RuleRegistration[] = [
   {
     name: 'documentation',
     create: (context) => new DocumentationRule(context),
-  },
-  {
-    name: 'class-member-order',
-    create: (context) => new ClassMemberOrderRule(context),
   },
   {
     name: 'class-static-member',

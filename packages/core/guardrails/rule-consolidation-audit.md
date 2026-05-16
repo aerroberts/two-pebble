@@ -12,7 +12,6 @@
 ## kept separate
 
 - `class-name`: class naming and filename matching is a class-specific AST concern.
-- `class-member-order`: class member ordering is a class-specific AST concern.
 - `class-static-member`: static member policy is a class-specific AST concern.
 - `react-exported-component`: React component export and filename policy is TSX-specific.
 - `react-jsx-style`: JSX attribute policy is TSX-specific.

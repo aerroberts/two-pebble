@@ -75,15 +75,6 @@
         }
       ]
     },
-    "@rule/class-member-order": {
-      "memberOrder": [
-        "fields",
-        "constructor",
-        "accessors",
-        "methods"
-      ],
-      "maxConstructors": 1
-    },
     "@rule/class-static-member": {
       "allowStaticMembers": false
     },
