@@ -49,12 +49,10 @@ export type DaemonOperationHandler<TName extends DaemonOperationName> = (
 ) => Promise<ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, TName>['response']>;
 
 export interface TwoPebbleDaemonInput {
-  databaseFilePath?: string;
-  databaseFilePathForPort?: (port: number) => string;
+  databaseFilePath: string;
   host: string;
   logFilePath: string;
   port: number;
-  portRange?: number;
 }
 
 export interface DaemonRuntimeContext {
