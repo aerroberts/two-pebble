@@ -15,7 +15,8 @@ import type {
 import type { UsageReport } from '../../../pricing';
 import type { DataCells } from '../../../thread/cells';
 import { Cell } from '../../../thread/cells';
-import type { PebbleAgentTrace, TaskListUpdateChange, TaskListUpdateTask } from '../../../traces';
+import type { PebbleAgentTrace, TaskListUpdateTask } from '../../../traces';
+import { diffTaskList, type RawTodo } from '../../task-list-diff';
 import { normalizeCodexModelId, sdkUsageToPebbleUsage } from './utils/model-usage';
 
 export type ConvertedCodexEvent =
@@ -29,7 +30,12 @@ export type ConvertedCodexEvent =
  * Pure: no IO, no async, no SDK process state. The caller threads any
  * cross-event state (e.g. tracking which items are still in progress).
  */
-export function convertThreadEvent(event: ThreadEvent, modelId: string | undefined): ConvertedCodexEvent[] {
+export interface ConvertThreadEventContext {
+  modelId: string | undefined;
+  previousTaskList: TaskListUpdateTask[];
+}
+
+export function convertThreadEvent(event: ThreadEvent, context: ConvertThreadEventContext): ConvertedCodexEvent[] {
   if (event.type === 'thread.started') {
     return [{ kind: 'thread-id', threadId: event.thread_id }];
   }
@@ -43,10 +49,10 @@ export function convertThreadEvent(event: ThreadEvent, modelId: string | undefin
     return [];
   }
   if (event.type === 'item.completed') {
-    return convertItemCompleted(event);
+    return convertItemCompleted(event, context);
   }
   if (event.type === 'turn.completed') {
-    return convertTurnCompleted(event, modelId);
+    return convertTurnCompleted(event, context.modelId);
   }
   if (event.type === 'turn.failed') {
     return convertTurnFailed(event);
@@ -106,7 +112,7 @@ function convertItemStarted(event: ItemStartedEvent): ConvertedCodexEvent[] {
   return [];
 }
 
-function convertItemCompleted(event: ItemCompletedEvent): ConvertedCodexEvent[] {
+function convertItemCompleted(event: ItemCompletedEvent, context: ConvertThreadEventContext): ConvertedCodexEvent[] {
   const item = event.item;
   if (item.type === 'agent_message') {
     return [
@@ -132,7 +138,7 @@ function convertItemCompleted(event: ItemCompletedEvent): ConvertedCodexEvent[] 
     return webSearchToTraces(item);
   }
   if (item.type === 'todo_list') {
-    return todoListToTraces(item);
+    return todoListToTraces(item, context);
   }
   if (item.type === 'error') {
     return [
@@ -275,15 +281,13 @@ function webSearchToTraces(item: WebSearchItem): ConvertedCodexEvent[] {
   ];
 }
 
-function todoListToTraces(item: TodoListItem): ConvertedCodexEvent[] {
-  const tasks: TaskListUpdateTask[] = [];
-  const changes: TaskListUpdateChange[] = [];
-  for (const [index, todo] of item.items.entries()) {
-    const id = `todo-${index}`;
-    const status = todo.completed ? 'completed' : 'open';
-    tasks.push({ id, description: todo.text, status });
-    changes.push({ id, oldStatus: null, newStatus: status });
-  }
+function todoListToTraces(item: TodoListItem, context: ConvertThreadEventContext): ConvertedCodexEvent[] {
+  const todos: RawTodo[] = item.items.map((todo) => ({
+    description: todo.text,
+    status: todo.completed ? 'completed' : 'open',
+  }));
+  const { tasks, changes } = diffTaskList(context.previousTaskList, todos);
+  context.previousTaskList = tasks;
   return [{ kind: 'agent-trace', trace: { type: 'task-list-update', data: { tasks, changes } } }];
 }
 
