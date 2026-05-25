@@ -162,9 +162,6 @@ export function TaskBoardPage() {
           />
         ) : (
           <TaskBoardSettingsView
-            boardNameDraft={state.boardNameDraft}
-            onBoardNameChange={(value: string) => state.setBoardNameDraft(value)}
-            onBoardNameSave={() => void state.saveBoardName()}
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
             onDeleteBoard={() => void state.deleteBoard()}
