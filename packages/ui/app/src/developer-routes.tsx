@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { DeveloperAppShell } from './layouts/developer-app-shell';
 import { DeveloperAgentSignalsPage } from './pages/developer/agents/developer-agent-signals.page';
 import { DeveloperAgentsPage } from './pages/developer/agents/developer-agents.page';
+import { DeveloperArchivedAgentsPage } from './pages/developer/agents/developer-archived-agents.page';
 import { DaemonLogPage } from './pages/developer/daemon-logs/daemon-log.page';
 import { DaemonLogsPage } from './pages/developer/daemon-logs/daemon-logs.page';
 import { DatabaseSettingsPage } from './pages/developer/database/database-settings.page';
@@ -57,6 +58,14 @@ export function DeveloperRoutes() {
         element={
           <DeveloperAppShell>
             <DeveloperAgentsPage />
+          </DeveloperAppShell>
+        }
+      />
+      <Route
+        path="agents/archived"
+        element={
+          <DeveloperAppShell>
+            <DeveloperArchivedAgentsPage />
           </DeveloperAppShell>
         }
       />
