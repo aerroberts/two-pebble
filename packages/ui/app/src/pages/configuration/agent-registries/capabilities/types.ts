@@ -13,18 +13,6 @@ export interface CapabilityConfigRecord {
   [key: string]: CapabilityConfigValue | undefined;
 }
 
-export interface ProgressiveTaskListConfig extends CapabilityConfigRecord {
-  tasks: ProgressiveTaskListTaskInput[];
-}
-
-export interface ProgressiveTaskListTaskInput extends CapabilityConfigRecord {
-  id: string;
-  description: string;
-  autocompleteTurns?: number;
-  dependsOn?: string;
-  hiddenUntilActive?: boolean;
-}
-
 export interface SubAgentReferenceInput extends CapabilityConfigRecord {
   name: string;
   description: string;
