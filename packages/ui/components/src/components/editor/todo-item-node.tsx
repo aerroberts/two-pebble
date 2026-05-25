@@ -1,6 +1,7 @@
 import { mergeAttributes, Node } from '@tiptap/core';
 import type { NodeViewProps } from '@tiptap/react';
 import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
+import { Icon } from '../content/icon/icon';
 
 export type TodoItemStatus = 'open' | 'completed' | 'invalid';
 export type TodoItemCompletionType = 'manual' | 'automatic';
@@ -15,7 +16,6 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     todoItem: {
       insertTodoItem: (options?: { text?: string }) => ReturnType;
-      toggleTodoItem: () => ReturnType;
     };
   }
 }
@@ -90,25 +90,11 @@ export const TodoItemNode = Node.create({
             content,
           });
         },
-      toggleTodoItem:
-        () =>
-        ({ state, commands }) => {
-          const node = findTodoItemAtSelection(state);
-          if (node === null) {
-            return false;
-          }
-          const nextStatus: TodoItemStatus = node.node.attrs.status === 'completed' ? 'open' : 'completed';
-          return commands.updateAttributes('todoItem', {
-            status: nextStatus,
-            ...(nextStatus === 'completed' ? { completionType: 'manual' } : { completionType: undefined }),
-          });
-        },
     };
   },
 
   addKeyboardShortcuts() {
     return {
-      'Mod-Enter': () => this.editor.commands.toggleTodoItem(),
       Enter: () => {
         const node = findTodoItemAtSelection(this.editor.state);
         if (node === null) {
@@ -160,6 +146,8 @@ function TodoItemNodeView(props: NodeViewProps) {
   const status = (props.node.attrs.status as TodoItemStatus) ?? 'open';
   const completed = status === 'completed';
   const invalid = status === 'invalid';
+  const iconName = completed ? 'circle-check' : 'circle-dot';
+  const iconColor = completed ? 'text-success' : 'text-content-subtle';
   return (
     <NodeViewWrapper
       as="li"
@@ -167,20 +155,13 @@ function TodoItemNodeView(props: NodeViewProps) {
       data-todo-id={props.node.attrs.id}
       data-todo-status={status}
     >
-      <span contentEditable={false} className="mt-1 select-none">
-        <input
-          aria-label="Toggle task"
-          type="checkbox"
-          checked={completed}
-          className="h-4 w-4 rounded-md border border-border bg-surface accent-accent focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-          onChange={(event) => {
-            const next: TodoItemStatus = event.target.checked ? 'completed' : 'open';
-            props.updateAttributes({
-              status: next,
-              ...(next === 'completed' ? { completionType: 'manual' } : { completionType: undefined }),
-            });
-          }}
-        />
+      <span
+        aria-label={completed ? 'Completed task' : 'Pending task'}
+        contentEditable={false}
+        className="mt-1 inline-flex h-4 w-4 select-none items-center justify-center"
+        role="img"
+      >
+        <Icon name={iconName} color={iconColor} className="h-3.5 w-3.5" />
       </span>
       <NodeViewContent
         as="span"
