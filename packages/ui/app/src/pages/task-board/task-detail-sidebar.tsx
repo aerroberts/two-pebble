@@ -4,6 +4,8 @@ import {
   Select,
   type SelectOption,
   TaskStatusIcon,
+  TaskStatusIconSelect,
+  type TaskStatusIconSelectStatus,
   type TaskStatusIconStatus,
 } from '@two-pebble/components';
 import { markdownToTipTap } from '@two-pebble/datatypes';
@@ -45,16 +47,8 @@ export interface TaskDetailSidebarProps {
   onDelegate: (agentRegistryId: string) => void;
   onUndelegate: () => void;
   onOpenAgent: (agentId: string) => void;
+  onChangeStatus: (status: TaskStatusIconSelectStatus) => void;
 }
-
-const STATUS_LABEL: Record<TaskStatusIconStatus, string> = {
-  blocked: 'Blocked',
-  open: 'Open',
-  working: 'Working',
-  waiting: 'Waiting',
-  success: 'Done',
-  failure: 'Failed',
-};
 
 /**
  * Detail view rendered into the right-hand task panel. The task name is
@@ -68,18 +62,19 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
   return (
     <>
       <AppBox variant="task-detail-header">
-        <AppBox as="h2" variant="task-detail-title">
-          {props.task.name || 'Untitled task'}
+        <AppBox variant="controls-row">
+          <TaskStatusIconSelect
+            ariaLabel={`Change status of ${props.task.name || 'task'}`}
+            onChange={props.onChangeStatus}
+            status={props.task.status}
+          />
+          <AppBox as="h2" variant="task-detail-title">
+            {props.task.name || 'Untitled task'}
+          </AppBox>
         </AppBox>
         <AppBox variant="task-detail-actions">{renderDelegateControl(props)}</AppBox>
       </AppBox>
-      <AppBox variant="controls-row">
-        <AppBox variant="controls-row">
-          <TaskStatusIcon status={props.task.status} size="sm" />
-          <span>{STATUS_LABEL[props.task.status]}</span>
-        </AppBox>
-        {props.ownerAgent !== null ? renderOwnerSummary(props) : null}
-      </AppBox>
+      {props.ownerAgent !== null ? <AppBox variant="controls-row">{renderOwnerSummary(props)}</AppBox> : null}
       <RichTextFieldHost
         ariaLabel="Task description"
         minHeight={120}

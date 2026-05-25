@@ -80,6 +80,11 @@ export function TaskBoardPage() {
       onDelegate={(agentRegistryId: string) => void state.delegateSelectedTask(agentRegistryId)}
       onUndelegate={() => void state.undelegateSelectedTask()}
       onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
+      onChangeStatus={(status) => {
+        if (state.selectedTaskId !== null) {
+          void state.setTaskStatusById(state.selectedTaskId, status);
+        }
+      }}
       delegateAgents={delegateOptions}
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
