@@ -40,7 +40,6 @@ describe('feature: guard config parser', () => {
           /* Keep a note beside the rule it describes. */
           {
             "find": "src/asserts/exists.ts",
-            "recommendation": "Must exist.",
             "asserts": { "exists": true }
           }
         ]
@@ -58,12 +57,10 @@ describe('feature: guard config parser', () => {
           // First include this string
           {
             "find": "src/**/index.ts",
-            "recommendation": "included next",
             "code": [
               // Then also include this
               {
                 "find": ["class", "interface"],
-                "recommendation": "then include this",
                 "asserts": { "exists": false }
               }
             ]
@@ -84,14 +81,13 @@ describe('feature: guard config parser', () => {
       {
         "structure": [
           {
-            "find": "src/http.ts",
-            "recommendation": "Block markers like /* and */ stay in strings.",
+            "find": "Block markers like /* and */ stay in strings.",
             "asserts": { "exists": true }
           }
         ]
       }
     `);
 
-    expect(config.structure?.[0]?.recommendation).toBe('Block markers like /* and */ stay in strings.');
+    expect(config.structure?.[0]?.find).toBe('Block markers like /* and */ stay in strings.');
   });
 });

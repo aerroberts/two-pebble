@@ -25,26 +25,40 @@
       ]
     },
 
-    // Capability folders stay regular so adding a capability is predictable:
-    // each immediate capability folder owns index.ts, <name>-capability.ts,
-    // tools/, prompts/, and may move helper modules under utils/. Prompt
-    // folders must contain Markdown prompt files only.
+    // Capability folders keep their only top-level TypeScript entrypoint in
+    // capability.ts. Schemas, helpers, tests, and prompt text live under
+    // tools/, prompts/, tests/, or utils/.
+    // Each capability folder should expose its runtime entrypoint as capability.ts.
     {
-      "find": "src/capabilities/index.ts",
-      "recommendation": "Capability folders must keep runtime entrypoints at the top and move schemas, helpers, tests, and prompt text into subfolders.",
+      "find": "src/capabilities/*/capability.ts",
       "asserts": {
-        "capabilityLayout": {
-          "root": "src/capabilities"
-        }
+        "exists": true,
+        "type": "file"
+      }
+    },
+    // Capability folders must not contain direct TypeScript files other than capability.ts. Move schemas, helpers, tests, and prompt text into subfolders.
+    {
+      "find": "src/capabilities/*/*.ts",
+      "exclude": "src/capabilities/*/capability.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    // Capability prompt folders must contain Markdown files only.
+    {
+      "find": "src/capabilities/*/prompts/*",
+      "exclude": "src/capabilities/*/prompts/*.md",
+      "asserts": {
+        "exists": false
       }
     },
 
     // Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.
     // The traversal layer currently returns file nodes for glob matches, not folder nodes, so the old folder type
     // check is represented by requiring trace files inside the folder.
+    // Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.
     {
       "find": "src/traces/agent-traces/*.ts",
-      "recommendation": "Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.",
       "asserts": {
         "exists": true,
         "type": "file"
@@ -55,9 +69,9 @@
     // `export interface PebbleAgent` string and restricted imports to ../../thread or ../../thread/index. The
     // structure-only runner has no string-contains or allowed-import-path assertions, so this approximates the
     // contract by requiring an exported interface while preserving the stronger steering in this comment.
+    // Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types. Imports should stay limited to ../../thread or ../../thread/index.
     {
       "find": "src/traces/agent-traces/*.ts",
-      "recommendation": "Each agent trace file must be a self-contained exported interface. Trace payloads are protocol-like contracts and should not be hidden in generic agent types. Imports should stay limited to ../../thread or ../../thread/index.",
       "asserts": {
         "exists": true,
         "type": "file"
@@ -75,9 +89,9 @@
     },
 
     // Agent trace interfaces stay one file deep so the trace catalog is scanable.
+    // Agent trace interfaces stay one file deep so the trace catalog is scanable.
     {
       "find": "src/traces/agent-traces/*/*",
-      "recommendation": "Agent trace interfaces stay one file deep so the trace catalog is scanable.",
       "asserts": {
         "exists": false
       }

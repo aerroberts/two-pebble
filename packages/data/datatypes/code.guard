@@ -1,9 +1,9 @@
 {
   "inherit": ["guardrails-typescript", "guardrails-package"],
   "structure": [
+    // Integration domain types expose one simple union from the folder-level types file.
     {
       "find": "src/integrations/types.ts",
-      "recommendation": "Integration domain types expose one simple union from the folder-level types file.",
       "asserts": {
         "exists": true,
         "type": "file"
@@ -22,9 +22,9 @@
         }
       ]
     },
+    // Inference profile domain types expose one simple union from the folder-level types file.
     {
       "find": "src/inference-profiles/types.ts",
-      "recommendation": "Inference profile domain types expose one simple union from the folder-level types file.",
       "asserts": {
         "exists": true,
         "type": "file"
@@ -42,9 +42,9 @@
         }
       ]
     },
+    // Each integration provider protocol definition must stay as a pure type file.
     {
       "find": "src/integrations/protocol/*",
-      "recommendation": "Each integration provider protocol definition must stay as a pure type file.",
       "asserts": {
         "exists": true,
         "type": "file"
@@ -72,9 +72,9 @@
         }
       ]
     },
+    // Each inference profile provider protocol definition must stay as a pure type file.
     {
       "find": "src/inference-profiles/protocol/*",
-      "recommendation": "Each inference profile provider protocol definition must stay as a pure type file.",
       "asserts": {
         "exists": true,
         "type": "file"
@@ -102,16 +102,16 @@
         }
       ]
     },
+    // Integration provider protocol definitions must stay as one file per provider.
     {
       "find": "src/integrations/protocol/folder",
-      "recommendation": "Integration provider protocol definitions must stay as one file per provider.",
       "asserts": {
         "exists": false
       }
     },
+    // Inference profile provider protocol definitions must stay as one file per provider.
     {
       "find": "src/inference-profiles/protocol/folder",
-      "recommendation": "Inference profile provider protocol definitions must stay as one file per provider.",
       "asserts": {
         "exists": false
       }

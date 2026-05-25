@@ -1,7 +1,7 @@
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
-import type { ProgressiveTaskListCapability } from '../../progressive-task-list-capability';
+import type { ProgressiveTaskListCapability } from '../../capability';
 
 const schema = z.object({
   taskId: z.string(),

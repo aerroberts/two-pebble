@@ -1,6 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import type { GuardrailConfig } from '../types';
 import { Controller } from './controller';
@@ -20,7 +18,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'src/present.ts must exist.',
           asserts: { exists: true },
         },
       ],
@@ -37,7 +34,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/missing.ts',
-          recommendation: 'src/missing.ts must exist.',
           asserts: { exists: true },
         },
       ],
@@ -49,7 +45,7 @@ describe('feature: controller', () => {
     expect(result.results[0]?.diagnostics).toEqual([
       {
         find: 'src/missing.ts',
-        recommendation: 'src/missing.ts must exist.',
+        guidance: '',
         assertion: 'exists',
         description: 'Expected the structure find to return at least one node, but none matched.',
       },
@@ -61,7 +57,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/forbidden.ts',
-          recommendation: 'src/forbidden.ts must not exist.',
           asserts: { exists: false },
         },
       ],
@@ -88,7 +83,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'src/present.ts must be a file.',
           asserts: { type: 'file' },
         },
       ],
@@ -104,7 +98,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'present.ts must export `present`.',
           asserts: { exists: true },
           code: [
             {
@@ -126,7 +119,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'present.ts must export `expected`.',
           asserts: { exists: true },
           code: [
             {
@@ -150,7 +142,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'present.ts exports should use present-prefixed names.',
           code: [
             {
               find: 'export/const',
@@ -172,7 +163,6 @@ describe('feature: controller', () => {
         {
           find: 'src/*.ts',
           exclude: 'src/present.ts',
-          recommendation: 'Every non-present source file must exist.',
           asserts: { matches: { exactly: 1 } },
         },
       ],
@@ -188,7 +178,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/extra.ts',
-          recommendation: 'extra.ts',
           asserts: { exists: true },
           code: [
             {
@@ -212,7 +201,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'Each present file must have exactly one exported const.',
           asserts: { exists: true },
           code: [
             {
@@ -236,7 +224,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'present.ts must declare the present const.',
           asserts: { content: { includes: ['export const present', '= true'] } },
         },
       ],
@@ -252,7 +239,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'present.ts must mention TODO.',
           asserts: { content: { includes: ['TODO: nothing here'] } },
         },
       ],
@@ -269,7 +255,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'present.ts must not contain debugger statements.',
           asserts: { content: { lacks: ['debugger', 'console.log'] } },
         },
       ],
@@ -285,7 +270,6 @@ describe('feature: controller', () => {
       structure: [
         {
           find: 'src/present.ts',
-          recommendation: 'present.ts must not export anything.',
           asserts: { content: { lacks: ['export const'] } },
         },
       ],
@@ -307,7 +291,6 @@ describe('feature: controller', () => {
         {
           find: 'src/present.ts',
           ref: { name: 'sourcePaths', extract: 'path' },
-          recommendation: 'every recorded filename must appear inside a matched path.',
           asserts: {
             map: {
               fromRef: 'sourceFilenames',
@@ -335,7 +318,6 @@ describe('feature: controller', () => {
         {
           find: 'src/present.ts',
           ref: { name: 'presentPath', extract: 'path' },
-          recommendation: 'every source filename must appear inside present.ts',
           asserts: {
             map: {
               fromRef: 'sourceFilenames',
@@ -417,7 +399,7 @@ describe('feature: controller', () => {
     expect(result.passed).toBe(true);
   });
 
-  test('happy: failed assert recommendation stacks leading comments and recommendations top-down', async () => {
+  test('happy: failed assert guidance stacks leading comments top-down', async () => {
     const { parseGuardConfig } = await import('./guard-config-parser');
     const config = parseGuardConfig(`
       {
@@ -425,12 +407,10 @@ describe('feature: controller', () => {
           // First include this string
           {
             "find": "src/present.ts",
-            "recommendation": "included next",
             "code": [
               // Then also include this
               {
                 "find": "export/function",
-                "recommendation": "then include this",
                 "asserts": { "matches": { "exactly": 1 } }
               }
             ]
@@ -442,71 +422,8 @@ describe('feature: controller', () => {
     const result = await new Controller().run(fixtureRoot, config);
     const codeCheck = result.results.find((check) => check.find.includes('export/function'));
 
-    expect(codeCheck?.diagnostics[0]?.recommendation).toBe(
-      ['First include this string', 'included next', 'Then also include this', 'then include this'].join('\n'),
+    expect(codeCheck?.diagnostics[0]?.guidance).toBe(
+      ['First include this string', 'Then also include this'].join('\n'),
     );
   });
-
-  test('happy: capabilityLayout passes for canonical capability folders', async () => {
-    const packageDir = await mkdtemp(resolve(tmpdir(), 'guardrails-capability-layout-'));
-    try {
-      await writeCapabilityFixture(packageDir, 'alpha');
-
-      const config: GuardrailConfig = {
-        structure: [
-          {
-            find: 'src/capabilities/index.ts',
-            recommendation: 'Capabilities must follow the canonical layout.',
-            asserts: { capabilityLayout: { root: 'src/capabilities' } },
-          },
-        ],
-      };
-
-      const result = await new Controller().run(packageDir, config);
-
-      expect(result.passed).toBe(true);
-    } finally {
-      await rm(packageDir, { recursive: true, force: true });
-    }
-  });
-
-  test('unhappy: capabilityLayout rejects direct files and non-Markdown prompts', async () => {
-    const packageDir = await mkdtemp(resolve(tmpdir(), 'guardrails-capability-layout-'));
-    try {
-      await writeCapabilityFixture(packageDir, 'alpha');
-      await writeFile(resolve(packageDir, 'src/capabilities/alpha/alpha-schema.ts'), 'export const schema = true;\n');
-      await writeFile(resolve(packageDir, 'src/capabilities/alpha/prompts/prompt.txt'), 'Prompt text\n');
-
-      const config: GuardrailConfig = {
-        structure: [
-          {
-            find: 'src/capabilities/index.ts',
-            recommendation: 'Capabilities must follow the canonical layout.',
-            asserts: { capabilityLayout: { root: 'src/capabilities' } },
-          },
-        ],
-      };
-
-      const result = await new Controller().run(packageDir, config);
-      const diagnostic = result.results[0]?.diagnostics[0];
-
-      expect(result.passed).toBe(false);
-      expect(diagnostic?.assertion).toBe('capabilityLayout');
-      expect(diagnostic?.description).toContain('alpha: direct file alpha-schema.ts');
-      expect(diagnostic?.description).toContain('prompts entry src/capabilities/alpha/prompts/prompt.txt');
-    } finally {
-      await rm(packageDir, { recursive: true, force: true });
-    }
-  });
 });
-
-async function writeCapabilityFixture(packageDir: string, name: string) {
-  const capabilityDir = resolve(packageDir, 'src/capabilities', name);
-  await mkdir(resolve(capabilityDir, 'tools'), { recursive: true });
-  await mkdir(resolve(capabilityDir, 'prompts'), { recursive: true });
-  await writeFile(resolve(packageDir, 'src/capabilities/index.ts'), `export * from './${name}';\n`);
-  await writeFile(resolve(capabilityDir, 'index.ts'), `export * from './${name}-capability';\n`);
-  await writeFile(resolve(capabilityDir, `${name}-capability.ts`), 'export const capability = true;\n');
-  await writeFile(resolve(capabilityDir, 'tools/index.ts'), 'export const tool = true;\n');
-  await writeFile(resolve(capabilityDir, 'prompts/default.md'), 'Prompt text\n');
-}

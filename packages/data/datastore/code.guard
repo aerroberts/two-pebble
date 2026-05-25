@@ -14,6 +14,7 @@
         }
       },
       "code": [
+        // Schema files must export exactly one table definition built with customTable.
         {
           "find": "export/const",
           "asserts": {
@@ -21,7 +22,6 @@
               "exactly": 1
             }
           },
-          "recommendation": "Schema files must export exactly one table definition built with customTable."
         }
       ]
     },
@@ -43,6 +43,7 @@
       },
       "code": [
         // The operation entrypoint is the file's only exported function.
+        // Operation files must export exactly one builder function named <name>Operation.
         {
           "find": "export/function",
           "asserts": {
@@ -50,17 +51,17 @@
               "exactly": 1
             }
           },
-          "recommendation": "Operation files must export exactly one builder function named <name>Operation."
         },
         // Helpers leak the operation surface; keep them inside the handler or move them out of this folder.
+        // Operation files must not declare un-exported top-level functions.
         {
           "find": "function",
           "asserts": {
             "exists": false
           },
-          "recommendation": "Operation files must not declare un-exported top-level functions."
         },
         // The handler input shape is the single piece of structural information the file owns.
+        // Operation files must declare exactly one local input type for the handler.
         {
           "find": "type",
           "asserts": {
@@ -68,7 +69,6 @@
               "exactly": 1
             }
           },
-          "recommendation": "Operation files must declare exactly one local input type for the handler."
         }
       ]
     },

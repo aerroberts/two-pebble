@@ -5,12 +5,12 @@ import type { Diagnostic } from '../types';
  */
 export class Reporter {
   public readonly find: string;
-  public readonly recommendation: string;
+  public readonly guidance: string;
   public readonly diagnostics: Diagnostic[] = [];
 
-  public constructor(find: string, recommendation: string) {
+  public constructor(find: string, guidance: string) {
     this.find = find;
-    this.recommendation = recommendation;
+    this.guidance = guidance;
   }
 
   public get passed() {
@@ -20,11 +20,11 @@ export class Reporter {
   /**
    * Records a diagnostic failure for the current rule.
    */
-  public fail(diagnostic: Omit<Diagnostic, 'find' | 'recommendation'>) {
+  public fail(diagnostic: Omit<Diagnostic, 'find' | 'guidance'>) {
     this.diagnostics.push({
       ...diagnostic,
       find: this.find,
-      recommendation: this.recommendation,
+      guidance: this.guidance,
     });
   }
 }

@@ -5,7 +5,7 @@ import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
 import { installCapabilityRunners } from '../../../capabilities';
 import { Cell } from '../../../thread';
 import type { PebbleAgentTrace } from '../../../traces';
-import { ParentLinkCapability } from '../parent-link-capability';
+import { ParentLinkCapability } from '../capability';
 
 export async function expectAskParentUsesPendingResponseSignal(): Promise<void> {
   const runtime = buildParentLinkRuntime();

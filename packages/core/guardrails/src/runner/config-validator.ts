@@ -3,8 +3,8 @@ import { ASSERT_NAMES } from '../run-asserts';
 import type { CodeRule, GuardrailConfig, StructureRule } from '../types';
 
 const TOP_LEVEL_KEYS = new Set(['definition', 'inherit', 'structure']);
-const STRUCTURE_RULE_KEYS = new Set(['find', 'exclude', 'recommendation', 'asserts', 'code', 'ref']);
-const CODE_RULE_KEYS = new Set(['find', 'exclude', 'recommendation', 'asserts']);
+const STRUCTURE_RULE_KEYS = new Set(['find', 'exclude', 'asserts', 'code', 'ref']);
+const CODE_RULE_KEYS = new Set(['find', 'exclude', 'asserts']);
 const REF_KEYS = new Set(['name', 'extract']);
 const MAP_KEYS = new Set(['fromRef', 'toRef', 'method', 'fullyConsumes', 'fullyCovers']);
 const MAP_METHODS = new Set(['equals', 'substring']);
@@ -62,7 +62,6 @@ function validateStructureRule(rule: StructureRule, field: string) {
   validateKnownKeys(rule, STRUCTURE_RULE_KEYS, field, 'structure rule fields');
   validateFind(rule, field);
   validateOptionalExclude(rule.exclude, field);
-  validateOptionalRecommendation(rule.recommendation, field);
   validateOptionalAsserts(rule.asserts, field);
   validateOptionalRef(rule.ref, field);
 
@@ -128,7 +127,6 @@ function validateCodeRule(rule: CodeRule, field: string) {
   validateFind(rule, field);
   validateOptionalExclude(rule.exclude, field);
   validateOptionalAsserts(rule.asserts, field);
-  validateOptionalRecommendation(rule.recommendation, field);
 }
 
 function validateKnownKeys(value: unknown, allowed: Set<string>, field: string, label: string) {
@@ -168,15 +166,6 @@ function validateFind(rule: { find: unknown }, field: string) {
   }
 }
 
-function validateOptionalRecommendation(value: unknown, field: string) {
-  if (value === undefined) {
-    return;
-  }
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new InvalidGuardrailConfigError(`${field}.recommendation must be a non-empty string when provided.`);
-  }
-}
-
 function validateOptionalAsserts(asserts: unknown, field: string) {
   if (asserts === undefined) {
     return;
@@ -194,20 +183,6 @@ function validateOptionalAsserts(asserts: unknown, field: string) {
   }
   if (assertsRecord.map !== undefined) {
     validateMapAssert(assertsRecord.map, `${field}.asserts`);
-  }
-  if (assertsRecord.capabilityLayout !== undefined) {
-    validateCapabilityLayoutAssert(assertsRecord.capabilityLayout, `${field}.asserts`);
-  }
-}
-
-function validateCapabilityLayoutAssert(value: unknown, field: string) {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new InvalidGuardrailConfigError(`${field}.capabilityLayout must be an object.`);
-  }
-  validateKnownKeys(value, new Set(['root']), `${field}.capabilityLayout`, 'capabilityLayout fields');
-  const { root } = value as { root?: unknown };
-  if (typeof root !== 'string' || root.trim().length === 0) {
-    throw new InvalidGuardrailConfigError(`${field}.capabilityLayout.root must be a non-empty string.`);
   }
 }
 

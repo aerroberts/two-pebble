@@ -1,6 +1,5 @@
 import type { WorkspaceNode } from '@two-pebble/traversal';
 import type { AssertContext } from './assert-context';
-import { validate as capabilityLayoutValidate } from './asserts/capability-layout';
 import { validate as contentValidate } from './asserts/content';
 import { validate as existsValidate } from './asserts/exists';
 import { validate as linesValidate } from './asserts/lines';
@@ -34,7 +33,6 @@ const REGISTRY: Registry = {
   matches: matchesValidate,
   lines: linesValidate,
   content: contentValidate,
-  capabilityLayout: capabilityLayoutValidate,
   map: mapValidate,
 };
 

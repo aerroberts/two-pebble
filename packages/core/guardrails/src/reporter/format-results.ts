@@ -41,11 +41,13 @@ function formatFailureSection(check: CheckResult) {
   );
   for (const diagnostic of check.diagnostics) {
     lines.push(`${DETAIL_INDENT}${diagnostic.description}`);
-    const recommendationLines = diagnostic.recommendation.split('\n');
-    const [firstRec, ...restRec] = recommendationLines;
-    lines.push(`${DETAIL_INDENT}${pc.cyan('fix:')} ${firstRec ?? ''}`);
-    for (const continued of restRec) {
-      lines.push(`${DETAIL_INDENT}     ${continued}`);
+    if (diagnostic.guidance.length > 0) {
+      const guidanceLines = diagnostic.guidance.split('\n');
+      const [firstGuidance, ...restGuidance] = guidanceLines;
+      lines.push(`${DETAIL_INDENT}${pc.cyan('fix:')} ${firstGuidance ?? ''}`);
+      for (const continued of restGuidance) {
+        lines.push(`${DETAIL_INDENT}     ${continued}`);
+      }
     }
     lines.push(`${DETAIL_INDENT}${pc.dim(`assertion: ${diagnostic.assertion}`)}`);
   }

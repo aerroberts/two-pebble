@@ -11,7 +11,7 @@ import { PebbleAgent } from '../../../agent/agents/pebble-agent';
 import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
 import { installCapabilityRunners } from '../../../capabilities';
 import { Cell } from '../../../thread';
-import { SubAgentCapability } from '../sub-agent-capability';
+import { SubAgentCapability } from '../capability';
 
 export function subAgentToolsForResearcher() {
   return new SubAgentCapability().hookOnRegister({

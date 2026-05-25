@@ -1,14 +1,14 @@
 import type { AgentCapability } from '../agent';
 import type { PebbleJsonValue } from '../types';
-import { AgentNamingCapability } from './agent-naming/agent-naming-capability';
-import { DocumentWriterCapability } from './document-writer/document-writer-capability';
-import { ParentLinkCapability } from './parent-link/parent-link-capability';
-import { ProgressiveTaskListCapability } from './progressive-task-list/progressive-task-list-capability';
-import { SubAgentCapability } from './sub-agent/sub-agent-capability';
-import { TaskBoardAccessCapability } from './task-board-access/task-board-access-capability';
-import { TaskLifecycleCapability } from './task-lifecycle/task-lifecycle-capability';
-import { TurnCounterCapability } from './turn-counter/turn-counter-capability';
-import { WorkspaceAccessCapability } from './workspace-access/workspace-access-capability';
+import { AgentNamingCapability } from './agent-naming/capability';
+import { DocumentWriterCapability } from './document-writer/capability';
+import { ParentLinkCapability } from './parent-link/capability';
+import { ProgressiveTaskListCapability } from './progressive-task-list/capability';
+import { SubAgentCapability } from './sub-agent/capability';
+import { TaskBoardAccessCapability } from './task-board-access/capability';
+import { TaskLifecycleCapability } from './task-lifecycle/capability';
+import { TurnCounterCapability } from './turn-counter/capability';
+import { WorkspaceAccessCapability } from './workspace-access/capability';
 
 /**
  * Capabilties are serialized to disk and have to be reinitialized on each agent run.

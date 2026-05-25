@@ -31,7 +31,7 @@ describe('feature: reporter', () => {
         description: 'Expected a node, found none.',
         assertion: 'exists',
         find: 'src/asserts/exists.ts',
-        recommendation: 'exists.ts must be present.',
+        guidance: 'exists.ts must be present.',
       },
     ]);
   });
@@ -44,7 +44,7 @@ describe('feature: reporter', () => {
       results: [
         {
           find: 'src/asserts/exists.ts',
-          recommendation: 'must exist',
+          guidance: 'must exist',
           passed: true,
           diagnostics: [],
           durationMs: 3,
@@ -67,12 +67,12 @@ describe('feature: reporter', () => {
       results: [
         {
           find: 'src/asserts/missing.ts',
-          recommendation: 'src/asserts/missing.ts must be present.',
+          guidance: 'src/asserts/missing.ts must be present.',
           passed: false,
           diagnostics: [
             {
               find: 'src/asserts/missing.ts',
-              recommendation: 'src/asserts/missing.ts must be present.',
+              guidance: 'src/asserts/missing.ts must be present.',
               assertion: 'exists',
               description: 'Expected the structure find to return at least one node, but none matched.',
             },

@@ -3,7 +3,7 @@ import { InvalidGuardrailConfigError } from '../errors';
 import type { GuardrailConfig } from '../types';
 
 // Maps each parsed object back to the comment block immediately preceding it
-// in the source file. Used to build stack-trace style recommendations.
+// in the source file. Used to build stack-trace style guidance.
 const leadingCommentsByObject = new WeakMap<object, string[]>();
 
 const PARSE_OPTIONS = { allowTrailingComma: true, disallowComments: false } as const;

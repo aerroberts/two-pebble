@@ -5,6 +5,5 @@
  * fields belong here as more cross-rule assertions appear.
  */
 export interface AssertContext {
-  packageDir: string;
   refs: Map<string, string[]>;
 }

@@ -17,7 +17,6 @@ export interface GuardrailConfig {
 export interface StructureRule {
   find: string | string[];
   exclude?: string | string[];
-  recommendation?: string;
   asserts?: AssertConfig;
   code?: CodeRule[];
   ref?: RefDeclaration;
@@ -43,7 +42,6 @@ export interface CodeRule {
   find: string | string[];
   exclude?: string | string[];
   asserts?: AssertConfig;
-  recommendation?: string;
 }
 
 /**
@@ -58,17 +56,7 @@ export interface AssertConfig {
   matches?: NumberRange;
   lines?: NumberRange;
   content?: ContentAssert;
-  capabilityLayout?: CapabilityLayoutAssert;
   map?: MapAssert;
-}
-
-/**
- * Filesystem-level assertion for capability package layout. `root` is resolved
- * relative to the package directory and every immediate child directory is
- * treated as one capability folder.
- */
-export interface CapabilityLayoutAssert {
-  root: string;
 }
 
 /**
@@ -144,11 +132,11 @@ export interface NumberRange {
 
 /**
  * A single assertion failure. Carries the offending rule's `find`, the
- * assertion that failed, and the stack-trace style recommendation built from
- * leading comments and rule recommendations.
+ * assertion that failed, and the stack-trace style guidance built from
+ * leading comments.
  */
 export interface Diagnostic {
-  recommendation: string;
+  guidance: string;
   description: string;
   find: string;
   assertion: string;
@@ -161,7 +149,7 @@ export interface Diagnostic {
  */
 export interface CheckResult {
   find: string;
-  recommendation: string;
+  guidance: string;
   passed: boolean;
   diagnostics: Diagnostic[];
   durationMs: number;

@@ -34,44 +34,45 @@
         "src/pages/agent-detail/use-agent-detail-page-state.ts"
       ],
       "code": [
+        // Class members must stay short enough to scan. Extract collaborators or private helpers when one member starts owning multiple decisions.
         {
           "find": [
             "**/class/function",
             "**/class/*/function",
             "**/class/*/*/function"
           ],
-          "recommendation": "Class members must stay short enough to scan. Extract collaborators or private helpers when one member starts owning multiple decisions.",
           "asserts": {
             "lines": {
               "max": 80
             }
           }
         },
+        // Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions.
         {
           "find": [
             "**/class/accessor",
             "**/class/*/accessor",
             "**/class/*/*/accessor"
           ],
-          "recommendation": "Class accessors must stay short enough to scan. Extract collaborators or private helpers when one accessor starts owning multiple decisions.",
           "asserts": {
             "lines": {
               "max": 80
             }
           }
         },
+        // Constructors must stay short enough to scan. Move setup branches into collaborators or named factories when initialization grows.
         {
           "find": [
             "**/class/constructor",
             "**/class/*/constructor"
           ],
-          "recommendation": "Constructors must stay short enough to scan. Move setup branches into collaborators or named factories when initialization grows.",
           "asserts": {
             "lines": {
               "max": 80
             }
           }
         },
+        // Functions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows.
         {
           "find": [
             "function",
@@ -81,46 +82,45 @@
             "**/block/function",
             "**/block/const/function"
           ],
-          "recommendation": "Functions must stay focused enough to review. Split secondary behavior into named helpers or collaborators when the implementation grows.",
           "asserts": {
             "lines": {
               "max": 200
             }
           }
         },
+        // Conditional blocks must stay short enough to scan. Extract named decisions or early-return branches when the flow grows.
         {
           "find": "**/if",
-          "recommendation": "Conditional blocks must stay short enough to scan. Extract named decisions or early-return branches when the flow grows.",
           "asserts": {
             "lines": {
               "max": 80
             }
           }
         },
+        // Try blocks must stay short enough to scan. Move recovery, parsing, or side-effect branches into named helpers when the flow grows.
         {
           "find": "**/try",
-          "recommendation": "Try blocks must stay short enough to scan. Move recovery, parsing, or side-effect branches into named helpers when the flow grows.",
           "asserts": {
             "lines": {
               "max": 80
             }
           }
         },
+        // Catch blocks must stay short enough to scan. Move recovery branches into named helpers when error handling grows.
         {
           "find": "**/catch",
-          "recommendation": "Catch blocks must stay short enough to scan. Move recovery branches into named helpers when error handling grows.",
           "asserts": {
             "lines": {
               "max": 80
             }
           }
         },
+        // Class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly.
         {
           "find": [
             "class/**/static",
             "export/class/**/static"
           ],
-          "recommendation": "Class members must not be static. Move shared behavior to module functions or collaborators so class instances own behavior explicitly.",
           "asserts": {
             "exists": false
           }
@@ -140,9 +140,9 @@
         "src/pages/agent-detail/use-agent-detail-page-state.ts"
       ],
       "code": [
+        // Classes need a short leading JSDoc block that explains the responsibility, contract, or boundary.
         {
           "find": "**/class$before",
-          "recommendation": "Classes need a short leading JSDoc block that explains the responsibility, contract, or boundary.",
           "asserts": {
             "type": "block-comment",
             "lines": {
@@ -150,6 +150,7 @@
             }
           }
         },
+        // Public class methods need a short leading JSDoc block that explains the method contract.
         {
           "find": [
             "**/class/function$before",
@@ -157,7 +158,6 @@
             "**/class/static/function$before",
             "**/class/public/static/function$before"
           ],
-          "recommendation": "Public class methods need a short leading JSDoc block that explains the method contract.",
           "asserts": {
             "type": "block-comment",
             "lines": {
@@ -179,6 +179,7 @@
         "**/snapshots/**"
       ],
       "code": [
+        // Test files must not define nested support declarations.
         {
           "find": [
             "**/class",
@@ -186,7 +187,6 @@
             "**/interface",
             "**/type"
           ],
-          "recommendation": "Test files must not define nested support declarations.",
           "asserts": {
             "exists": false
           }
@@ -200,6 +200,7 @@
         "**/snapshots/**"
       ],
       "code": [
+        // Index files may only import and re-export modules.
         {
           "find": [
             "interface",
@@ -207,7 +208,6 @@
             "class",
             "function"
           ],
-          "recommendation": "Index files may only import and re-export modules.",
           "asserts": {
             "exists": false
           }
@@ -221,6 +221,7 @@
         "**/snapshots/**"
       ],
       "code": [
+        // Types files may only contain imports, type contracts, and re-exports.
         {
           "find": [
             "class",
@@ -228,7 +229,6 @@
             "const/function",
             "export/const/function"
           ],
-          "recommendation": "Types files may only contain imports, type contracts, and re-exports.",
           "asserts": {
             "exists": false
           }
@@ -238,6 +238,7 @@
 
     // The legacy matchesFileName assertion is not available in the structure-only assertion registry.
     // Keep class names aligned with dash-case file names for predictable navigation.
+    // Class names must match the dash-case file name so navigation is predictable without opening the file.
     {
       "find": [
         "src/**/*.ts#class",
@@ -247,7 +248,6 @@
         "**/fixtures/**",
         "**/*.test.ts"
       ],
-      "recommendation": "Class names must match the dash-case file name so navigation is predictable without opening the file."
     }
   ]
 }

@@ -32,7 +32,7 @@ export class Controller {
     const results: CheckResult[] = [];
     // Registry of named refs, populated as we walk structure rules in order
     // so a `map` assert on a later rule can read prior rules' extracted keys.
-    const ctx: AssertContext = { packageDir, refs: new Map() };
+    const ctx: AssertContext = { refs: new Map() };
 
     for (const rule of merged.structure ?? []) {
       const ruleResults = await this.runRule(traversal, packageDir, rule, filesScanned, ctx);
@@ -70,13 +70,13 @@ export class Controller {
     }
 
     const findLabel = this.findLabel(rule.find);
-    const recommendation = this.buildRecommendation(rule);
+    const guidance = this.buildGuidance(rule);
     const checks: CheckResult[] = [];
 
     // Register the rule's ref before its asserts run so a `map` assert on the
     // same rule can reference the just-declared ref by name.
     if (rule.ref) {
-      const refCheck = this.registerRef(rule, nodes, findLabel, recommendation, ctx);
+      const refCheck = this.registerRef(rule, nodes, findLabel, guidance, ctx);
       if (refCheck) {
         checks.push(refCheck);
       }
@@ -85,10 +85,10 @@ export class Controller {
     // A rule with no asserts is purely a file selector for its `code` block;
     // we skip emitting a top-level check so it isn't reported as PASS noise.
     if (rule.asserts && Object.keys(rule.asserts).length > 0) {
-      const diagnostics = this.diagnosticsFor(nodes, rule.asserts, findLabel, recommendation, undefined, ctx);
+      const diagnostics = this.diagnosticsFor(nodes, rule.asserts, findLabel, guidance, undefined, ctx);
       checks.push({
         find: findLabel,
-        recommendation,
+        guidance,
         passed: diagnostics.length === 0,
         diagnostics,
         durationMs: Math.round(performance.now() - ruleStart),
@@ -112,7 +112,7 @@ export class Controller {
     rule: StructureRule,
     nodes: WorkspaceNode[],
     findLabel: string,
-    recommendation: string,
+    guidance: string,
     ctx: AssertContext,
   ): CheckResult | undefined {
     if (!rule.ref) {
@@ -125,11 +125,11 @@ export class Controller {
       if (value === undefined) {
         return {
           find: findLabel,
-          recommendation,
+          guidance,
           passed: false,
           diagnostics: [
             {
-              recommendation,
+              guidance,
               description: `ref "${name}" cannot extract field "${extract}" from a matched "${node.type}" node — extract returned undefined.`,
               find: findLabel,
               assertion: 'ref' as AssertName,
@@ -159,13 +159,13 @@ export class Controller {
     const nodes = await this.findMinusExclude(traversal, findQueries, excludeQueries);
 
     const findLabel = `${relative(packageDir, filePath)}#${this.findLabel(codeRule.find)}`;
-    const recommendation = this.buildRecommendation(parent, codeRule);
+    const guidance = this.buildGuidance(parent, codeRule);
     const asserts = codeRule.asserts ?? {};
-    const diagnostics = this.diagnosticsFor(nodes, asserts, findLabel, recommendation, filePath);
+    const diagnostics = this.diagnosticsFor(nodes, asserts, findLabel, guidance, filePath);
 
     return {
       find: findLabel,
-      recommendation,
+      guidance,
       passed: diagnostics.length === 0,
       diagnostics,
       durationMs: Math.round(performance.now() - start),
@@ -176,7 +176,7 @@ export class Controller {
     nodes: WorkspaceNode[],
     asserts: NonNullable<StructureRule['asserts']>,
     find: string,
-    recommendation: string,
+    guidance: string,
     file?: string,
     ctx?: AssertContext,
   ): Diagnostic[] {
@@ -186,7 +186,7 @@ export class Controller {
         continue;
       }
       diagnostics.push({
-        recommendation,
+        guidance,
         description: outcome.description ?? `${name} assertion failed.`,
         find,
         assertion: name as AssertName,
@@ -196,21 +196,15 @@ export class Controller {
     return diagnostics;
   }
 
-  // Builds a stack-trace style recommendation by walking outer-to-inner. For
-  // each rule in the chain we add its leading comment (from the guard file)
-  // followed by its `recommendation`. The result joins everything with
-  // newlines so a failed assert surfaces the full authoring context.
-  private buildRecommendation(rule: StructureRule, codeRule?: CodeRule) {
+  // Builds stack-trace style guidance by walking outer-to-inner. For each
+  // rule in the chain we add its leading comment from the guard file. The
+  // result joins everything with newlines so a failed assert surfaces the
+  // full authoring context.
+  private buildGuidance(rule: StructureRule, codeRule?: CodeRule) {
     const parts: string[] = [];
     parts.push(...leadingCommentsOf(rule));
-    if (rule.recommendation) {
-      parts.push(rule.recommendation);
-    }
     if (codeRule) {
       parts.push(...leadingCommentsOf(codeRule));
-      if (codeRule.recommendation) {
-        parts.push(codeRule.recommendation);
-      }
     }
     return parts.join('\n');
   }
