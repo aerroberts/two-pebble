@@ -112,6 +112,25 @@ export function RichTextField(props: RichTextFieldProps) {
     editor.setEditable(!(props.disabled ?? false));
   }, [editor, props.disabled]);
 
+  // Sync the editor's content when `initialContent` swaps to a new document
+  // (e.g. the surrounding view switched which entity it's editing). Skipped
+  // while the editor is focused so we never clobber in-flight typing — the
+  // editor commits on blur, so by the time a new prop arrives via a sibling
+  // selection change the user's edits are already persisted.
+  useEffect(() => {
+    if (editor === null || props.initialContent === undefined) {
+      return;
+    }
+    if (editor.isFocused) {
+      return;
+    }
+    const current = editor.getJSON();
+    if (sameTipTapDoc(current, props.initialContent)) {
+      return;
+    }
+    editor.commands.setContent(props.initialContent, false);
+  }, [editor, props.initialContent]);
+
   return (
     <div className="flex w-full flex-col gap-1">
       {props.label !== undefined ? (
@@ -132,4 +151,8 @@ export function RichTextField(props: RichTextFieldProps) {
       />
     </div>
   );
+}
+
+function sameTipTapDoc(left: JSONContent, right: JSONContent): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
