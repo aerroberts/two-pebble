@@ -1,6 +1,5 @@
-import { CodeBlock, DataValue, Section, Surface } from '@two-pebble/components';
+import { AgentPriceLineItemList, AgentPriceTotal, Section, Surface } from '@two-pebble/components';
 import type { AgentPriceLineItemRecord } from '@two-pebble/realtime';
-import { formatUsd } from './model-call-detail-format';
 
 interface ModelCallPriceViewProps {
   lineItems: AgentPriceLineItemRecord[];
@@ -26,14 +25,15 @@ export function ModelCallPriceView(props: ModelCallPriceViewProps) {
 
   return (
     <>
-      <Section title="Price">
+      <Section title="Total Price">
         <Surface>
-          <DataValue title="Line Items" value={props.lineItems.length} />
-          <DataValue title="Total" value={formatUsd(props.lineItems.reduce((total, item) => total + item.total, 0))} />
+          <AgentPriceTotal lineItems={props.lineItems} />
         </Surface>
       </Section>
       <Section title="Line Items">
-        <CodeBlock content={JSON.stringify(props.lineItems, null, 2)} language="json" />
+        <Surface>
+          <AgentPriceLineItemList lineItems={props.lineItems} />
+        </Surface>
       </Section>
     </>
   );
