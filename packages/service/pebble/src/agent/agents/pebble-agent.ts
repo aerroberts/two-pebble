@@ -143,7 +143,11 @@ export class PebbleAgent extends Agent {
     if (prompt.length === 0) {
       return;
     }
-    this.thread.pushSystem(`Capability System Prompt: ${capability.id}`, Cell.text(prompt));
+    this.thread.pushSystem(
+      `Capability System Prompt: ${capability.id}`,
+      Cell.header2(`Capability: ${capability.id}`),
+      Cell.text(prompt),
+    );
   }
 
   /**
