@@ -1,7 +1,6 @@
 import {
   AutomationIndicator,
   type AutomationIndicatorState,
-  Button,
   Header,
   PageLayout,
   Section,
@@ -59,16 +58,7 @@ export function AutomationsPage() {
 
   return (
     <PageLayout width="fixed">
-      <Header
-        actionItems={
-          <Button leftIcon="plus" onClick={() => navigate('/automations/new')}>
-            New automation
-          </Button>
-        }
-        subtitle="Scheduled and manual agent launches driven by the daemon heartbeat."
-      >
-        Automations
-      </Header>
+      <Header subtitle="Scheduled and manual agent launches driven by the daemon heartbeat.">Automations</Header>
       <Section>
         {automations.status === 'loading' ? <Surface>Loading automations.</Surface> : null}
         {automations.status === 'error' ? <Surface>Could not load automations.</Surface> : null}
