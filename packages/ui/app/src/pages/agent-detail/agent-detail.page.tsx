@@ -46,11 +46,6 @@ export function AgentDetailPage() {
               Parent
             </Button>
           ) : null}
-          {state.agent?.agentRegistryId ? (
-            <Button leftIcon="BookMarked" onClick={() => state.openAgentRegistry(state.agent?.agentRegistryId ?? '')}>
-              Registry
-            </Button>
-          ) : null}
           <TabSelect options={AGENT_DETAIL_VIEW_OPTIONS} value={state.viewMode} onChange={state.setViewModeFromValue} />
         </>
       }
