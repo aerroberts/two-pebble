@@ -1,0 +1,1 @@
+idle — it already responded and is no longer running. To get more work from it, call ask-sub-agent again (this wakes it for another turn). To start a clean run, call spawn-sub-agent. Do NOT assume it is still working in the background.

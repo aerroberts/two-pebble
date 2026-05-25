@@ -1,12 +1,9 @@
 import { z } from 'zod/v4';
+import writeDocumentMarkdownPrompt from './prompts/write-document-markdown-field.md?raw';
 
 export const writeDocumentSchema = z.object({
   name: z.string().min(1).describe('Document title. Shown in the documents sidebar.'),
-  markdown: z
-    .string()
-    .describe(
-      'Full document body in Markdown. Headings, lists, code blocks, and inline formatting are converted to the editor format.',
-    ),
+  markdown: z.string().describe(writeDocumentMarkdownPrompt),
 });
 
 export const updateDocumentSchema = z.object({

@@ -1,0 +1,1 @@
+Applies a unified diff to a single workspace file. Use this for multi-hunk edits where edit-file's single find/replace is awkward. Errors if any hunk's context fails to match; on failure the file is left unchanged. The diff's --- / +++ headers may use any label; only the hunks are applied.

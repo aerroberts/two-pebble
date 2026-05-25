@@ -1,0 +1,1 @@
+Replaces text inside an existing workspace file. By default oldString must appear exactly once; set replaceAll to swap every occurrence. Use this for small, targeted edits; use write-file for full rewrites and patch-file for multi-hunk patches.

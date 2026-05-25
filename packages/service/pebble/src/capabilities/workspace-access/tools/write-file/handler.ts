@@ -4,6 +4,7 @@ import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
 import { resolveWorkspacePath } from '../../path-safety';
+import writeFileToolDescription from '../../prompts/write-file-tool-description.md?raw';
 
 const schema = z.object({
   path: z.string().describe('Workspace-relative path of the file to write.'),
@@ -12,10 +13,7 @@ const schema = z.object({
 
 export function buildWriteFileTool(workspacePath: string) {
   return new NativeTool({
-    description: `
-Writes contents to a file inside the workspace. Replaces the file in full,
-or creates it if missing. Parent directories are created as needed.
-    `.trim(),
+    description: writeFileToolDescription,
     name: 'write-file',
     schema,
   }).onInvoke(async (input) => {

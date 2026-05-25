@@ -1,0 +1,1 @@
+Reads the contents of a file inside the workspace and returns them as text. Output is truncated at {{maxOutputChars}} characters; for files larger than that, pass an explicit `offset` to read a later window. The returned response always reports the file's total size so callers can paginate.

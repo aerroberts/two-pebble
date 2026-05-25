@@ -3,6 +3,7 @@ import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
 import { resolveWorkspacePath } from '../../path-safety';
+import readFileToolDescription from '../../prompts/read-file-tool-description.md?raw';
 
 const MAX_OUTPUT_CHARS = 3000;
 
@@ -13,12 +14,7 @@ const schema = z.object({
 
 export function buildReadFileTool(workspacePath: string) {
   return new NativeTool({
-    description: `
-Reads the contents of a file inside the workspace and returns them as text. Output
-is truncated at ${MAX_OUTPUT_CHARS} characters; for files larger than that, pass an
-explicit \`offset\` to read a later window. The returned response always reports the
-file's total size so callers can paginate.
-    `.trim(),
+    description: readFileToolDescription.replace('{{maxOutputChars}}', String(MAX_OUTPUT_CHARS)),
     name: 'read-file',
     schema,
   }).onInvoke(async (input) => {

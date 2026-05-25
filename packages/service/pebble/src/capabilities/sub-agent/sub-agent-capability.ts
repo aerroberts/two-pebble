@@ -4,8 +4,10 @@ import { NativeTool, ToolResponse } from '../../agent';
 import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import { getCapabilityRunners } from '../runners';
-import { listSubAgentsCells } from './sub-agent-cells';
-import { describeLifecycle, LIFECYCLE_PRIMER, NEXT_ACTION_GUIDE } from './sub-agent-lifecycle';
+import lifecyclePrimerPrompt from './prompts/lifecycle-primer.md?raw';
+import nextActionGuidePrompt from './prompts/next-action-guide.md?raw';
+import spawnSubAgentMessagePrompt from './prompts/spawn-message-field.md?raw';
+import { childStatusLine, listSubAgentsCells } from './sub-agent-cells';
 import { readReferences, spawnToolDescription } from './sub-agent-references';
 import {
   askSubAgentSchema,
@@ -41,7 +43,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   public override initialize(_config: SubAgentCapabilityConfig): void {
     this.agent.addUserContext('Sub-agent Lifecycle Primer', [
       Cell.header2('Sub-agent Lifecycle Primer'),
-      Cell.text(LIFECYCLE_PRIMER),
+      Cell.text(lifecyclePrimerPrompt),
     ]);
   }
 
@@ -53,11 +55,11 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     if (children.length === 0) {
       return;
     }
-    const lines = children.map((child) => `- ${child.agentId} (${child.referenceName}) — ${describeLifecycle(child)}`);
+    const lines = children.map((child) => `- ${childStatusLine(child)}`);
     this.agent.addUserContext('Sub-agent Status', [
       Cell.header2('Sub-agent Status'),
       Cell.text(lines.join('\n')),
-      Cell.text(NEXT_ACTION_GUIDE),
+      Cell.text(nextActionGuidePrompt),
     ]);
   }
 
@@ -82,11 +84,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   private spawnTool(references: SubAgentReference[]) {
     const spawnSchema = z.object({
       referenceName: referenceNameSchema(references),
-      message: z
-        .string()
-        .describe(
-          'Complete instruction brief for the child (aim for 500+ words). State the goal, deliverables, constraints, success criteria, and relevant background context. Vague one-liners produce unreliable, off-target output.',
-        ),
+      message: z.string().describe(spawnSubAgentMessagePrompt),
     });
     return new NativeTool({
       description: spawnToolDescription(references),

@@ -1,0 +1,1 @@
+When you create or update tasks, write longer, more nuanced descriptions — capture intent, constraints, acceptance criteria, and any context a downstream worker would need. One-line summaries are not enough.

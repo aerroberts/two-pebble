@@ -3,6 +3,7 @@ import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import { getCapabilityRunners } from '../runners';
 import { renderBoardTree, renderTaskList } from './describe-board';
+import taskDescriptionGuidancePrompt from './prompts/task-description-guidance.md?raw';
 import {
   boardSchema,
   createTaskSchema,
@@ -43,9 +44,7 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
     this.agent.addUserContext('Task Board Context', [
       Cell.header2('Task Board Context'),
       Cell.text(`Active task board: ${boardId}. Tool calls default to this board when boardId is omitted.`),
-      Cell.text(
-        'When you create or update tasks, write longer, more nuanced descriptions — capture intent, constraints, acceptance criteria, and any context a downstream worker would need. One-line summaries are not enough.',
-      ),
+      Cell.text(taskDescriptionGuidancePrompt),
     ]);
   }
 

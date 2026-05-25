@@ -5,6 +5,7 @@ import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
 import { resolveWorkspacePath } from '../../path-safety';
+import patchFileToolDescription from '../../prompts/patch-file-tool-description.md?raw';
 
 const schema = z.object({
   path: z.string().describe('Workspace-relative path of the file to patch.'),
@@ -13,12 +14,7 @@ const schema = z.object({
 
 export function buildPatchFileTool(workspacePath: string) {
   return new NativeTool({
-    description: `
-Applies a unified diff to a single workspace file. Use this for multi-hunk edits
-where edit-file's single find/replace is awkward. Errors if any hunk's context
-fails to match; on failure the file is left unchanged. The diff's --- / +++
-headers may use any label; only the hunks are applied.
-    `.trim(),
+    description: patchFileToolDescription,
     name: 'patch-file',
     schema,
   }).onInvoke(async (input) => {

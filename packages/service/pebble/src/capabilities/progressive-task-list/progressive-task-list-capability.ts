@@ -7,6 +7,8 @@ import { ProgressiveTaskListTaskAlreadyTerminalError } from './progressive-task-
 import { ProgressiveTaskListTaskBlockedError } from './progressive-task-list-task-blocked-error';
 import { ProgressiveTaskListTaskNotFoundError } from './progressive-task-list-task-not-found-error';
 import type { TaskListUpdateData } from './progressive-task-list-trace-types';
+import allTasksTerminalPrompt from './prompts/all-terminal.md?raw';
+import currentActionableTasksPrompt from './prompts/current-actionable.md?raw';
 import { buildMarkTaskCompleteTool } from './tools/mark-task-complete/handler';
 import { buildMarkTaskInvalidTool } from './tools/mark-task-invalid/handler';
 import type {
@@ -75,8 +77,10 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
     const visibleTasksString =
       visibleTasks.length === 0 ? 'none' : visibleTasks.map((task) => `${task.id} - ${task.description}`).join('\n');
     const statusPrompt = allTasksTerminal
-      ? `All tasks are terminal. Stop task work and exit; there are no current tasks to continue. Terminal tasks: ${terminalTasksString}.`
-      : `Current actionable tasks, and only these tasks: ${visibleTasksString}. Do not continue pending, hidden, completed, invalid, or automatically completed tasks. Terminal tasks already closed: ${terminalTasksString}.`;
+      ? allTasksTerminalPrompt.replace('{{terminalTasks}}', terminalTasksString)
+      : currentActionableTasksPrompt
+          .replace('{{visibleTasks}}', visibleTasksString)
+          .replace('{{terminalTasks}}', terminalTasksString);
     return { allTasksTerminal, openTasks, visibleTasks, statusPrompt, completedTasks, invalidTasks };
   }
 

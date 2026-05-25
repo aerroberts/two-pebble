@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
+import bashToolDescription from '../../prompts/bash-tool-description.md?raw';
 
 const MAX_OUTPUT_CHARS = 3000;
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -20,12 +21,10 @@ const schema = z.object({
 
 export function buildBashTool(workspacePath: string) {
   return new NativeTool({
-    description: `
-Runs a shell command inside the agent's workspace. The working directory is fixed
-to the workspace root. Output is captured and returned in a single response;
-stdout and stderr are each truncated at ${MAX_OUTPUT_CHARS} characters. The
-default timeout is ${DEFAULT_TIMEOUT_MS / 1000}s; pass timeoutMs to override (max ${MAX_TIMEOUT_MS / 1000}s).
-    `.trim(),
+    description: bashToolDescription
+      .replace('{{maxOutputChars}}', String(MAX_OUTPUT_CHARS))
+      .replace('{{defaultTimeoutSeconds}}', String(DEFAULT_TIMEOUT_MS / 1000))
+      .replace('{{maxTimeoutSeconds}}', String(MAX_TIMEOUT_MS / 1000)),
     name: 'bash',
     schema,
   }).onInvoke(async (input) => {

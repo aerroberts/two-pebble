@@ -4,6 +4,7 @@ import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
 import { resolveWorkspacePath } from '../../path-safety';
+import createFileToolDescription from '../../prompts/create-file-tool-description.md?raw';
 
 const schema = z.object({
   path: z.string().describe('Workspace-relative path of the new file.'),
@@ -12,11 +13,7 @@ const schema = z.object({
 
 export function buildCreateFileTool(workspacePath: string) {
   return new NativeTool({
-    description: `
-Creates a new file inside the workspace with the given contents. Errors if the file
-already exists; use write-file or edit-file to update existing files. Parent
-directories are created if they do not exist.
-    `.trim(),
+    description: createFileToolDescription,
     name: 'create-file',
     schema,
   }).onInvoke(async (input) => {

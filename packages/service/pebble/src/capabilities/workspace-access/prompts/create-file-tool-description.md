@@ -1,0 +1,1 @@
+Creates a new file inside the workspace with the given contents. Errors if the file already exists; use write-file or edit-file to update existing files. Parent directories are created if they do not exist.

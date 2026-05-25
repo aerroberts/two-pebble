@@ -1,0 +1,1 @@
+Runs a shell command inside the agent's workspace. The working directory is fixed to the workspace root. Output is captured and returned in a single response; stdout and stderr are each truncated at {{maxOutputChars}} characters. The default timeout is {{defaultTimeoutSeconds}}s; pass timeoutMs to override (max {{maxTimeoutSeconds}}s).

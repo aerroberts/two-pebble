@@ -1,6 +1,9 @@
 import { Cell, type DataCells } from '../../thread';
-import { describeLifecycle } from './sub-agent-lifecycle';
-import type { ChildRecord, SubAgentReference } from './sub-agent-types';
+import awaitingOurResponseLifecyclePrompt from './prompts/lifecycle-awaiting-our-response.md?raw';
+import awaitingReplyLifecyclePrompt from './prompts/lifecycle-awaiting-reply.md?raw';
+import idleAfterReplyLifecyclePrompt from './prompts/lifecycle-idle-after-reply.md?raw';
+import killedLifecyclePrompt from './prompts/lifecycle-killed.md?raw';
+import type { ChildLifecycle, ChildRecord, SubAgentReference } from './sub-agent-types';
 
 export function listSubAgentsCells(references: SubAgentReference[], children: ChildRecord[]): DataCells {
   return [
@@ -22,7 +25,11 @@ function childCells(children: ChildRecord[]): DataCells {
   if (children.length === 0) {
     return [Cell.text('No spawned child agents.')];
   }
-  return children.map((child) => Cell.text(`${child.agentId} (${child.referenceName}) — ${describeLifecycle(child)}`));
+  return children.map((child) => Cell.text(childStatusLine(child)));
+}
+
+export function childStatusLine(child: ChildRecord): string {
+  return `${child.agentId} (${child.referenceName}) — ${LIFECYCLE_DESCRIPTIONS[child.lifecycle]}`;
 }
 
 function referenceDescription(reference: SubAgentReference): string {
@@ -30,3 +37,10 @@ function referenceDescription(reference: SubAgentReference): string {
     reference.description === undefined || reference.description.length === 0 ? '' : ` - ${reference.description}`;
   return `${reference.name}${description}`;
 }
+
+const LIFECYCLE_DESCRIPTIONS: Record<ChildLifecycle, string> = {
+  'awaiting-reply': awaitingReplyLifecyclePrompt,
+  'idle-after-reply': idleAfterReplyLifecyclePrompt,
+  'awaiting-our-response': awaitingOurResponseLifecyclePrompt,
+  killed: killedLifecyclePrompt,
+};

@@ -3,6 +3,7 @@ import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
 import { resolveWorkspacePath } from '../../path-safety';
+import editFileToolDescription from '../../prompts/edit-file-tool-description.md?raw';
 
 const schema = z.object({
   path: z.string().describe('Workspace-relative path of the file to edit.'),
@@ -13,12 +14,7 @@ const schema = z.object({
 
 export function buildEditFileTool(workspacePath: string) {
   return new NativeTool({
-    description: `
-Replaces text inside an existing workspace file. By default oldString must
-appear exactly once; set replaceAll to swap every occurrence. Use this for
-small, targeted edits; use write-file for full rewrites and patch-file for
-multi-hunk patches.
-    `.trim(),
+    description: editFileToolDescription,
     name: 'edit-file',
     schema,
   }).onInvoke(async (input) => {
