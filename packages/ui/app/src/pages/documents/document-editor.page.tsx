@@ -10,6 +10,7 @@ import {
   type SlashTrigger,
   Surface,
   TipTapEditor,
+  Tooltip,
 } from '@two-pebble/components';
 import { useCallback, useState } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -55,25 +56,29 @@ export function DocumentEditorPage() {
         compact
         actionItems={
           <>
-            <IconButton
-              aria-label="Add task"
-              icon="list-todo"
-              onClick={() => {
-                if (editor === null) {
-                  return;
-                }
-                editor.chain().focus().insertTodoItem().run();
-              }}
-              type="button"
-              variant="secondary"
-            />
-            <IconButton
-              aria-label="Archive document"
-              icon="archive"
-              onClick={() => void state.deleteDocument()}
-              type="button"
-              variant="secondary"
-            />
+            <Tooltip content="Add task">
+              <IconButton
+                aria-label="Add task"
+                icon="list-todo"
+                onClick={() => {
+                  if (editor === null) {
+                    return;
+                  }
+                  editor.chain().focus().insertTodoItem().run();
+                }}
+                type="button"
+                variant="secondary"
+              />
+            </Tooltip>
+            <Tooltip content="Archive document">
+              <IconButton
+                aria-label="Archive document"
+                icon="archive"
+                onClick={() => void state.deleteDocument()}
+                type="button"
+                variant="secondary"
+              />
+            </Tooltip>
           </>
         }
       >
