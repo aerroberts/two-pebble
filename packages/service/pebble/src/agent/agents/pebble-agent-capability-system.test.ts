@@ -18,6 +18,10 @@ describe('feature: pebble agent capability system prompts', () => {
     expect(systemCell?.role).toBe('system');
     expect(systemCell?.cells).toEqual([
       {
+        content: { text: 'Capability: signal-test' },
+        type: 'header2',
+      },
+      {
         content: { text: 'Signal test capability system prompt.' },
         type: 'text',
       },
