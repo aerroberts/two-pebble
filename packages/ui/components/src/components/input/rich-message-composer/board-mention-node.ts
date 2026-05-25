@@ -5,6 +5,24 @@ export interface BoardMentionAttributes {
   name: string;
 }
 
+const BOARD_ICON_SVG: [string, Record<string, string>, ...unknown[]] = [
+  'svg',
+  {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    'stroke-width': '2',
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    'aria-hidden': 'true',
+    class: 'h-2.5 w-2.5 shrink-0',
+  },
+  ['rect', { width: '7', height: '9', x: '3', y: '3', rx: '1' }],
+  ['rect', { width: '7', height: '5', x: '14', y: '3', rx: '1' }],
+  ['rect', { width: '7', height: '9', x: '14', y: '12', rx: '1' }],
+  ['rect', { width: '7', height: '5', x: '3', y: '16', rx: '1' }],
+];
+
 /**
  * Inline atomic node that renders a task-board pill inside the composer.
  *
@@ -42,10 +60,11 @@ export const BoardMentionNode = Node.create({
       'span',
       mergeAttributes(HTMLAttributes, {
         class:
-          'inline-flex items-center gap-1 rounded-md border border-border bg-surface-alt px-1.5 py-0.5 text-[11px] font-medium text-content',
+          'inline-flex items-center align-baseline gap-1 rounded-md border border-border bg-surface-alt px-1 py-0 text-[11px] font-medium leading-4 text-content',
         contenteditable: 'false',
       }),
-      `#${HTMLAttributes['data-board-name'] || 'board'}`,
+      BOARD_ICON_SVG,
+      HTMLAttributes['data-board-name'] || 'board',
     ];
   },
 
