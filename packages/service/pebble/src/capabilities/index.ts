@@ -1,4 +1,3 @@
-export { getAgentBridge, getCapabilityRunners, installAgentBridge, installCapabilityRunners } from './agent-bridge';
 export { AgentNamingCapability } from './agent-naming/capability';
 export {
   buildCapability,

@@ -14,7 +14,7 @@ export function buildDeleteTaskTool(capability: TaskBoardAccessCapability) {
     name: 'delete-task',
     schema,
   }).onInvoke(async (input) => {
-    await capability.bridge().deleteTask({ boardId: capability.boardId(undefined), taskId: input.taskId });
+    await capability.bridge.taskBoards.deleteTask({ boardId: capability.boardId(undefined), taskId: input.taskId });
     return ToolResponse.success([Cell.text(`Deleted ${input.taskId}.`)]);
   });
 }

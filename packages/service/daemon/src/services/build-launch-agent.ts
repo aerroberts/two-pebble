@@ -21,6 +21,7 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
   if (input.kind === 'framework') {
     return new FrameworkAgent({
       agentId: input.agentId,
+      bridge: input.bridge,
       description: input.description,
       framework: buildFrameworkAdapter(input),
       freshLaunch: Object.keys(input.resumeMetadata).length === 0,
@@ -34,6 +35,7 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
   const provider = providerFactory.buildProvider(input.integration, input.inferenceProfile);
   return new PebbleAgent({
     agentId: input.agentId,
+    bridge: input.bridge,
     description: input.description,
     name: input.registry.name,
     provider,

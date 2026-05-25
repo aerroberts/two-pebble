@@ -21,13 +21,8 @@ export function buildSetAgentNameTool(capability: AgentNamingCapability) {
     name: 'set-agent-name',
     schema,
   }).onInvoke(async (input) => {
-    const bridge = capability.bridge();
-    if (bridge === undefined) {
-      const message = 'Agent naming bridge is not installed for this agent.';
-      return ToolResponse.error(message, [Cell.text(message)]);
-    }
     try {
-      await bridge.setName(input.name);
+      await capability.bridge.agent.setName({ name: input.name });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return ToolResponse.error(message, [Cell.text(`Failed to set name: ${message}`)]);

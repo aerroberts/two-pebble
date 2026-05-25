@@ -17,7 +17,7 @@ export function buildListTasksTool(capability: TaskBoardAccessCapability) {
     name: 'list-tasks',
     schema,
   }).onInvoke(async (input) => {
-    const snapshot = await capability.bridge().describeBoard(capability.boardId(input.boardId));
+    const snapshot = await capability.bridge.taskBoards.describe({ boardId: capability.boardId(input.boardId) });
     return ToolResponse.success([Cell.codeBlock('text', renderTaskList(snapshot.tasks))]);
   });
 }

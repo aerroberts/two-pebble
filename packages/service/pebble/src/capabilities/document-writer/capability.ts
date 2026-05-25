@@ -1,5 +1,3 @@
-import type { DocumentBridge } from '../../agent/agent-bridge';
-import { getAgentBridge } from '../agent-bridge';
 import { AgentCapability } from '../agent-capability';
 import { buildListDocumentsTool } from './tools/list-documents/handler';
 import { buildReadDocumentTool } from './tools/read-document/handler';
@@ -30,11 +28,6 @@ export class DocumentWriterCapability extends AgentCapability<Record<string, nev
       ],
     };
   }
-
-  public bridge(): DocumentBridge | undefined {
-    return getAgentBridge(this.agent).documentWriter;
-  }
-
   public traceDocumentCreated(input: { id: string; name: string }): void {
     this.agent.emit('trace', {
       type: 'document-created',

@@ -35,17 +35,19 @@ export function buildUpdateTaskTool(capability: TaskBoardAccessCapability) {
       ]);
     }
     if (input.name !== undefined) {
-      await capability.bridge().renameTask({ taskId: input.taskId, name: input.name });
+      await capability.bridge.taskBoards.renameTask({ taskId: input.taskId, name: input.name });
       updated.push('name');
     }
     if (input.description !== undefined) {
-      await capability
-        .bridge()
-        .updateTaskDescription({ boardId, taskId: input.taskId, description: input.description });
+      await capability.bridge.taskBoards.updateTaskDescription({
+        boardId,
+        taskId: input.taskId,
+        description: input.description,
+      });
       updated.push('description');
     }
     if (input.status !== undefined && input.reason !== undefined) {
-      await capability.bridge().setTaskStatus({
+      await capability.bridge.taskBoards.setTaskStatus({
         boardId,
         taskId: input.taskId,
         status: input.status,

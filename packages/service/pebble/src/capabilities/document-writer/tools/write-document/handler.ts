@@ -18,12 +18,8 @@ export function buildWriteDocumentTool(capability: DocumentWriterCapability) {
     name: 'write-document',
     schema,
   }).onInvoke(async (input) => {
-    const bridge = capability.bridge();
-    if (bridge === undefined) {
-      return missingBridgeResponse();
-    }
     try {
-      const result = await bridge.createDocument({ name: input.name, markdown: input.markdown });
+      const result = await capability.bridge.documents.create({ name: input.name, markdown: input.markdown });
       capability.traceDocumentCreated(result);
       return ToolResponse.success([Cell.text(`Created document "${result.name}" (id: ${result.id}).`)]);
     } catch (error) {
@@ -31,8 +27,4 @@ export function buildWriteDocumentTool(capability: DocumentWriterCapability) {
       return ToolResponse.error(message, [Cell.text(`Failed to create document: ${message}`)]);
     }
   });
-}
-
-function missingBridgeResponse() {
-  return ToolResponse.error('Document bridge is not installed.', [Cell.text('Document bridge is not installed.')]);
 }

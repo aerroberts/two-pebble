@@ -1,8 +1,6 @@
 import { AgentExitHook, ToolResponse } from '../../agent';
-import type { TaskBoardRunner } from '../../agent/agent-bridge';
 import type { AgentStatus } from '../../agent/types';
 import { Cell, type DataCells } from '../../thread';
-import { getAgentBridge } from '../agent-bridge';
 import { AgentCapability } from '../agent-capability';
 import { buildCompleteTaskTool } from './tools/complete-task/handler';
 import { buildFailTaskTool } from './tools/fail-task/handler';
@@ -78,7 +76,7 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
     deliverableId: string;
     payload: { type: 'text'; content: string } | { type: 'pr_url'; url: string };
   }) {
-    const submission = await this.runner().submitDeliverable({
+    const submission = await this.bridge.taskBoards.submitDeliverable({
       agentId: this.agent.agentId,
       taskId: this.requireTaskId(),
       deliverableId: input.deliverableId,
@@ -98,7 +96,7 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
         Cell.text(`Cannot complete: deliverables not yet submitted: ${missing.join(', ')}`),
       ]);
     }
-    await this.runner().setOwnedTaskStatus({
+    await this.bridge.taskBoards.setOwnedTaskStatus({
       agentId: this.agent.agentId,
       taskId: this.requireTaskId(),
       status: 'success',
@@ -109,7 +107,7 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
   }
 
   public async failTask(reason: string) {
-    await this.runner().setOwnedTaskStatus({
+    await this.bridge.taskBoards.setOwnedTaskStatus({
       agentId: this.agent.agentId,
       taskId: this.requireTaskId(),
       status: 'failure',
@@ -157,7 +155,7 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
     if (taskId.length === 0) {
       return;
     }
-    void this.runner()
+    void this.bridge.taskBoards
       .setOwnedTaskStatus({
         agentId: this.agent.agentId,
         taskId,
@@ -170,20 +168,12 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
       });
   }
 
-  private runner(): TaskBoardRunner {
-    const runner = getAgentBridge(this.agent).taskBoard;
-    if (runner === undefined) {
-      throw new Error('task-board bridge is not installed.');
-    }
-    return runner;
-  }
-
   private async injectTaskAssignmentContext(): Promise<void> {
     await this.ensureDeliverableStateLoaded();
     const name = this.taskNameSlot.value;
     const description = this.taskDescriptionSlot.value.trim();
     const additionalContext = this.additionalContextSlot.value.trim();
-    const deliverables = await this.runner().listTaskDeliverables({ taskId: this.requireTaskId() });
+    const deliverables = await this.bridge.taskBoards.listTaskDeliverables({ taskId: this.requireTaskId() });
     const cells: DataCells = [Cell.header2(`Task: ${name}`)];
     if (description.length > 0) {
       cells.push(Cell.text(description));
@@ -207,8 +197,8 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
   private async ensureDeliverableStateLoaded(): Promise<void> {
     const taskId = this.requireTaskId();
     const [deliverables, submissions] = await Promise.all([
-      this.runner().listTaskDeliverables({ taskId }),
-      this.runner().listTaskDeliverableSubmissions({ taskId }),
+      this.bridge.taskBoards.listTaskDeliverables({ taskId }),
+      this.bridge.taskBoards.listTaskDeliverableSubmissions({ taskId }),
     ]);
     this.requiredDeliverableIdsSlot.set(deliverables.map((deliverable) => deliverable.id));
     this.submittedDeliverableIdsSlot.set(submissions.map((submission) => submission.deliverableId));

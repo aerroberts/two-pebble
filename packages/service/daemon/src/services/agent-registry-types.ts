@@ -8,6 +8,7 @@ import type {
 import type { Logger } from '@two-pebble/logger';
 import type {
   Agent,
+  AgentBridge,
   CellContent,
   PebbleAgentConversationCell,
   PebbleAgentRestoredThread,
@@ -89,8 +90,7 @@ export interface RunAgentInput {
   registry?: AgentRegistryRecord;
   /**
    * Optional parent agent id. When set, the daemon auto-attaches the
-   * `parent-link` capability on top of the registry-declared list and
-   * wires the child-side runner so notifyParent / askParent work.
+   * `parent-link` capability on top of the registry-declared list.
    */
   parentAgentId?: string;
   /**
@@ -132,6 +132,7 @@ export interface AgentListenerInstallInput {
 
 export interface BuildLaunchAgentInput_Pebble {
   agentId: string;
+  bridge: AgentBridge;
   description: string;
   inferenceProfile: InferenceProfileRecord;
   integration: IntegrationRecord;
@@ -154,6 +155,7 @@ export interface BuildLaunchAgentInput_Pebble {
 
 export interface BuildLaunchAgentInput_Framework {
   agentId: string;
+  bridge: AgentBridge;
   description: string;
   install: ThirdPartyAgentInstallRecord;
   kind: 'framework';

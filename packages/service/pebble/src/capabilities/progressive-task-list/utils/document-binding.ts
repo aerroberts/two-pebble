@@ -1,6 +1,5 @@
 import type { DocumentTodo } from '@two-pebble/datatypes';
 import type { Agent } from '../../../agent/agent';
-import { getAgentBridge } from '../../agent-bridge';
 import type { Task, TaskStatus } from './types';
 
 export interface DocumentBindingSyncInput {
@@ -37,7 +36,7 @@ interface ApplyTodosInput {
 }
 
 /**
- * Reads the bound document via the installed `documentWriter` bridge and
+ * Reads the bound document via the installed document operations and
  * reconciles its embedded todos with the capability's in-memory task
  * list. Returns the next task array plus a boolean signalling whether
  * any task moved — callers persist only on change to keep traces tight.
@@ -45,13 +44,10 @@ interface ApplyTodosInput {
 export async function syncTasksFromDocumentBinding(
   input: DocumentBindingSyncInput,
 ): Promise<DocumentBindingSyncResult> {
-  const runner = getAgentBridge(input.agent).documentWriter;
-  if (runner === undefined) {
-    return { tasks: input.tasks, changed: false };
-  }
+  const documents = input.agent.bridge.documents;
   let todos: DocumentTodo[] = [];
   try {
-    todos = await runner.readDocumentTodos({ id: input.documentId });
+    todos = await documents.readTodos({ id: input.documentId });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     emitBindingTrace({ agent: input.agent, capabilityId: input.capabilityId, name: 'documentSyncError', message });
@@ -66,12 +62,9 @@ export async function syncTasksFromDocumentBinding(
  * and the next turn will self-heal via `syncTasksFromDocumentBinding`.
  */
 export async function mirrorStatusToDocumentBinding(input: DocumentBindingMirrorInput): Promise<void> {
-  const runner = getAgentBridge(input.agent).documentWriter;
-  if (runner === undefined) {
-    return;
-  }
+  const documents = input.agent.bridge.documents;
   try {
-    await runner.applyTodoStatus({
+    await documents.applyTodoStatus({
       id: input.documentId,
       todoId: input.taskId,
       status: input.status,

@@ -33,7 +33,7 @@ export abstract class AgentTool {
   /**
    * Executes this tool from a parsed model call. Returns either a sync
    * result or a promise that resolves to one — the agent loop awaits both.
-   * Async invocations let tools call into runners (sub-agent spawn, etc.)
+   * Async invocations let tools call into daemon-backed operations.
    * without forcing the rest of the loop to be partially synchronous.
    */
   public abstract invoke(input: ToolInput): ToolResponseResult | Promise<ToolResponseResult>;

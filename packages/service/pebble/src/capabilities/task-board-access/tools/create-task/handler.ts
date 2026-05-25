@@ -20,7 +20,7 @@ export function buildCreateTaskTool(capability: TaskBoardAccessCapability) {
     name: 'create-task',
     schema,
   }).onInvoke(async (input) => {
-    const result = await capability.bridge().createTask({
+    const result = await capability.bridge.taskBoards.createTask({
       boardId: capability.boardId(input.boardId),
       name: input.name,
       ...(input.description === undefined ? {} : { description: input.description }),

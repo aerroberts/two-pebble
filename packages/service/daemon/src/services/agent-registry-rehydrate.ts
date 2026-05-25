@@ -1,6 +1,6 @@
 import type { AgentRegistryRecord, Datastore } from '@two-pebble/datastore';
 import type { Logger } from '@two-pebble/logger';
-import type { Agent, ConversationThreadCell, PebbleJsonRecord, PebbleJsonValue } from '@two-pebble/pebble';
+import type { Agent, AgentBridge, ConversationThreadCell, PebbleJsonRecord, PebbleJsonValue } from '@two-pebble/pebble';
 import { PebbleAgent } from '@two-pebble/pebble';
 import type { DaemonBridge } from '../types';
 import type { BuildLaunchAgentInput } from './agent-registry-types';
@@ -13,6 +13,7 @@ import {
 } from './register-pebble-capabilities';
 
 export interface RehydrateAgentInput {
+  agentBridge: AgentBridge;
   agentId: string;
   bridge: DaemonBridge;
   datastore: Datastore;
@@ -36,6 +37,7 @@ interface LoadCapabilitySlotsInput {
 }
 
 interface ResolveBuildParamsInput {
+  agentBridge: AgentBridge;
   datastore: Datastore;
   registry: AgentRegistryRecord;
   resumeMetadata: PebbleJsonRecord;
@@ -91,6 +93,7 @@ export async function rehydrateAgent(input: RehydrateAgentInput): Promise<Agent>
     metadata: resumeMetadata,
   });
   const buildResult = await resolveBuildParams({
+    agentBridge: input.agentBridge,
     datastore: input.datastore,
     registry,
     resumeMetadata,
@@ -98,8 +101,8 @@ export async function rehydrateAgent(input: RehydrateAgentInput): Promise<Agent>
   });
   const buildInput =
     buildResult.params.kind === 'pebble' && restoredThread !== undefined
-      ? { ...buildResult.params, agentId: record.id, restoredThread }
-      : { ...buildResult.params, agentId: record.id };
+      ? { ...buildResult.params, agentId: record.id, bridge: input.agentBridge, restoredThread }
+      : { ...buildResult.params, agentId: record.id, bridge: input.agentBridge };
   const agent = buildLaunchAgent(buildInput);
   if (agent instanceof PebbleAgent) {
     const slots = await loadCapabilitySlots({ agentId: record.id, datastore: input.datastore });
@@ -151,6 +154,7 @@ async function resolveBuildParams(input: ResolveBuildParamsInput): Promise<Resol
       description,
       params: {
         agentId: '',
+        bridge: input.agentBridge,
         description,
         install,
         kind: 'framework',
@@ -172,6 +176,7 @@ async function resolveBuildParams(input: ResolveBuildParamsInput): Promise<Resol
     description,
     params: {
       agentId: '',
+      bridge: input.agentBridge,
       description,
       inferenceProfile,
       integration,

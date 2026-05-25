@@ -1,7 +1,6 @@
-import type { AgentSignal, SubAgentRunner } from '../../agent';
+import type { AgentSignal } from '../../agent';
 import { ToolResponse } from '../../agent';
 import { Cell } from '../../thread';
-import { getAgentBridge } from '../agent-bridge';
 import { AgentCapability } from '../agent-capability';
 import lifecyclePrimerPrompt from './prompts/lifecycle-primer.md?raw';
 import nextActionGuidePrompt from './prompts/next-action-guide.md?raw';
@@ -33,6 +32,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   public readonly description = 'Lets a Pebble agent spawn and message child agents.';
   private readonly childrenSlot = this.useState<ChildRecord[]>('children', []);
   private readonly pendingChildQuestionsSlot = this.useState<PendingChildQuestion[]>('pending-child-questions', []);
+  private referencesValue: SubAgentReference[] = [];
 
   /**
    * Injects a one-time orientation cell explaining the child lifecycle.
@@ -64,11 +64,11 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
    * Registers child-agent tools for the parent agent.
    */
   public override hookOnRegister(config: SubAgentCapabilityConfig) {
-    const references = readReferences(config);
+    this.referencesValue = readReferences(config);
     return {
       tools: [
-        buildSpawnSubAgentTool(this, references),
-        buildListSubAgentsTool(this, references),
+        buildSpawnSubAgentTool(this),
+        buildListSubAgentsTool(this),
         buildSendSubAgentMessageTool(this),
         buildAskSubAgentTool(this),
         buildReadSubAgentMessagesTool(this),
@@ -78,9 +78,12 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     };
   }
 
+  public references(): SubAgentReference[] {
+    return this.referencesValue;
+  }
+
   public async spawnSubAgent(input: { referenceName: string; message: string }) {
-    const runner = this.requireRunner();
-    const childAgentId = await runner.spawn(input);
+    const childAgentId = await this.bridge.subAgents.spawn(input);
     const signalId = await this.registerSignal({
       description: `Wait for ${childAgentId} to answer.`,
       name: 'Sub-agent response',
@@ -177,7 +180,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
           name: 'Sub-agent response',
         })
       : undefined;
-    await this.resolveSignal({
+    await this.bridge.signals.resolve({
       agentId: childAgentId,
       capabilityId: 'parent-link',
       data: {
@@ -214,7 +217,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
 
   public async killSubAgent(input: { childAgentId: string; reason: string }) {
     const childAgentId = this.resolveChildAgentId(input.childAgentId);
-    await this.requireRunner().kill({ childAgentId, reason: input.reason });
+    await this.bridge.subAgents.kill({ childAgentId, reason: input.reason });
     this.childrenSlot.set(
       this.childrenSlot.value.map((child) =>
         child.agentId === childAgentId
@@ -313,14 +316,6 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     return super.hookOnAgentExit();
   }
 
-  private requireRunner(): SubAgentRunner {
-    const runner = getAgentBridge(this.agent).subAgent;
-    if (runner === undefined) {
-      throw new Error('sub-agent bridge is not installed.');
-    }
-    return runner;
-  }
-
   private resolveChildAgentId(input: string): string {
     const exact = this.childrenSlot.value.find((child) => child.agentId === input);
     if (exact !== undefined) {
@@ -335,7 +330,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   }
 
   private async sendParentSignal(input: ParentSignalInput): Promise<void> {
-    await this.sendSignal({
+    await this.bridge.signals.send({
       agentId: input.childAgentId,
       capabilityId: 'parent-link',
       data: input.data,

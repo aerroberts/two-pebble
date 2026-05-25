@@ -16,12 +16,8 @@ export function buildReadDocumentTool(capability: DocumentWriterCapability) {
     name: 'read-document',
     schema,
   }).onInvoke(async (input) => {
-    const bridge = capability.bridge();
-    if (bridge === undefined) {
-      return missingBridgeResponse();
-    }
     try {
-      const result = await bridge.readDocument({ id: input.id });
+      const result = await capability.bridge.documents.read({ id: input.id });
       return ToolResponse.success([
         Cell.text(`Document "${result.name}" (id: ${result.id}):`),
         Cell.codeBlock('markdown', result.markdown),
@@ -31,8 +27,4 @@ export function buildReadDocumentTool(capability: DocumentWriterCapability) {
       return ToolResponse.error(message, [Cell.text(`Failed to read document: ${message}`)]);
     }
   });
-}
-
-function missingBridgeResponse() {
-  return ToolResponse.error('Document bridge is not installed.', [Cell.text('Document bridge is not installed.')]);
 }

@@ -16,7 +16,7 @@ export function buildCreatePoolTool(capability: TaskBoardAccessCapability) {
     name: 'create-pool',
     schema,
   }).onInvoke(async (input) => {
-    const result = await capability.bridge().createPool({
+    const result = await capability.bridge.taskBoards.createPool({
       boardId: capability.boardId(undefined),
       name: input.name,
       ...(input.parentPoolId === undefined ? {} : { parentPoolId: input.parentPoolId }),

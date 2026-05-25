@@ -1,6 +1,4 @@
-import type { TaskBoardBridge } from '../../agent';
 import { Cell } from '../../thread';
-import { getAgentBridge } from '../agent-bridge';
 import { AgentCapability } from '../agent-capability';
 import taskDescriptionGuidancePrompt from './prompts/task-description-guidance.md?raw';
 import { buildCreateTaskTool } from './tools/create-task/handler';
@@ -48,7 +46,7 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
   /**
    * Registers task-board tools for describe, create, and status updates.
    * The tools are intentionally thin wrappers around the daemon-owned
-   * bridge so durable board state stays in one place.
+   * operations so durable board state stays in one place.
    */
   public override hookOnRegister(_config: TaskBoardAccessCapabilityConfig) {
     return {
@@ -61,15 +59,6 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
       ],
     };
   }
-
-  public bridge(): TaskBoardBridge {
-    const runner = getAgentBridge(this.agent).taskBoard;
-    if (runner === undefined) {
-      throw new Error('task-board bridge is not installed.');
-    }
-    return runner;
-  }
-
   public boardId(input: string | undefined): string {
     const boardId = input ?? this.boardIdSlot.value;
     if (boardId.length === 0) {

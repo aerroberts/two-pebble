@@ -18,12 +18,8 @@ export function buildListDocumentsTool(capability: DocumentWriterCapability) {
     name: 'list-documents',
     schema,
   }).onInvoke(async (input) => {
-    const bridge = capability.bridge();
-    if (bridge === undefined) {
-      return missingBridgeResponse();
-    }
     try {
-      const result = await bridge.listDocuments({
+      const result = await capability.bridge.documents.list({
         ...(input.limit === undefined ? {} : { limit: input.limit }),
         ...(input.offset === undefined ? {} : { offset: input.offset }),
       });
@@ -33,10 +29,6 @@ export function buildListDocumentsTool(capability: DocumentWriterCapability) {
       return ToolResponse.error(message, [Cell.text(`Failed to list documents: ${message}`)]);
     }
   });
-}
-
-function missingBridgeResponse() {
-  return ToolResponse.error('Document bridge is not installed.', [Cell.text('Document bridge is not installed.')]);
 }
 
 function renderDocumentList(items: DocumentListEntry[], total: number): string {

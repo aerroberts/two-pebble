@@ -1,4 +1,4 @@
-import type { AgentSignal } from '../signal-runner';
+import type { AgentSignal } from '../../bridge';
 
 export interface SignalSnapshotRecord {
   openAwaited: AgentSignal[];

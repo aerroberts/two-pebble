@@ -1,15 +1,15 @@
 import { expect } from 'bun:test';
+import { PebbleAgent } from '../../../agent/agents/pebble-agent';
+import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
 import type {
+  AgentBridge,
   RegisterSignalInput,
   ResolveSignalInput,
   SendSignalInput,
-  SignalRunner,
-  SubAgentRunner,
+  SignalOperations,
+  SubAgentOperations,
   SubAgentSpawnInput,
-} from '../../../agent';
-import { PebbleAgent } from '../../../agent/agents/pebble-agent';
-import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
-import { installAgentBridge } from '../../../capabilities';
+} from '../../../bridge';
 import { Cell } from '../../../thread';
 import { SubAgentCapability } from '../capability';
 
@@ -171,19 +171,12 @@ export async function expectParentResponseContinuesAwaitedChildAsk(): Promise<vo
 }
 
 function buildSubAgentCapabilityRuntime() {
-  const agent = new PebbleAgent({
-    agentId: 'agents:parent123',
-    description: 'Parent agent',
-    name: 'Parent',
-    provider: new SignalTestProvider(),
-    workspacePath: '',
-  });
   const capability = new SubAgentCapability();
   const registeredSignals: RegisterSignalInput[] = [];
   const resolvedSignals: ResolveSignalInput[] = [];
   const sentSignals: SendSignalInput[] = [];
   const spawned: SubAgentSpawnInput[] = [];
-  const signal: SignalRunner = {
+  const signals: SignalOperations = {
     markResolved: async () => undefined,
     register: async (input) => {
       registeredSignals.push(input);
@@ -197,29 +190,59 @@ function buildSubAgentCapabilityRuntime() {
     },
     snapshot: async () => ({ openAwaited: [], received: [] }),
   };
-  const subAgent: SubAgentRunner = {
-    ask: async () => {
-      throw new Error('not used');
-    },
-    awaitMessage: async () => {
-      throw new Error('not used');
-    },
-    drain: () => [],
+  const subAgents: SubAgentOperations = {
     kill: async () => undefined,
-    list: () => [],
-    send: async () => undefined,
     spawn: async (input) => {
       spawned.push(input);
       return 'agents:child123';
     },
   };
-  installAgentBridge(agent, {
-    signal,
-    subAgent,
+  const agent = new PebbleAgent({
+    agentId: 'agents:parent123',
+    bridge: buildTestBridge({ signals, subAgents }),
+    description: 'Parent agent',
+    name: 'Parent',
+    provider: new SignalTestProvider(),
+    workspacePath: '',
   });
   capability.attach(agent);
   const tools = capability.hookOnRegister({
     agents: [{ agentRegistryId: 'agent-registries:review', name: 'reviewer' }],
   }).tools;
   return { capability, registeredSignals, resolvedSignals, sentSignals, spawned, tools };
+}
+
+function buildTestBridge(input: { signals: SignalOperations; subAgents: SubAgentOperations }): AgentBridge {
+  return {
+    agent: { setName: async () => undefined },
+    documents: {
+      applyTodoStatus: async () => undefined,
+      create: async () => ({ id: '', name: '' }),
+      list: async () => ({ items: [], total: 0 }),
+      read: async () => ({ id: '', markdown: '', name: '' }),
+      readTodos: async () => [],
+      update: async () => ({ id: '', name: '' }),
+    },
+    signals: input.signals,
+    subAgents: input.subAgents,
+    taskBoards: {
+      addDependency: async () => undefined,
+      createPool: async () => ({ id: '' }),
+      createTask: async () => ({ id: '' }),
+      deleteDependency: async () => undefined,
+      deletePool: async () => undefined,
+      deleteTask: async () => undefined,
+      describe: async () => ({ boardId: '', boardName: '', dependencies: [], pools: [], tasks: [] }),
+      listTaskDeliverableSubmissions: async () => [],
+      listTaskDeliverables: async () => [],
+      listTaskEvents: async () => [],
+      renameTask: async () => undefined,
+      setOwnedTaskStatus: async () => undefined,
+      setTaskStatus: async () => undefined,
+      submitDeliverable: async () => {
+        throw new Error('not used');
+      },
+      updateTaskDescription: async () => undefined,
+    },
+  };
 }

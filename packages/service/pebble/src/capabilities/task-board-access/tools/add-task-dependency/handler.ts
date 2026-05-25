@@ -15,7 +15,7 @@ export function buildAddTaskDependencyTool(capability: TaskBoardAccessCapability
     name: 'add-task-dependency',
     schema,
   }).onInvoke(async (input) => {
-    await capability.bridge().addDependency({
+    await capability.bridge.taskBoards.addDependency({
       boardId: capability.boardId(undefined),
       fromTaskId: input.fromTaskId,
       toTaskId: input.toTaskId,

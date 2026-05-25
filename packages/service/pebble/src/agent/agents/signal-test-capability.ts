@@ -1,7 +1,7 @@
 import { z } from 'zod/v4';
 import { AgentCapability, NativeTool, ToolResponse } from '../../agent';
+import type { AgentSignal } from '../../bridge';
 import { Cell } from '../../thread';
-import type { AgentSignal } from '../signal-runner';
 
 /**
  * Test capability that opens a deterministic awaited signal.
@@ -16,7 +16,7 @@ export class SignalTestCapability extends AgentCapability {
   /**
    * Registers the single test tool that moves the agent into waiting on a signal.
    * The signal id is deterministic so assertions can inspect the in-memory
-   * runner without searching generated ids.
+   * signal store without searching generated ids.
    */
   public override hookOnRegister() {
     return {

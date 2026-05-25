@@ -14,6 +14,10 @@
       "types": "./src/capabilities/index.ts",
       "import": "./src/capabilities/index.ts"
     },
+    "./bridge": {
+      "types": "./src/bridge/index.ts",
+      "import": "./src/bridge/index.ts"
+    },
     "./frameworks": {
       "types": "./src/frameworks/index.ts",
       "import": "./src/frameworks/index.ts"

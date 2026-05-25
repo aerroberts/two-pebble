@@ -19,7 +19,7 @@ export function buildSetTaskStatusTool(capability: TaskBoardAccessCapability) {
     name: 'set-task-status',
     schema,
   }).onInvoke(async (input) => {
-    await capability.bridge().setTaskStatus({ ...input, boardId: capability.boardId(input.boardId) });
+    await capability.bridge.taskBoards.setTaskStatus({ ...input, boardId: capability.boardId(input.boardId) });
     return ToolResponse.success([Cell.text(`Set ${input.taskId} to ${input.status}.`)]);
   });
 }

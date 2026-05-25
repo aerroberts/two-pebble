@@ -1,3 +1,4 @@
+import type { AgentBridge } from '../bridge';
 import type { ThirdPartyAgentFramework } from '../frameworks/third-party-agent-framework';
 import type { PricingLineItem, UsageReport } from '../pricing/types';
 import type { ModelProvider } from '../providers/model-provider';
@@ -10,6 +11,7 @@ import type { ToolInput } from './tools/tool-input';
 
 export interface AgentInput {
   agentId: string;
+  bridge: AgentBridge;
   name: string;
   description: string;
   workspacePath: string;
@@ -35,6 +37,7 @@ export type AgentExitHookResult = AgentExitPermitted | AgentExitDenied;
 
 export interface PebbleAgentConfig {
   agentId: string;
+  bridge: AgentBridge;
   name: string;
   description: string;
   workspacePath: string;
@@ -50,6 +53,7 @@ export interface PebbleAgentRestoredThread {
 
 export interface ThirdPartyAgentConfig {
   agentId: string;
+  bridge: AgentBridge;
   name: string;
   description: string;
   framework: ThirdPartyAgentFramework;

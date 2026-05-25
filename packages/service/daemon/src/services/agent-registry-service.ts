@@ -1,9 +1,26 @@
-import type { Datastore } from '@two-pebble/datastore';
-import { extractAgentSystemPromptDocumentReferences, type TipTapDocument } from '@two-pebble/datatypes';
+import type { AgentSignalRecord, Datastore } from '@two-pebble/datastore';
+import {
+  appendAgentReference,
+  applyTodoStatus,
+  extractAgentSystemPromptDocumentReferences,
+  extractTodos,
+  markdownToTipTap,
+  parseDocumentReferences,
+  serializeDocumentReferences,
+  type TipTapDocument,
+  tipTapToMarkdown,
+} from '@two-pebble/datatypes';
 import type { Logger } from '@two-pebble/logger';
-import type { Agent } from '@two-pebble/pebble';
+import type {
+  Agent,
+  AgentBridge,
+  AgentSignal,
+  TaskBoardEventRecord,
+  TaskBoardPoolNode,
+  TaskBoardTaskNode,
+  TaskStatus,
+} from '@two-pebble/pebble';
 import { Cell, FrameworkAgent, PebbleAgent } from '@two-pebble/pebble';
-import { installCapabilityRunners } from '@two-pebble/pebble/capabilities';
 import type { AgentRegistryServiceContext, DaemonBridge } from '../types';
 import { attachAgentNaming } from './agent-naming/attach-agent-naming';
 import { resolveBuildInput } from './agent-registry-build-input';
@@ -17,18 +34,11 @@ import type { SubAgentCreatePromiseMap } from './agent-registry-sub-agents';
 import type { ExtraCapabilitySpec, LaunchAgentInput, RunAgentInput } from './agent-registry-types';
 import { readResumeMetadata } from './agent-resume-metadata';
 import { buildLaunchAgent } from './build-launch-agent';
-import { installDocumentRunner } from './document-runner/install';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
-import { DaemonSignalRunner } from './signal-runner/daemon-signal-runner';
-import {
-  attachFrameworkParentLinkBridge,
-  attachParentLinkCapability,
-  installFreshLaunchAgent,
-  installSubAgentRunner,
-} from './sub-agent/runner-installer';
-import type { AgentTerminateInput } from './sub-agent/runner-types';
+import { attachFrameworkParentLink, attachParentLinkCapability, installFreshLaunchAgent } from './sub-agent/install';
 import { SubAgentCoordinator } from './sub-agent/sub-agent-coordinator';
-import { installTaskBoardRunner } from './task-board-runner/install';
+import { readSubAgentReferenceMap } from './sub-agent/sub-agent-references';
+import type { AgentTerminateInput, SubAgentReferenceMap } from './sub-agent/sub-agent-types';
 import type { TaskBoardService } from './task-board-service';
 
 /**
@@ -222,46 +232,33 @@ export class AgentRegistryService {
     if (record.status === 'interrupted' || record.status === 'offline' || record.status === 'failed') {
       throw new Error(`Agent "${agentId}" is ${record.status} and cannot be rehydrated.`);
     }
-    const runtimeAgent = await rehydrateAgent({ agentId, bridge, datastore: this.datastore, logger: this.logger });
-    this.installSignalRunner(runtimeAgent, agentId);
-    attachAgentNaming({
-      agent: runtimeAgent,
-      agentId,
-      datastore: this.datastore,
-      mode: 'rehydrate',
-      multicastBridge: this.multicastBridge,
-    });
-    installTaskBoardRunner({ agent: runtimeAgent, bridge, logger: this.logger, taskBoards: this.taskBoards });
-    installDocumentRunner({
-      agent: runtimeAgent,
+    let references: SubAgentReferenceMap = new Map();
+    if (record.agentRegistryId !== null && record.agentRegistryId !== undefined) {
+      const registry = await this.datastore.agentRegistries.read({ id: record.agentRegistryId });
+      references = readSubAgentReferenceMap(parseCapabilitySpecs(registry.capabilities, this.logger));
+    }
+    const runtimeAgent = await rehydrateAgent({
+      agentBridge: this.buildAgentBridge(agentId, references),
       agentId,
       bridge,
       datastore: this.datastore,
       logger: this.logger,
     });
+    attachAgentNaming({
+      agent: runtimeAgent,
+      mode: 'rehydrate',
+    });
     let inferenceProfileId: string | undefined;
     let integrationId: string | undefined;
     if (record.agentRegistryId !== null && record.agentRegistryId !== undefined) {
       const registry = await this.datastore.agentRegistries.read({ id: record.agentRegistryId });
-      const specs = parseCapabilitySpecs(registry.capabilities, this.logger);
-      const coordinator = this.getCoordinator();
-      installSubAgentRunner({
-        agent: runtimeAgent,
-        agentId,
-        agentRegistry: this,
-        bridge,
-        coordinator,
-        logger: this.logger,
-        specs,
-      });
       if (record.parentAgentId !== null && record.parentAgentId !== undefined) {
         attachParentLinkCapability({
           agent: runtimeAgent,
-          coordinator,
           mode: 'rehydrate',
           parentAgentId: record.parentAgentId,
         });
-        attachFrameworkParentLinkBridge({
+        attachFrameworkParentLink({
           agent: runtimeAgent,
           agentId,
           agentRegistry: this,
@@ -434,9 +431,15 @@ export class AgentRegistryService {
       });
     }
 
+    const combinedExtras = combineLaunchExtras(registry.systemPrompt, input.extraCapabilities);
+    const combinedSpecs = mergeCapabilitySpecs(
+      parseCapabilitySpecs(registry.capabilities, this.logger),
+      combinedExtras,
+    );
     const runtimeAgent = buildLaunchAgent({
       ...buildInput.params,
       agentId: agent.id,
+      bridge: this.buildAgentBridge(agent.id, readSubAgentReferenceMap(combinedSpecs)),
       resumeMetadata: {},
       workspacePath: launchWorkspace.workspace.path,
     });
@@ -448,7 +451,6 @@ export class AgentRegistryService {
             integrationId: buildInput.params.integration.id,
           }
         : {};
-    const combinedExtras = combineLaunchExtras(registry.systemPrompt, input.extraCapabilities);
     await this.runAgent({
       agent: runtimeAgent,
       agentId: agent.id,
@@ -470,38 +472,18 @@ export class AgentRegistryService {
 
   private async runAgent(input: RunAgentInput) {
     this.registerActiveAgent(input);
-    this.installSignalRunner(input.agent, input.agentId);
     attachAgentNaming({
       agent: input.agent,
-      agentId: input.agentId,
-      datastore: this.datastore,
       mode: 'fresh',
-      multicastBridge: this.multicastBridge,
     });
-    installTaskBoardRunner({
-      agent: input.agent,
-      bridge: this.multicastBridge,
-      logger: this.logger,
-      taskBoards: this.taskBoards,
-    });
-    installDocumentRunner({
-      agent: input.agent,
-      agentId: input.agentId,
-      bridge: this.multicastBridge,
-      datastore: this.datastore,
-      logger: this.logger,
-    });
-    let coordinator: SubAgentCoordinator | undefined;
     if (input.registry !== undefined) {
-      coordinator = this.getCoordinator();
       const registrySpecs = parseCapabilitySpecs(input.registry.capabilities, this.logger);
       const combinedSpecs = mergeCapabilitySpecs(registrySpecs, input.extraCapabilities);
       installFreshLaunchAgent({
         agent: input.agent,
         agentId: input.agentId,
         agentRegistry: this,
-        bridge: this.multicastBridge,
-        coordinator,
+        coordinator: this.getCoordinator(),
         datastore: this.datastore,
         logger: this.logger,
         ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
@@ -515,15 +497,325 @@ export class AgentRegistryService {
     input.agent.sendMessage(cells);
   }
 
-  private installSignalRunner(agent: Agent, agentId: string): void {
-    installCapabilityRunners(agent, {
-      signal: new DaemonSignalRunner({
-        agentId,
-        datastore: this.datastore,
-        wake: (targetAgentId) => this.wakeIfSignalsReady(targetAgentId),
-      }),
-    });
+  private buildAgentBridge(agentId: string, references: SubAgentReferenceMap): AgentBridge {
+    return {
+      agent: {
+        setName: async (input) => {
+          const record = await this.datastore.agent.rename({ id: agentId, name: input.name });
+          this.multicastBridge.emit('agentRecorded', {
+            agentRegistryId: record.agentRegistryId ?? null,
+            completedAt: record.completedAt,
+            description: record.description,
+            id: record.id,
+            metadata: record.metadata,
+            name: record.name,
+            parentAgentId: record.parentAgentId ?? null,
+            startedAt: record.startedAt,
+            status: record.status,
+          });
+        },
+      },
+      documents: {
+        applyTodoStatus: async (input) => {
+          const existing = await this.datastore.documents.read({ id: input.id });
+          const parsed = JSON.parse(existing.content) as TipTapDocument;
+          const next = applyTodoStatus(parsed, input.todoId, input.status, input.completionType);
+          if (next === parsed) {
+            return;
+          }
+          const nextRefs = appendAgentReference(parseDocumentReferences(existing.references), agentId, Date.now());
+          const record = await this.datastore.documents.update({
+            id: input.id,
+            content: JSON.stringify(next),
+            references: serializeDocumentReferences(nextRefs),
+          });
+          this.multicastBridge.emit('documentUpdated', record);
+        },
+        create: async (input) => {
+          const content = JSON.stringify(markdownToTipTap(input.markdown));
+          const references = serializeDocumentReferences(appendAgentReference([], agentId, Date.now()));
+          const record = await this.datastore.documents.create({ name: input.name, content, references });
+          this.multicastBridge.emit('documentUpdated', record);
+          return { id: record.id, name: record.name };
+        },
+        list: async (input) => {
+          const result = await this.datastore.documents.list({
+            limit: input.limit ?? 50,
+            offset: input.offset ?? 0,
+          });
+          return {
+            items: result.items.map((item) => ({ id: item.id, name: item.name, updatedAt: item.updatedAt })),
+            total: result.page.total,
+          };
+        },
+        read: async (input) => {
+          const record = await this.datastore.documents.read({ id: input.id });
+          const tipTap = JSON.parse(record.content) as TipTapDocument;
+          return { id: record.id, name: record.name, markdown: tipTapToMarkdown(tipTap) };
+        },
+        readTodos: async (input) => {
+          const record = await this.datastore.documents.read({ id: input.id });
+          const tipTap = JSON.parse(record.content) as TipTapDocument;
+          return extractTodos(tipTap);
+        },
+        update: async (input) => {
+          const existing = await this.datastore.documents.read({ id: input.id });
+          const nextRefs = appendAgentReference(parseDocumentReferences(existing.references), agentId, Date.now());
+          const content = JSON.stringify(markdownToTipTap(input.markdown));
+          const record = await this.datastore.documents.update({
+            id: input.id,
+            content,
+            ...(input.name === undefined ? {} : { name: input.name }),
+            references: serializeDocumentReferences(nextRefs),
+          });
+          this.multicastBridge.emit('documentUpdated', record);
+          return { id: record.id, name: record.name };
+        },
+      },
+      signals: {
+        markResolved: async (input) => {
+          await this.datastore.agent.signals.markResolved({ id: input.id });
+        },
+        register: async (input) => {
+          const signalId = input.signalId ?? crypto.randomUUID();
+          await this.datastore.agent.signals.register({
+            agentId,
+            capabilityId: input.capabilityId,
+            description: input.description,
+            name: input.name,
+            signalId,
+          });
+          return signalId;
+        },
+        resolve: async (input) => {
+          await this.datastore.agent.signals.resolve(input);
+          await this.wakeIfSignalsReady(input.agentId);
+        },
+        send: async (input) => {
+          await this.datastore.agent.signals.sendPush({
+            agentId: input.agentId,
+            capabilityId: input.capabilityId,
+            data: input.data,
+            description: input.description,
+            name: input.name,
+            signalId: input.signalId ?? crypto.randomUUID(),
+          });
+          await this.wakeIfSignalsReady(input.agentId);
+        },
+        snapshot: async (input) => {
+          const [openAwaited, received] = await Promise.all([
+            this.datastore.agent.signals.listOpenForAgent({ agentId: input.agentId }),
+            this.datastore.agent.signals.listReceivedForAgent({ agentId: input.agentId }),
+          ]);
+          return {
+            openAwaited: openAwaited.items.map(toAgentSignal),
+            received: received.items.map(toAgentSignal),
+          };
+        },
+      },
+      subAgents: {
+        kill: async (input) => {
+          await this.terminate({ agentId: input.childAgentId, reason: input.reason });
+        },
+        spawn: async (input) => {
+          const agentRegistryId = references.get(input.referenceName);
+          if (agentRegistryId === undefined) {
+            throw new Error(`Unknown sub-agent reference: ${input.referenceName}`);
+          }
+          const launched = await this.launch({
+            agentRegistryId,
+            message: input.message,
+            parentAgentId: agentId,
+          });
+          return launched.id;
+        },
+      },
+      taskBoards: {
+        addDependency: async (input) => {
+          const { result, events } = await this.taskBoards.createDependency({
+            boardId: input.boardId,
+            fromId: input.fromTaskId,
+            toId: input.toTaskId,
+          });
+          this.broadcastTaskEvents(events);
+          this.multicastBridge.emit('taskDependencyUpdated', result);
+        },
+        createPool: async (input) => {
+          const record = await this.taskBoards.createPool({
+            boardId: input.boardId,
+            parentPoolId: input.parentPoolId ?? null,
+            name: input.name,
+            dependsOn: input.dependsOn ?? [],
+          });
+          this.multicastBridge.emit('taskPoolUpdated', record);
+          return { id: record.id };
+        },
+        createTask: async (input) => {
+          const { result, events } = await this.taskBoards.createTask({
+            boardId: input.boardId,
+            name: input.name,
+            description: input.description ?? '',
+            poolId: input.poolId ?? null,
+            dependsOn: input.dependsOn ?? [],
+          });
+          this.broadcastTaskEvents(events);
+          this.multicastBridge.emit('taskUpdated', result);
+          const deliverables = await this.taskBoards.listTaskDeliverables(result.id);
+          for (const deliverable of deliverables.items) {
+            this.multicastBridge.emit('taskDeliverableUpdated', deliverable);
+          }
+          return { id: result.id };
+        },
+        deleteDependency: async (input) => {
+          const events = await this.taskBoards.deleteDependency(input.boardId, {
+            fromId: input.fromTaskId,
+            toId: input.toTaskId,
+          });
+          this.broadcastTaskEvents(events);
+          this.multicastBridge.emit('taskDependencyDeleted', {
+            boardId: input.boardId,
+            fromId: input.fromTaskId,
+            toId: input.toTaskId,
+          });
+        },
+        deletePool: async (input) => {
+          const events = await this.taskBoards.deletePool(input.boardId, input.poolId);
+          this.broadcastTaskEvents(events);
+          this.multicastBridge.emit('taskPoolDeleted', { id: input.poolId, boardId: input.boardId });
+        },
+        deleteTask: async (input) => {
+          const events = await this.taskBoards.deleteTask(input.boardId, input.taskId);
+          this.broadcastTaskEvents(events);
+          this.multicastBridge.emit('taskDeleted', { id: input.taskId, boardId: input.boardId });
+          const refreshed = await this.taskBoards.listTasks(input.boardId);
+          for (const task of refreshed) {
+            this.multicastBridge.emit('taskUpdated', task);
+          }
+        },
+        describe: async (input) => {
+          const snapshot = await this.taskBoards.readBoardSnapshot(input.boardId);
+          return {
+            boardId: snapshot.board.id,
+            boardName: snapshot.board.name,
+            pools: snapshot.pools.map(toPool),
+            tasks: snapshot.tasks.map(toTask),
+            dependencies: snapshot.dependencies.map((edge) => ({ fromId: edge.fromId, toId: edge.toId })),
+          };
+        },
+        listTaskDeliverableSubmissions: async (input) => {
+          const { items } = await this.taskBoards.listTaskDeliverableSubmissions(input.taskId);
+          return items;
+        },
+        listTaskDeliverables: async (input) => {
+          const { items } = await this.taskBoards.listTaskDeliverables(input.taskId);
+          return items;
+        },
+        listTaskEvents: async (input) => {
+          const events = await this.taskBoards.listTaskEvents(input.taskId);
+          return events.map(toTaskBoardEvent);
+        },
+        renameTask: async (input) => {
+          const record = await this.taskBoards.renameTask(input.taskId, input.name);
+          const refreshed = await this.taskBoards.listTasks(record.boardId);
+          for (const task of refreshed) {
+            this.multicastBridge.emit('taskUpdated', task);
+          }
+        },
+        setOwnedTaskStatus: async (input) => {
+          const { result, events } = await this.taskBoards.setTaskStatusAsAgent(input);
+          this.broadcastTaskEvents(events);
+          this.multicastBridge.emit('taskUpdated', result);
+          const refreshed = await this.taskBoards.listTasks(result.boardId);
+          for (const task of refreshed) {
+            this.multicastBridge.emit('taskUpdated', task);
+          }
+        },
+        setTaskStatus: async (input) => {
+          const { result, events } = await this.taskBoards.setTaskStatus(input.boardId, {
+            id: input.taskId,
+            status: input.status,
+            reason: input.reason,
+          });
+          this.broadcastTaskEvents(events);
+          this.multicastBridge.emit('taskUpdated', result);
+          const refreshed = await this.taskBoards.listTasks(input.boardId);
+          for (const task of refreshed) {
+            this.multicastBridge.emit('taskUpdated', task);
+          }
+        },
+        submitDeliverable: async (input) => {
+          const submission = await this.taskBoards.submitDeliverableAsAgent(input);
+          this.multicastBridge.emit('taskDeliverableSubmissionRecorded', submission);
+          return submission;
+        },
+        updateTaskDescription: async (input) => {
+          const record = await this.taskBoards.updateTaskDescription(input.taskId, input.description);
+          const refreshed = await this.taskBoards.listTasks(input.boardId ?? record.boardId);
+          for (const task of refreshed) {
+            this.multicastBridge.emit('taskUpdated', task);
+          }
+        },
+      },
+    };
   }
+
+  private broadcastTaskEvents(events: Array<{ taskId: string }>): void {
+    for (const event of events) {
+      this.multicastBridge.emit('taskEventRecorded', event as never);
+    }
+  }
+}
+
+function toAgentSignal(record: AgentSignalRecord): AgentSignal {
+  return {
+    agentId: record.agentId,
+    capabilityId: record.capabilityId,
+    data: record.data,
+    description: record.description,
+    id: record.id,
+    kind: record.kind,
+    name: record.name,
+    signalId: record.signalId,
+    status: record.status,
+  };
+}
+
+function toPool(record: { id: string; name: string; parentPoolId: string | null }): TaskBoardPoolNode {
+  return { id: record.id, name: record.name, parentPoolId: record.parentPoolId };
+}
+
+function toTask(record: {
+  description: string;
+  effectiveStatus: string;
+  id: string;
+  name: string;
+  ownerId: string | null;
+  poolId: string | null;
+  status: string;
+}): TaskBoardTaskNode {
+  return {
+    id: record.id,
+    name: record.name,
+    description: record.description,
+    poolId: record.poolId,
+    status: record.status as TaskStatus,
+    effectiveStatus: record.effectiveStatus as TaskStatus | 'blocked',
+    ownerId: record.ownerId,
+  };
+}
+
+function toTaskBoardEvent(event: TaskBoardEventRecord): TaskBoardEventRecord {
+  const kind = event.kind === 'delegated' || event.kind === 'undelegated' ? event.kind : 'status';
+  return {
+    id: event.id,
+    kind,
+    taskId: event.taskId,
+    reason: event.reason,
+    createdAt: event.createdAt,
+    ...(event.status === undefined ? {} : { status: event.status }),
+    ...(event.agentId === undefined ? {} : { agentId: event.agentId }),
+    ...(event.agentName === undefined ? {} : { agentName: event.agentName }),
+  };
 }
 
 /**

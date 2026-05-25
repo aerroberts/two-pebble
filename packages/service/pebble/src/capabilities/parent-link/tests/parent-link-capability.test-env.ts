@@ -1,8 +1,13 @@
 import { expect } from 'bun:test';
-import type { RegisterSignalInput, ResolveSignalInput, SendSignalInput, SignalRunner } from '../../../agent';
 import { PebbleAgent } from '../../../agent/agents/pebble-agent';
 import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
-import { installAgentBridge } from '../../../capabilities';
+import type {
+  AgentBridge,
+  RegisterSignalInput,
+  ResolveSignalInput,
+  SendSignalInput,
+  SignalOperations,
+} from '../../../bridge';
 import { Cell } from '../../../thread';
 import type { PebbleAgentTrace } from '../../../traces';
 import { ParentLinkCapability } from '../capability';
@@ -95,22 +100,12 @@ export function expectParentAskAddsIncomingMessageTrace(): void {
 }
 
 function buildParentLinkRuntime() {
-  const agent = new PebbleAgent({
-    agentId: 'agents:child123',
-    description: 'Child agent',
-    name: 'Child',
-    provider: new SignalTestProvider(),
-    workspacePath: '',
-  });
   const capability = new ParentLinkCapability();
   const registeredSignals: RegisterSignalInput[] = [];
   const resolvedSignals: ResolveSignalInput[] = [];
   const sentSignals: SendSignalInput[] = [];
   const traces: PebbleAgentTrace[] = [];
-  agent.on('trace', (trace) => {
-    traces.push(trace);
-  });
-  const signal: SignalRunner = {
+  const signals: SignalOperations = {
     markResolved: async () => undefined,
     register: async (input) => {
       registeredSignals.push(input);
@@ -124,11 +119,61 @@ function buildParentLinkRuntime() {
     },
     snapshot: async () => ({ openAwaited: [], received: [] }),
   };
-  installAgentBridge(agent, { signal });
+  const agent = new PebbleAgent({
+    agentId: 'agents:child123',
+    bridge: buildTestBridge(signals),
+    description: 'Child agent',
+    name: 'Child',
+    provider: new SignalTestProvider(),
+    workspacePath: '',
+  });
+  agent.on('trace', (trace) => {
+    traces.push(trace);
+  });
   capability.attach(agent);
   capability.initialize({ parentAgentId: 'agents:parent123' });
   const tools = capability.hookOnRegister().tools;
   return { capability, registeredSignals, resolvedSignals, sentSignals, tools, traces };
+}
+
+function buildTestBridge(signals: SignalOperations): AgentBridge {
+  return {
+    agent: { setName: async () => undefined },
+    documents: {
+      applyTodoStatus: async () => undefined,
+      create: async () => ({ id: '', name: '' }),
+      list: async () => ({ items: [], total: 0 }),
+      read: async () => ({ id: '', markdown: '', name: '' }),
+      readTodos: async () => [],
+      update: async () => ({ id: '', name: '' }),
+    },
+    signals,
+    subAgents: {
+      kill: async () => undefined,
+      spawn: async () => {
+        throw new Error('not used');
+      },
+    },
+    taskBoards: {
+      addDependency: async () => undefined,
+      createPool: async () => ({ id: '' }),
+      createTask: async () => ({ id: '' }),
+      deleteDependency: async () => undefined,
+      deletePool: async () => undefined,
+      deleteTask: async () => undefined,
+      describe: async () => ({ boardId: '', boardName: '', dependencies: [], pools: [], tasks: [] }),
+      listTaskDeliverableSubmissions: async () => [],
+      listTaskDeliverables: async () => [],
+      listTaskEvents: async () => [],
+      renameTask: async () => undefined,
+      setOwnedTaskStatus: async () => undefined,
+      setTaskStatus: async () => undefined,
+      submitDeliverable: async () => {
+        throw new Error('not used');
+      },
+      updateTaskDescription: async () => undefined,
+    },
+  };
 }
 
 function parentAskSignal() {

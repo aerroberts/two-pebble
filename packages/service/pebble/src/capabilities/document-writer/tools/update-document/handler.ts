@@ -19,12 +19,8 @@ export function buildUpdateDocumentTool(capability: DocumentWriterCapability) {
     name: 'update-document',
     schema,
   }).onInvoke(async (input) => {
-    const bridge = capability.bridge();
-    if (bridge === undefined) {
-      return missingBridgeResponse();
-    }
     try {
-      const result = await bridge.updateDocument({
+      const result = await capability.bridge.documents.update({
         id: input.id,
         markdown: input.markdown,
         ...(input.name === undefined ? {} : { name: input.name }),
@@ -36,8 +32,4 @@ export function buildUpdateDocumentTool(capability: DocumentWriterCapability) {
       return ToolResponse.error(message, [Cell.text(`Failed to update document: ${message}`)]);
     }
   });
-}
-
-function missingBridgeResponse() {
-  return ToolResponse.error('Document bridge is not installed.', [Cell.text('Document bridge is not installed.')]);
 }

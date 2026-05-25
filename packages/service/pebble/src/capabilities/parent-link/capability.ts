@@ -139,7 +139,7 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     if (expectsReply) {
       return this.askParent(message);
     }
-    await this.sendSignal({
+    await this.bridge.signals.send({
       agentId: this.parentAgentId(),
       capabilityId: 'sub-agent',
       data: {
@@ -173,7 +173,7 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     if (pending === null) {
       return ToolResponse.error('No parent response is pending.', [Cell.text('No parent response is pending.')]);
     }
-    await this.resolveSignal({
+    await this.bridge.signals.resolve({
       agentId: pending.parentAgentId,
       capabilityId: pending.parentCapabilityId,
       data: {
@@ -188,7 +188,7 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
   }
 
   private async sendAskParentSignal(message: string, responseSignalId: string): Promise<void> {
-    await this.sendSignal({
+    await this.bridge.signals.send({
       agentId: this.parentAgentId(),
       capabilityId: 'sub-agent',
       data: {
@@ -207,7 +207,7 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     responseSignalId: string,
     pending: PendingParentResponse,
   ): Promise<void> {
-    await this.resolveSignal({
+    await this.bridge.signals.resolve({
       agentId: pending.parentAgentId,
       capabilityId: pending.parentCapabilityId,
       data: {

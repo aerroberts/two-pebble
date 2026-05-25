@@ -1,12 +1,11 @@
+import type { AgentSignal } from '../../bridge';
 import type { AgentCapability } from '../../capabilities/agent-capability';
-import { getCapabilityRunners } from '../../capabilities/runners';
 import type { ModelProvider } from '../../providers/index';
 import type { ProviderOutputBlock, ProviderResult } from '../../providers/types';
 import { Cell, ConversationThread, Event } from '../../thread/index';
 import type { PebbleJsonValue } from '../../types';
 import { Agent } from '../agent';
 import type { ToolResponseResult } from '../hooks/tool-response';
-import type { AgentSignal } from '../signal-runner';
 import type { AgentTool } from '../tools/agent-tool';
 import type { ToolInput, ToolInputRecord } from '../tools/tool-input';
 import type {
@@ -37,6 +36,7 @@ export class PebbleAgent extends Agent {
   public constructor(config: PebbleAgentConfig) {
     super({
       agentId: config.agentId,
+      bridge: config.bridge,
       description: config.description,
       name: config.name,
       workspacePath: config.workspacePath,
@@ -303,12 +303,7 @@ export class PebbleAgent extends Agent {
   }
 
   private async pullSignals(): Promise<boolean> {
-    const runner = getCapabilityRunners(this).signal;
-    if (runner === undefined) {
-      return false;
-    }
-
-    const signals = await runner.snapshot(this.agentId);
+    const signals = await this.bridge.signals.snapshot({ agentId: this.agentId });
     if (signals.openAwaited.length > 0) {
       this.emit('trace', {
         type: 'agent-waiting',
@@ -321,7 +316,7 @@ export class PebbleAgent extends Agent {
     for (const signal of signals.received) {
       this.emit('trace', { type: 'signal-received', data: this.signalTraceData(signal) });
       this.capabilities.find((capability) => capability.id === signal.capabilityId)?.hookOnSignal(signal);
-      await runner.markResolved(signal.id);
+      await this.bridge.signals.markResolved({ id: signal.id });
       this.emit('trace', {
         type: 'signal-resolved',
         data: { ...this.signalTraceData(signal), status: 'resolved' },

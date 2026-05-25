@@ -14,7 +14,8 @@ const schema = (references: SubAgentReference[]) =>
 /**
  * Builds the native tool that spawns a configured child agent.
  */
-export function buildSpawnSubAgentTool(capability: SubAgentCapability, references: SubAgentReference[]) {
+export function buildSpawnSubAgentTool(capability: SubAgentCapability) {
+  const references = capability.references();
   return new NativeTool({
     description: spawnToolDescription(references),
     name: 'spawn-sub-agent',

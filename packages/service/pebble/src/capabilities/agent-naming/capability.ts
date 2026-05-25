@@ -1,5 +1,3 @@
-import type { AgentNamingBridge } from '../../agent';
-import { getAgentBridge } from '../agent-bridge';
 import { AgentCapability } from '../agent-capability';
 import { buildSetAgentNameTool } from './tools/set-agent-name/handler';
 
@@ -19,9 +17,5 @@ export class AgentNamingCapability extends AgentCapability<Record<string, never>
     return {
       tools: [buildSetAgentNameTool(this)],
     };
-  }
-
-  public bridge(): AgentNamingBridge | undefined {
-    return getAgentBridge(this.agent).agentNaming;
   }
 }

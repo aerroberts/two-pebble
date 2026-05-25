@@ -1,17 +1,12 @@
 import type { PebbleJsonRecord } from '@two-pebble/pebble';
 import type { CapabilitySpec } from '../register-pebble-capabilities';
-import type { SubAgentReferenceMap } from './runner-types';
+import type { SubAgentReferenceMap } from './sub-agent-types';
 
 interface SubAgentReferenceLike {
   agentRegistryId?: string;
   name?: string;
 }
 
-/**
- * Reads the `agents` array from a `sub-agent` capability spec config and
- * returns a map from reference name → registry id. Used by the parent-
- * side runner to resolve `spawn({ referenceName })` requests at runtime.
- */
 export function readSubAgentReferenceMap(specs: CapabilitySpec[]): SubAgentReferenceMap {
   const result = new Map<string, string>();
   const subAgentSpec = specs.find((spec) => spec.id === 'sub-agent');

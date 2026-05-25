@@ -14,7 +14,7 @@ export function buildDeletePoolTool(capability: TaskBoardAccessCapability) {
     name: 'delete-pool',
     schema,
   }).onInvoke(async (input) => {
-    await capability.bridge().deletePool({ boardId: capability.boardId(undefined), poolId: input.poolId });
+    await capability.bridge.taskBoards.deletePool({ boardId: capability.boardId(undefined), poolId: input.poolId });
     return ToolResponse.success([Cell.text(`Deleted group ${input.poolId}.`)]);
   });
 }

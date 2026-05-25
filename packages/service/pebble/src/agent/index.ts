@@ -1,71 +1,63 @@
-export { AgentCapability } from '../capabilities/agent-capability';
-export type { CapabilityState, RegisterHookResult } from '../capabilities/agent-capability.types';
-export { Agent } from './agent';
-export type { AgentNamingRunner } from './agent-naming-runner';
-export { FrameworkAgent } from './agents/framework-agent';
-export { PebbleAgent } from './agents/pebble-agent';
 export type {
+  AgentBridge,
+  AgentOperations,
+  AgentSignal,
+  AgentSignalKind,
+  AgentSignalStatus,
   DocumentApplyTodoStatusInput,
   DocumentCreateInput,
   DocumentListEntry,
   DocumentListInput,
   DocumentListOutput,
+  DocumentOperations,
   DocumentReadInput,
   DocumentReadOutput,
-  DocumentRunner,
   DocumentSummary,
+  DocumentTodoList,
   DocumentUpdateInput,
-} from './document-runner';
-export { AgentExitHook } from './hooks/agent-exit-hook';
-export type { EarlyExitHookResult } from './hooks/early-exit';
-export { EarlyExit } from './hooks/early-exit';
-export type { ToolResponseResult } from './hooks/tool-response';
-export { ToolResponse } from './hooks/tool-response';
-export type {
-  AgentSignal,
-  AgentSignalKind,
-  AgentSignalStatus,
+  MarkSignalResolvedInput,
   RegisterSignalInput,
   ResolveSignalInput,
   SendSignalInput,
-  SignalRunner,
-  SignalSnapshot,
-} from './signal-runner';
-export type {
-  ParentLinkAskInput,
-  ParentLinkAwaitInput,
-  ParentLinkNotifyInput,
-  ParentLinkRunner,
-  SubAgentAskInput,
-  SubAgentAwaitInput,
-  SubAgentDrainInput,
-  SubAgentKillInput,
-  SubAgentMessage,
-  SubAgentRunner,
-  SubAgentRunnerChild,
-  SubAgentSendInput,
-  SubAgentSpawnInput,
-} from './sub-agent-runners';
-export type {
+  SetAgentNameInput,
   SettableTaskStatus,
+  SignalOperations,
+  SignalSnapshot,
+  SignalSnapshotInput,
+  SubAgentKillInput,
+  SubAgentOperations,
+  SubAgentSpawnInput,
   TaskBoardCreatePoolInput,
   TaskBoardCreateTaskInput,
   TaskBoardDeletePoolInput,
   TaskBoardDeleteTaskInput,
+  TaskBoardDeliverable,
+  TaskBoardDeliverableSubmission,
   TaskBoardDependencyEdge,
   TaskBoardDependencyInput,
   TaskBoardEventRecord,
+  TaskBoardOperations,
   TaskBoardPoolNode,
   TaskBoardRenameTaskInput,
-  TaskBoardRunner,
   TaskBoardSetOwnedTaskStatusInput,
   TaskBoardSetTaskStatusInput,
   TaskBoardSnapshot,
   TaskBoardSubmitDeliverableInput,
   TaskBoardTaskNode,
   TaskBoardUpdateTaskDescriptionInput,
+  TaskDeliverablePayload,
   TaskStatus,
-} from './task-board-runner';
+} from '../bridge';
+export { AgentCapability } from '../capabilities/agent-capability';
+export type { CapabilityState, RegisterHookResult } from '../capabilities/agent-capability.types';
+export { Agent } from './agent';
+export { FrameworkAgent } from './agents/framework-agent';
+export { PebbleAgent } from './agents/pebble-agent';
+export { AgentExitHook } from './hooks/agent-exit-hook';
+export type { EarlyExitHookResult } from './hooks/early-exit';
+export { EarlyExit } from './hooks/early-exit';
+export type { ToolResponseResult } from './hooks/tool-response';
+export { ToolResponse } from './hooks/tool-response';
 export { AgentTool } from './tools/agent-tool';
 export { CliTool } from './tools/cli-tool';
 export { NativeTool } from './tools/native-tool';

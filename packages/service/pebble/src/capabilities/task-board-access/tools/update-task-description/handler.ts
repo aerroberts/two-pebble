@@ -14,7 +14,7 @@ export function buildUpdateTaskDescriptionTool(capability: TaskBoardAccessCapabi
     name: 'update-task-description',
     schema,
   }).onInvoke(async (input) => {
-    await capability.bridge().updateTaskDescription({
+    await capability.bridge.taskBoards.updateTaskDescription({
       boardId: capability.boardId(undefined),
       taskId: input.taskId,
       description: input.description,

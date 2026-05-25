@@ -1,4 +1,5 @@
 import { Events } from '@two-pebble/events';
+import type { AgentBridge } from '../bridge';
 import type { DataCells } from '../thread';
 import type { AgentEvents } from './events';
 import type { AgentInput, AgentStatus } from './types';
@@ -25,12 +26,15 @@ export abstract class Agent extends Events<AgentEvents> {
   // Agents have a workspace they are bound to
   public readonly workspacePath: string;
 
+  public readonly bridge: AgentBridge;
+
   public constructor(input: AgentInput) {
     super();
     this.agentId = input.agentId;
     this.name = input.name;
     this.description = input.description;
     this.workspacePath = input.workspacePath;
+    this.bridge = input.bridge;
   }
 
   /**

@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
-import { installCapabilityRunners } from '../../capabilities';
+import type { AgentBridge } from '../../bridge';
 import { Cell } from '../../thread';
-import { MemorySignalRunner } from './memory-signal-runner';
+import { MemorySignalOperations } from './memory-signal-operations';
 import { PebbleAgent } from './pebble-agent';
 import type { WaitStatus } from './pebble-agent-signals.test-types';
 import { SignalTestCapability } from './signal-test-capability';
@@ -9,18 +9,18 @@ import { SignalTestProvider } from './signal-test-provider';
 
 export function buildSignalTestRuntime(): SignalTestRuntime {
   const provider = new SignalTestProvider();
+  const signals = new MemorySignalOperations('agent-signal-test');
   const agent = new PebbleAgent({
     agentId: 'agent-signal-test',
+    bridge: buildTestBridge(signals),
     description: 'Signal test agent',
     name: 'Signal Agent',
     provider,
     workspacePath: '',
   });
-  const runner = new MemorySignalRunner(agent.agentId);
   const capability = new SignalTestCapability();
-  installCapabilityRunners(agent, { signal: runner });
   agent.registerCapability(capability, {});
-  return { agent, capability, provider, runner };
+  return { agent, capability, provider, signals };
 }
 
 export async function waitForStatus(agent: PebbleAgent, status: WaitStatus): Promise<void> {
@@ -38,18 +38,18 @@ export async function waitForStatus(agent: PebbleAgent, status: WaitStatus): Pro
 export async function waitOnSignal(runtime: SignalTestRuntime): Promise<void> {
   runtime.agent.sendMessage([Cell.text('wait')]);
   await waitForStatus(runtime.agent, 'waiting');
-  expect(runtime.runner.openSignalIds()).toEqual(['signal-test']);
+  expect(runtime.signals.openSignalIds()).toEqual(['signal-test']);
 }
 
 export async function resumeFromSignal(runtime: SignalTestRuntime): Promise<void> {
-  runtime.runner.receive('signal-test', { message: 'resume' });
+  runtime.signals.receive('signal-test', { message: 'resume' });
   runtime.agent.resumeFromSignal();
   await waitForStatus(runtime.agent, 'idle');
 }
 
 export function expectSignalRuntimeConsumed(runtime: SignalTestRuntime): void {
   expect(runtime.capability.receivedMessages).toEqual(['resume']);
-  expect(runtime.runner.resolvedSignalIds()).toEqual(['signal-test']);
+  expect(runtime.signals.resolvedSignalIds()).toEqual(['signal-test']);
   expect(runtime.provider.invokeCount).toBe(2);
 }
 
@@ -57,5 +57,45 @@ interface SignalTestRuntime {
   agent: PebbleAgent;
   capability: SignalTestCapability;
   provider: SignalTestProvider;
-  runner: MemorySignalRunner;
+  signals: MemorySignalOperations;
+}
+
+function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
+  return {
+    agent: { setName: async () => undefined },
+    documents: {
+      applyTodoStatus: async () => undefined,
+      create: async () => ({ id: '', name: '' }),
+      list: async () => ({ items: [], total: 0 }),
+      read: async () => ({ id: '', markdown: '', name: '' }),
+      readTodos: async () => [],
+      update: async () => ({ id: '', name: '' }),
+    },
+    signals,
+    subAgents: {
+      kill: async () => undefined,
+      spawn: async () => {
+        throw new Error('not used');
+      },
+    },
+    taskBoards: {
+      addDependency: async () => undefined,
+      createPool: async () => ({ id: '' }),
+      createTask: async () => ({ id: '' }),
+      deleteDependency: async () => undefined,
+      deletePool: async () => undefined,
+      deleteTask: async () => undefined,
+      describe: async () => ({ boardId: '', boardName: '', dependencies: [], pools: [], tasks: [] }),
+      listTaskDeliverableSubmissions: async () => [],
+      listTaskDeliverables: async () => [],
+      listTaskEvents: async () => [],
+      renameTask: async () => undefined,
+      setOwnedTaskStatus: async () => undefined,
+      setTaskStatus: async () => undefined,
+      submitDeliverable: async () => {
+        throw new Error('not used');
+      },
+      updateTaskDescription: async () => undefined,
+    },
+  };
 }

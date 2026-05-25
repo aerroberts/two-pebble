@@ -1,4 +1,4 @@
-import type { Agent, DataCells, SubAgentMessage } from '@two-pebble/pebble';
+import type { Agent, DataCells } from '@two-pebble/pebble';
 import { Cell, PebbleAgent } from '@two-pebble/pebble';
 import type {
   AwaitNextInput,
@@ -6,16 +6,14 @@ import type {
   DrainInput,
   InboxQueues,
   SubAgentCoordinatorContext,
+  SubAgentMessage,
   SubAgentMessageWaiter,
-} from './runner-types';
+} from './sub-agent-types';
 
 /**
  * Routes peer messages between parent and child agents and decides
- * whether each inbound message resumes a waiting tool call or arrives as
- * a regular user message. Owns no per-agent runner state directly — that
- * lives on the runners injected into agents — but is the shared registry
- * the runners call into for cross-agent delivery, lazy rehydrate, and
- * pending-ask pairing lookup.
+ * whether each inbound message arrives as a Pebble context message or a
+ * framework text message.
  *
  * Pairing strategy is FIFO: when a recipient has a waiting tool call in
  * its capability state, the next inbound message is delivered as a tool
@@ -53,7 +51,7 @@ export class SubAgentCoordinator {
 
   /**
    * Resolves the next message in the recipient's inbox; awaits one if
-   * none is queued. Used by parent/child runners' `await*` paths.
+   * none is queued.
    */
   public async awaitNext(input: AwaitNextInput): Promise<SubAgentMessage> {
     const queue = this.inbox.byRecipient.get(input.recipientAgentId) ?? [];

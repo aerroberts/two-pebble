@@ -27,6 +27,7 @@ export class FrameworkAgent extends Agent {
   constructor(config: ThirdPartyAgentConfig) {
     super({
       agentId: config.agentId,
+      bridge: config.bridge,
       description: config.description,
       name: config.name,
       workspacePath: config.workspacePath,

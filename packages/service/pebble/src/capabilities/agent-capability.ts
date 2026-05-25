@@ -1,10 +1,9 @@
-import type { AgentSignal, RegisterSignalInput, ResolveSignalInput, SendSignalInput } from '../agent/agent-bridge';
 import type { PebbleAgent } from '../agent/agents/pebble-agent';
 import { AgentExitHook } from '../agent/hooks/agent-exit-hook';
 import { EarlyExit } from '../agent/hooks/early-exit';
 import type { AgentStatus } from '../agent/types';
+import type { AgentBridge, AgentSignal, RegisterSignalInput } from '../bridge';
 import type { PebbleJsonValue } from '../types';
-import { getAgentBridge } from './agent-bridge';
 import type { CapabilityState, RegisterHookResult } from './agent-capability.types';
 
 /**
@@ -32,6 +31,10 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
    */
   public attach(agent: PebbleAgent): void {
     this.agent = agent;
+  }
+
+  public get bridge(): AgentBridge {
+    return this.agent.bridge;
   }
 
   /**
@@ -153,7 +156,7 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
   }
 
   protected async registerSignal(input: Omit<RegisterSignalInput, 'capabilityId'>): Promise<string> {
-    const signalId = await this.requireSignalBridge().register({ ...input, capabilityId: this.id });
+    const signalId = await this.bridge.signals.register({ ...input, capabilityId: this.id });
     this.agent.emit('trace', {
       type: 'signal-registered',
       data: {
@@ -166,21 +169,5 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
       },
     });
     return signalId;
-  }
-
-  protected async sendSignal(input: SendSignalInput): Promise<void> {
-    await this.requireSignalBridge().send(input);
-  }
-
-  protected async resolveSignal(input: ResolveSignalInput): Promise<void> {
-    await this.requireSignalBridge().resolve(input);
-  }
-
-  private requireSignalBridge() {
-    const bridge = getAgentBridge(this.agent).signal;
-    if (bridge === undefined) {
-      throw new Error('signal bridge is not installed.');
-    }
-    return bridge;
   }
 }
