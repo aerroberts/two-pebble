@@ -1,5 +1,5 @@
 {
-  "inherit": ["guardrails-typescript", "guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": [
     // Guard files are comment JSON: keep package-local policy under `structure`, and inherit shared groups through `inherit`.
     // Do not bring back legacy top-level `rules` or `exclude`; nested selectors own any filtering they need.

@@ -9,7 +9,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: UpdateAgentRegistryPayload) {
     const registry = await ctx.datastore.agentRegistries.update(payload);
 
-    ctx.multicastBridge.emit('agentRegistryUpdated', registry);
+    ctx.events.emit('agentRegistryUpdated', registry);
 
     return { id: registry.id };
   };

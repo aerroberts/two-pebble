@@ -26,7 +26,7 @@ export function handler(ctx: DaemonHandlerContext) {
       frameworkId: 'claude-code',
       name: 'Claude Code',
     });
-    ctx.multicastBridge.emit('thirdPartyAgentInstallUpdated', install);
+    ctx.events.emit('thirdPartyAgentInstallUpdated', install);
 
     return { detected: true, executablePath, installId: install.id };
   };

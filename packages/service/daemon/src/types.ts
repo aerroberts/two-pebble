@@ -1,5 +1,4 @@
 import type { Datastore } from '@two-pebble/datastore';
-import type { Logger } from '@two-pebble/logger';
 import type { AgentLivenessEvent, DaemonProtocol } from '@two-pebble/protocol';
 import type {
   Bridge,
@@ -9,11 +8,11 @@ import type {
   ProtocolOutboundEvents,
   WsBridgeServer,
 } from '@two-pebble/ws-bridge';
-import type { AgentRegistryService } from './services/agent-registry-service';
-import type { AutomationService } from './services/automation-service';
-import type { HeartbeatService } from './services/heartbeat-service';
-import type { LivenessReconciler } from './services/liveness-reconciler';
-import type { TaskBoardService } from './services/task-board-service';
+import type { AgentRegistryService } from './services/agent-registry/service';
+import type { AutomationService } from './services/automation';
+import type { HeartbeatService } from './services/heartbeat';
+import type { LivenessService } from './services/liveness/service';
+import type { TaskBoardService } from './services/task-board/service';
 
 export type DaemonBridge = Bridge<DaemonProtocol>;
 
@@ -27,6 +26,19 @@ export type DaemonOutboundPayload<TName extends DaemonOutboundEventName> = Proto
   ProtocolOutboundEvents<DaemonProtocol>,
   TName
 >['payload'];
+
+export interface DaemonEventSink {
+  emit<TName extends DaemonOutboundEventName>(name: TName, payload: DaemonOutboundPayload<TName>): void;
+}
+
+export interface DaemonHeartbeatInput {
+  now: number;
+}
+
+export interface DaemonHeartbeatReport {
+  outcome: 'fired' | 'skipped' | 'error';
+  detail?: Record<string, unknown>;
+}
 
 export type DaemonFetchResponse = Response | undefined;
 
@@ -50,13 +62,12 @@ export interface DaemonRuntimeContext {
   automations: AutomationService;
   databaseFilePath: string;
   datastore: Datastore;
+  events: DaemonEventSink;
   heartbeat: HeartbeatService;
-  logger: Logger;
   logsDirectoryPath: string;
-  multicastBridge: DaemonBridge;
   port: number;
   taskBoards: TaskBoardService;
-  livenessReconciler?: LivenessReconciler;
+  liveness: LivenessService;
 }
 
 /**
@@ -64,21 +75,13 @@ export interface DaemonRuntimeContext {
  * `bridge` field so a handler cannot accidentally broadcast a state
  * change to only the caller — every connected UI must see every
  * mutation. Handlers that need to fan out events go through
- * `multicastBridge`. The per-client bridge stays in the daemon's
+ * `events`. The per-client bridge stays in the daemon's
  * operation wrapper, which is the only place a per-client emission
  * (e.g. debug log notifications) is allowed.
  */
 export type DaemonHandlerContext = DaemonRuntimeContext;
 
-export interface AgentRegistryServiceContext {
-  datastore: Datastore;
-  logger: Logger;
-  multicastBridge: DaemonBridge;
-  taskBoards: TaskBoardService;
-}
-
 export interface CreateWorktreeContext {
-  multicastBridge: DaemonBridge;
   datastore: Datastore;
-  logger: Logger;
+  events: DaemonEventSink;
 }

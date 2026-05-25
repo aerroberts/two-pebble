@@ -20,13 +20,13 @@ export function handler(ctx: DaemonHandlerContext) {
       throw new Error(`task dependency not found`);
     }
     const events = await ctx.taskBoards.deleteDependency(boardId, payload);
-    ctx.multicastBridge.emit('taskDependencyDeleted', { boardId, fromId: payload.fromId, toId: payload.toId });
+    ctx.events.emit('taskDependencyDeleted', { boardId, fromId: payload.fromId, toId: payload.toId });
     const refreshed = await ctx.taskBoards.listTasks(boardId);
     for (const task of refreshed) {
-      ctx.multicastBridge.emit('taskUpdated', task);
+      ctx.events.emit('taskUpdated', task);
     }
     for (const event of events) {
-      ctx.multicastBridge.emit('taskEventRecorded', event);
+      ctx.events.emit('taskEventRecorded', event);
     }
     return { fromId: payload.fromId, toId: payload.toId };
   };

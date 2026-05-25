@@ -12,7 +12,7 @@ export function handler(ctx: DaemonHandlerContext) {
       parentAgentId: payload.parentAgentId ?? null,
       workspaceId: 'legacy',
     });
-    ctx.multicastBridge.emit('agentRecorded', record);
+    ctx.events.emit('agentRecorded', record);
     return { id: record.id };
   };
 }

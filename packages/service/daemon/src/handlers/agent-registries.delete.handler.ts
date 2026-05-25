@@ -15,11 +15,11 @@ export function handler(ctx: DaemonHandlerContext) {
     for (const automation of automations.items) {
       ctx.automations.unregister(automation.id);
       await ctx.datastore.automations.delete({ id: automation.id });
-      ctx.multicastBridge.emit('automationDeleted', { id: automation.id });
+      ctx.events.emit('automationDeleted', { id: automation.id });
     }
     const deleted = await ctx.datastore.agentRegistries.delete(payload);
 
-    ctx.multicastBridge.emit('agentRegistryDeleted', deleted);
+    ctx.events.emit('agentRegistryDeleted', deleted);
 
     return deleted;
   };

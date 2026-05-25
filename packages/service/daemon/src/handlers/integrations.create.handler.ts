@@ -9,7 +9,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(data: CreateIntegrationPayload) {
     const integration = await ctx.datastore.integrations.create(data);
 
-    ctx.multicastBridge.emit('integrationUpdated', integration);
+    ctx.events.emit('integrationUpdated', integration);
 
     return { id: integration.id };
   };

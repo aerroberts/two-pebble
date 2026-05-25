@@ -17,10 +17,10 @@ export function handler(ctx: DaemonHandlerContext) {
       agentId: task.ownerId,
       reason: 'manual: undelegated',
     });
-    ctx.multicastBridge.emit('taskEventRecorded', undelegationEvent);
+    ctx.events.emit('taskEventRecorded', undelegationEvent);
     const refreshed = await ctx.taskBoards.listTasks(updated.boardId);
     for (const entry of refreshed) {
-      ctx.multicastBridge.emit('taskUpdated', entry);
+      ctx.events.emit('taskUpdated', entry);
     }
     return { id: payload.taskId };
   };

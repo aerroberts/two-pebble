@@ -11,7 +11,7 @@ type RecordAgentPriceLineItemPayload = RecordAgentPriceLineItemOperation['reques
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: RecordAgentPriceLineItemPayload) {
     const record = await ctx.datastore.agent.priceLineItems.record(payload);
-    ctx.multicastBridge.emit('agentPriceLineItemRecorded', record);
+    ctx.events.emit('agentPriceLineItemRecorded', record);
     return { id: record.id };
   };
 }

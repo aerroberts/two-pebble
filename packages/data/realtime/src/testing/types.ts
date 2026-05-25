@@ -4,6 +4,7 @@ import type { ProtocolOpByName, ProtocolOutboundOps, WsBridgeClient } from '@two
 import type { ReactNode } from 'react';
 import type { Root } from 'react-dom/client';
 import type { RealtimeDatastore } from '../realtime-datastore';
+import type { AgentRecord, AgentStatus } from '../states/agents/types';
 import type { RealtimeDaemonDriver } from './realtime-daemon-driver';
 import type { RealtimeHookDriver } from './realtime-hook-driver';
 import type { RealtimeRenderedHookValue } from './realtime-rendered-hook-value';
@@ -64,6 +65,19 @@ export interface RealtimeTestContextInput {
   daemonInstance: TwoPebbleDaemon;
   directoryPath: string;
   realtime: RealtimeHookDriver;
+}
+
+export interface TestDaemonInternals {
+  context?: {
+    datastore: {
+      agent: {
+        setStatus(input: { id: string; status: AgentStatus }): Promise<AgentRecord>;
+      };
+    };
+    events: {
+      emit(name: 'agentRecorded', payload: AgentRecord): void;
+    };
+  };
 }
 
 export interface HookProbeInput<TValue> {

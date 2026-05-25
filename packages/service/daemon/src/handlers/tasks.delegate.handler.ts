@@ -38,7 +38,7 @@ export function handler(ctx: DaemonHandlerContext) {
       orderId: 0,
       type: 'task-assigned',
     });
-    ctx.multicastBridge.emit('agentTraceRecorded', taskAssignedTrace);
+    ctx.events.emit('agentTraceRecorded', taskAssignedTrace);
     const updated = await ctx.taskBoards.setTaskOwner(payload.taskId, launched.id);
     const delegationEvent = await ctx.taskBoards.recordDelegationEvent({
       taskId: payload.taskId,
@@ -47,10 +47,10 @@ export function handler(ctx: DaemonHandlerContext) {
       agentName: registry.name,
       reason: `manual: delegated to ${registry.name}`,
     });
-    ctx.multicastBridge.emit('taskEventRecorded', delegationEvent);
+    ctx.events.emit('taskEventRecorded', delegationEvent);
     const refreshed = await ctx.taskBoards.listTasks(updated.boardId);
     for (const entry of refreshed) {
-      ctx.multicastBridge.emit('taskUpdated', entry);
+      ctx.events.emit('taskUpdated', entry);
     }
     const { events: statusEvents } = await ctx.taskBoards.setTaskStatus(updated.boardId, {
       id: payload.taskId,
@@ -58,11 +58,11 @@ export function handler(ctx: DaemonHandlerContext) {
       reason: `manual: delegated to ${registry.name}`,
     });
     for (const event of statusEvents) {
-      ctx.multicastBridge.emit('taskEventRecorded', event);
+      ctx.events.emit('taskEventRecorded', event);
     }
     const afterStatus = await ctx.taskBoards.listTasks(updated.boardId);
     for (const entry of afterStatus) {
-      ctx.multicastBridge.emit('taskUpdated', entry);
+      ctx.events.emit('taskUpdated', entry);
     }
     return { agentId: launched.id };
   };

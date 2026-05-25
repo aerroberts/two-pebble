@@ -215,7 +215,7 @@ export class CodeAstBuilder {
   }
 
   private consumeParameters(parameters: ts.NodeArray<ts.ParameterDeclaration>): WorkspaceNode {
-    const node = new WorkspaceNode('parameters');
+    const node = this.withSourceData(new WorkspaceNode('parameters'));
     for (const parameter of parameters) {
       const parameterNode = new WorkspaceNode('parameter').withData({
         name: parameter.name.getText(this.sourceFile),
@@ -349,14 +349,30 @@ export class CodeAstBuilder {
       if (range.kind !== ts.SyntaxKind.MultiLineCommentTrivia) {
         continue;
       }
-      nodes.push(new WorkspaceNode('block-comment').withRange(this.lineOf(range.pos), this.lineOf(range.end)));
+      nodes.push(
+        this.withSourceData(new WorkspaceNode('block-comment')).withRange(
+          this.lineOf(range.pos),
+          this.lineOf(range.end),
+        ),
+      );
     }
     return nodes;
   }
 
   private applyRange(target: WorkspaceNode, node: ts.Node) {
-    target.withRange(this.lineOf(node.getStart(this.sourceFile)), this.lineOf(node.getEnd()));
+    this.withSourceData(target).withRange(this.lineOf(node.getStart(this.sourceFile)), this.lineOf(node.getEnd()));
     return target;
+  }
+
+  private withSourceData(target: WorkspaceNode) {
+    const filename = basename(this.sourceFile.fileName);
+    const existingName = target.getProperty('name');
+    return target.withData({
+      path: this.sourceFile.fileName,
+      filename,
+      name: existingName ?? basename(filename, extname(filename)),
+      fileContent: this.sourceFile.text,
+    });
   }
 
   private lineOf(position: number) {

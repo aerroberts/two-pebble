@@ -1,8 +1,8 @@
 import { ProviderFactory } from '@two-pebble/pebble';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
-import { recordVoiceCall } from '../services/voice-call-recording';
 import type { DaemonHandlerContext } from '../types';
+import { recordVoiceCall } from './voice-call-recording';
 
 type TranscribeAudioOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'transcribeAudio'>;
 type TranscribeAudioPayload = TranscribeAudioOperation['request'];
@@ -25,7 +25,7 @@ export function handler(ctx: DaemonHandlerContext) {
       throw new Error(buildTranscriptionErrorMessage(result.error, result.providerOutput));
     }
     await recordVoiceCall({
-      bridge: ctx.multicastBridge,
+      events: ctx.events,
       datastore: ctx.datastore,
       inferenceProfileId: inferenceProfile.id,
       integrationId: integration.id,

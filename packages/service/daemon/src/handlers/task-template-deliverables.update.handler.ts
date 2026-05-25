@@ -7,7 +7,7 @@ type Operation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'updateTas
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Operation['request']) {
     const deliverable = await ctx.datastore.taskBoards.templates.deliverables.update(payload);
-    ctx.multicastBridge.emit('taskTemplateDeliverableUpdated', deliverable);
+    ctx.events.emit('taskTemplateDeliverableUpdated', deliverable);
     return { deliverable };
   };
 }

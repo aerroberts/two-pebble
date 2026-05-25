@@ -1,18 +1,59 @@
 {
-  "inherit": ["guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": [
-    // The previous daemon guard inherited @group/guardrails-typescript and used top-level structure exclusions for
-    // legacy orchestration files. Structure-only package guards cannot subtract package-local paths from an inherited
-    // group, so keep those exemptions as steering here instead of restoring unsupported top-level exclude:
-    // src/services/agent-registry-service.ts, src/services/task-board-service.ts,
-    // src/services/task-dispatcher/task-dispatcher.ts, src/services/agent-naming/daemon-agent-naming-runner.ts,
-    // task-board/template handlers, agent-registry listeners, automation, heartbeat, and task-board runner services.
-    //
-    // Each daemon handler exports a `handler(ctx)` wrapper so error handling, logging, and bridge fanout stay consistent.
-    // Literal contains/missing checks are not supported by structure-only guardrails; keep returning
-    // `async function wrappedHandler(...)` and keep state-change fanout on `ctx.multicastBridge.emit`, not
-    // `ctx.bridge.emit` or another per-client bridge emit.
-    // Each handler exports a handler(ctx) wrapper for consistent error handling and logging. State changes must broadcast through ctx.multicastBridge.emit so every connected UI sees the mutation; handlers must not call ctx.bridge.emit or any other per-client bridge emit.
+    // Daemon services live under src/services/<service>/service.ts. The only root service file is
+    // src/services/daemon-service.ts, which owns the host/base-class module.
+    {
+      "find": "src/services/daemon-service.ts",
+      "asserts": {
+        "type": "file"
+      }
+    },
+    {
+      "find": "src/services/*.ts",
+      "exclude": "src/services/daemon-service.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/services/*/service.ts",
+      "asserts": {
+        "type": "file"
+      }
+    },
+    {
+      "find": "src/services/agent-registry-service.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/services/task-board-service.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/services/task-board-service-*.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/services/*-reconciler.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    {
+      "find": "src/services/**/*runner*.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    // Each daemon handler exports a `handler(ctx)` wrapper so error handling, logging, and bridge fanout stay
+    // consistent. State changes must broadcast through ctx.events.emit so every connected UI sees the mutation.
     {
       "find": "src/handlers/*.handler.ts",
       "asserts": {
@@ -42,8 +83,6 @@
       ]
     },
 
-    // Daemon handler tests live in src/tests, not alongside handler files. Keep src/handlers free of test-only files so
-    // the protocol surface stays scannable.
     // Daemon handler tests live in src/tests, not alongside handler files.
     {
       "find": "src/handlers/*.test.ts",

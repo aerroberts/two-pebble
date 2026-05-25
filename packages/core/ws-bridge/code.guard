@@ -1,4 +1,4 @@
 {
-  "inherit": ["guardrails-typescript", "guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": []
 }

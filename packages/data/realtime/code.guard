@@ -1,11 +1,6 @@
 {
-  "inherit": ["guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": [
-    // The legacy guard inherited @group/guardrails-typescript and excluded src/realtime-datastore.ts,
-    // src/testing/realtime-test-context.ts, and src/states/documents/listen.test.ts from package-level
-    // structure checks. The new structure-only format has no top-level package exclude and package
-    // configs cannot scope inherited group rules, so the shared TypeScript group is not inherited here.
-    // Keep those files intentionally central until the package can absorb the stricter shared shape.
     // Realtime bridge behavior belongs in the operations directory.
     {
       "find": "src/operations",

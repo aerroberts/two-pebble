@@ -1,5 +1,5 @@
 {
-  "inherit": ["guardrails-typescript", "guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": [
     // Integration domain types expose one simple union from the folder-level types file.
     {

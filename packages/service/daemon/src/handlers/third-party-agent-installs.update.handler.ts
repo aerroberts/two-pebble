@@ -12,7 +12,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(data: UpdateThirdPartyAgentInstallPayload) {
     const install = await ctx.datastore.thirdPartyAgentInstalls.update(data);
 
-    ctx.multicastBridge.emit('thirdPartyAgentInstallUpdated', install);
+    ctx.events.emit('thirdPartyAgentInstallUpdated', install);
 
     return { id: install.id };
   };

@@ -8,7 +8,7 @@ type Payload = RenameAgentOperation['request'];
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     const record = await ctx.datastore.agent.rename({ id: payload.id, name: payload.name });
-    ctx.multicastBridge.emit('agentRecorded', {
+    ctx.events.emit('agentRecorded', {
       agentRegistryId: record.agentRegistryId ?? null,
       completedAt: record.completedAt,
       description: record.description,

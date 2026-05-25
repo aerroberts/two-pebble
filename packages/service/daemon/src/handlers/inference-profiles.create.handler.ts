@@ -8,7 +8,7 @@ type CreateInferenceProfilePayload = CreateInferenceProfileOperation['request'];
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: CreateInferenceProfilePayload) {
     const inferenceProfile = await ctx.datastore.inferenceProfiles.create(payload);
-    ctx.multicastBridge.emit('inferenceProfileUpdated', inferenceProfile);
+    ctx.events.emit('inferenceProfileUpdated', inferenceProfile);
     return { id: inferenceProfile.id };
   };
 }

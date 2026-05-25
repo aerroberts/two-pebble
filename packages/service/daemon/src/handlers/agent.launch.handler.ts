@@ -1,3 +1,4 @@
+import { logger } from '@two-pebble/logger';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
 import type { DaemonHandlerContext } from '../types';
@@ -14,7 +15,7 @@ export function handler(ctx: DaemonHandlerContext) {
         : await resolveReferenceCells({
             cells: payload.cells,
             datastore: ctx.datastore,
-            logger: ctx.logger,
+            logger,
           });
     const extraCapabilities =
       typeof payload.sourceDocumentId === 'string' && payload.sourceDocumentId.length > 0

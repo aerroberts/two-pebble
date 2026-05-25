@@ -8,7 +8,7 @@ type Payload = Operation['request'];
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     const automation = await ctx.datastore.automations.update(payload);
-    ctx.multicastBridge.emit('automationUpdated', automation);
+    ctx.events.emit('automationUpdated', automation);
     return { id: automation.id };
   };
 }

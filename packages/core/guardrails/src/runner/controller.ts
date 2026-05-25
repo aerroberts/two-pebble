@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { dirname, relative, resolve } from 'node:path';
-import { CodeTraversal, type WorkspaceNode } from '@two-pebble/traversal';
+import { basename, dirname, extname, relative, resolve } from 'node:path';
+import { CodeTraversal, WorkspaceNode } from '@two-pebble/traversal';
 import type { AssertContext } from '../assert-context';
 import { InvalidGuardrailConfigError, UnknownDefinitionError } from '../errors';
 import { runAsserts } from '../run-asserts';
@@ -57,7 +57,8 @@ export class Controller {
     const ruleStart = performance.now();
     const findQueries = this.toQueryList(rule.find).map((query) => this.absoluteFind(packageDir, query));
     const excludeQueries = this.toQueryList(rule.exclude).map((query) => this.absoluteFind(packageDir, query));
-    const nodes = await this.findMinusExclude(traversal, findQueries, excludeQueries);
+    const matchedNodes = await this.findMinusExclude(traversal, findQueries, excludeQueries);
+    const nodes = rule.scope === 'file' ? this.scopeToFiles(matchedNodes) : matchedNodes;
     const matchedFiles: WorkspaceNode[] = [];
     for (const node of nodes) {
       const path = node.getProperty('path');
@@ -238,6 +239,31 @@ export class Controller {
       nodes.push(node);
     });
     return nodes;
+  }
+
+  private scopeToFiles(nodes: WorkspaceNode[]): WorkspaceNode[] {
+    const byPath = new Map<string, WorkspaceNode>();
+    for (const node of nodes) {
+      const path = node.getProperty('path');
+      if (!path || byPath.has(path)) {
+        continue;
+      }
+
+      const filename = node.getProperty('filename') ?? basename(path);
+      byPath.set(
+        path,
+        new WorkspaceNode('file')
+          .withData({
+            path,
+            filename,
+            name: basename(filename, extname(filename)),
+          })
+          .withLazyData({
+            fileContent: () => readFileSync(path, 'utf-8'),
+          }),
+      );
+    }
+    return [...byPath.values()];
   }
 
   private nodeKey(node: WorkspaceNode): string {

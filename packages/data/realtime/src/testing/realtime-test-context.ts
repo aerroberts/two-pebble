@@ -3,20 +3,7 @@ import type { TwoPebbleDaemon } from '@two-pebble/daemon';
 import type { AgentRecord, AgentStatus } from '../states/agents/types';
 import type { RealtimeDaemonDriver } from './realtime-daemon-driver';
 import type { RealtimeHookDriver } from './realtime-hook-driver';
-import type { RealtimeTestContextInput } from './types';
-
-type TestDaemonInternals = {
-  context?: {
-    datastore: {
-      agent: {
-        setStatus(input: { id: string; status: AgentStatus }): Promise<AgentRecord>;
-      };
-    };
-    multicastBridge: {
-      emit(name: 'agentRecorded', payload: AgentRecord): void;
-    };
-  };
-};
+import type { RealtimeTestContextInput, TestDaemonInternals } from './types';
 
 /**
  * Owns the real daemon and realtime hook test harness.
@@ -52,7 +39,7 @@ export class RealtimeTestContext {
       throw new Error('Daemon context unavailable; launch must complete before test status changes.');
     }
     const record = await context.datastore.agent.setStatus(input);
-    context.multicastBridge.emit('agentRecorded', record);
+    context.events.emit('agentRecorded', record);
     return record;
   }
 }

@@ -20,13 +20,13 @@ export function handler(ctx: DaemonHandlerContext) {
       throw new Error(`task "${payload.id}" not found`);
     }
     const events = await ctx.taskBoards.deleteTask(boardId, payload.id);
-    ctx.multicastBridge.emit('taskDeleted', { id: payload.id, boardId });
+    ctx.events.emit('taskDeleted', { id: payload.id, boardId });
     const refreshed = await ctx.taskBoards.listTasks(boardId);
     for (const task of refreshed) {
-      ctx.multicastBridge.emit('taskUpdated', task);
+      ctx.events.emit('taskUpdated', task);
     }
     for (const event of events) {
-      ctx.multicastBridge.emit('taskEventRecorded', event);
+      ctx.events.emit('taskEventRecorded', event);
     }
     return { id: payload.id };
   };

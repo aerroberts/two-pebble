@@ -13,7 +13,7 @@ export function handler(ctx: DaemonHandlerContext) {
       name: payload.name,
       dependsOn: payload.dependsOn,
     });
-    ctx.multicastBridge.emit('taskPoolUpdated', record);
+    ctx.events.emit('taskPoolUpdated', record);
     return { id: record.id };
   };
 }

@@ -16,6 +16,7 @@ export interface GuardrailConfig {
  */
 export interface StructureRule {
   find: string | string[];
+  scope?: StructureScope;
   exclude?: string | string[];
   asserts?: AssertConfig;
   code?: CodeRule[];
@@ -58,6 +59,12 @@ export interface AssertConfig {
   content?: ContentAssert;
   map?: MapAssert;
 }
+
+/**
+ * Optional projection applied after a structure rule finds nodes.
+ * - file: collapse AST matches to the unique source files that own them.
+ */
+export type StructureScope = 'file';
 
 /**
  * String-prefix assertion for AST node metadata. Defaults to the `name`

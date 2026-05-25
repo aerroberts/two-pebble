@@ -9,7 +9,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: UpdateDocumentPayload) {
     const document = await ctx.datastore.documents.update(payload);
 
-    ctx.multicastBridge.emit('documentUpdated', document);
+    ctx.events.emit('documentUpdated', document);
 
     return document;
   };

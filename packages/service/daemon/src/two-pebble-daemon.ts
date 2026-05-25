@@ -3,16 +3,15 @@ import { Datastore } from '@two-pebble/datastore';
 import { FileSyncSink, logger, PrettySink, TeeSink } from '@two-pebble/logger';
 import { metrics } from '@two-pebble/metrics';
 import { WsBridgeServer } from '@two-pebble/ws-bridge';
+import { MulticastEventSink } from './events/multicast-event-sink';
 import { registerDaemonHandlers } from './register-daemon-handlers';
-import { AgentRegistryService } from './services/agent-registry-service';
-import { AutomationService } from './services/automation-service';
-import { HeartbeatService } from './services/heartbeat-service';
-import { LivenessReconciler } from './services/liveness-reconciler';
-import { MulticastBridge } from './services/multicast-bridge';
-import { asDaemonBridge } from './services/multicast-bridge-cast';
-import { TaskBoardService } from './services/task-board-service';
+import { AgentRegistryService } from './services/agent-registry/service';
+import { AutomationService } from './services/automation';
+import { DaemonServiceHost } from './services/daemon-service';
+import { HeartbeatService } from './services/heartbeat';
+import { LivenessService } from './services/liveness/service';
+import { TaskBoardService } from './services/task-board/service';
 import type {
-  AgentLivenessPayload,
   DaemonBridge,
   DaemonFetchResponse,
   DaemonHandlerContext,
@@ -37,8 +36,7 @@ export class TwoPebbleDaemon {
   private context?: DaemonRuntimeContext;
   private datastore?: Datastore;
   private server?: DaemonServer;
-  private heartbeat?: HeartbeatService;
-  private reconciler?: LivenessReconciler;
+  private serviceHost?: DaemonServiceHost;
 
   public constructor(input: TwoPebbleDaemonInput) {
     logger.useSink(
@@ -78,50 +76,33 @@ export class TwoPebbleDaemon {
     this.datastore = new Datastore({ databaseFilePath });
     await this.datastore.migrate();
     this.registerMetricsSink(this.datastore);
-    const multicastBridge = asDaemonBridge(new MulticastBridge(this.bridges));
-    const taskBoards = new TaskBoardService({ datastore: this.datastore, logger });
-    const agentRegistry = new AgentRegistryService({
-      datastore: this.datastore,
-      logger,
-      multicastBridge,
-      taskBoards,
-    });
-    await agentRegistry.hydrate();
-    await taskBoards.hydrate();
-    const heartbeat = new HeartbeatService({ bridge: multicastBridge, datastore: this.datastore, logger });
-    const automations = new AutomationService({
-      agentRegistry,
-      bridge: multicastBridge,
-      datastore: this.datastore,
-      heartbeat,
-      logger,
-    });
-    await automations.hydrate();
-    heartbeat.start();
-    this.heartbeat = heartbeat;
+    const events = new MulticastEventSink(this.bridges);
+    const serviceHost = new DaemonServiceHost({ datastore: this.datastore, events });
+    this.serviceHost = serviceHost;
+    const taskBoards = serviceHost.register(new TaskBoardService(serviceHost));
+    const agentRegistry = serviceHost.register(new AgentRegistryService(serviceHost));
+    const automations = serviceHost.register(new AutomationService(serviceHost));
+    const heartbeat = serviceHost.register(new HeartbeatService(serviceHost));
+    const liveness = serviceHost.register(new LivenessService(serviceHost, { daemonBootId: this.daemonBootId }));
+    await agentRegistry.initialize();
+    await taskBoards.initialize();
+    await automations.initialize();
+    heartbeat.initialize();
     this.context = {
       agentRegistry,
       automations,
       databaseFilePath,
       datastore: this.datastore,
+      events,
       heartbeat,
-      logger,
       logsDirectoryPath: path.dirname(this.input.logFilePath),
-      multicastBridge,
       port: this.server.port,
       taskBoards,
+      liveness,
     };
     this.server.onClientConnected((bridge) => this.connect(bridge));
     this.server.onClientDisconnected((bridge) => this.disconnect(bridge));
-    this.reconciler = new LivenessReconciler({
-      agentRegistry,
-      broadcast: (payload) => this.broadcastLiveness(payload),
-      daemonBootId: this.daemonBootId,
-      datastore: this.datastore,
-      logger,
-    });
-    this.reconciler.start();
-    this.context.livenessReconciler = this.reconciler;
+    liveness.initialize();
     logger.info('ws server launched', { hostname: this.hostname, port: this.port, daemonBootId: this.daemonBootId });
     logger.info('database', { path: databaseFilePath });
     logger.info('ui served from', { directory: uiDistDirectory() });
@@ -175,24 +156,14 @@ export class TwoPebbleDaemon {
   public async close(): Promise<void> {
     logger.info('ws server closing');
     metrics.shutdown();
-    this.heartbeat?.stop();
-    this.reconciler?.stop();
+    for (const service of [...(this.serviceHost?.services ?? [])].reverse()) {
+      await service.shutdown();
+    }
     this.server?.close();
     if (this.datastore !== undefined) {
       await this.datastore.close();
     }
     logger.info('ws server closed');
-  }
-
-  private broadcastLiveness(payload: AgentLivenessPayload): void {
-    for (const bridge of this.bridges) {
-      try {
-        bridge.emit('agentLiveness', payload);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.warn('agent liveness broadcast failed', { error: message });
-      }
-    }
   }
 
   private disconnect(bridge: DaemonBridge): void {

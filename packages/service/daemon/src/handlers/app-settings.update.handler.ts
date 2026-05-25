@@ -8,7 +8,7 @@ type UpdateAppSettingsPayload = UpdateAppSettingsOperation['request'];
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: UpdateAppSettingsPayload) {
     const settings = await ctx.datastore.appSettings.update(payload);
-    ctx.multicastBridge.emit('appSettingsUpdated', settings);
+    ctx.events.emit('appSettingsUpdated', settings);
     return settings;
   };
 }

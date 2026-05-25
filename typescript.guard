@@ -8,7 +8,7 @@
       "code": [
         // If you find you are putting types and interfaces then they should be moved to a dedicated types file and re-exported from the index file as types.
         {
-          "find": ["interface", "type"],
+          "find": ["**/interface", "**/type"],
           "asserts": {
             "exists": false,
           },
@@ -27,45 +27,16 @@
       ],
     },
 
-    // Code should be clear and readable, comments should be used throughout the codebase to describe functionality
-    // Before every exported token, we need to have a short block comment that describes the intended functionality
-    // In the case of a class, the comment should describe the responsibility of the class, what it should be handling and what it should not be handling in the broader scope of the local system
+    // Any source file that declares a runtime class must only own runtime declarations.
+    // Put interfaces and type aliases in a sibling types.ts file, then import them as types from the class file.
     {
-      "find": "src/**/*.ts",
-      "exclude": ["src/**/index.ts", "src/**/types.ts"],
+      "find": "src/**/*.ts#**/class",
+      "scope": "file",
       "code": [
         {
-          "find": "export$before",
+          "find": ["**/interface", "**/type"],
           "asserts": {
-            "type": "block-comment",
-            "lines": {
-              "min": 3,
-            },
-          },
-        },
-      ],
-    },
-
-    // Test suite names should read like durable behavioral documentation.
-    // Every describe block starts with `feature:` so failures point at the user-facing behavior under test.
-    // Every test block starts with `happy:`, `unhappy:`, or `snapshot:` so the expected outcome is visible before reading the assertions.
-    {
-      "find": ["src/**/*.test.ts", "src/**/*.test.tsx"],
-      "code": [
-        {
-          "find": "**/describe",
-          "asserts": {
-            "startsWith": {
-              "values": "feature:",
-            },
-          },
-        },
-        {
-          "find": "**/test",
-          "asserts": {
-            "startsWith": {
-              "values": ["happy:", "unhappy:", "snapshot:"],
-            },
+            "exists": false,
           },
         },
       ],

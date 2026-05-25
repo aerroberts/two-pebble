@@ -10,7 +10,7 @@ export function handler(ctx: DaemonHandlerContext) {
     const record = await ctx.taskBoards.renameTask(payload.id, payload.name);
     const refreshed = await ctx.taskBoards.listTasks(record.boardId);
     for (const task of refreshed) {
-      ctx.multicastBridge.emit('taskUpdated', task);
+      ctx.events.emit('taskUpdated', task);
     }
     return { id: record.id };
   };

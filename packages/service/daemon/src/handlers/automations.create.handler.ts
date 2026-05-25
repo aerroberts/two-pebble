@@ -9,7 +9,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     const automation = await ctx.datastore.automations.create(payload);
     ctx.automations.register(automation);
-    ctx.multicastBridge.emit('automationUpdated', automation);
+    ctx.events.emit('automationUpdated', automation);
     return { id: automation.id };
   };
 }

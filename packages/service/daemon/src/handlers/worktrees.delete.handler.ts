@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { logger } from '@two-pebble/logger';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
 import type { DaemonHandlerContext } from '../types';
@@ -22,7 +23,7 @@ export function handler(ctx: DaemonHandlerContext) {
         const repository = await ctx.datastore.repositories.read({ id: worktree.repositoryId });
         await gitWorktreeRemove({ cwd: repository.path, worktreePath: worktree.path });
       } catch (error) {
-        ctx.logger.warn('git worktree remove failed; falling back to fs.rm', {
+        logger.warn('git worktree remove failed; falling back to fs.rm', {
           error: error instanceof Error ? error : String(error),
           worktreeId: worktree.id,
         });
@@ -31,7 +32,7 @@ export function handler(ctx: DaemonHandlerContext) {
     }
 
     const deleted = await ctx.datastore.worktrees.update({ id: payload.id, status: 'deleted' });
-    ctx.multicastBridge.emit('worktreeUpdated', deleted);
+    ctx.events.emit('worktreeUpdated', deleted);
 
     return { id: payload.id };
   };

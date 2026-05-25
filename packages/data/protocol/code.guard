@@ -1,5 +1,5 @@
 {
-  "inherit": ["guardrails-typescript", "guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": [
     // Protocol operation modules stay flat and domain-named so the bridge contract is visible in one directory.
     // Import allowlists are not supported by structure-only guardrails; keep imports limited to datatypes, pebble, task-events, and explicit sibling protocol dependencies.

@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { resolve } from 'node:path';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import type { GuardrailConfig } from '../types';
 import { Controller } from './controller';
 
@@ -11,6 +13,17 @@ import { Controller } from './controller';
  */
 
 const fixtureRoot = resolve(import.meta.dirname, '../test-resources/sample-package');
+const packageRoot = resolve(import.meta.dirname, '../..');
+
+function createScopeFixture(files: Record<string, string>) {
+  const root = mkdtempSync(join(tmpdir(), 'guardrails-scope-'));
+  for (const [path, source] of Object.entries(files)) {
+    const fullPath = resolve(root, path);
+    mkdirSync(resolve(fullPath, '..'), { recursive: true });
+    writeFileSync(fullPath, source);
+  }
+  return root;
+}
 
 describe('feature: controller', () => {
   test('happy: exists:true passes when the find matches a file', async () => {
@@ -39,7 +52,7 @@ describe('feature: controller', () => {
       ],
     };
 
-    const result = await new Controller().run(fixtureRoot, config);
+    const result = await new Controller().run(packageRoot, config);
 
     expect(result.passed).toBe(false);
     expect(result.results[0]?.diagnostics).toEqual([
@@ -76,6 +89,19 @@ describe('feature: controller', () => {
     const result = await new Controller().run(fixtureRoot, config);
 
     expect(result.passed).toBe(true);
+  });
+
+  test('happy: multiple inherits resolve root guard definitions in order', async () => {
+    const config: GuardrailConfig = {
+      inherit: ['guardrails-package', 'guardrails-typescript'],
+      structure: [],
+    };
+
+    const result = await new Controller().run(packageRoot, config);
+
+    expect(result.passed).toBe(true);
+    expect(result.results.some((check) => check.find === 'package.json')).toBe(true);
+    expect(result.results.some((check) => check.find.includes('#**/interface'))).toBe(true);
   });
 
   test('happy: type assertion validates the returned node kind', async () => {
@@ -279,6 +305,62 @@ describe('feature: controller', () => {
 
     expect(result.passed).toBe(false);
     expect(result.results[0]?.diagnostics[0]?.assertion).toBe('content');
+  });
+
+  test('happy: scope file projects AST matches to owning files', async () => {
+    const root = createScopeFixture({
+      'src/runtime-a.ts': 'export class RuntimeA {}',
+      'src/runtime-b.ts': 'export class RuntimeB {}',
+      'src/contracts.ts': 'export interface Contract {}',
+    });
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/**/*.ts#**/class',
+          scope: 'file',
+          asserts: { matches: { exactly: 2 } },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(root, config);
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('unhappy: scoped class files can reject colocated type contracts', async () => {
+    const root = createScopeFixture({
+      'src/runtime.ts': 'export class Runtime {}',
+      'src/contracts.ts': 'export interface Contract {}',
+      'src/runtime-with-contract.ts': [
+        'export interface RuntimeInput {',
+        '  enabled: boolean;',
+        '}',
+        'export class RuntimeWithContract {}',
+      ].join('\n'),
+    });
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/**/*.ts#**/class',
+          scope: 'file',
+          code: [
+            {
+              find: ['**/interface', '**/type'],
+              asserts: { exists: false },
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = await new Controller().run(root, config);
+
+    expect(result.passed).toBe(false);
+    expect(result.results.find((check) => check.find.includes('runtime.ts#**/interface'))?.passed).toBe(true);
+    const failedCheck = result.results.find((check) => check.find.includes('runtime-with-contract.ts#**/interface'));
+    expect(failedCheck?.passed).toBe(false);
+    expect(failedCheck?.diagnostics[0]?.assertion).toBe('exists');
   });
 
   test('happy: map substring/fullyConsumes passes when every fromRef filename appears inside a toRef path', async () => {

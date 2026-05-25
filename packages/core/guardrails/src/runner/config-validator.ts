@@ -3,7 +3,7 @@ import { ASSERT_NAMES } from '../run-asserts';
 import type { CodeRule, GuardrailConfig, StructureRule } from '../types';
 
 const TOP_LEVEL_KEYS = new Set(['definition', 'inherit', 'structure']);
-const STRUCTURE_RULE_KEYS = new Set(['find', 'exclude', 'asserts', 'code', 'ref']);
+const STRUCTURE_RULE_KEYS = new Set(['find', 'scope', 'exclude', 'asserts', 'code', 'ref']);
 const CODE_RULE_KEYS = new Set(['find', 'exclude', 'asserts']);
 const REF_KEYS = new Set(['name', 'extract']);
 const MAP_KEYS = new Set(['fromRef', 'toRef', 'method', 'fullyConsumes', 'fullyCovers']);
@@ -61,6 +61,7 @@ function validateInherit(value: unknown) {
 function validateStructureRule(rule: StructureRule, field: string) {
   validateKnownKeys(rule, STRUCTURE_RULE_KEYS, field, 'structure rule fields');
   validateFind(rule, field);
+  validateOptionalScope(rule.scope, field);
   validateOptionalExclude(rule.exclude, field);
   validateOptionalAsserts(rule.asserts, field);
   validateOptionalRef(rule.ref, field);
@@ -73,6 +74,15 @@ function validateStructureRule(rule: StructureRule, field: string) {
   }
   for (const [index, codeRule] of rule.code.entries()) {
     validateCodeRule(codeRule, `${field}.code[${index}]`);
+  }
+}
+
+function validateOptionalScope(value: unknown, field: string) {
+  if (value === undefined) {
+    return;
+  }
+  if (value !== 'file') {
+    throw new InvalidGuardrailConfigError(`${field}.scope must be "file" when provided.`);
   }
 }
 

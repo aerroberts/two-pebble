@@ -18,7 +18,7 @@ export function handler(ctx: DaemonHandlerContext) {
       return { id: payload.id };
     }
     const updated = await ctx.datastore.agent.setStatus({ id: payload.id, status: 'idle' });
-    ctx.multicastBridge.emit('agentRecorded', updated);
+    ctx.events.emit('agentRecorded', updated);
     return { id: payload.id };
   };
 }

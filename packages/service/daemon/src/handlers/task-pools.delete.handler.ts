@@ -9,9 +9,9 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     const pool = await readPoolBoard(ctx, payload.id);
     const events = await ctx.taskBoards.deletePool(pool.boardId, payload.id);
-    ctx.multicastBridge.emit('taskPoolDeleted', { id: payload.id, boardId: pool.boardId });
+    ctx.events.emit('taskPoolDeleted', { id: payload.id, boardId: pool.boardId });
     for (const event of events) {
-      ctx.multicastBridge.emit('taskEventRecorded', event);
+      ctx.events.emit('taskEventRecorded', event);
     }
     return { id: payload.id };
   };

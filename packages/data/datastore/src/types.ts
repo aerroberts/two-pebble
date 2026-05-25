@@ -367,7 +367,7 @@ export interface AutomationRecord {
 
 export interface HeartbeatReport {
   listenerId: string;
-  kind: 'automation';
+  kind: string;
   outcome: 'fired' | 'skipped' | 'error';
   detail: Record<string, unknown>;
 }

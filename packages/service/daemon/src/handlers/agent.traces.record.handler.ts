@@ -8,7 +8,7 @@ type RecordAgentTracePayload = RecordAgentTraceOperation['request'];
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: RecordAgentTracePayload) {
     const record = await ctx.datastore.agent.traces.record(payload);
-    ctx.multicastBridge.emit('agentTraceRecorded', record);
+    ctx.events.emit('agentTraceRecorded', record);
     return { id: record.id };
   };
 }

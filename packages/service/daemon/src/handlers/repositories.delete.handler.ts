@@ -9,7 +9,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: DeleteRepositoryPayload) {
     const deleted = await ctx.datastore.repositories.delete(payload);
 
-    ctx.multicastBridge.emit('repositoryDeleted', deleted);
+    ctx.events.emit('repositoryDeleted', deleted);
 
     return deleted;
   };

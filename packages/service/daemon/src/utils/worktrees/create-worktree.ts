@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { logger } from '@two-pebble/logger';
 import type { CreateWorktreeContext } from '../../types';
 import { gitWorktreeAdd } from './git-worktree';
 import { buildWorktreePath } from './worktree-paths';
@@ -29,7 +30,7 @@ export async function createWorktreeForRepository(ctx: CreateWorktreeContext, in
     path: worktreePath,
     status: 'creating',
   });
-  ctx.multicastBridge.emit('worktreeUpdated', creating);
+  ctx.events.emit('worktreeUpdated', creating);
 
   try {
     await fs.mkdir(path.dirname(worktreePath), { recursive: true });
@@ -40,16 +41,16 @@ export async function createWorktreeForRepository(ctx: CreateWorktreeContext, in
       worktreePath,
     });
   } catch (error) {
-    ctx.logger.warn('worktree creation failed', {
+    logger.warn('worktree creation failed', {
       error: error instanceof Error ? error : String(error),
       worktreeId: placeholder.id,
     });
     const failed = await ctx.datastore.worktrees.update({ id: placeholder.id, status: 'deleted' });
-    ctx.multicastBridge.emit('worktreeUpdated', failed);
+    ctx.events.emit('worktreeUpdated', failed);
     throw error;
   }
 
   const active = await ctx.datastore.worktrees.update({ id: placeholder.id, status: 'active' });
-  ctx.multicastBridge.emit('worktreeUpdated', active);
+  ctx.events.emit('worktreeUpdated', active);
   return active;
 }

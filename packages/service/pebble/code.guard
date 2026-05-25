@@ -1,30 +1,6 @@
 {
-  "inherit": ["guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": [
-    // Pebble previously inherited @group/guardrails-typescript and then used a top-level exclude for legacy files.
-    // Structure-only guardrails cannot subtract package-local paths from an inherited group, so keep the supported
-    // index-file steering here without restoring unsupported top-level TypeScript inheritance plus `exclude` behavior.
-    {
-      "find": "src/**/index.ts",
-      "code": [
-        // Index files stay as import/export layout files. Move local domain types into a sibling types file.
-        {
-          "find": ["interface", "type"],
-          "asserts": {
-            "exists": false
-          }
-        },
-
-        // Index files should not own runtime behavior. Put classes and functions in dedicated modules.
-        {
-          "find": ["class", "function"],
-          "asserts": {
-            "exists": false
-          }
-        }
-      ]
-    },
-
     // Capability folders keep their only top-level TypeScript entrypoint in
     // capability.ts. Schemas, helpers, tests, and prompt text live under
     // tools/, prompts/, tests/, or utils/.

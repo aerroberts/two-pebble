@@ -1,5 +1,5 @@
 {
-  "inherit": ["guardrails-typescript", "guardrails-package"],
+  "inherit": ["guardrails-package", "guardrails-typescript"],
   "structure": [
 
     // Every schema module declares one table via `customTable` and exports exactly one const for it.

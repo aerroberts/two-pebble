@@ -9,7 +9,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     ctx.automations.unregister(payload.id);
     const deleted = await ctx.datastore.automations.delete(payload);
-    ctx.multicastBridge.emit('automationDeleted', deleted);
+    ctx.events.emit('automationDeleted', deleted);
     return deleted;
   };
 }

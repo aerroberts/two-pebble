@@ -1,8 +1,8 @@
 import { ProviderFactory } from '@two-pebble/pebble';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
-import { recordVoiceCall } from '../services/voice-call-recording';
 import type { DaemonHandlerContext } from '../types';
+import { recordVoiceCall } from './voice-call-recording';
 
 type GenerateSpeechOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'generateSpeech'>;
 type GenerateSpeechPayload = GenerateSpeechOperation['request'];
@@ -24,7 +24,7 @@ export function handler(ctx: DaemonHandlerContext) {
     }
     const byteCount = approximateBase64ByteCount(result.base64Data);
     await recordVoiceCall({
-      bridge: ctx.multicastBridge,
+      events: ctx.events,
       datastore: ctx.datastore,
       inferenceProfileId: inferenceProfile.id,
       integrationId: integration.id,

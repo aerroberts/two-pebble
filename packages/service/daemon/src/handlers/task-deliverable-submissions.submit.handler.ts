@@ -7,7 +7,7 @@ type Operation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'submitTas
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Operation['request']) {
     const submission = await ctx.taskBoards.submitDeliverableAsAgent(payload);
-    ctx.multicastBridge.emit('taskDeliverableSubmissionRecorded', submission);
+    ctx.events.emit('taskDeliverableSubmissionRecorded', submission);
     return { submission };
   };
 }

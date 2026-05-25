@@ -15,13 +15,13 @@ export function handler(ctx: DaemonHandlerContext) {
       dependsOn: payload.dependsOn,
       templateId: payload.templateId ?? null,
     });
-    ctx.multicastBridge.emit('taskUpdated', result);
+    ctx.events.emit('taskUpdated', result);
     const { items: deliverables } = await ctx.datastore.taskBoards.deliverables.list({ taskId: result.id });
     for (const deliverable of deliverables) {
-      ctx.multicastBridge.emit('taskDeliverableUpdated', deliverable);
+      ctx.events.emit('taskDeliverableUpdated', deliverable);
     }
     for (const event of events) {
-      ctx.multicastBridge.emit('taskEventRecorded', event);
+      ctx.events.emit('taskEventRecorded', event);
     }
     return { id: result.id };
   };

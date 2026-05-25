@@ -9,7 +9,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: DeleteIntegrationPayload) {
     const deleted = await ctx.datastore.integrations.delete({ id: payload.id });
 
-    ctx.multicastBridge.emit('integrationDeleted', deleted);
+    ctx.events.emit('integrationDeleted', deleted);
 
     return deleted;
   };

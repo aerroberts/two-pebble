@@ -1,3 +1,4 @@
+import { logger } from '@two-pebble/logger';
 import { Cell } from '@two-pebble/pebble';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
@@ -23,7 +24,7 @@ export function handler(ctx: DaemonHandlerContext) {
     const cells = await resolveReferenceCells({
       cells: rawCells,
       datastore: ctx.datastore,
-      logger: ctx.logger,
+      logger,
     });
     const live = ctx.agentRegistry.get(payload.agentId);
     if (live !== undefined) {
@@ -48,7 +49,7 @@ export function handler(ctx: DaemonHandlerContext) {
       })
       .catch((error) => {
         const message = error instanceof Error ? error.message : String(error);
-        ctx.logger.warn('agent message rehydration failed', { agentId: payload.agentId, error: message });
+        logger.warn('agent message rehydration failed', { agentId: payload.agentId, error: message });
       });
     return { id: payload.agentId };
   };

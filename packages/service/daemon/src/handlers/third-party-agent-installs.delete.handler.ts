@@ -12,7 +12,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: DeleteThirdPartyAgentInstallPayload) {
     const deleted = await ctx.datastore.thirdPartyAgentInstalls.delete({ id: payload.id });
 
-    ctx.multicastBridge.emit('thirdPartyAgentInstallDeleted', deleted);
+    ctx.events.emit('thirdPartyAgentInstallDeleted', deleted);
 
     return deleted;
   };
