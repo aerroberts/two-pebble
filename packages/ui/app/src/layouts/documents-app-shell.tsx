@@ -28,7 +28,7 @@ export function DocumentsAppShell(props: AppShellProps) {
       <AuxiliarySidebarLayout
         sidebar={
           <Sidebar
-            footer={
+            branding={
               <Button
                 className="w-full"
                 disabled={creating}
