@@ -42,14 +42,12 @@ export interface LaunchAgentInput {
   /**
    * Optional parent agent id. Set when this launch is for a sub-agent
    * spawned by a parent's `SubAgentCapability`. The daemon stores it on
-   * the agents row and auto-attaches `ParentLinkCapability` on top of
-   * the registry-declared capability list.
+   * the agents row so the relationship can be inspected and persisted.
    */
   parentAgentId?: string;
   /**
    * Optional capability specs to attach in addition to whatever the
-   * registry row declares. Used by the dispatcher and delegate handler to
-   * bind `task-lifecycle` to a specific task at launch time.
+   * registry row declares.
    */
   extraCapabilities?: ExtraCapabilitySpec[];
 }
@@ -89,8 +87,7 @@ export interface RunAgentInput {
    */
   registry?: AgentRegistryRecord;
   /**
-   * Optional parent agent id. When set, the daemon auto-attaches the
-   * `parent-link` capability on top of the registry-declared list.
+   * Optional parent agent id recorded for launched child agents.
    */
   parentAgentId?: string;
   /**

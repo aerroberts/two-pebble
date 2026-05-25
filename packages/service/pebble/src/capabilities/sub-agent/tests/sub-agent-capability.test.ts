@@ -1,30 +1,30 @@
 import { describe, it } from 'bun:test';
 import {
-  expectAskNormalizesChildId,
-  expectParentResponseContinuesAwaitedChildAsk,
-  expectResearcherSpawnRegistration,
-  expectReviewerListOutput,
-  expectSpawnUsesAwaitedSignal,
+  expectSendRejectsTerminalTask,
+  expectSpawnRegistersNewToolSurface,
+  expectSpawnSendsTaskInstructions,
+  expectTeammateFollowUpUsesChildSignal,
+  expectWaitRegistersFanInSignal,
 } from './sub-agent-capability.test-env';
 
 describe('feature: sub-agent capability registration', () => {
-  it('happy: exposes configured sub-agent reference names to the model', () => {
-    expectResearcherSpawnRegistration();
+  it('happy: exposes spawn, send, wait, and kill tools', () => {
+    expectSpawnRegistersNewToolSurface();
   });
 
-  it('happy: lists configured references and spawned child ids', async () => {
-    await expectReviewerListOutput();
+  it('happy: spawn launches a named task child and sends initial instructions', async () => {
+    await expectSpawnSendsTaskInstructions();
   });
 
-  it('happy: spawn asks the child through an awaited signal', async () => {
-    await expectSpawnUsesAwaitedSignal();
+  it('happy: wait registers a fan-in signal for unresolved children', async () => {
+    await expectWaitRegistersFanInSignal();
   });
 
-  it('happy: ask accepts a child id without the agents prefix', async () => {
-    await expectAskNormalizesChildId();
+  it('happy: teammate follow-up resolves the child response signal', async () => {
+    await expectTeammateFollowUpUsesChildSignal();
   });
 
-  it('happy: parent response keeps waiting for child follow-up after a child asks back', async () => {
-    await expectParentResponseContinuesAwaitedChildAsk();
+  it('unhappy: send rejects terminal task children', async () => {
+    await expectSendRejectsTerminalTask();
   });
 });

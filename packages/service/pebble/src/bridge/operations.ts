@@ -105,9 +105,13 @@ export interface MarkSignalResolvedInput {
   id: string;
 }
 
+export type SubAgentMode = 'task' | 'teammate';
+
 export interface SubAgentSpawnInput {
-  referenceName: string;
-  message: string;
+  instructions: string;
+  mode: SubAgentMode;
+  name: string;
+  subAgentId: string;
 }
 
 export interface SubAgentKillInput {

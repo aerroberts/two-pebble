@@ -2,11 +2,11 @@ import type { AgentCapability } from '../agent';
 import type { PebbleJsonValue } from '../types';
 import { AgentNamingCapability } from './agent-naming/capability';
 import { DocumentWriterCapability } from './document-writer/capability';
-import { ParentLinkCapability } from './parent-link/capability';
+import { ParentLinkedTaskCapability } from './parent-linked-task/capability';
+import { ParentLinkedTeammateCapability } from './parent-linked-teammate/capability';
 import { ProgressiveTaskListCapability } from './progressive-task-list/capability';
 import { SubAgentCapability } from './sub-agent/capability';
 import { TaskBoardAccessCapability } from './task-board-access/capability';
-import { TaskLifecycleCapability } from './task-lifecycle/capability';
 import { TurnCounterCapability } from './turn-counter/capability';
 import { WorkspaceAccessCapability } from './workspace-access/capability';
 
@@ -21,8 +21,11 @@ export class CapabilityRegistry {
    * daemon rehydration can rebuild capabilities from datastore config.
    */
   public newCapability(id: string): AgentCapability<PebbleJsonValue> {
-    if (id === 'parent-link') {
-      return new ParentLinkCapability() as AgentCapability<PebbleJsonValue>;
+    if (id === 'parent-linked-task') {
+      return new ParentLinkedTaskCapability() as AgentCapability<PebbleJsonValue>;
+    }
+    if (id === 'parent-linked-teammate') {
+      return new ParentLinkedTeammateCapability() as AgentCapability<PebbleJsonValue>;
     }
     if (id === 'progressive-task-list') {
       return new ProgressiveTaskListCapability() as AgentCapability<PebbleJsonValue>;
@@ -32,9 +35,6 @@ export class CapabilityRegistry {
     }
     if (id === 'task-board-access') {
       return new TaskBoardAccessCapability() as AgentCapability<PebbleJsonValue>;
-    }
-    if (id === 'task-lifecycle') {
-      return new TaskLifecycleCapability() as AgentCapability<PebbleJsonValue>;
     }
     if (id === 'workspace-access') {
       return new WorkspaceAccessCapability();

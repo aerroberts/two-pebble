@@ -105,8 +105,8 @@ export class FrameworkAgent extends Agent {
    * see what context the session was started with — re-emitting on every
    * resume (within-daemon or after rehydrate) would just duplicate it.
    * On the idle edge we publish whatever assistant message the framework
-   * produced this turn via `finalMessage` so consumers (e.g. the sub-agent
-   * parent-link bridge) can react without listening to traces.
+   * produced this turn via `finalMessage` so consumers can react without
+   * listening to traces.
    */
   private onFrameworkStatusChange(event: AgentFrameworkStatusEvent): void {
     if (event.status === 'working') {

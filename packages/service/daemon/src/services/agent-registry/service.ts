@@ -20,7 +20,7 @@ import type {
   TaskBoardTaskNode,
   TaskStatus,
 } from '@two-pebble/pebble';
-import { Cell, FrameworkAgent, PebbleAgent } from '@two-pebble/pebble';
+import { Cell, PebbleAgent } from '@two-pebble/pebble';
 import { DaemonService } from '../daemon-service';
 import type { TaskBoardService } from '../task-board/service';
 import { attachAgentNaming } from './agent-naming/attach-agent-naming';
@@ -32,10 +32,9 @@ import { installAgentPersistenceListeners, installSubAgentListeners } from './li
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
 import { rehydrateAgent } from './rehydrate';
 import { readResumeMetadata } from './resume-metadata';
-import { repairBlockedSubAgentAskSignal, repairBlockedSubAgentAskSignals } from './signal-repair';
+import { repairBlockedSubAgentResultSignals, repairBlockedSubAgentResultSignalsForAgents } from './signal-repair';
 import { interruptStaleRunningAgents, persistAgentMetadata } from './status';
-import { attachFrameworkParentLink, attachParentLinkCapability, installFreshLaunchAgent } from './sub-agent/install';
-import { SubAgentCoordinator } from './sub-agent/sub-agent-coordinator';
+import { installFreshLaunchAgent } from './sub-agent/install';
 import { readSubAgentReferenceMap } from './sub-agent/sub-agent-references';
 import type { AgentTerminateInput, SubAgentReferenceMap } from './sub-agent/sub-agent-types';
 import type { SubAgentCreatePromiseMap } from './sub-agents';
@@ -52,7 +51,6 @@ export class AgentRegistryService extends DaemonService {
   private readonly activeAgents = new Map<string, Agent>();
   private readonly subAgentCreatePromises: SubAgentCreatePromiseMap = new Map();
   private readonly pendingRehydrations = new Map<string, Promise<Agent>>();
-  private coordinator: SubAgentCoordinator | undefined;
 
   private get datastore() {
     return this.daemon.datastore;
@@ -60,18 +58,6 @@ export class AgentRegistryService extends DaemonService {
 
   private get taskBoards(): TaskBoardService {
     return this.daemon.requireService<TaskBoardService>('task-board');
-  }
-
-  private getCoordinator(): SubAgentCoordinator {
-    if (this.coordinator === undefined) {
-      this.coordinator = new SubAgentCoordinator({
-        agentRegistry: this,
-        events: this.daemon.events,
-        datastore: this.datastore,
-        logger,
-      });
-    }
-    return this.coordinator;
   }
 
   /**
@@ -93,7 +79,7 @@ export class AgentRegistryService extends DaemonService {
    */
   public override async initialize(): Promise<void> {
     await interruptStaleRunningAgents({ datastore: this.datastore, logger });
-    await repairBlockedSubAgentAskSignals({ agentRegistry: this, datastore: this.datastore });
+    await repairBlockedSubAgentResultSignalsForAgents({ agentRegistry: this, datastore: this.datastore });
     await this.wakeAgentsWithSatisfiedSignals();
   }
 
@@ -249,21 +235,6 @@ export class AgentRegistryService extends DaemonService {
     let integrationId: string | undefined;
     if (record.agentRegistryId !== null && record.agentRegistryId !== undefined) {
       const registry = await this.datastore.agentRegistries.read({ id: record.agentRegistryId });
-      if (record.parentAgentId !== null && record.parentAgentId !== undefined) {
-        attachParentLinkCapability({
-          agent: runtimeAgent,
-          mode: 'rehydrate',
-          parentAgentId: record.parentAgentId,
-        });
-        attachFrameworkParentLink({
-          agent: runtimeAgent,
-          agentId,
-          agentRegistry: this,
-          datastore: this.datastore,
-          logger,
-          parentAgentId: record.parentAgentId,
-        });
-      }
       if (registry.kind !== 'framework' && registry.inferenceProfileId !== null) {
         const inferenceProfile = await this.datastore.inferenceProfiles.read({ id: registry.inferenceProfileId });
         inferenceProfileId = inferenceProfile.id;
@@ -320,13 +291,10 @@ export class AgentRegistryService extends DaemonService {
   /**
    * Wakes an agent when all currently-open signals have resolved.
    * Used by signal delivery paths so a waiting PebbleAgent can resume
-   * immediately after inbound signal state changes. For framework agents
-   * we instead translate the next received parent-link signal into an
-   * input message — framework adapters have no `hookOnSignal` surface and
-   * route everything through their plain message channel.
+   * immediately after inbound signal state changes.
    */
   public async wakeIfSignalsReady(agentId: string): Promise<void> {
-    await repairBlockedSubAgentAskSignal({ agentId, datastore: this.datastore });
+    await repairBlockedSubAgentResultSignals({ agentId, datastore: this.datastore });
     const open = await this.datastore.agent.signals.listOpenForAgent({ agentId });
     if (open.items.length > 0) {
       return;
@@ -342,47 +310,7 @@ export class AgentRegistryService extends DaemonService {
     const agent = await this.rehydrate(agentId);
     if (agent instanceof PebbleAgent) {
       agent.resumeFromSignal();
-      return;
     }
-    if (agent instanceof FrameworkAgent) {
-      await this.deliverNextParentSignalToFramework(agent, agentId, received.items);
-    }
-  }
-
-  /**
-   * Routes the next pending parent-link push signal into a framework
-   * agent. Stamps the agent's row with `parentResponseSignalId` so the
-   * finalMessage bridge knows which awaited slot to resolve when the
-   * framework eventually settles into idle, then marks the inbound signal
-   * resolved so it isn't redelivered on rehydrate.
-   */
-  private async deliverNextParentSignalToFramework(
-    agent: FrameworkAgent,
-    agentId: string,
-    received: Array<{ id: string; capabilityId: string; data: unknown }>,
-  ): Promise<void> {
-    const candidate = received.find((signal) => signal.capabilityId === 'parent-link');
-    if (candidate === undefined) {
-      return;
-    }
-    const data = candidate.data as { type?: string; message?: string; responseSignalId?: string } | null;
-    if (data === null || typeof data !== 'object') {
-      await this.datastore.agent.signals.markResolved({ id: candidate.id });
-      return;
-    }
-    const message = typeof data.message === 'string' ? data.message : '';
-    if (message.length === 0) {
-      await this.datastore.agent.signals.markResolved({ id: candidate.id });
-      return;
-    }
-    if (data.type === 'respond-parent' && typeof data.responseSignalId === 'string') {
-      await this.datastore.agent.setParentResponseSignalId({
-        id: agentId,
-        parentResponseSignalId: data.responseSignalId,
-      });
-    }
-    await this.datastore.agent.signals.markResolved({ id: candidate.id });
-    agent.sendMessage([Cell.text(message)]);
   }
 
   /**
@@ -473,12 +401,7 @@ export class AgentRegistryService extends DaemonService {
       const combinedSpecs = mergeCapabilitySpecs(registrySpecs, input.extraCapabilities);
       installFreshLaunchAgent({
         agent: input.agent,
-        agentId: input.agentId,
-        agentRegistry: this,
-        coordinator: this.getCoordinator(),
-        datastore: this.datastore,
         logger,
-        ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
         specs: combinedSpecs,
       });
     }
@@ -610,13 +533,19 @@ export class AgentRegistryService extends DaemonService {
           await this.terminate({ agentId: input.childAgentId, reason: input.reason });
         },
         spawn: async (input) => {
-          const agentRegistryId = references.get(input.referenceName);
+          const agentRegistryId = references.get(input.subAgentId);
           if (agentRegistryId === undefined) {
-            throw new Error(`Unknown sub-agent reference: ${input.referenceName}`);
+            throw new Error(`Unknown sub-agent reference: ${input.subAgentId}`);
           }
           const launched = await this.launch({
             agentRegistryId,
-            message: input.message,
+            extraCapabilities: [
+              {
+                id: input.mode === 'task' ? 'parent-linked-task' : 'parent-linked-teammate',
+                config: { childName: input.name, parentAgentId: agentId },
+              },
+            ],
+            message: '',
             parentAgentId: agentId,
           });
           return launched.id;

@@ -10,21 +10,20 @@ export function handler(ctx: DaemonHandlerContext) {
     const task = await findTask(ctx, payload.taskId);
     const registry = await ctx.datastore.agentRegistries.read({ id: payload.agentRegistryId });
     const taskDescription = task.description ?? '';
+    const message = [
+      'Please complete the assigned task.',
+      '',
+      `Task: ${task.name}`,
+      `Task id: ${task.id}`,
+      `Board id: ${task.boardId}`,
+      taskDescription.length > 0 ? `Description:\n${taskDescription}` : undefined,
+      task.additionalContext.length > 0 ? `Additional context:\n${task.additionalContext}` : undefined,
+    ]
+      .filter((line): line is string => line !== undefined)
+      .join('\n');
     const launched = await ctx.agentRegistry.launch({
       agentRegistryId: payload.agentRegistryId,
-      message: 'Please complete the assigned task.',
-      extraCapabilities: [
-        {
-          id: 'task-lifecycle',
-          config: {
-            taskId: task.id,
-            boardId: task.boardId,
-            taskName: task.name,
-            taskDescription,
-            additionalContext: task.additionalContext,
-          },
-        },
-      ],
+      message,
     });
     const taskAssignedTrace = await ctx.datastore.agent.traces.record({
       agentId: launched.id,

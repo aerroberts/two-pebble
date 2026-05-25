@@ -2,52 +2,37 @@ import type { AgentSignal } from '../../agent';
 import { ToolResponse } from '../../agent';
 import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
-import lifecyclePrimerPrompt from './prompts/lifecycle-primer.md?raw';
 import nextActionGuidePrompt from './prompts/next-action-guide.md?raw';
 import systemPrompt from './prompts/system.md?raw';
-import { buildAskSubAgentTool } from './tools/ask-sub-agent/handler';
 import { buildKillSubAgentTool } from './tools/kill-sub-agent/handler';
-import { buildListSubAgentsTool } from './tools/list-sub-agents/handler';
-import { buildReadSubAgentMessagesTool } from './tools/read-sub-agent-messages/handler';
-import { buildRespondToChildAgentTool } from './tools/respond-to-child-agent/handler';
-import { buildSendSubAgentMessageTool } from './tools/send-sub-agent-message/handler';
+import { buildSendAgentTool } from './tools/send-agent/handler';
 import { buildSpawnSubAgentTool } from './tools/spawn-sub-agent/handler';
-import { childStatusLine, listSubAgentsCells } from './utils/sub-agent-cells';
+import { buildWaitForAgentsTool } from './tools/wait-for-agents/handler';
+import { childStatusLine } from './utils/sub-agent-cells';
 import { readReferences } from './utils/sub-agent-references';
 import { objectData, stringField } from './utils/sub-agent-signal-data';
 import type {
   ChildLifecycle,
   ChildRecord,
+  ChildResultStatus,
   ParentSignalInput,
-  PendingChildQuestion,
+  SendAgentInput,
+  SpawnSubAgentInput,
   SubAgentCapabilityConfig,
   SubAgentReference,
+  WaitForAgentsInput,
 } from './utils/sub-agent-types';
 
 /**
  * Capability installed on parent agents so they can manage child agents.
- * It owns spawn references, durable child messaging, and child ask tracking.
+ * It owns child references, durable child messaging, and fan-in waits.
  */
 export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig> {
   public readonly id = 'sub-agent';
-  public readonly description = 'Lets a Pebble agent spawn and message child agents.';
+  public readonly description = 'Lets a Pebble agent launch and coordinate child agents.';
   private readonly childrenSlot = this.useState<ChildRecord[]>('children', []);
-  private readonly pendingChildQuestionsSlot = this.useState<PendingChildQuestion[]>('pending-child-questions', []);
   private referencesValue: SubAgentReference[] = [];
 
-  /**
-   * Injects a one-time orientation cell explaining the child lifecycle.
-   */
-  public override initialize(_config: SubAgentCapabilityConfig): void {
-    this.agent.addUserContext('Sub-agent Lifecycle Primer', [
-      Cell.header2('Sub-agent Lifecycle Primer'),
-      Cell.text(lifecyclePrimerPrompt),
-    ]);
-  }
-
-  /**
-   * Adds child status context at the start of every parent turn.
-   */
   public override hookBeforeAgentTurn(): void {
     const children = this.childrenSlot.value;
     if (children.length === 0) {
@@ -61,20 +46,14 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     ]);
   }
 
-  /**
-   * Registers child-agent tools for the parent agent.
-   */
   public override hookOnRegister(config: SubAgentCapabilityConfig) {
     this.referencesValue = readReferences(config);
     return {
       system: systemPrompt,
       tools: [
         buildSpawnSubAgentTool(this),
-        buildListSubAgentsTool(this),
-        buildSendSubAgentMessageTool(this),
-        buildAskSubAgentTool(this),
-        buildReadSubAgentMessagesTool(this),
-        buildRespondToChildAgentTool(this),
+        buildSendAgentTool(this),
+        buildWaitForAgentsTool(this),
         buildKillSubAgentTool(this),
       ],
     };
@@ -84,175 +63,105 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
     return this.referencesValue;
   }
 
-  public async spawnSubAgent(input: { referenceName: string; message: string }) {
+  public async spawnSubAgent(input: SpawnSubAgentInput) {
+    if (this.childrenSlot.value.some((child) => child.name === input.name)) {
+      return ToolResponse.error(`Child agent name already exists: ${input.name}`, [
+        Cell.text(`Child agent name already exists: ${input.name}`),
+      ]);
+    }
+    this.requireReference(input.subAgentId);
     const childAgentId = await this.bridge.subAgents.spawn(input);
-    const signalId = await this.registerSignal({
-      description: `Wait for ${childAgentId} to answer.`,
-      name: 'Sub-agent response',
-    });
-    this.childrenSlot.set([
-      ...this.childrenSlot.value,
-      {
-        agentId: childAgentId,
-        referenceName: input.referenceName,
-        lifecycle: 'awaiting-reply',
-        responseSignalId: signalId,
-      },
-    ]);
-    await this.sendParentSignal({
-      childAgentId,
-      data: {
-        message: input.message,
-        parentAgentId: this.agent.agentId,
-        parentCapabilityId: this.id,
-        responseSignalId: signalId,
-        type: 'respond-parent',
-      },
-      description: 'Parent agent asked this child for a startup response.',
-      name: 'Parent ask',
-    });
-    this.traceSubAgentInvoke(childAgentId, input.referenceName, input.message);
-    return ToolResponse.success([Cell.text(`Spawned ${childAgentId} and waiting for its response.`)]);
-  }
-
-  public listSubAgents(references: SubAgentReference[]) {
-    return ToolResponse.success(listSubAgentsCells(references, this.childrenSlot.value));
-  }
-
-  public async sendSubAgentMessage(input: { childAgentId: string; message: string }) {
-    const childAgentId = this.resolveChildAgentId(input.childAgentId);
-    await this.sendParentSignal({
-      childAgentId,
-      data: { message: input.message, type: 'parent-message' },
-      description: 'Parent agent sent a one-way message.',
-      name: 'Parent message',
-    });
-    return ToolResponse.success([Cell.text(`Sent message to ${childAgentId}.`)]);
-  }
-
-  public async askSubAgent(input: { childAgentId: string; message: string }) {
-    const childAgentId = this.resolveChildAgentId(input.childAgentId);
-    const signalId = await this.registerSignal({
-      description: `Wait for ${childAgentId} to answer.`,
-      name: 'Sub-agent response',
-    });
-    this.childrenSlot.set(
-      this.childrenSlot.value.map((child) =>
-        child.agentId === childAgentId
-          ? { ...child, lifecycle: 'awaiting-reply' as ChildLifecycle, responseSignalId: signalId }
-          : child,
-      ),
-    );
-    await this.sendParentSignal({
-      childAgentId,
-      data: {
-        message: input.message,
-        parentAgentId: this.agent.agentId,
-        parentCapabilityId: this.id,
-        responseSignalId: signalId,
-        type: 'respond-parent',
-      },
-      description: 'Parent agent asked this child for a response.',
-      name: 'Parent ask',
-    });
-    const referenceName =
-      this.childrenSlot.value.find((child) => child.agentId === childAgentId)?.referenceName ?? childAgentId;
-    this.traceSubAgentInvoke(childAgentId, referenceName, input.message);
-    return ToolResponse.success([Cell.text(`Asked ${childAgentId} and waiting for its response.`)]);
-  }
-
-  public readSubAgentMessages(input: { childAgentId: string }) {
-    const childAgentId = this.resolveChildAgentId(input.childAgentId);
-    return ToolResponse.success([
-      Cell.text(
-        `No queued messages for ${childAgentId}. Responses arrive automatically as 'Sub-agent Response' context cells in a later turn — do not poll. Check the 'Sub-agent Status' cell for the child's current state.`,
-      ),
-    ]);
-  }
-
-  public async respondToChildAgent(input: { childAgentId: string; message: string }) {
-    const childAgentId = this.resolveChildAgentId(input.childAgentId);
-    const pending = this.pendingChildQuestionsSlot.value.find((item) => item.childAgentId === childAgentId);
-    if (pending === undefined) {
-      return ToolResponse.error('No child question pending.', [Cell.text('No child question pending.')]);
-    }
-    const continuationSignalId = pending.continueAfterResponse
-      ? await this.registerSignal({
-          description: `Wait for ${childAgentId} to answer.`,
-          name: 'Sub-agent response',
-        })
-      : undefined;
-    await this.bridge.signals.resolve({
+    const child: ChildRecord = {
       agentId: childAgentId,
-      capabilityId: 'parent-link',
-      data: {
-        message: input.message,
-        parentAgentId: this.agent.agentId,
-        parentCapabilityId: this.id,
-        type: 'parent-response',
-        ...(continuationSignalId === undefined ? {} : { responseSignalId: continuationSignalId }),
-      },
-      signalId: pending.responseSignalId,
-    });
-    this.pendingChildQuestionsSlot.set(
-      this.pendingChildQuestionsSlot.value.filter((item) => item.responseSignalId !== pending.responseSignalId),
-    );
-    if (continuationSignalId !== undefined) {
-      this.childrenSlot.set(
-        this.childrenSlot.value.map((child) =>
-          child.agentId === childAgentId
-            ? { ...child, lifecycle: 'awaiting-reply' as ChildLifecycle, responseSignalId: continuationSignalId }
-            : child,
-        ),
-      );
-      return ToolResponse.success([Cell.text(`Sent response to ${childAgentId} and waiting for its follow-up.`)]);
+      lifecycle: 'running',
+      mode: input.mode,
+      name: input.name,
+      subAgentId: input.subAgentId,
+    };
+    this.childrenSlot.set([...this.childrenSlot.value, child]);
+    await this.sendChildInstructions({ child, instructions: input.instructions });
+    this.traceSubAgentInvoke(child.agentId, child.subAgentId, input.instructions);
+    return ToolResponse.success([Cell.text(`Spawned ${input.name} (${childAgentId}).`)]);
+  }
+
+  public async sendAgent(input: SendAgentInput) {
+    const child = this.requireChild(input.name);
+    if (child.lifecycle === 'killed' || child.lifecycle === 'completed' || child.lifecycle === 'failed') {
+      return ToolResponse.error(`Child agent ${input.name} is terminal.`, [
+        Cell.text(`Child agent ${input.name} is terminal.`),
+      ]);
     }
-    this.childrenSlot.set(
-      this.childrenSlot.value.map((child) =>
-        child.agentId === childAgentId
-          ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'idle-after-reply' }
-          : child,
-      ),
-    );
-    return ToolResponse.success([Cell.text(`Sent response to ${childAgentId}.`)]);
+    await this.sendChildInstructions({ child, instructions: input.instructions });
+    this.updateChild(input.name, { lifecycle: 'running', resultMessage: undefined, resultStatus: undefined });
+    return ToolResponse.success([Cell.text(`Sent instructions to ${input.name}.`)]);
   }
 
-  public async killSubAgent(input: { childAgentId: string; reason: string }) {
-    const childAgentId = this.resolveChildAgentId(input.childAgentId);
-    await this.bridge.subAgents.kill({ childAgentId, reason: input.reason });
-    this.childrenSlot.set(
-      this.childrenSlot.value.map((child) =>
-        child.agentId === childAgentId
-          ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'killed' }
-          : child,
-      ),
-    );
-    return ToolResponse.success([Cell.text(`Stopped ${childAgentId}.`)]);
+  public async waitForAgents(input: WaitForAgentsInput) {
+    const pending: string[] = [];
+    for (const name of input.names) {
+      const child = this.requireChild(name);
+      if (child.resultStatus !== undefined || isTerminal(child.lifecycle)) {
+        continue;
+      }
+      if (child.pendingWaitSignalId !== undefined) {
+        pending.push(name);
+        continue;
+      }
+      const signalId = await this.registerSignal({
+        description: `Wait for sub-agent ${name} (${child.agentId}) to respond.`,
+        name: 'Sub-agent result',
+      });
+      this.updateChild(name, { pendingWaitSignalId: signalId });
+      pending.push(name);
+    }
+    if (pending.length === 0) {
+      return ToolResponse.success([Cell.text('All requested child agents already have results.')]);
+    }
+    return ToolResponse.success([Cell.text(`Waiting for child agents: ${pending.join(', ')}.`)]);
   }
 
-  private traceSubAgentInvoke(childAgentId: string, referenceName: string, message: string): void {
-    this.agent.emit('trace', {
-      type: 'sub-agent-invoke',
-      data: {
-        agentInstanceId: childAgentId,
-        agentTemplateId: referenceName,
-        input: [Cell.text(message)],
-      },
-    });
+  public async killSubAgent(input: { name: string; reason: string }) {
+    const child = this.requireChild(input.name);
+    await this.bridge.subAgents.kill({ childAgentId: child.agentId, reason: input.reason });
+    this.updateChild(input.name, { lifecycle: 'killed' });
+    return ToolResponse.success([Cell.text(`Stopped ${input.name}.`)]);
   }
 
-  /**
-   * Handles child-originated durable signals.
-   */
   public override hookOnSignal(signal: AgentSignal): void {
     const data = objectData(signal.data);
-    const type = stringField(data, 'type');
-    if (type === 'sub-agent-response') {
-      const childAgentId = stringField(data, 'childAgentId');
-      const message = stringField(data, 'message');
-      if (childAgentId === undefined || message === undefined) {
-        return;
-      }
+    if (stringField(data, 'type') !== 'sub-agent-result') {
+      return;
+    }
+    const childAgentId = stringField(data, 'childAgentId');
+    const childName = stringField(data, 'childName');
+    const message = stringField(data, 'message');
+    const status = resultStatus(data);
+    if (childAgentId === undefined || childName === undefined || message === undefined || status === undefined) {
+      return;
+    }
+    const child = this.childrenSlot.value.find((item) => item.name === childName || item.agentId === childAgentId);
+    if (child === undefined) {
+      return;
+    }
+    const childResponseSignalId = stringField(data, 'childResponseSignalId');
+    const lifecycle = lifecycleForResult(status);
+    this.updateChild(child.name, {
+      childResponseSignalId,
+      lifecycle,
+      pendingWaitSignalId: undefined,
+      resultMessage: message,
+      resultStatus: status,
+    });
+    if (status === 'failure') {
+      this.agent.emit('trace', {
+        type: 'sub-agent-failure',
+        data: {
+          agentInstanceId: childAgentId,
+          error: message,
+          output: [Cell.text(message)],
+        },
+      });
+    } else {
       this.agent.emit('trace', {
         type: 'sub-agent-success',
         data: {
@@ -260,84 +169,111 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
           output: [Cell.text(message)],
         },
       });
-      this.childrenSlot.set(
-        this.childrenSlot.value.map((child) =>
-          child.agentId === childAgentId
-            ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'idle-after-reply' }
-            : child,
-        ),
-      );
-      this.agent.addUserContext('Sub-agent Response', [Cell.header2('Sub-agent Response'), Cell.text(message)]);
+    }
+    this.agent.addUserContext('Sub-agent Result', [
+      Cell.header2(`Sub-agent Result: ${child.name}`),
+      Cell.text(`${status}: ${message}`),
+    ]);
+  }
+
+  private async sendChildInstructions(input: { child: ChildRecord; instructions: string }): Promise<void> {
+    const data = {
+      instructions: input.instructions,
+      parentAgentId: this.agent.agentId,
+      parentCapabilityId: this.id,
+      type: 'parent-instructions',
+    };
+    const signalId = input.child.childResponseSignalId;
+    if (signalId !== undefined) {
+      await this.bridge.signals.resolve({
+        agentId: input.child.agentId,
+        capabilityId: capabilityIdForMode(input.child.mode),
+        data,
+        signalId,
+      });
+      this.updateChild(input.child.name, { childResponseSignalId: undefined });
       return;
     }
-    if (type === 'child-message') {
-      const childAgentId = stringField(data, 'childAgentId');
-      const message = stringField(data, 'message');
-      if (childAgentId === undefined || message === undefined) {
-        return;
-      }
-      this.agent.addUserContext('Sub-agent Message', [
-        Cell.header2(`Sub-agent Message: ${childAgentId}`),
-        Cell.text(message),
-      ]);
-      return;
-    }
-    if (type === 'ask-parent') {
-      const childAgentId = stringField(data, 'childAgentId');
-      const message = stringField(data, 'message');
-      const responseSignalId = stringField(data, 'responseSignalId');
-      if (childAgentId === undefined || message === undefined || responseSignalId === undefined) {
-        return;
-      }
-      this.childrenSlot.set(
-        this.childrenSlot.value.map((child) =>
-          child.agentId === childAgentId
-            ? { agentId: child.agentId, referenceName: child.referenceName, lifecycle: 'awaiting-our-response' }
-            : child,
-        ),
-      );
-      this.pendingChildQuestionsSlot.set([
-        ...this.pendingChildQuestionsSlot.value,
-        { childAgentId, continueAfterResponse: signal.kind === 'awaited', responseSignalId },
-      ]);
-      this.agent.addUserContext('Sub-agent Ask', [
-        Cell.header2(`Sub-agent Ask: ${childAgentId}`),
-        Cell.text(message),
-        Cell.text(`Respond with respond-to-child-agent for ${childAgentId}.`),
-      ]);
+    await this.sendParentSignal({
+      childAgentId: input.child.agentId,
+      data,
+      description: `Parent sent instructions to ${input.child.name}.`,
+      name: 'Parent instructions',
+    });
+  }
+
+  private traceSubAgentInvoke(childAgentId: string, subAgentId: string, instructions: string): void {
+    this.agent.emit('trace', {
+      type: 'sub-agent-invoke',
+      data: {
+        agentInstanceId: childAgentId,
+        agentTemplateId: subAgentId,
+        input: [Cell.text(instructions)],
+      },
+    });
+  }
+
+  private requireReference(subAgentId: string): void {
+    if (!this.referencesValue.some((reference) => reference.name === subAgentId)) {
+      throw new Error(`Unknown sub-agent id: ${subAgentId}`);
     }
   }
 
-  /**
-   * Blocks exit while child agents are waiting on parent answers.
-   */
-  public override hookOnAgentExit() {
-    if (this.pendingChildQuestionsSlot.value.length > 0) {
-      return { permitExit: false as const, reason: 'Respond to pending child agent questions before exiting.' };
+  private requireChild(name: string): ChildRecord {
+    const child = this.childrenSlot.value.find((item) => item.name === name);
+    if (child === undefined) {
+      throw new Error(`Unknown child agent name: ${name}`);
     }
-    return super.hookOnAgentExit();
+    return child;
   }
 
-  private resolveChildAgentId(input: string): string {
-    const exact = this.childrenSlot.value.find((child) => child.agentId === input);
-    if (exact !== undefined) {
-      return exact.agentId;
-    }
-    const prefixed = input.includes(':') ? input : `agents:${input}`;
-    const matched = this.childrenSlot.value.find((child) => child.agentId === prefixed);
-    if (matched !== undefined) {
-      return matched.agentId;
-    }
-    throw new Error(`Unknown child agent id: ${input}`);
+  private updateChild(name: string, patch: Partial<ChildRecord>): void {
+    this.childrenSlot.set(
+      this.childrenSlot.value.map((child) => (child.name === name ? { ...child, ...patch } : child)),
+    );
   }
 
   private async sendParentSignal(input: ParentSignalInput): Promise<void> {
     await this.bridge.signals.send({
       agentId: input.childAgentId,
-      capabilityId: 'parent-link',
+      capabilityId: capabilityIdForMode(this.requireChildByAgentId(input.childAgentId).mode),
       data: input.data,
       description: input.description,
       name: input.name,
     });
   }
+
+  private requireChildByAgentId(agentId: string): ChildRecord {
+    const child = this.childrenSlot.value.find((item) => item.agentId === agentId);
+    if (child === undefined) {
+      throw new Error(`Unknown child agent id: ${agentId}`);
+    }
+    return child;
+  }
+}
+
+function capabilityIdForMode(mode: 'task' | 'teammate'): string {
+  return mode === 'task' ? 'parent-linked-task' : 'parent-linked-teammate';
+}
+
+function isTerminal(lifecycle: ChildLifecycle): boolean {
+  return lifecycle === 'completed' || lifecycle === 'failed' || lifecycle === 'killed';
+}
+
+function lifecycleForResult(status: ChildResultStatus): ChildLifecycle {
+  if (status === 'success') {
+    return 'completed';
+  }
+  if (status === 'failure') {
+    return 'failed';
+  }
+  return 'waiting-for-parent';
+}
+
+function resultStatus(data: ReturnType<typeof objectData>): ChildResultStatus | undefined {
+  const status = stringField(data, 'status');
+  if (status === 'failure' || status === 'response' || status === 'success') {
+    return status;
+  }
+  return undefined;
 }

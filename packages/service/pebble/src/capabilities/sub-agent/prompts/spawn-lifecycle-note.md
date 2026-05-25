@@ -1,1 +1,0 @@
-Each spawn starts a brand-new child agent. Framework children (e.g. claude-code) run to completion in a single turn — after they respond they are idle and do not keep working. Use spawn-sub-agent when starting a new line of work or when a prior child has already responded and you want a clean run; use ask-sub-agent to give an existing child another turn.

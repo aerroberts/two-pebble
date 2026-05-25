@@ -1,7 +1,6 @@
 import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import systemPrompt from './prompts/system.md?raw';
-import taskDescriptionGuidancePrompt from './prompts/task-description-guidance.md?raw';
 import { buildCreateTaskTool } from './tools/create-task/handler';
 import { buildDescribeTaskBoardTool } from './tools/describe-task-board/handler';
 import { buildListTasksTool } from './tools/list-tasks/handler';
@@ -22,9 +21,7 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
   /**
    * Stores the default board id from capability config and injects the active
    * board id into the conversation context so it appears alongside the system
-   * prompt for every future turn. The same context cell carries guidance that
-   * encourages longer, more nuanced task descriptions so the model produces
-   * useful task records when creating or updating tasks via this capability.
+   * prompt for every future turn.
    *
    * Only runs on fresh launches; rehydration replays the persisted context
    * cells instead of calling initialize again.
@@ -40,7 +37,6 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
     this.agent.addUserContext('Task Board Context', [
       Cell.header2('Task Board Context'),
       Cell.text(`Active task board: ${boardId}. Tool calls default to this board when boardId is omitted.`),
-      Cell.text(taskDescriptionGuidancePrompt),
     ]);
   }
 

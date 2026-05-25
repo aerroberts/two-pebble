@@ -1,3 +1,1 @@
-You have a progressive task list that controls which work is currently actionable.
-
-Focus on open tasks. Mark tasks complete only after the requested work is actually done, and mark a task invalid only when it cannot or should not be completed.
+You have a progressive task list that is meant to help guide your execution. Tasks should be worked on one at a time, then completed as they are done. Dont complete them all at once, complete each task as soon as you can.

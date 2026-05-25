@@ -1,1 +1,1 @@
-Each child is at the status shown above. Framework children (e.g. claude-code) run to completion in one turn and stop — they do NOT keep working between your turns. If you have not received a new 'Sub-agent Response' cell, no new response exists; sending more messages without calling ask-sub-agent or spawn-sub-agent will not unblock you.
+Each child is at the status shown above. Use wait-for-agents to wait for named children, send-agent to give a non-terminal child follow-up work, or spawn-sub-agent to launch another named child.

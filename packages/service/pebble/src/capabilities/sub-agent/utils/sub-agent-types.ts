@@ -6,29 +6,48 @@ import type { PebbleJsonRecord } from '../../../types';
  * tell the model whether the child is actively producing a reply, has
  * already finished, is waiting on us, or has been stopped.
  */
-export type ChildLifecycle = 'awaiting-reply' | 'idle-after-reply' | 'awaiting-our-response' | 'killed';
+export type ChildLifecycle = 'completed' | 'failed' | 'killed' | 'running' | 'waiting-for-parent';
+
+export type ChildMode = 'task' | 'teammate';
+
+export type ChildResultStatus = 'failure' | 'response' | 'success';
 
 export interface ChildRecord {
   agentId: string;
-  referenceName: string;
+  childResponseSignalId?: string | undefined;
   lifecycle: ChildLifecycle;
-  responseSignalId?: string;
+  mode: ChildMode;
+  name: string;
+  pendingWaitSignalId?: string | undefined;
+  resultMessage?: string | undefined;
+  resultStatus?: ChildResultStatus | undefined;
+  subAgentId: string;
 }
 
-export interface PendingChildQuestion {
-  childAgentId: string;
-  continueAfterResponse?: boolean;
-  responseSignalId: string;
+export interface SpawnSubAgentInput {
+  instructions: string;
+  mode: ChildMode;
+  name: string;
+  subAgentId: string;
+}
+
+export interface SendAgentInput {
+  instructions: string;
+  name: string;
+}
+
+export interface WaitForAgentsInput {
+  names: string[];
+}
+
+export interface SubAgentCapabilityConfig {
+  agents?: SubAgentReference[];
 }
 
 export interface SubAgentReference {
   agentRegistryId: string;
   description?: string;
   name: string;
-}
-
-export interface SubAgentCapabilityConfig {
-  agents?: SubAgentReference[];
 }
 
 export interface ParentSignalInput {

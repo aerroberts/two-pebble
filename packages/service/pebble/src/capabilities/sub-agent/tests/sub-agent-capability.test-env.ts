@@ -13,8 +13,8 @@ import type {
 import { Cell } from '../../../thread';
 import { SubAgentCapability } from '../capability';
 
-export function subAgentToolsForResearcher() {
-  return new SubAgentCapability().hookOnRegister({
+export function expectSpawnRegistersNewToolSurface(): void {
+  const registration = new SubAgentCapability().hookOnRegister({
     agents: [
       {
         agentRegistryId: 'agent-registries:research',
@@ -22,151 +22,170 @@ export function subAgentToolsForResearcher() {
         name: 'researcher',
       },
     ],
-  }).tools;
-}
-
-export function subAgentToolsForReviewer() {
-  return new SubAgentCapability().hookOnRegister({
-    agents: [
-      {
-        agentRegistryId: 'agent-registries:review',
-        description: 'Reviews completed code changes.',
-        name: 'reviewer',
-      },
-    ],
-  }).tools;
-}
-
-export function expectResearcherSpawnRegistration(): void {
-  const spawnTool = subAgentToolsForResearcher().find((tool) => tool.id === 'spawn-sub-agent');
-  const registration = spawnTool?.describe()[0];
-  expect(registration).toMatchObject({
-    type: 'toolRegistration',
+  });
+  expect(registration.tools.map((tool) => tool.id)).toEqual([
+    'spawn-sub-agent',
+    'send-agent',
+    'wait-for-agents',
+    'kill-sub-agent',
+  ]);
+  const spawnRegistration = registration.tools.find((tool) => tool.id === 'spawn-sub-agent')?.describe()[0];
+  expect(spawnRegistration).toMatchObject({
     content: {
+      inputSchema: {
+        properties: {
+          mode: { enum: ['task', 'teammate'] },
+          subAgentId: { enum: ['researcher'] },
+        },
+      },
       name: 'spawn-sub-agent',
       toolType: 'native',
     },
-  });
-  const description = (registration as { content: { description: string } } | undefined)?.content.description ?? '';
-  expect(description).toContain('Valid reference names: researcher - Finds relevant implementation context.');
-  expect(description).toContain('Framework children');
-  expect(registration).toHaveProperty('content.inputSchema.properties.referenceName.enum', ['researcher']);
-}
-
-export async function expectReviewerListOutput(): Promise<void> {
-  const listTool = subAgentToolsForReviewer().find((tool) => tool.id === 'list-sub-agents');
-  const result = await listTool?.invoke({});
-  expect(result).toMatchObject({
-    status: 'success',
-    content: [
-      Cell.header2('Configured sub-agents'),
-      Cell.text('reviewer - Reviews completed code changes.'),
-      Cell.header2('Spawned child agents'),
-      Cell.text('No spawned child agents.'),
-    ],
+    type: 'toolRegistration',
   });
 }
 
-export async function expectSpawnUsesAwaitedSignal(): Promise<void> {
+export async function expectSpawnSendsTaskInstructions(): Promise<void> {
   const runtime = buildSubAgentCapabilityRuntime();
-  const spawnTool = runtime.tools.find((tool) => tool.id === 'spawn-sub-agent');
-  const result = await spawnTool?.invoke({ message: 'Tell me a joke.', referenceName: 'reviewer' });
-  expect(runtime.spawned).toEqual([{ message: 'Tell me a joke.', referenceName: 'reviewer' }]);
-  expect(runtime.registeredSignals[0]).toMatchObject({
-    capabilityId: 'sub-agent',
-    name: 'Sub-agent response',
-  });
+  const result = await runtime.tools
+    .find((tool) => tool.id === 'spawn-sub-agent')
+    ?.invoke({
+      instructions: 'Find the answer.',
+      mode: 'task',
+      name: 'research-one',
+      subAgentId: 'reviewer',
+    });
+  expect(runtime.spawned).toEqual([
+    { instructions: 'Find the answer.', mode: 'task', name: 'research-one', subAgentId: 'reviewer' },
+  ]);
   expect(runtime.sentSignals[0]).toMatchObject({
     agentId: 'agents:child123',
-    capabilityId: 'parent-link',
+    capabilityId: 'parent-linked-task',
     data: {
-      message: 'Tell me a joke.',
+      instructions: 'Find the answer.',
       parentAgentId: 'agents:parent123',
       parentCapabilityId: 'sub-agent',
-      responseSignalId: 'signal-1',
-      type: 'respond-parent',
+      type: 'parent-instructions',
     },
-    name: 'Parent ask',
+    name: 'Parent instructions',
   });
   expect(result).toMatchObject({
+    content: [Cell.text('Spawned research-one (agents:child123).')],
     status: 'success',
-    content: [Cell.text('Spawned agents:child123 and waiting for its response.')],
   });
 }
 
-export async function expectAskNormalizesChildId(): Promise<void> {
+export async function expectWaitRegistersFanInSignal(): Promise<void> {
   const runtime = buildSubAgentCapabilityRuntime();
   await runtime.tools
     .find((tool) => tool.id === 'spawn-sub-agent')
     ?.invoke({
-      message: 'Start.',
-      referenceName: 'reviewer',
+      instructions: 'Find the answer.',
+      mode: 'task',
+      name: 'research-one',
+      subAgentId: 'reviewer',
     });
-  await runtime.tools
-    .find((tool) => tool.id === 'ask-sub-agent')
+  const result = await runtime.tools
+    .find((tool) => tool.id === 'wait-for-agents')
     ?.invoke({
-      childAgentId: 'child123',
-      message: 'Another joke.',
+      names: ['research-one'],
     });
-  expect(runtime.sentSignals[1]).toMatchObject({
-    agentId: 'agents:child123',
-    data: {
-      message: 'Another joke.',
-      responseSignalId: 'signal-2',
-      type: 'respond-parent',
-    },
+  expect(runtime.registeredSignals[0]).toMatchObject({
+    capabilityId: 'sub-agent',
+    description: 'Wait for sub-agent research-one (agents:child123) to respond.',
+    name: 'Sub-agent result',
+  });
+  expect(result).toMatchObject({
+    content: [Cell.text('Waiting for child agents: research-one.')],
+    status: 'success',
   });
 }
 
-export async function expectParentResponseContinuesAwaitedChildAsk(): Promise<void> {
+export async function expectTeammateFollowUpUsesChildSignal(): Promise<void> {
   const runtime = buildSubAgentCapabilityRuntime();
   await runtime.tools
     .find((tool) => tool.id === 'spawn-sub-agent')
     ?.invoke({
-      message: 'Start.',
-      referenceName: 'reviewer',
+      instructions: 'Start.',
+      mode: 'teammate',
+      name: 'pair-one',
+      subAgentId: 'reviewer',
     });
   runtime.capability.hookOnSignal({
     agentId: 'agents:parent123',
     capabilityId: 'sub-agent',
     data: {
       childAgentId: 'agents:child123',
-      message: 'Need the parent to decide.',
-      responseSignalId: 'child-signal-1',
-      type: 'ask-parent',
+      childName: 'pair-one',
+      childResponseSignalId: 'child-wait-1',
+      message: 'Initial result.',
+      status: 'response',
+      type: 'sub-agent-result',
     },
-    description: 'Child asked parent through awaited response.',
-    id: 'agent-signals:received-parent-ask',
-    kind: 'awaited',
-    name: 'Sub-agent response',
-    signalId: 'signal-1',
+    description: 'Teammate responded.',
+    id: 'agent-signals:teammate-response',
+    kind: 'push',
+    name: 'Sub-agent result',
+    signalId: 'signal-teammate-response',
     status: 'received',
   });
   const result = await runtime.tools
-    .find((tool) => tool.id === 'respond-to-child-agent')
+    .find((tool) => tool.id === 'send-agent')
     ?.invoke({
-      childAgentId: 'child123',
-      message: 'Use this answer.',
+      instructions: 'Follow up.',
+      name: 'pair-one',
     });
-  expect(runtime.registeredSignals[1]).toMatchObject({
-    capabilityId: 'sub-agent',
-    name: 'Sub-agent response',
-  });
   expect(runtime.resolvedSignals[0]).toMatchObject({
     agentId: 'agents:child123',
-    capabilityId: 'parent-link',
+    capabilityId: 'parent-linked-teammate',
     data: {
-      message: 'Use this answer.',
-      parentAgentId: 'agents:parent123',
-      parentCapabilityId: 'sub-agent',
-      responseSignalId: 'signal-2',
-      type: 'parent-response',
+      instructions: 'Follow up.',
+      type: 'parent-instructions',
     },
-    signalId: 'child-signal-1',
+    signalId: 'child-wait-1',
   });
   expect(result).toMatchObject({
-    content: [Cell.text('Sent response to agents:child123 and waiting for its follow-up.')],
+    content: [Cell.text('Sent instructions to pair-one.')],
     status: 'success',
+  });
+}
+
+export async function expectSendRejectsTerminalTask(): Promise<void> {
+  const runtime = buildSubAgentCapabilityRuntime();
+  await runtime.tools
+    .find((tool) => tool.id === 'spawn-sub-agent')
+    ?.invoke({
+      instructions: 'Find the answer.',
+      mode: 'task',
+      name: 'research-one',
+      subAgentId: 'reviewer',
+    });
+  runtime.capability.hookOnSignal({
+    agentId: 'agents:parent123',
+    capabilityId: 'sub-agent',
+    data: {
+      childAgentId: 'agents:child123',
+      childName: 'research-one',
+      message: 'Done.',
+      status: 'success',
+      type: 'sub-agent-result',
+    },
+    description: 'Task completed.',
+    id: 'agent-signals:task-complete',
+    kind: 'push',
+    name: 'Sub-agent result',
+    signalId: 'signal-task-complete',
+    status: 'received',
+  });
+  const result = await runtime.tools
+    .find((tool) => tool.id === 'send-agent')
+    ?.invoke({
+      instructions: 'More work.',
+      name: 'research-one',
+    });
+  expect(result).toMatchObject({
+    content: [Cell.text('Child agent research-one is terminal.')],
+    status: 'error',
   });
 }
 
