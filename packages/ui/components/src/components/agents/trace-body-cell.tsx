@@ -34,8 +34,6 @@ export function TraceBodyCell(props: TraceBodyCellProps) {
     : framed
       ? 'w-full min-w-0 overflow-hidden rounded-md border border-border bg-surface'
       : 'w-full min-w-0 overflow-hidden rounded-md border border-border bg-surface';
-  const dividerClassName = 'bg-surface-alt py-px';
-
   return (
     <div className={className}>
       <TraceBodyCellSection
@@ -48,9 +46,7 @@ export function TraceBodyCell(props: TraceBodyCellProps) {
       />
       {props.footer !== undefined && (
         <>
-          <div className={dividerClassName}>
-            <div className="border-t border-border" />
-          </div>
+          <div className="border-t border-border" />
           <TraceBodyCellSection
             compact={!framed}
             type={props.footer.type}
