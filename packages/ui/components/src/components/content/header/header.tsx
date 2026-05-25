@@ -15,14 +15,14 @@ export interface HeaderProps {
 export function Header(props: HeaderProps) {
   const spacingClass = props.compact ? '' : 'pb-6';
   return (
-    <div className={`flex items-start justify-between gap-4 ${spacingClass}`.trim()}>
-      <div className="min-w-0 flex-1">
-        <h1 className="font-heading text-[18px] font-normal leading-7 tracking-[0.18em] text-content uppercase break-words">
+    <div className={`flex flex-col gap-2 ${spacingClass}`.trim()}>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="min-w-0 flex-1 break-words font-heading text-[18px] font-normal leading-7 tracking-[0.18em] text-content uppercase">
           {props.children}
         </h1>
-        {props.subtitle ? <p className="mt-2 text-sm text-content-muted">{props.subtitle}</p> : null}
+        {props.actionItems ? <div className="flex h-7 shrink-0 items-center gap-2">{props.actionItems}</div> : null}
       </div>
-      {props.actionItems ? <div className="flex h-7 shrink-0 items-center gap-2">{props.actionItems}</div> : null}
+      {props.subtitle ? <p className="text-sm text-content-muted">{props.subtitle}</p> : null}
     </div>
   );
 }
