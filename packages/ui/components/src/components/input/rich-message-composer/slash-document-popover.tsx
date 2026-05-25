@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from '../../content/icon/icon';
 import type { RichComposerBoard, RichComposerDocument, RichComposerReference } from './composer-types';
 
@@ -89,11 +90,11 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
     };
   }, [props.open, props, filtered, activeIndex]);
 
-  if (!props.open) {
+  if (!props.open || typeof document === 'undefined') {
     return null;
   }
 
-  return (
+  const popover = (
     <div
       className="z-[1100] fixed flex w-[280px] flex-col overflow-hidden rounded-md border border-border bg-surface-raised shadow-modal"
       style={{ left: props.anchorLeft, top: props.anchorTop + 4 }}
@@ -138,6 +139,8 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
       )}
     </div>
   );
+
+  return createPortal(popover, document.body);
 }
 
 export function SlashDocumentPopover(props: SlashDocumentPopoverProps) {
