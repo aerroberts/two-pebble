@@ -12,6 +12,9 @@ import { Cell, type CellContent } from '@two-pebble/pebble';
  *   The composer only knows `{ documentId, name }`; the daemon refreshes
  *   `contentSnapshot` and `documentUpdatedAt` from durable storage during
  *   event conversion.
+ * - Each `boardMention` node becomes its own `boardReference` cell. The
+ *   daemon refreshes `{ boardId, name }` from durable storage before the
+ *   model sees it.
  * - A `codeBlock` node maps to a code cell.
  *
  * Returning an empty array signals that the composer has nothing
@@ -74,6 +77,21 @@ export function tipTapDocToCells(doc: JSONContent): CellContent[] {
           name,
           contentSnapshot: '',
           documentUpdatedAt: 0,
+        }),
+      );
+      return;
+    }
+    if (node.type === 'boardMention') {
+      flushText();
+      const boardId = typeof node.attrs?.boardId === 'string' ? node.attrs.boardId : '';
+      const name = typeof node.attrs?.name === 'string' ? node.attrs.name : '';
+      if (boardId.length === 0) {
+        return;
+      }
+      cells.push(
+        Cell.boardReference({
+          boardId,
+          name,
         }),
       );
       return;

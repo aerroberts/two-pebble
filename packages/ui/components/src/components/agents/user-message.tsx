@@ -57,6 +57,8 @@ function UserMessageCell(props: { cell: CellContent }) {
       );
     case 'data':
       return <TraceBodyCell data={cell.content.value} label="data" type="json" />;
+    case 'boardReference':
+      return <BoardPill boardId={cell.content.boardId} name={cell.content.name} />;
     case 'documentReference':
       return <DocumentPill name={cell.content.name} documentId={cell.content.documentId} />;
     case 'image':
@@ -88,8 +90,22 @@ function DocumentPill(props: { documentId: string; name: string }) {
   );
 }
 
+function BoardPill(props: { boardId: string; name: string }) {
+  return (
+    <span
+      className="inline-flex w-fit items-center gap-1 rounded-md border border-border bg-surface-alt px-1.5 py-0.5 text-[11px] font-medium text-content"
+      data-board-id={props.boardId}
+    >
+      <span aria-hidden="true">#</span>
+      {props.name.length > 0 ? props.name : 'board'}
+    </span>
+  );
+}
+
 function cellKey(cell: CellContent): string {
   switch (cell.type) {
+    case 'boardReference':
+      return `boardReference:${cell.content.boardId}`;
     case 'documentReference':
       return `documentReference:${cell.content.documentId}`;
     case 'text':
@@ -123,6 +139,9 @@ function buildSpeakableText(cells: readonly CellContent[]): string {
         break;
       case 'documentReference':
         parts.push(`@${cell.content.name}`);
+        break;
+      case 'boardReference':
+        parts.push(`#${cell.content.name}`);
         break;
       case 'codeBlock':
         parts.push(cell.content.code);

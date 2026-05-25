@@ -80,6 +80,8 @@ function isToolResultList(result: ToolResultInput): result is readonly CellConte
 
 function renderToolCellText(cell: CellContent) {
   switch (cell.type) {
+    case 'boardReference':
+      return `[board: ${cell.content.name} (id: ${cell.content.boardId})]`;
     case 'codeBlock':
       return cell.content.code;
     case 'data':

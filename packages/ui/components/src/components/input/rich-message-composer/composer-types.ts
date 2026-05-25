@@ -6,6 +6,21 @@ export interface RichComposerDocument {
   name: string;
 }
 
+export interface RichComposerBoard {
+  id: string;
+  name: string;
+}
+
+export type RichComposerReference =
+  | {
+      type: 'document';
+      item: RichComposerDocument;
+    }
+  | {
+      type: 'board';
+      item: RichComposerBoard;
+    };
+
 export interface RichComposerSubmitPayload {
   markdown: string;
   cells: CellContent[];

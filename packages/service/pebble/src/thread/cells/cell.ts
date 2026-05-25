@@ -1,4 +1,5 @@
 import { audio } from './cells/audio';
+import { boardReference } from './cells/board-reference';
 import { codeBlock } from './cells/code-block';
 import { data } from './cells/data';
 import { documentReference } from './cells/document-reference';
@@ -12,6 +13,7 @@ import { toolUse } from './cells/tool-use';
 
 export const Cell = {
   audio,
+  boardReference,
   codeBlock,
   documentReference,
   header1,

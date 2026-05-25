@@ -6,6 +6,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '../icon-button/icon-button';
+import { BoardMentionNode } from './board-mention-node';
 import {
   clearComposerDraft,
   emptyComposerDoc,
@@ -13,10 +14,16 @@ import {
   loadComposerDraft,
   saveComposerDraft,
 } from './composer-doc';
-import type { RichComposerDocument, RichComposerSlashTrigger, RichComposerSubmitPayload } from './composer-types';
+import type {
+  RichComposerBoard,
+  RichComposerDocument,
+  RichComposerReference,
+  RichComposerSlashTrigger,
+  RichComposerSubmitPayload,
+} from './composer-types';
 import { DocumentMentionNode } from './document-mention-node';
-import { SlashDocumentPopover } from './slash-document-popover';
-import { insertTranscriptAtCursor, readActiveSlashTrigger, replaceTriggerWithDocumentMention } from './slash-trigger';
+import { SlashReferencePopover } from './slash-document-popover';
+import { insertTranscriptAtCursor, readActiveSlashTrigger, replaceTriggerWithReferenceMention } from './slash-trigger';
 import { tipTapDocToCells } from './tiptap-doc-to-cells';
 import { tipTapDocToMarkdown } from './tiptap-doc-to-markdown';
 
@@ -30,6 +37,8 @@ export interface RichMessageComposerProps {
   onSubmit: (payload: RichComposerSubmitPayload) => void;
   /** Documents available to the `/doc` slash command. */
   documents: ReadonlyArray<RichComposerDocument>;
+  /** Task boards available to the slash command. */
+  boards?: ReadonlyArray<RichComposerBoard>;
   /** Called whenever the underlying document changes. */
   onChange?: (doc: JSONContent) => void;
   disabled?: boolean;
@@ -59,8 +68,8 @@ export interface RichMessageComposerProps {
  *
  * Emits both markdown (for legacy logging and voice flows) and a
  * structured `cells` array on submit. Typing `/` opens an inline popover
- * filtered against the supplied `documents` list — selecting a doc
- * inserts a `documentMention` pill carrying `{ documentId, name }`. The
+ * filtered against the supplied documents and boards — selecting an item
+ * inserts a mention pill carrying its durable id and name. The
  * picker is anchored to the cursor, not a fullscreen modal, so the
  * trigger feels like a true slash command.
  */
@@ -83,6 +92,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
     extensions: [
       StarterKit,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Type a message — / for commands, Enter to send' }),
+      BoardMentionNode,
       DocumentMentionNode,
     ],
     content: loadInitialDoc(draftStorageKey),
@@ -143,14 +153,14 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
 
   submitFromEditorRef.current = submitFromEditor;
 
-  const handleDocSelected = useCallback((selection: RichComposerDocument) => {
+  const handleReferenceSelected = useCallback((selection: RichComposerReference) => {
     const current = editorRef.current;
     const trigger = slashTriggerRef.current;
     if (current === null || trigger === null) {
       setSlashTrigger(null);
       return;
     }
-    replaceTriggerWithDocumentMention(current, trigger, selection);
+    replaceTriggerWithReferenceMention(current, trigger, selection);
     setSlashTrigger(null);
   }, []);
 
@@ -259,12 +269,13 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
         </div>
       ) : null}
 
-      <SlashDocumentPopover
+      <SlashReferencePopover
         anchorLeft={slashTrigger?.anchorLeft ?? 0}
         anchorTop={slashTrigger?.anchorTop ?? 0}
+        boards={props.boards ?? []}
         documents={props.documents}
         onCancel={handleSlashCancel}
-        onSelect={handleDocSelected}
+        onSelect={handleReferenceSelected}
         open={popoverOpen}
         query={slashTrigger?.query ?? ''}
       />

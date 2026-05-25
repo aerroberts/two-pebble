@@ -167,12 +167,15 @@ export {
 export { Input, type InputAction, type InputProps } from './components/input/input/input';
 export { InputArea, type InputAreaProps } from './components/input/input-area/input-area';
 export {
+  BoardMentionNode,
   clearComposerDraft,
   DocumentMentionNode,
   emptyComposerDoc,
   isComposerDocEmpty,
   loadComposerDraft,
+  type RichComposerBoard,
   type RichComposerDocument,
+  type RichComposerReference,
   type RichComposerSlashTrigger,
   type RichComposerSubmitPayload,
   RichMessageComposer,

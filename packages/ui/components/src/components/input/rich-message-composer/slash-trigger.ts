@@ -1,5 +1,5 @@
 import type { Editor } from '@tiptap/core';
-import type { RichComposerSlashTrigger } from './composer-types';
+import type { RichComposerReference, RichComposerSlashTrigger } from './composer-types';
 
 const TRIGGER_PATTERN = /(?:^|[\s ])\/(\w*)$/;
 const STANDALONE_TRIGGER_PATTERN = /^\/(\w*)$/;
@@ -56,6 +56,26 @@ export function replaceTriggerWithDocumentMention(
     .deleteRange({ from: trigger.from, to: trigger.to })
     .insertContent([
       { type: 'documentMention', attrs: { documentId: selection.id, name: selection.name } },
+      { type: 'text', text: ' ' },
+    ])
+    .run();
+}
+
+export function replaceTriggerWithReferenceMention(
+  editor: Editor,
+  trigger: RichComposerSlashTrigger,
+  selection: RichComposerReference,
+): void {
+  if (selection.type === 'document') {
+    replaceTriggerWithDocumentMention(editor, trigger, selection.item);
+    return;
+  }
+  editor
+    .chain()
+    .focus()
+    .deleteRange({ from: trigger.from, to: trigger.to })
+    .insertContent([
+      { type: 'boardMention', attrs: { boardId: selection.item.id, name: selection.item.name } },
       { type: 'text', text: ' ' },
     ])
     .run();

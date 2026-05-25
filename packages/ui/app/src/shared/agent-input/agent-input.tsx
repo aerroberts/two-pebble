@@ -1,12 +1,13 @@
 'use client';
 
 import {
+  type RichComposerBoard,
   type RichComposerDocument,
   type RichComposerSubmitPayload,
   RichMessageComposer,
   type RichMessageComposerVoiceHandlers,
 } from '@two-pebble/components';
-import { useDocuments } from '@two-pebble/realtime';
+import { useDocuments, useTaskBoards } from '@two-pebble/realtime';
 import { useMemo } from 'react';
 import { VoiceCaptureButton } from '../voice/voice-capture-button';
 
@@ -19,7 +20,7 @@ export interface AgentInputProps {
   placeholder?: string;
   ariaLabel?: string;
   initialMode?: 'text' | 'voice';
-  /** Per-surface storage key so document mentions survive navigation. */
+  /** Per-surface storage key so rich mentions survive navigation. */
   draftStorageKey?: string;
   /** When false, the voice capture toggle is hidden — used by prompt editors. */
   enableVoice?: boolean;
@@ -29,13 +30,14 @@ export interface AgentInputProps {
 /**
  * Application-side host for `RichMessageComposer`.
  *
- * Pulls the document list from the realtime store and wires the voice
+ * Pulls reference lists from the realtime store and wires the voice
  * capture button so the component-library composer can stay free of
  * app-level dependencies (realtime, voice).
  */
 export function AgentInput(props: AgentInputProps) {
   const documents = useDocuments();
-  const items = useMemo<RichComposerDocument[]>(() => {
+  const taskBoards = useTaskBoards();
+  const documentItems = useMemo<RichComposerDocument[]>(() => {
     const value = documents.value;
     if (value === null) {
       return [];
@@ -49,6 +51,20 @@ export function AgentInput(props: AgentInputProps) {
     rows.sort((a, b) => a.name.localeCompare(b.name));
     return rows;
   }, [documents.value]);
+  const boardItems = useMemo<RichComposerBoard[]>(() => {
+    const value = taskBoards.value;
+    if (value === null) {
+      return [];
+    }
+    const rows: RichComposerBoard[] = [];
+    for (const entry of value.values()) {
+      if (entry.value !== null) {
+        rows.push({ id: entry.value.id, name: entry.value.name });
+      }
+    }
+    rows.sort((a, b) => a.name.localeCompare(b.name));
+    return rows;
+  }, [taskBoards.value]);
 
   const renderVoiceCapture =
     props.enableVoice === false
@@ -67,8 +83,9 @@ export function AgentInput(props: AgentInputProps) {
   return (
     <RichMessageComposer
       ariaLabel={props.ariaLabel}
+      boards={boardItems}
       disabled={props.disabled}
-      documents={items}
+      documents={documentItems}
       draftStorageKey={props.draftStorageKey}
       initialMode={props.initialMode}
       minHeight={props.minHeight}

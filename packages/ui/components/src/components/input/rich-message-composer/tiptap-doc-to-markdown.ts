@@ -43,6 +43,11 @@ export function tipTapDocToMarkdown(doc: JSONContent): string {
       out += `@${name}`;
       return;
     }
+    if (node.type === 'boardMention') {
+      const name = typeof node.attrs?.name === 'string' ? node.attrs.name : 'board';
+      out += `#${name}`;
+      return;
+    }
     for (const child of node.content ?? []) {
       visit(child);
     }

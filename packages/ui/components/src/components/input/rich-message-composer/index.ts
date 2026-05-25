@@ -1,3 +1,4 @@
+export { BoardMentionNode } from './board-mention-node';
 export {
   clearComposerDraft,
   emptyComposerDoc,
@@ -6,7 +7,9 @@ export {
   saveComposerDraft,
 } from './composer-doc';
 export type {
+  RichComposerBoard,
   RichComposerDocument,
+  RichComposerReference,
   RichComposerSlashTrigger,
   RichComposerSubmitPayload,
 } from './composer-types';

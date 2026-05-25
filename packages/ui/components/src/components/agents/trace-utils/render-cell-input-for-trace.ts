@@ -16,6 +16,8 @@ function isCellList(input: TraceCellInput): input is readonly CellContent[] {
 
 function renderCellForTrace(cell: CellContent): unknown {
   switch (cell.type) {
+    case 'boardReference':
+      return `[board: #${cell.content.name}]`;
     case 'codeBlock':
       return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
     case 'data':

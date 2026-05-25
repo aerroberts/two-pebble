@@ -1,6 +1,8 @@
 export { Cell } from './cell';
 export type { AudioCellInput } from './cells/audio';
 export { audio } from './cells/audio';
+export type { BoardReferenceCellInput } from './cells/board-reference';
+export { boardReference } from './cells/board-reference';
 export { cachePoint } from './cells/cache-point';
 export { codeBlock } from './cells/code-block';
 export { data } from './cells/data';

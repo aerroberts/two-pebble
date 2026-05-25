@@ -5,11 +5,18 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { BoardMentionNode } from './board-mention-node';
 import { emptyComposerDoc } from './composer-doc';
-import type { RichComposerDocument, RichComposerSlashTrigger, RichComposerSubmitPayload } from './composer-types';
+import type {
+  RichComposerBoard,
+  RichComposerDocument,
+  RichComposerReference,
+  RichComposerSlashTrigger,
+  RichComposerSubmitPayload,
+} from './composer-types';
 import { DocumentMentionNode } from './document-mention-node';
-import { SlashDocumentPopover } from './slash-document-popover';
-import { readActiveSlashTrigger, replaceTriggerWithDocumentMention } from './slash-trigger';
+import { SlashReferencePopover } from './slash-document-popover';
+import { readActiveSlashTrigger, replaceTriggerWithReferenceMention } from './slash-trigger';
 import { tipTapDocToCells } from './tiptap-doc-to-cells';
 import { tipTapDocToMarkdown } from './tiptap-doc-to-markdown';
 
@@ -18,6 +25,8 @@ export interface RichTextFieldProps {
   initialContent?: JSONContent;
   /** Documents available to the `/doc` slash command. */
   documents: ReadonlyArray<RichComposerDocument>;
+  /** Task boards available to the slash command. */
+  boards?: ReadonlyArray<RichComposerBoard>;
   /** Fires on blur with the current markdown + structured cells. */
   onCommit: (payload: RichComposerSubmitPayload) => void;
   /** Fires on every edit. Use sparingly — every keystroke. */
@@ -32,7 +41,7 @@ export interface RichTextFieldProps {
 /**
  * Plain rich-text edit surface.
  *
- * Shares the composer's `/doc` slash command and document-mention node
+ * Shares the composer's slash command and mention nodes
  * with `RichMessageComposer`, but has no submit affordance and treats
  * Enter as a new paragraph. Suited to fields like agent registry
  * system prompts and task descriptions where users edit and commit on
@@ -53,6 +62,7 @@ export function RichTextField(props: RichTextFieldProps) {
     extensions: [
       StarterKit,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing — / to insert a document' }),
+      BoardMentionNode,
       DocumentMentionNode,
     ],
     content: props.initialContent ?? emptyComposerDoc(),
@@ -80,14 +90,14 @@ export function RichTextField(props: RichTextFieldProps) {
 
   editorRef.current = editor;
 
-  const handleDocSelected = useCallback((selection: RichComposerDocument) => {
+  const handleReferenceSelected = useCallback((selection: RichComposerReference) => {
     const current = editorRef.current;
     const trigger = slashTriggerRef.current;
     if (current === null || trigger === null) {
       setSlashTrigger(null);
       return;
     }
-    replaceTriggerWithDocumentMention(current, trigger, selection);
+    replaceTriggerWithReferenceMention(current, trigger, selection);
     setSlashTrigger(null);
   }, []);
 
@@ -110,12 +120,13 @@ export function RichTextField(props: RichTextFieldProps) {
       <div className="relative rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
         <EditorContent editor={editor} className="composer-editor w-full" style={{ minHeight }} />
       </div>
-      <SlashDocumentPopover
+      <SlashReferencePopover
         anchorLeft={slashTrigger?.anchorLeft ?? 0}
         anchorTop={slashTrigger?.anchorTop ?? 0}
+        boards={props.boards ?? []}
         documents={props.documents}
         onCancel={handleSlashCancel}
-        onSelect={handleDocSelected}
+        onSelect={handleReferenceSelected}
         open={slashTrigger !== null}
         query={slashTrigger?.query ?? ''}
       />

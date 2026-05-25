@@ -1,8 +1,11 @@
 import type { CellContent } from '../../../thread/cells/index';
+import { renderBoardReferenceText } from '../shared/render-board-reference';
 import { renderDocumentReferenceText } from '../shared/render-document-reference';
 
 export function renderTextCellAnthropic(cell: CellContent): string {
   switch (cell.type) {
+    case 'boardReference':
+      return renderBoardReferenceText(cell.content);
     case 'codeBlock':
       return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
     case 'data':

@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
-import type { DatastoreContext, InferenceProfileProvider } from '../types';
+import type { DatastoreContext, InferenceProfileProvider, InferenceProfileRecord } from '../types';
+import { toInferenceProfileRecord } from './inference-profiles.record';
 
 type OperationHandlerInput = {
   id: string;
@@ -9,7 +10,7 @@ type OperationHandlerInput = {
  * Exposes this datastore module contract for package-local callers.
  */
 export function inferenceProfilesReadOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput) {
+  return async function handler(input: OperationHandlerInput): Promise<InferenceProfileRecord> {
     const row = await ctx.database
       .select()
       .from(ctx.schema.inferenceProfilesTable)
@@ -25,6 +26,9 @@ export function inferenceProfilesReadOperation(ctx: DatastoreContext) {
       .from(ctx.schema.integrationsTable)
       .where(eq(ctx.schema.integrationsTable.id, row.integrationId))
       .get();
-    return { ...row, provider: (integration?.provider ?? '') as InferenceProfileProvider };
+    if (integration === undefined) {
+      throw new Error(`Integration not found: ${row.integrationId}`);
+    }
+    return toInferenceProfileRecord(row, integration.provider as InferenceProfileProvider);
   };
 }

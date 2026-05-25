@@ -32,6 +32,8 @@ function serializeCell(cell: CellContent): string {
       return cell.content.transcript == null || cell.content.transcript.length === 0
         ? '[audio]'
         : `[audio: ${cell.content.transcript}]`;
+    case 'boardReference':
+      return `[board: ${cell.content.name} (id: ${cell.content.boardId})]`;
     case 'codeBlock':
       return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
     case 'data':

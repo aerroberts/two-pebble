@@ -2,7 +2,7 @@ import { Cell } from '@two-pebble/pebble';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
 import type { DaemonHandlerContext } from '../types';
-import { resolveDocumentReferenceCells } from './resolve-document-reference-cells';
+import { resolveReferenceCells } from './resolve-document-reference-cells';
 
 type SendAgentMessageOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'sendAgentMessage'>;
 type Payload = SendAgentMessageOperation['request'];
@@ -20,7 +20,7 @@ export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     const rawCells =
       payload.cells !== undefined && payload.cells.length > 0 ? payload.cells : [Cell.text(payload.message)];
-    const cells = await resolveDocumentReferenceCells({
+    const cells = await resolveReferenceCells({
       cells: rawCells,
       datastore: ctx.datastore,
       logger: ctx.logger,

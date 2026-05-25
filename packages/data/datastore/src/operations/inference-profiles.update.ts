@@ -1,11 +1,10 @@
+import type { InferenceProfile } from '@two-pebble/datatypes';
 import { eq } from 'drizzle-orm';
-import type { DatastoreContext, InferenceProfileData, InferenceProfileKind, InferenceProfileProvider } from '../types';
+import type { DatastoreContext, InferenceProfileProvider, InferenceProfileRecord } from '../types';
+import { toInferenceProfileRecord } from './inference-profiles.record';
 
-type OperationHandlerInput = {
-  data: InferenceProfileData;
+type OperationHandlerInput = InferenceProfile & {
   id: string;
-  integrationId: string;
-  kind: InferenceProfileKind;
   name: string;
 };
 
@@ -13,7 +12,7 @@ type OperationHandlerInput = {
  * Exposes this datastore module contract for package-local callers.
  */
 export function inferenceProfilesUpdateOperation(ctx: DatastoreContext) {
-  return async function handler(input: OperationHandlerInput) {
+  return async function handler(input: OperationHandlerInput): Promise<InferenceProfileRecord> {
     const existing = await ctx.database
       .select()
       .from(ctx.schema.inferenceProfilesTable)
@@ -46,6 +45,6 @@ export function inferenceProfilesUpdateOperation(ctx: DatastoreContext) {
       .returning()
       .get();
 
-    return { ...row, provider: integration.provider as InferenceProfileProvider };
+    return toInferenceProfileRecord(row, integration.provider as InferenceProfileProvider);
   };
 }

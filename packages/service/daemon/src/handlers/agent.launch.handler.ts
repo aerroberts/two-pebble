@@ -1,7 +1,7 @@
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
 import type { DaemonHandlerContext } from '../types';
-import { resolveDocumentReferenceCells } from './resolve-document-reference-cells';
+import { resolveReferenceCells } from './resolve-document-reference-cells';
 
 type LaunchAgentOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'launchAgent'>;
 type LaunchAgentPayload = LaunchAgentOperation['request'];
@@ -11,7 +11,7 @@ export function handler(ctx: DaemonHandlerContext) {
     const cells =
       payload.cells === undefined || payload.cells.length === 0
         ? undefined
-        : await resolveDocumentReferenceCells({
+        : await resolveReferenceCells({
             cells: payload.cells,
             datastore: ctx.datastore,
             logger: ctx.logger,

@@ -6,6 +6,7 @@ import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
 import { collectNativeToolDefinitions } from '../../native-tools';
 import type { ProviderOutputBlock, ProviderResult } from '../../types';
 import { isRetryableProviderStatus } from '../../utils/retry';
+import { renderBoardReferenceText } from '../shared/render-board-reference';
 import { renderDocumentReferenceText } from '../shared/render-document-reference';
 import { buildOpenAIPriceLineItems } from './pricing';
 import type {
@@ -244,6 +245,8 @@ export class OpenAIProvider extends ModelProvider {
     switch (cell.type) {
       case 'audio':
         return '';
+      case 'boardReference':
+        return renderBoardReferenceText(cell.content);
       case 'codeBlock':
         return `\`\`\`${cell.content.language}\n${cell.content.code}\n\`\`\``;
       case 'data':
