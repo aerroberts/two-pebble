@@ -89,6 +89,15 @@ export function TaskBoardPage() {
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
       submissions={state.selectedTaskDeliverableSubmissions}
+      onCreateTemplateFromTask={() => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.createTaskTemplate({
+          name: state.selectedTask.name || 'New template',
+          prompt: state.selectedTask.description,
+        });
+      }}
     />
   ) : null;
 
