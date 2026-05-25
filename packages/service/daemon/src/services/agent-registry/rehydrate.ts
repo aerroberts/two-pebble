@@ -1,5 +1,5 @@
 import type { AgentRegistryRecord, Datastore } from '@two-pebble/datastore';
-import type { Logger } from '@two-pebble/logger';
+import { logger } from '@two-pebble/logger';
 import type { Agent, AgentBridge, ConversationThreadCell, PebbleJsonRecord, PebbleJsonValue } from '@two-pebble/pebble';
 import { PebbleAgent } from '@two-pebble/pebble';
 import { buildLaunchAgent } from './build-launch-agent';
@@ -9,18 +9,17 @@ import {
   type CapabilitySpec,
   parseCapabilitySpecs,
 } from './register-pebble-capabilities';
+import { renderAgentRegistrySystemPrompt } from './registry-system-prompt';
 import type { BuildLaunchAgentInput } from './types';
 
 export interface RehydrateAgentInput {
   agentBridge: AgentBridge;
   agentId: string;
   datastore: Datastore;
-  logger: Logger;
 }
 
 interface ParseMetadataInput {
   agentId: string;
-  logger: Logger;
   serialized: string;
 }
 
@@ -35,6 +34,7 @@ interface LoadCapabilitySlotsInput {
 }
 
 interface ResolveBuildParamsInput {
+  agentId: string;
   agentBridge: AgentBridge;
   datastore: Datastore;
   registry: AgentRegistryRecord;
@@ -83,7 +83,6 @@ export async function rehydrateAgent(input: RehydrateAgentInput): Promise<Agent>
   const workspace = await input.datastore.workspaces.read({ id: record.workspaceId });
   const resumeMetadata = parseMetadata({
     agentId: record.id,
-    logger: input.logger,
     serialized: record.metadata,
   });
   const restoredThread = await loadRestoredThread({
@@ -91,6 +90,7 @@ export async function rehydrateAgent(input: RehydrateAgentInput): Promise<Agent>
     metadata: resumeMetadata,
   });
   const buildResult = await resolveBuildParams({
+    agentId: record.id,
     agentBridge: input.agentBridge,
     datastore: input.datastore,
     registry,
@@ -107,8 +107,7 @@ export async function rehydrateAgent(input: RehydrateAgentInput): Promise<Agent>
     const parentLinkedSpecs = resolveParentLinkedSpecs(slots);
     attachRehydratedPebbleCapabilities({
       agent,
-      capabilities: [...parseCapabilitySpecs(registry.capabilities, input.logger), ...parentLinkedSpecs],
-      logger: input.logger,
+      capabilities: [...parseCapabilitySpecs(registry.capabilities), ...parentLinkedSpecs],
       slots,
     });
   }
@@ -145,6 +144,12 @@ async function resolveBuildParams(input: ResolveBuildParamsInput): Promise<Resol
         kind: 'framework',
         registry: input.registry,
         resumeMetadata: input.resumeMetadata,
+        systemPrompt: await renderAgentRegistrySystemPrompt({
+          agentId: input.agentId,
+          datastore: input.datastore,
+          kind: 'framework',
+          systemPrompt: input.registry.systemPrompt,
+        }),
         workspacePath: input.workspacePath,
       },
     };
@@ -168,6 +173,12 @@ async function resolveBuildParams(input: ResolveBuildParamsInput): Promise<Resol
       kind: 'pebble',
       registry: input.registry,
       resumeMetadata: input.resumeMetadata,
+      systemPrompt: await renderAgentRegistrySystemPrompt({
+        agentId: input.agentId,
+        datastore: input.datastore,
+        kind: 'pebble',
+        systemPrompt: input.registry.systemPrompt,
+      }),
       workspacePath: input.workspacePath,
     },
   };
@@ -216,7 +227,7 @@ function parseMetadata(input: ParseMetadataInput): PebbleJsonRecord {
     return parsed;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    input.logger.warn('agent metadata parse failed', { agentId: input.agentId, error: message });
+    logger.warn('agent metadata parse failed', { agentId: input.agentId, error: message });
     return {};
   }
 }

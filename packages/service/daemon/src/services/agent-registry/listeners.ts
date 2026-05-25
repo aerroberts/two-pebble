@@ -1,3 +1,4 @@
+import { logger } from '@two-pebble/logger';
 import type { SubAgentLifecycleEvent, SubAgentUsageEvent } from '@two-pebble/pebble';
 import { Cell, FrameworkAgent, staticPriceCalculator } from '@two-pebble/pebble';
 import { persistAgentMetadata } from './status';
@@ -13,7 +14,6 @@ export function installAgentPersistenceListeners(install: AgentListenerInstallIn
       agentId: input.agentId,
       events: input.events,
       datastore: context.datastore,
-      logger: context.logger,
       metadata,
     });
   });
@@ -27,7 +27,7 @@ export function installAgentPersistenceListeners(install: AgentListenerInstallIn
         workspaceId: input.workspaceId,
       })
       .catch((error) => {
-        context.logger.warn('daemon agent trace write failed', { agentId: input.agentId, error });
+        logger.warn('daemon agent trace write failed', { agentId: input.agentId, error });
       });
   });
   const inferenceProfileId = input.inferenceProfileId;
@@ -42,12 +42,12 @@ export function installAgentPersistenceListeners(install: AgentListenerInstallIn
         ...(integrationId === undefined ? {} : { integrationId }),
       })
       .catch((error) => {
-        context.logger.warn('daemon agent model call write failed', { agentId: input.agentId, error });
+        logger.warn('daemon agent model call write failed', { agentId: input.agentId, error });
       });
   });
   input.agent.on('threadMessage', (cell) => {
     context.recordConversationCell({ agentId: input.agentId, cell }).catch((error) => {
-      context.logger.warn('daemon agent conversation cell write failed', { agentId: input.agentId, error });
+      logger.warn('daemon agent conversation cell write failed', { agentId: input.agentId, error });
     });
   });
   input.agent.on('lineItem', (lineItem) => {
@@ -60,7 +60,7 @@ export function installAgentPersistenceListeners(install: AgentListenerInstallIn
         ...(integrationId === undefined ? {} : { integrationId }),
       })
       .catch((error) => {
-        context.logger.warn('daemon agent price line item write failed', { agentId: input.agentId, error });
+        logger.warn('daemon agent price line item write failed', { agentId: input.agentId, error });
       });
   });
 }
@@ -104,7 +104,7 @@ export function installSubAgentListeners(install: AgentListenerInstallInput): vo
         workspaceId,
       })
       .catch((error) => {
-        context.logger.warn('daemon framework sub-agent start trace write failed', { agentId, error });
+        logger.warn('daemon framework sub-agent start trace write failed', { agentId, error });
       });
   });
   agent.on('subAgentStop', (event) => {
@@ -117,7 +117,7 @@ export function installSubAgentListeners(install: AgentListenerInstallInput): vo
         workspaceId,
       })
       .catch((error) => {
-        context.logger.warn('daemon framework sub-agent stop trace write failed', { agentId, error });
+        logger.warn('daemon framework sub-agent stop trace write failed', { agentId, error });
       });
   });
   agent.on('subAgentUsage', (event) => {
@@ -129,7 +129,7 @@ export function installSubAgentListeners(install: AgentListenerInstallInput): vo
       integrationId,
       recordPriceLineItem: context.recordPriceLineItem,
     }).catch((error) => {
-      context.logger.warn('daemon framework sub-agent usage attribution failed', { agentId, error });
+      logger.warn('daemon framework sub-agent usage attribution failed', { agentId, error });
     });
   });
 }

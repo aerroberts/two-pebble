@@ -36,6 +36,9 @@ export class PebbleAgent extends Agent {
 
   // Each agent also has a provider which exposes model access
   private readonly provider: ModelProvider;
+  private readonly initialSystemPrompt: string;
+  private readonly restoredFromThread: boolean;
+  private systemPromptInitialized = false;
 
   // Capabilties are the ties to the world that the agent needs to do anything of value
   private readonly capabilities: AgentCapability[] = [];
@@ -50,6 +53,8 @@ export class PebbleAgent extends Agent {
       workspacePath: config.workspacePath,
     });
     this.provider = config.provider;
+    this.initialSystemPrompt = config.systemPrompt ?? '';
+    this.restoredFromThread = config.restoredThread !== undefined;
     this.thread =
       config.restoredThread === undefined
         ? new ConversationThread({})
@@ -61,21 +66,31 @@ export class PebbleAgent extends Agent {
       });
     });
 
-    if (config.restoredThread === undefined) {
-      this.thread.pushSystem('Pebble System Prompt', Cell.header1('Pebble System Prompt'), Cell.text(PEBBLE_SYSTEM_PROMPT));
-      if (config.systemPrompt !== undefined && config.systemPrompt.length > 0) {
-        this.thread.pushSystem(
-          'Agent System Prompt',
-          Cell.header1('Agent System Prompt'),
-          Cell.text(config.systemPrompt),
-        );
-      }
-    }
-
     this.on('message', () => this.onIncomingMessage());
 
     // Status
     this.changeStatus('idle', 'agent initialized');
+  }
+
+  /**
+   * Appends the registry-level system prompt to a fresh agent thread.
+   *
+   * The daemon calls this after installing thread persistence listeners so
+   * the prompt is stored in the durable conversation snapshot. Rehydrated
+   * agents already have their original system cell in the restored thread.
+   */
+  public initializeSystemPrompt(): void {
+    if (this.restoredFromThread || this.systemPromptInitialized) {
+      return;
+    }
+    this.thread.pushSystem('Pebble System Prompt', Cell.header1('Pebble System Prompt'), Cell.text(PEBBLE_SYSTEM_PROMPT));
+    const prompt = this.initialSystemPrompt.trim();
+    if (prompt.length === 0) {
+      this.systemPromptInitialized = true;
+      return;
+    }
+    this.thread.pushSystem('Agent System Prompt', Cell.header1('Agent System Prompt'), Cell.text(prompt));
+    this.systemPromptInitialized = true;
   }
 
   /**
@@ -158,7 +173,7 @@ export class PebbleAgent extends Agent {
     if (prompt.length === 0) {
       return;
     }
-    this.thread.pushSystem(
+    this.thread.pushUser(
       `Capability System Prompt: ${capability.id}`,
       Cell.header2(`Capability: ${capability.id}`),
       Cell.text(prompt),

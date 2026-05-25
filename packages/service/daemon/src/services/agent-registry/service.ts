@@ -30,6 +30,7 @@ import { emitWorktreeInitializedTrace, resolveLaunchWorkspace } from './launch-w
 import { buildAgentListenerContext } from './listener-context';
 import { installAgentPersistenceListeners, installSubAgentListeners } from './listeners';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
+import { renderAgentRegistrySystemPrompt } from './registry-system-prompt';
 import { rehydrateAgent } from './rehydrate';
 import { readResumeMetadata } from './resume-metadata';
 import { repairBlockedSubAgentResultSignals, repairBlockedSubAgentResultSignalsForAgents } from './signal-repair';
@@ -78,7 +79,7 @@ export class AgentRegistryService extends DaemonService {
    * code path bypassed the wake).
    */
   public override async initialize(): Promise<void> {
-    await interruptStaleRunningAgents({ datastore: this.datastore, logger });
+    await interruptStaleRunningAgents({ datastore: this.datastore });
     await repairBlockedSubAgentResultSignalsForAgents({ agentRegistry: this, datastore: this.datastore });
     await this.wakeAgentsWithSatisfiedSignals();
   }
@@ -219,13 +220,12 @@ export class AgentRegistryService extends DaemonService {
     let references: SubAgentReferenceMap = new Map();
     if (record.agentRegistryId !== null && record.agentRegistryId !== undefined) {
       const registry = await this.datastore.agentRegistries.read({ id: record.agentRegistryId });
-      references = readSubAgentReferenceMap(parseCapabilitySpecs(registry.capabilities, logger));
+      references = readSubAgentReferenceMap(parseCapabilitySpecs(registry.capabilities));
     }
     const runtimeAgent = await rehydrateAgent({
       agentBridge: this.buildAgentBridge(agentId, references),
       agentId,
       datastore: this.datastore,
-      logger,
     });
     attachAgentNaming({
       agent: runtimeAgent,
@@ -262,7 +262,6 @@ export class AgentRegistryService extends DaemonService {
     const context = buildAgentListenerContext({
       activeAgents: this.activeAgents,
       datastore: this.datastore,
-      logger,
       pending: this.subAgentCreatePromises,
       taskBoards: this.taskBoards,
       onStatusPersisted: () => undefined,
@@ -270,13 +269,15 @@ export class AgentRegistryService extends DaemonService {
     installAgentPersistenceListeners({ context, input, nextOrderId });
     installSubAgentListeners({ context, input, nextOrderId });
     this.activeAgents.set(input.agentId, input.agent);
+    if (input.agent instanceof PebbleAgent) {
+      input.agent.initializeSystemPrompt();
+    }
     const resumeMetadata = readResumeMetadata(input.agent);
     if (Object.keys(resumeMetadata).length > 0) {
       void persistAgentMetadata({
         agentId: input.agentId,
         events: input.events,
         datastore: this.datastore,
-        logger,
         metadata: resumeMetadata,
       });
     }
@@ -332,7 +333,6 @@ export class AgentRegistryService extends DaemonService {
     const launchWorkspace = await resolveLaunchWorkspace({
       events: this.daemon.events,
       datastore: this.datastore,
-      logger,
       registry,
     });
     const description = buildInput.description;
@@ -355,12 +355,19 @@ export class AgentRegistryService extends DaemonService {
     }
 
     const combinedExtras = combineLaunchExtras(registry.systemPrompt, input.extraCapabilities);
-    const combinedSpecs = mergeCapabilitySpecs(parseCapabilitySpecs(registry.capabilities, logger), combinedExtras);
+    const combinedSpecs = mergeCapabilitySpecs(parseCapabilitySpecs(registry.capabilities), combinedExtras);
+    const systemPrompt = await renderAgentRegistrySystemPrompt({
+      agentId: agent.id,
+      datastore: this.datastore,
+      kind: buildInput.params.kind,
+      systemPrompt: registry.systemPrompt,
+    });
     const runtimeAgent = buildLaunchAgent({
       ...buildInput.params,
       agentId: agent.id,
       bridge: this.buildAgentBridge(agent.id, readSubAgentReferenceMap(combinedSpecs)),
       resumeMetadata: {},
+      systemPrompt,
       workspacePath: launchWorkspace.workspace.path,
     });
 
@@ -397,11 +404,10 @@ export class AgentRegistryService extends DaemonService {
       mode: 'fresh',
     });
     if (input.registry !== undefined) {
-      const registrySpecs = parseCapabilitySpecs(input.registry.capabilities, logger);
+      const registrySpecs = parseCapabilitySpecs(input.registry.capabilities);
       const combinedSpecs = mergeCapabilitySpecs(registrySpecs, input.extraCapabilities);
       installFreshLaunchAgent({
         agent: input.agent,
-        logger,
         specs: combinedSpecs,
       });
     }

@@ -1,5 +1,4 @@
 import type { Datastore } from '@two-pebble/datastore';
-import type { Logger } from '@two-pebble/logger';
 import type { DataCells } from '@two-pebble/pebble';
 import type { DaemonEventSink } from '../../../types';
 import type { AgentRegistryService } from '../service';
@@ -8,7 +7,6 @@ export interface SubAgentCoordinatorContext {
   agentRegistry: AgentRegistryService;
   datastore: Datastore;
   events: DaemonEventSink;
-  logger: Logger;
 }
 
 export interface SubAgentMessage {

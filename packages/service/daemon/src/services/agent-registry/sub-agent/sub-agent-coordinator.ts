@@ -1,3 +1,4 @@
+import { logger } from '@two-pebble/logger';
 import type { Agent, DataCells } from '@two-pebble/pebble';
 import { Cell, PebbleAgent } from '@two-pebble/pebble';
 import type {
@@ -87,7 +88,7 @@ export class SubAgentCoordinator {
       live = await this.ctx.agentRegistry.rehydrate(input.recipientAgentId);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.ctx.logger.warn('failed to rehydrate recipient for delivery', {
+      logger.warn('failed to rehydrate recipient for delivery', {
         agentId: input.recipientAgentId,
         error: message,
       });

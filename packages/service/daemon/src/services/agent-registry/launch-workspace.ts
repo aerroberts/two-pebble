@@ -4,7 +4,7 @@ import { parseWorkspaceConfig } from './parse-workspace-config';
 import type { EmitWorktreeInitializedInput, ResolvedLaunchWorkspace, ResolveLaunchWorkspaceInput } from './types';
 
 export async function resolveLaunchWorkspace(input: ResolveLaunchWorkspaceInput): Promise<ResolvedLaunchWorkspace> {
-  const config = parseWorkspaceConfig({ logger: input.logger, registry: input.registry });
+  const config = parseWorkspaceConfig({ registry: input.registry });
   if (config.kind === 'none' && input.registry.kind === 'framework') {
     throw new Error('framework agents cannot launch with workspace kind "none"');
   }
