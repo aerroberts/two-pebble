@@ -32,7 +32,7 @@ export function ToastProvider(props: ToastProviderProps) {
     (message: string, variant: ToastVariant = 'info') => {
       sonnerToast.custom(
         () => (
-          <div className="flex w-[360px] max-w-[calc(100vw-2rem)] items-center gap-2.5 rounded-lg border border-border bg-surface-raised px-4 py-3 text-sm text-content shadow-panel">
+          <div className="flex w-[360px] max-w-[calc(100vw-2rem)] items-center gap-2.5 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-content shadow-panel">
             {variantIcon[variant]}
             <span className="min-w-0 flex-1">{message}</span>
           </div>
