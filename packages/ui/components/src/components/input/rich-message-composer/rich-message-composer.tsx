@@ -4,7 +4,7 @@ import type { Editor, JSONContent } from '@tiptap/core';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '../icon-button/icon-button';
 import { BoardMentionNode } from './board-mention-node';
 import {
@@ -61,6 +61,12 @@ export interface RichMessageComposerProps {
   renderVoiceCapture?: (handlers: RichMessageComposerVoiceHandlers) => ReactNode;
   /** Minimum height of the editing area. */
   minHeight?: number;
+  /**
+   * Maximum height of the editing area. When set, longer content
+   * scrolls inside the editor instead of expanding past the surrounding
+   * container. Without it the editor grows unboundedly with content.
+   */
+  maxHeight?: number;
 }
 
 /**
@@ -85,6 +91,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
   const slashTriggerRef = useRef<RichComposerSlashTrigger | null>(null);
   slashTriggerRef.current = slashTrigger;
   const minHeight = props.minHeight ?? 80;
+  const maxHeight = props.maxHeight;
   const draftStorageKey = props.draftStorageKey;
   const voiceSlotEnabled = props.renderVoiceCapture !== undefined;
 
@@ -213,8 +220,18 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
   const showVoice = mode === 'voice' && voiceSlotEnabled;
   const popoverOpen = slashTrigger !== null && !showVoice;
 
+  const outerStyle: CSSProperties = { minHeight: minHeight + 16 };
+  if (maxHeight !== undefined) {
+    outerStyle.maxHeight = maxHeight + 16;
+  }
+  const editorStyle: CSSProperties = { minHeight };
+  if (maxHeight !== undefined) {
+    editorStyle.maxHeight = maxHeight;
+    editorStyle.overflowY = 'auto';
+  }
+
   return (
-    <div className="relative w-full min-w-0" style={{ minHeight: minHeight + 16 }}>
+    <div className="relative w-full min-w-0" style={outerStyle}>
       <div
         aria-hidden={showVoice}
         className={`absolute inset-0 transition-[opacity,transform] duration-200 ease-out ${
@@ -222,7 +239,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
         }`}
       >
         <div className="relative flex h-full min-w-0 rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
-          <EditorContent editor={editor} className="composer-editor h-full w-full min-w-0" style={{ minHeight }} />
+          <EditorContent editor={editor} className="composer-editor h-full w-full min-w-0" style={editorStyle} />
           {voiceSlotEnabled ? (
             <div className="absolute right-1.5 top-1.5">
               <IconButton
