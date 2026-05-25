@@ -1,4 +1,4 @@
-import type { PebbleJsonRecord } from '../../types';
+import type { PebbleJsonRecord } from '../../../types';
 
 /**
  * Where a child sits in the parent's view of it. The capability mirrors

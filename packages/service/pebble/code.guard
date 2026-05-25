@@ -25,6 +25,20 @@
       ]
     },
 
+    // Capability folders stay regular so adding a capability is predictable:
+    // each immediate capability folder owns index.ts, <name>-capability.ts,
+    // tools/, prompts/, and may move helper modules under utils/. Prompt
+    // folders must contain Markdown prompt files only.
+    {
+      "find": "src/capabilities/index.ts",
+      "recommendation": "Capability folders must keep runtime entrypoints at the top and move schemas, helpers, tests, and prompt text into subfolders.",
+      "asserts": {
+        "capabilityLayout": {
+          "root": "src/capabilities"
+        }
+      }
+    },
+
     // Agent trace payload contracts live in their own folder so durable runtime events have explicit ownership.
     // The traversal layer currently returns file nodes for glob matches, not folder nodes, so the old folder type
     // check is represented by requiring trace files inside the folder.

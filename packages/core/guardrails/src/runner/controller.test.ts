@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import type { GuardrailConfig } from '../types';
 import { Controller } from './controller';
@@ -444,4 +446,67 @@ describe('feature: controller', () => {
       ['First include this string', 'included next', 'Then also include this', 'then include this'].join('\n'),
     );
   });
+
+  test('happy: capabilityLayout passes for canonical capability folders', async () => {
+    const packageDir = await mkdtemp(resolve(tmpdir(), 'guardrails-capability-layout-'));
+    try {
+      await writeCapabilityFixture(packageDir, 'alpha');
+
+      const config: GuardrailConfig = {
+        structure: [
+          {
+            find: 'src/capabilities/index.ts',
+            recommendation: 'Capabilities must follow the canonical layout.',
+            asserts: { capabilityLayout: { root: 'src/capabilities' } },
+          },
+        ],
+      };
+
+      const result = await new Controller().run(packageDir, config);
+
+      expect(result.passed).toBe(true);
+    } finally {
+      await rm(packageDir, { recursive: true, force: true });
+    }
+  });
+
+  test('unhappy: capabilityLayout rejects direct files and non-Markdown prompts', async () => {
+    const packageDir = await mkdtemp(resolve(tmpdir(), 'guardrails-capability-layout-'));
+    try {
+      await writeCapabilityFixture(packageDir, 'alpha');
+      await writeFile(resolve(packageDir, 'src/capabilities/alpha/alpha-schema.ts'), 'export const schema = true;\n');
+      await writeFile(resolve(packageDir, 'src/capabilities/alpha/prompts/prompt.txt'), 'Prompt text\n');
+
+      const config: GuardrailConfig = {
+        structure: [
+          {
+            find: 'src/capabilities/index.ts',
+            recommendation: 'Capabilities must follow the canonical layout.',
+            asserts: { capabilityLayout: { root: 'src/capabilities' } },
+          },
+        ],
+      };
+
+      const result = await new Controller().run(packageDir, config);
+      const diagnostic = result.results[0]?.diagnostics[0];
+
+      expect(result.passed).toBe(false);
+      expect(diagnostic?.assertion).toBe('capabilityLayout');
+      expect(diagnostic?.description).toContain('alpha: direct file alpha-schema.ts');
+      expect(diagnostic?.description).toContain('prompts entry src/capabilities/alpha/prompts/prompt.txt');
+    } finally {
+      await rm(packageDir, { recursive: true, force: true });
+    }
+  });
 });
+
+async function writeCapabilityFixture(packageDir: string, name: string) {
+  const capabilityDir = resolve(packageDir, 'src/capabilities', name);
+  await mkdir(resolve(capabilityDir, 'tools'), { recursive: true });
+  await mkdir(resolve(capabilityDir, 'prompts'), { recursive: true });
+  await writeFile(resolve(packageDir, 'src/capabilities/index.ts'), `export * from './${name}';\n`);
+  await writeFile(resolve(capabilityDir, 'index.ts'), `export * from './${name}-capability';\n`);
+  await writeFile(resolve(capabilityDir, `${name}-capability.ts`), 'export const capability = true;\n');
+  await writeFile(resolve(capabilityDir, 'tools/index.ts'), 'export const tool = true;\n');
+  await writeFile(resolve(capabilityDir, 'prompts/default.md'), 'Prompt text\n');
+}

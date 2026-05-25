@@ -2,15 +2,15 @@ import type { AgentExitHookResult } from '../../agent';
 import { AgentCapability, AgentExitHook, EarlyExit } from '../../agent';
 import { Cell } from '../../thread';
 import type { TaskListUpdateTask } from '../../traces';
-import { mirrorStatusToDocumentBinding, syncTasksFromDocumentBinding } from './document-binding';
-import { ProgressiveTaskListTaskAlreadyTerminalError } from './progressive-task-list-task-already-terminal-error';
-import { ProgressiveTaskListTaskBlockedError } from './progressive-task-list-task-blocked-error';
-import { ProgressiveTaskListTaskNotFoundError } from './progressive-task-list-task-not-found-error';
-import type { TaskListUpdateData } from './progressive-task-list-trace-types';
 import allTasksTerminalPrompt from './prompts/all-terminal.md?raw';
 import currentActionableTasksPrompt from './prompts/current-actionable.md?raw';
 import { buildMarkTaskCompleteTool } from './tools/mark-task-complete/handler';
 import { buildMarkTaskInvalidTool } from './tools/mark-task-invalid/handler';
+import { mirrorStatusToDocumentBinding, syncTasksFromDocumentBinding } from './utils/document-binding';
+import { ProgressiveTaskListTaskAlreadyTerminalError } from './utils/progressive-task-list-task-already-terminal-error';
+import { ProgressiveTaskListTaskBlockedError } from './utils/progressive-task-list-task-blocked-error';
+import { ProgressiveTaskListTaskNotFoundError } from './utils/progressive-task-list-task-not-found-error';
+import type { TaskListUpdateData } from './utils/progressive-task-list-trace-types';
 import type {
   MirrorStatusInput,
   ProgressiveTaskListCapabilityParams,
@@ -19,7 +19,7 @@ import type {
   TaskInput,
   TaskStatus,
   TaskUpdater,
-} from './types';
+} from './utils/types';
 
 /**
  * Capability for managing a flat list of tasks with optional dependencies.

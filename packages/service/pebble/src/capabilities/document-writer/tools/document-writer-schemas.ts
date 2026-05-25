@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import writeDocumentMarkdownPrompt from './prompts/write-document-markdown-field.md?raw';
+import writeDocumentMarkdownPrompt from '../prompts/write-document-markdown-field.md?raw';
 
 export const writeDocumentSchema = z.object({
   name: z.string().min(1).describe('Document title. Shown in the documents sidebar.'),

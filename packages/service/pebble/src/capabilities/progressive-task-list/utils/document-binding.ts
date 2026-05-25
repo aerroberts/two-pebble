@@ -1,6 +1,6 @@
 import type { DocumentTodo } from '@two-pebble/datatypes';
-import type { Agent } from '../../agent/agent';
-import { getCapabilityRunners } from '../runners';
+import type { Agent } from '../../../agent/agent';
+import { getCapabilityRunners } from '../../runners';
 import type { Task, TaskStatus } from './types';
 
 export interface DocumentBindingSyncInput {

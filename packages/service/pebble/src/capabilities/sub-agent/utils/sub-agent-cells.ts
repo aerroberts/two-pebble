@@ -1,8 +1,8 @@
-import { Cell, type DataCells } from '../../thread';
-import awaitingOurResponseLifecyclePrompt from './prompts/lifecycle-awaiting-our-response.md?raw';
-import awaitingReplyLifecyclePrompt from './prompts/lifecycle-awaiting-reply.md?raw';
-import idleAfterReplyLifecyclePrompt from './prompts/lifecycle-idle-after-reply.md?raw';
-import killedLifecyclePrompt from './prompts/lifecycle-killed.md?raw';
+import { Cell, type DataCells } from '../../../thread';
+import awaitingOurResponseLifecyclePrompt from '../prompts/lifecycle-awaiting-our-response.md?raw';
+import awaitingReplyLifecyclePrompt from '../prompts/lifecycle-awaiting-reply.md?raw';
+import idleAfterReplyLifecyclePrompt from '../prompts/lifecycle-idle-after-reply.md?raw';
+import killedLifecyclePrompt from '../prompts/lifecycle-killed.md?raw';
 import type { ChildLifecycle, ChildRecord, SubAgentReference } from './sub-agent-types';
 
 export function listSubAgentsCells(references: SubAgentReference[], children: ChildRecord[]): DataCells {

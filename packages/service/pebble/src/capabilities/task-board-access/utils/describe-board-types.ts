@@ -1,4 +1,4 @@
-import type { TaskBoardPoolNode, TaskBoardTaskNode } from '../../agent';
+import type { TaskBoardPoolNode, TaskBoardTaskNode } from '../../../agent';
 
 export type PoolChildrenByParent = Map<string | null, TaskBoardPoolNode[]>;
 

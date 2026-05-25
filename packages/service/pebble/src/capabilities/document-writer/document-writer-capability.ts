@@ -8,7 +8,7 @@ import {
   readDocumentSchema,
   updateDocumentSchema,
   writeDocumentSchema,
-} from './document-writer-schemas';
+} from './tools/document-writer-schemas';
 
 /**
  * Lets an agent create, update, read, and list documents in the local

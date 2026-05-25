@@ -4,8 +4,8 @@ import type { AgentStatus } from '../../agent/types';
 import { Cell, type DataCells } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import { getCapabilityRunners } from '../runners';
-import { completeTaskSchema, failTaskSchema, submitDeliverableSchema } from './task-lifecycle-schemas';
-import type { TaskLifecycleCapabilityConfig } from './task-lifecycle-types';
+import { completeTaskSchema, failTaskSchema, submitDeliverableSchema } from './tools/task-lifecycle-schemas';
+import type { TaskLifecycleCapabilityConfig } from './utils/task-lifecycle-types';
 
 /**
  * Binds an agent to a specific task for the lifetime of the run.

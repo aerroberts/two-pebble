@@ -195,6 +195,20 @@ function validateOptionalAsserts(asserts: unknown, field: string) {
   if (assertsRecord.map !== undefined) {
     validateMapAssert(assertsRecord.map, `${field}.asserts`);
   }
+  if (assertsRecord.capabilityLayout !== undefined) {
+    validateCapabilityLayoutAssert(assertsRecord.capabilityLayout, `${field}.asserts`);
+  }
+}
+
+function validateCapabilityLayoutAssert(value: unknown, field: string) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new InvalidGuardrailConfigError(`${field}.capabilityLayout must be an object.`);
+  }
+  validateKnownKeys(value, new Set(['root']), `${field}.capabilityLayout`, 'capabilityLayout fields');
+  const { root } = value as { root?: unknown };
+  if (typeof root !== 'string' || root.trim().length === 0) {
+    throw new InvalidGuardrailConfigError(`${field}.capabilityLayout.root must be a non-empty string.`);
+  }
 }
 
 function isStringArray(value: unknown) {

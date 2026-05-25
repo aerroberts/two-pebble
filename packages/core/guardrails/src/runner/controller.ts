@@ -32,7 +32,7 @@ export class Controller {
     const results: CheckResult[] = [];
     // Registry of named refs, populated as we walk structure rules in order
     // so a `map` assert on a later rule can read prior rules' extracted keys.
-    const ctx: AssertContext = { refs: new Map() };
+    const ctx: AssertContext = { packageDir, refs: new Map() };
 
     for (const rule of merged.structure ?? []) {
       const ruleResults = await this.runRule(traversal, packageDir, rule, filesScanned, ctx);

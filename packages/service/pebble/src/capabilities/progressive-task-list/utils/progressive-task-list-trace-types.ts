@@ -1,3 +1,3 @@
-import type { PebbleAgentTaskListUpdateTrace } from '../../traces';
+import type { PebbleAgentTaskListUpdateTrace } from '../../../traces';
 
 export type TaskListUpdateData = PebbleAgentTaskListUpdateTrace['data'];

@@ -2,7 +2,6 @@ import { NativeTool, ToolResponse } from '../../agent';
 import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import { getCapabilityRunners } from '../runners';
-import { renderBoardTree, renderTaskList } from './describe-board';
 import taskDescriptionGuidancePrompt from './prompts/task-description-guidance.md?raw';
 import {
   boardSchema,
@@ -10,8 +9,9 @@ import {
   listTasksSchema,
   setStatusSchema,
   updateTaskSchema,
-} from './task-board-access-schemas';
-import type { TaskBoardAccessCapabilityConfig } from './task-board-access-types';
+} from './tools/task-board-access-schemas';
+import { renderBoardTree, renderTaskList } from './utils/describe-board';
+import type { TaskBoardAccessCapabilityConfig } from './utils/task-board-access-types';
 
 /**
  * Capability that exposes task-board operations to a Pebble agent.

@@ -1,4 +1,4 @@
-import type { TaskBoardDependencyEdge, TaskBoardPoolNode, TaskBoardSnapshot, TaskBoardTaskNode } from '../../agent';
+import type { TaskBoardDependencyEdge, TaskBoardPoolNode, TaskBoardSnapshot, TaskBoardTaskNode } from '../../../agent';
 import type { DependenciesBySource, PoolChildrenByParent, RenderPoolInput, TasksByPool } from './describe-board-types';
 
 /**

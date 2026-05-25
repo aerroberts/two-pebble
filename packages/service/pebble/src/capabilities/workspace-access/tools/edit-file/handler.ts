@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
-import { resolveWorkspacePath } from '../../path-safety';
 import editFileToolDescription from '../../prompts/edit-file-tool-description.md?raw';
+import { resolveWorkspacePath } from '../../utils/path-safety';
 
 const schema = z.object({
   path: z.string().describe('Workspace-relative path of the file to edit.'),

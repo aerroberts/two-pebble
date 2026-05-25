@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
-import { resolveWorkspacePath } from '../../path-safety';
 import readFileToolDescription from '../../prompts/read-file-tool-description.md?raw';
+import { resolveWorkspacePath } from '../../utils/path-safety';
 
 const MAX_OUTPUT_CHARS = 3000;
 

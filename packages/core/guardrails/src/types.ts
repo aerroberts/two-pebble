@@ -58,7 +58,17 @@ export interface AssertConfig {
   matches?: NumberRange;
   lines?: NumberRange;
   content?: ContentAssert;
+  capabilityLayout?: CapabilityLayoutAssert;
   map?: MapAssert;
+}
+
+/**
+ * Filesystem-level assertion for capability package layout. `root` is resolved
+ * relative to the package directory and every immediate child directory is
+ * treated as one capability folder.
+ */
+export interface CapabilityLayoutAssert {
+  root: string;
 }
 
 /**

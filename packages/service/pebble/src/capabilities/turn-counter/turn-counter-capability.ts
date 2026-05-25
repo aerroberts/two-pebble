@@ -1,5 +1,5 @@
 import { AgentCapability } from '../agent-capability';
-import type { TurnCounterCapabilityConfig } from './types';
+import type { TurnCounterCapabilityConfig } from './utils/types';
 
 /**
  * Minimal capability used by the abstract-class tests. Holds one numeric

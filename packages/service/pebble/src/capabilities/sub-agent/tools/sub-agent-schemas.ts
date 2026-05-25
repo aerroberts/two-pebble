@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import type { SubAgentReference } from './sub-agent-types';
+import type { SubAgentReference } from '../utils/sub-agent-types';
 
 export const sendSubAgentSchema = z.object({
   childAgentId: z.string().describe('Full spawned child agent id, including the agents: prefix.'),

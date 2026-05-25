@@ -1,5 +1,5 @@
-import spawnLifecycleNotePrompt from './prompts/spawn-lifecycle-note.md?raw';
-import spawnMessageGuidancePrompt from './prompts/spawn-message-guidance.md?raw';
+import spawnLifecycleNotePrompt from '../prompts/spawn-lifecycle-note.md?raw';
+import spawnMessageGuidancePrompt from '../prompts/spawn-message-guidance.md?raw';
 import type { SubAgentCapabilityConfig, SubAgentReference } from './sub-agent-types';
 
 export function readReferences(config: SubAgentCapabilityConfig): SubAgentReference[] {

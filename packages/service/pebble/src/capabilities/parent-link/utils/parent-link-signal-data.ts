@@ -1,4 +1,4 @@
-import type { PebbleJsonRecord, PebbleJsonValue } from '../../types';
+import type { PebbleJsonRecord, PebbleJsonValue } from '../../../types';
 
 export function objectData(data: PebbleJsonValue): PebbleJsonRecord {
   if (data === null || typeof data !== 'object' || Array.isArray(data)) {

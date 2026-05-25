@@ -1,5 +1,5 @@
-import type { CapabilityStateSnapshot } from '../../agent/types';
-import { TurnCounterCapability } from './turn-counter-capability';
+import type { CapabilityStateSnapshot } from '../../../agent/types';
+import { TurnCounterCapability } from '../turn-counter-capability';
 
 interface CapabilityFixture {
   capability: TurnCounterCapability;

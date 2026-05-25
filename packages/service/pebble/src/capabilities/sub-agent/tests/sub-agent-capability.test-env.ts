@@ -6,12 +6,12 @@ import type {
   SignalRunner,
   SubAgentRunner,
   SubAgentSpawnInput,
-} from '../../agent';
-import { PebbleAgent } from '../../agent/agents/pebble-agent';
-import { SignalTestProvider } from '../../agent/agents/signal-test-provider';
-import { installCapabilityRunners } from '../../capabilities';
-import { Cell } from '../../thread';
-import { SubAgentCapability } from './sub-agent-capability';
+} from '../../../agent';
+import { PebbleAgent } from '../../../agent/agents/pebble-agent';
+import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
+import { installCapabilityRunners } from '../../../capabilities';
+import { Cell } from '../../../thread';
+import { SubAgentCapability } from '../sub-agent-capability';
 
 export function subAgentToolsForResearcher() {
   return new SubAgentCapability().hookOnRegister({

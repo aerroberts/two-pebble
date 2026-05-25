@@ -4,9 +4,9 @@ import type { DataCells } from '../../thread';
 import { Cell } from '../../thread';
 import type { ParentMessageDirection } from '../../traces';
 import { AgentCapability } from '../agent-capability';
-import { notifyParentSchema, parentMessageSchema, readParentMessagesSchema } from './parent-link-schemas';
-import { objectData, stringField } from './parent-link-signal-data';
-import type { ParentLinkCapabilityConfig, PendingParentResponse } from './parent-link-types';
+import { notifyParentSchema, parentMessageSchema, readParentMessagesSchema } from './tools/parent-link-schemas';
+import { objectData, stringField } from './utils/parent-link-signal-data';
+import type { ParentLinkCapabilityConfig, PendingParentResponse } from './utils/parent-link-types';
 
 /**
  * Capability installed on child agents so they can talk to their parent.

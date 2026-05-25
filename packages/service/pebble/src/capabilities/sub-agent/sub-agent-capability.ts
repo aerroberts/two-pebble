@@ -7,8 +7,6 @@ import { getCapabilityRunners } from '../runners';
 import lifecyclePrimerPrompt from './prompts/lifecycle-primer.md?raw';
 import nextActionGuidePrompt from './prompts/next-action-guide.md?raw';
 import spawnSubAgentMessagePrompt from './prompts/spawn-message-field.md?raw';
-import { childStatusLine, listSubAgentsCells } from './sub-agent-cells';
-import { readReferences, spawnToolDescription } from './sub-agent-references';
 import {
   askSubAgentSchema,
   childAgentSchema,
@@ -16,8 +14,10 @@ import {
   listSubAgentsSchema,
   referenceNameSchema,
   sendSubAgentSchema,
-} from './sub-agent-schemas';
-import { objectData, stringField } from './sub-agent-signal-data';
+} from './tools/sub-agent-schemas';
+import { childStatusLine, listSubAgentsCells } from './utils/sub-agent-cells';
+import { readReferences, spawnToolDescription } from './utils/sub-agent-references';
+import { objectData, stringField } from './utils/sub-agent-signal-data';
 import type {
   ChildLifecycle,
   ChildRecord,
@@ -25,7 +25,7 @@ import type {
   PendingChildQuestion,
   SubAgentCapabilityConfig,
   SubAgentReference,
-} from './sub-agent-types';
+} from './utils/sub-agent-types';
 
 /**
  * Capability installed on parent agents so they can manage child agents.
