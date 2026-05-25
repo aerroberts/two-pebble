@@ -20,6 +20,18 @@ export interface StructureRule {
   recommendation?: string;
   asserts?: AssertConfig;
   code?: CodeRule[];
+  ref?: RefDeclaration;
+}
+
+/**
+ * Declares the find result of a structure rule as a named variable. Each
+ * matched node is reduced to a string key by reading the `extract` data
+ * field; downstream rules can then reference the set of keys by `name`
+ * through a `map` assertion.
+ */
+export interface RefDeclaration {
+  name: string;
+  extract: string;
 }
 
 /**
@@ -46,6 +58,35 @@ export interface AssertConfig {
   matches?: NumberRange;
   lines?: NumberRange;
   content?: ContentAssert;
+  map?: MapAssert;
+}
+
+/**
+ * String-prefix assertion for AST node metadata. Defaults to the `name`
+ * property because most semantic nodes expose their human label there.
+ */
+export interface StartsWithAssert {
+  property?: string;
+  values: string | string[];
+}
+
+/**
+ * Cross-ref set comparison. Both `fromRef` and `toRef` name previously
+ * declared refs (see RefDeclaration) — typically one declared on an earlier
+ * rule and one declared on this rule. `method` controls how a fromRef value
+ * is paired with a toRef value:
+ *   - "equals":    fromRef value === toRef value
+ *   - "substring": fromRef value appears anywhere inside toRef value
+ * The booleans then turn the pairing into a coverage claim:
+ *   - fullyConsumes: every fromRef value participates in at least one pair
+ *   - fullyCovers:   every toRef value participates in at least one pair
+ */
+export interface MapAssert {
+  fromRef: string;
+  toRef: string;
+  method?: 'equals' | 'substring';
+  fullyConsumes?: boolean;
+  fullyCovers?: boolean;
 }
 
 /**

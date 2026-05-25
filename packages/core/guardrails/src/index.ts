@@ -6,7 +6,9 @@ export type {
   CodeRule,
   Diagnostic,
   GuardrailConfig,
+  MapAssert,
   NumberRange,
+  RefDeclaration,
   RunResult,
   StructureRule,
 } from './types';

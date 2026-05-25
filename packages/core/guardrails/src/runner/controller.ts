@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { CodeTraversal, type WorkspaceNode } from '@two-pebble/traversal';
+import type { AssertContext } from '../assert-context';
 import { InvalidGuardrailConfigError, UnknownDefinitionError } from '../errors';
 import { runAsserts } from '../run-asserts';
 import type {
@@ -29,9 +30,12 @@ export class Controller {
     const traversal = new CodeTraversal(packageDir);
     const filesScanned = new Set<string>();
     const results: CheckResult[] = [];
+    // Registry of named refs, populated as we walk structure rules in order
+    // so a `map` assert on a later rule can read prior rules' extracted keys.
+    const ctx: AssertContext = { refs: new Map() };
 
     for (const rule of merged.structure ?? []) {
-      const ruleResults = await this.runRule(traversal, packageDir, rule, filesScanned);
+      const ruleResults = await this.runRule(traversal, packageDir, rule, filesScanned, ctx);
       results.push(...ruleResults);
     }
 
@@ -48,6 +52,7 @@ export class Controller {
     packageDir: string,
     rule: StructureRule,
     filesScanned: Set<string>,
+    ctx: AssertContext,
   ): Promise<CheckResult[]> {
     const ruleStart = performance.now();
     const findQueries = this.toQueryList(rule.find).map((query) => this.absoluteFind(packageDir, query));
@@ -68,10 +73,19 @@ export class Controller {
     const recommendation = this.buildRecommendation(rule);
     const checks: CheckResult[] = [];
 
+    // Register the rule's ref before its asserts run so a `map` assert on the
+    // same rule can reference the just-declared ref by name.
+    if (rule.ref) {
+      const refCheck = this.registerRef(rule, nodes, findLabel, recommendation, ctx);
+      if (refCheck) {
+        checks.push(refCheck);
+      }
+    }
+
     // A rule with no asserts is purely a file selector for its `code` block;
     // we skip emitting a top-level check so it isn't reported as PASS noise.
     if (rule.asserts && Object.keys(rule.asserts).length > 0) {
-      const diagnostics = this.diagnosticsFor(nodes, rule.asserts, findLabel, recommendation);
+      const diagnostics = this.diagnosticsFor(nodes, rule.asserts, findLabel, recommendation, undefined, ctx);
       checks.push({
         find: findLabel,
         recommendation,
@@ -88,6 +102,46 @@ export class Controller {
     }
 
     return checks;
+  }
+
+  // Extracts `ref.extract` from each matched node and stores the array under
+  // `ref.name` for later `map` asserts. Emits a failed CheckResult when the
+  // extract field is absent on a matched node — that almost always means a
+  // misconfigured `extract` and would otherwise silently produce an empty set.
+  private registerRef(
+    rule: StructureRule,
+    nodes: WorkspaceNode[],
+    findLabel: string,
+    recommendation: string,
+    ctx: AssertContext,
+  ): CheckResult | undefined {
+    if (!rule.ref) {
+      return undefined;
+    }
+    const { name, extract } = rule.ref;
+    const values: string[] = [];
+    for (const node of nodes) {
+      const value = node.getProperty(extract);
+      if (value === undefined) {
+        return {
+          find: findLabel,
+          recommendation,
+          passed: false,
+          diagnostics: [
+            {
+              recommendation,
+              description: `ref "${name}" cannot extract field "${extract}" from a matched "${node.type}" node — extract returned undefined.`,
+              find: findLabel,
+              assertion: 'ref' as AssertName,
+            },
+          ],
+          durationMs: 0,
+        };
+      }
+      values.push(value);
+    }
+    ctx.refs.set(name, values);
+    return undefined;
   }
 
   private async runCodeRule(
@@ -124,9 +178,10 @@ export class Controller {
     find: string,
     recommendation: string,
     file?: string,
+    ctx?: AssertContext,
   ): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
-    for (const { name, outcome } of runAsserts(nodes, asserts)) {
+    for (const { name, outcome } of runAsserts(nodes, asserts, ctx)) {
       if (outcome.passed) {
         continue;
       }

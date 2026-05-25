@@ -1,15 +1,30 @@
+import { readFileSync } from 'node:fs';
 import { glob } from 'node:fs/promises';
+import { basename, extname } from 'node:path';
 import { WorkspaceFileParser } from './ast/code-ast';
 import { traverse } from './ast/traverse';
 import { WorkspaceNode } from './ast/workspace-node';
 import { TraversalResultSet } from './result-set';
 
-/**
- * Exposes a way to run a "find" scoped operation against a codebase
- * This is expressed in the format of a file glob followed by # and then an ast query
- *
- **/
+// Module-level cache so repeated `fileContent` reads across nodes for the
+// same path are deduped within a process. Guardrail runs touch each file at
+// most a few times; cache size is bounded by what the run sees.
+const contentCache = new Map<string, string>();
 
+function readContentCached(filePath: string): string {
+  const hit = contentCache.get(filePath);
+  if (hit !== undefined) {
+    return hit;
+  }
+  const text = readFileSync(filePath, 'utf-8');
+  contentCache.set(filePath, text);
+  return text;
+}
+
+/**
+ * Exposes a way to run a "find" scoped operation against a codebase.
+ * Queries use a file glob followed by `#` and then an AST path expression.
+ */
 export class CodeTraversal {
   // Where this traversal is rooted in the file tree
   public readonly rootPath: string;
@@ -62,11 +77,20 @@ export class CodeTraversal {
     const resultSet = new TraversalResultSet();
     const fileNames: string[] = [];
     for await (const filePath of files) {
-      resultSet.add(
-        new WorkspaceNode('file').withData({
+      const filename = basename(filePath);
+      const node = new WorkspaceNode('file')
+        .withData({
           path: filePath,
-        }),
-      );
+          filename,
+          name: basename(filename, extname(filename)),
+        })
+        // Files are commonly listed without ever inspecting their bytes
+        // (e.g., a plain `exists` check). Defer the read until something
+        // actually asks for content.
+        .withLazyData({
+          fileContent: () => readContentCached(filePath),
+        });
+      resultSet.add(node);
       fileNames.push(filePath);
     }
     return { resultSet, fileNames };

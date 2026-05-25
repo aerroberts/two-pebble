@@ -1,3 +1,4 @@
+import { basename, extname } from 'node:path';
 import ts from 'typescript';
 import { WorkspaceNode } from './workspace-node';
 
@@ -12,8 +13,12 @@ export class CodeAstBuilder {
 
   public constructor(sourceFile: ts.SourceFile) {
     this.sourceFile = sourceFile;
+    const filename = basename(sourceFile.fileName);
     this.customTree = new WorkspaceNode('file').withData({
       path: sourceFile.fileName,
+      filename,
+      name: basename(filename, extname(filename)),
+      fileContent: sourceFile.text,
     });
     this.applyRange(this.customTree, sourceFile);
   }

@@ -1,7 +1,9 @@
 import type { WorkspaceNode } from '@two-pebble/traversal';
+import type { AssertContext } from './assert-context';
 import { validate as contentValidate } from './asserts/content';
 import { validate as existsValidate } from './asserts/exists';
 import { validate as linesValidate } from './asserts/lines';
+import { validate as mapValidate } from './asserts/map';
 import { validate as matchesValidate } from './asserts/matches';
 import { validate as namedValidate } from './asserts/named';
 import { validate as startsWithValidate } from './asserts/starts-with';
@@ -11,6 +13,7 @@ import type { AssertConfig, AssertName, AssertOutcome } from './types';
 type AssertionImpl<Name extends AssertName> = (
   nodes: WorkspaceNode[],
   config: NonNullable<AssertConfig[Name]>,
+  ctx?: AssertContext,
 ) => AssertOutcome;
 
 type Registry = {
@@ -30,6 +33,7 @@ const REGISTRY: Registry = {
   matches: matchesValidate,
   lines: linesValidate,
   content: contentValidate,
+  map: mapValidate,
 };
 
 /**
@@ -44,6 +48,7 @@ export const ASSERT_NAMES = Object.keys(REGISTRY) as AssertName[];
 export function runAsserts(
   nodes: WorkspaceNode[],
   asserts: AssertConfig,
+  ctx?: AssertContext,
 ): { name: AssertName; outcome: AssertOutcome }[] {
   const outcomes: { name: AssertName; outcome: AssertOutcome }[] = [];
   for (const name of Object.keys(asserts) as AssertName[]) {
@@ -51,8 +56,8 @@ export function runAsserts(
     if (config === undefined) {
       continue;
     }
-    const assertion = REGISTRY[name] as (nodes: WorkspaceNode[], config: unknown) => AssertOutcome;
-    outcomes.push({ name, outcome: assertion(nodes, config) });
+    const assertion = REGISTRY[name] as (nodes: WorkspaceNode[], config: unknown, ctx?: AssertContext) => AssertOutcome;
+    outcomes.push({ name, outcome: assertion(nodes, config, ctx) });
   }
   return outcomes;
 }

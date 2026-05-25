@@ -22,14 +22,25 @@ export class WorkspaceNode {
   // Nodes can store additional arbitrary data
   private data: Record<string, string>;
 
+  // Lazy-resolved properties — read on first access and memoized into `data`.
+  // Used for expensive fields like `fileContent` that we do not want to pay
+  // for on every glob result.
+  private lazy: Record<string, () => string>;
+
   public constructor(type: CustomAstTokenEnums) {
     this.type = type;
     this.children = [];
     this.data = {};
+    this.lazy = {};
   }
 
   public withData(data: Record<string, string>) {
     this.data = { ...this.data, ...data };
+    return this;
+  }
+
+  public withLazyData(lazy: Record<string, () => string>) {
+    this.lazy = { ...this.lazy, ...lazy };
     return this;
   }
 
@@ -45,7 +56,16 @@ export class WorkspaceNode {
   }
 
   public getProperty(name: string) {
-    return this.data[name];
+    if (this.data[name] !== undefined) {
+      return this.data[name];
+    }
+    const loader = this.lazy[name];
+    if (loader) {
+      const value = loader();
+      this.data[name] = value;
+      return value;
+    }
+    return undefined;
   }
 
   // Number of source lines this node spans, inclusive on both ends.

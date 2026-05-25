@@ -295,6 +295,126 @@ describe('feature: controller', () => {
     expect(result.results[0]?.diagnostics[0]?.assertion).toBe('content');
   });
 
+  test('happy: map substring/fullyConsumes passes when every fromRef filename appears inside a toRef path', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          ref: { name: 'sourceFilenames', extract: 'filename' },
+        },
+        {
+          find: 'src/present.ts',
+          ref: { name: 'sourcePaths', extract: 'path' },
+          recommendation: 'every recorded filename must appear inside a matched path.',
+          asserts: {
+            map: {
+              fromRef: 'sourceFilenames',
+              toRef: 'sourcePaths',
+              method: 'substring',
+              fullyConsumes: true,
+            },
+          },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
+  test('unhappy: map fullyConsumes fails when a fromRef value has no toRef match', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/*.ts',
+          ref: { name: 'sourceFilenames', extract: 'filename' },
+        },
+        {
+          find: 'src/present.ts',
+          ref: { name: 'presentPath', extract: 'path' },
+          recommendation: 'every source filename must appear inside present.ts',
+          asserts: {
+            map: {
+              fromRef: 'sourceFilenames',
+              toRef: 'presentPath',
+              method: 'substring',
+              fullyConsumes: true,
+            },
+          },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+    const mapDiag = result.results.flatMap((r) => r.diagnostics).find((d) => d.assertion === 'map');
+
+    expect(result.passed).toBe(false);
+    expect(mapDiag?.description).toContain('"extra.ts"');
+  });
+
+  test('unhappy: map.fromRef referencing an unknown ref fails with a clear diagnostic', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          ref: { name: 'local', extract: 'filename' },
+          asserts: {
+            map: { fromRef: 'undeclared', toRef: 'local', fullyConsumes: true },
+          },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+    const mapDiag = result.results.flatMap((r) => r.diagnostics).find((d) => d.assertion === 'map');
+
+    expect(result.passed).toBe(false);
+    expect(mapDiag?.description).toContain('"undeclared" was not declared');
+  });
+
+  test('unhappy: map.toRef referencing an unknown ref fails with a clear diagnostic', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/present.ts',
+          ref: { name: 'local', extract: 'filename' },
+          asserts: {
+            map: { fromRef: 'local', toRef: 'missing', fullyConsumes: true },
+          },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+    const mapDiag = result.results.flatMap((r) => r.diagnostics).find((d) => d.assertion === 'map');
+
+    expect(result.passed).toBe(false);
+    expect(mapDiag?.description).toContain('"missing" was not declared');
+  });
+
+  test('happy: map equals + fullyCovers passes when every toRef filename has a fromRef match', async () => {
+    const config: GuardrailConfig = {
+      structure: [
+        {
+          find: 'src/*.ts',
+          ref: { name: 'allSources', extract: 'filename' },
+        },
+        {
+          find: 'src/present.ts',
+          ref: { name: 'presentOnly', extract: 'filename' },
+          asserts: {
+            map: { fromRef: 'allSources', toRef: 'presentOnly', method: 'equals', fullyCovers: true },
+          },
+        },
+      ],
+    };
+
+    const result = await new Controller().run(fixtureRoot, config);
+
+    expect(result.passed).toBe(true);
+  });
+
   test('happy: failed assert recommendation stacks leading comments and recommendations top-down', async () => {
     const { parseGuardConfig } = await import('./guard-config-parser');
     const config = parseGuardConfig(`

@@ -31,6 +31,7 @@
     // is declared as a single local type and no extra top-level helpers are allowed.
     {
       "find": "src/operations/*.ts",
+      "ref": { "name": "operationNames", "extract": "name" },
       "asserts": {
         "type": "file",
         "content": {
@@ -70,6 +71,24 @@
           "recommendation": "Operation files must declare exactly one local input type for the handler."
         }
       ]
+    },
+
+    // Every operation must be exercised by a test. The convention is a
+    // `describe('feature: operation <op-name>', ...)` block in some file
+    // under src/tests. We check this by mapping operation filenames (without
+    // .ts) into the concatenated content of all test files: every operation
+    // name must appear as a substring in some test file's contents.
+    {
+      "find": "src/tests/*.test.ts",
+      "ref": { "name": "testFileContents", "extract": "fileContent" },
+      "asserts": {
+        "map": {
+          "fromRef": "operationNames",
+          "toRef": "testFileContents",
+          "method": "substring",
+          "fullyConsumes": true
+        }
+      }
     }
   ]
 }
