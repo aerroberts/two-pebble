@@ -18,7 +18,7 @@ export function RepositoriesPage() {
             onClick={() => void state.createNewRepository()}
             type="button"
           >
-            Add repo
+            Add repository
           </Button>
         }
         title="Repositories"
