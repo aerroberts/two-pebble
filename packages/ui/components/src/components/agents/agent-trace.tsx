@@ -30,6 +30,7 @@ export interface AgentTraceProps {
 // surface most of these (only sub-agent fan-in events stay aggregated into the
 // parent sub-agent trace).
 const CHAT_ABRIDGED_TRACE_TYPES = new Set<AgentAggregatedTraceRecord['type']>([
+  'agent-success',
   'capability-hydrate',
   'signal-received',
   'signal-registered',
