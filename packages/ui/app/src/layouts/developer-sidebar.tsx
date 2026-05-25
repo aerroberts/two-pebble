@@ -35,6 +35,12 @@ export function DeveloperSidebar() {
           onClick={() => navigate('/developer/agents')}
         />
         <SidebarOption
+          active={location.pathname === '/developer/agents/archived'}
+          icon="inbox"
+          label="Archived"
+          onClick={() => navigate('/developer/agents/archived')}
+        />
+        <SidebarOption
           active={location.pathname.startsWith('/developer/agents/signals')}
           icon="radio"
           label="Signals"

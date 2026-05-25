@@ -12,8 +12,6 @@ import { AgentSidebarItem } from './agent-sidebar-item';
 import type { AppShellProps } from './app-shell-props';
 import { MainAppShell } from './main-app-shell';
 
-type SidebarAgentStatus = AgentRecord['status'];
-
 export function AgentsAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,7 +25,6 @@ export function AgentsAppShell(props: AppShellProps) {
   const waitingAgents = agentList.filter((agent) => agent.status === 'waiting');
   const idleAgents = agentList.filter((agent) => agent.status === 'idle');
   const interruptedAgents = agentList.filter((agent) => agent.status === 'interrupted');
-  const archivedAgents = agentList.filter((agent) => isTerminal(agent.status));
 
   const handleStop = (agentId: string) => {
     void stopAgent({ agentId, reason: 'user stop from sidebar' }).catch(() => undefined);
@@ -110,18 +107,6 @@ export function AgentsAppShell(props: AppShellProps) {
                 ))}
               </SidebarSection>
             ) : null}
-            {archivedAgents.length > 0 ? (
-              <SidebarSection collapsible defaultCollapsed title="Archived">
-                {archivedAgents.map((agent) => (
-                  <AgentSidebarItem
-                    active={location.pathname === `/agents/${agent.id}`}
-                    agent={agent}
-                    key={agent.id}
-                    onSelect={() => navigate(`/agents/${agent.id}`)}
-                  />
-                ))}
-              </SidebarSection>
-            ) : null}
           </Sidebar>
         }
       >
@@ -131,6 +116,3 @@ export function AgentsAppShell(props: AppShellProps) {
   );
 }
 
-function isTerminal(status: SidebarAgentStatus): boolean {
-  return status === 'failed' || status === 'offline';
-}
