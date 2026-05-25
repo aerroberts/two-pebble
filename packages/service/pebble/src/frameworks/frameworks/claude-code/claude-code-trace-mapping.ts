@@ -9,8 +9,9 @@ import type { ToolResultBlockParam } from '@anthropic-ai/sdk/resources';
 import type { UsageReport } from '../../../pricing';
 import type { DataCells } from '../../../thread/cells';
 import { Cell, text } from '../../../thread/cells';
-import type { PebbleAgentTrace, TaskListUpdateChange, TaskListUpdateStatus, TaskListUpdateTask } from '../../../traces';
+import type { PebbleAgentTrace, TaskListUpdateStatus, TaskListUpdateTask } from '../../../traces';
 import type { PebbleJsonRecord, PebbleJsonValue } from '../../../types';
+import { diffTaskList, type RawTodo } from '../../task-list-diff';
 import type { SubAgentLifecycleEvent, SubAgentTraceEvent, SubAgentUsageEvent } from '../../types';
 import { cellToString } from './utils/cell-to-string';
 import { normalizeClaudeCodeModelId, sdkUsageToPebbleUsage } from './utils/model-usage';
@@ -70,8 +71,12 @@ export function wrapTraces(
   return traces.map((trace) => ({ kind: 'sub-agent-trace', event: { ...subagent, trace } }));
 }
 
-export function assistantMessageToTraces(message: SDKAssistantMessage): PebbleAgentTrace[] {
+export function assistantMessageToTraces(
+  message: SDKAssistantMessage,
+  previousTaskList: TaskListUpdateTask[],
+): { traces: PebbleAgentTrace[]; taskList: TaskListUpdateTask[] | null } {
   const traces: PebbleAgentTrace[] = [];
+  let nextTaskList: TaskListUpdateTask[] | null = null;
   for (const block of message.message.content) {
     if (block.type === 'text') {
       traces.push({ type: 'assistant-message', data: { content: [Cell.text(block.text)] } });
@@ -82,13 +87,15 @@ export function assistantMessageToTraces(message: SDKAssistantMessage): PebbleAg
         type: 'tool-call-start',
         data: { callId: block.id, toolId: block.name, input: (block.input ?? {}) as object, source: 'framework' },
       });
-      const taskListTrace = todoWriteToTaskListTrace(block.name, block.input as PebbleJsonValue | undefined);
-      if (taskListTrace !== undefined) {
-        traces.push(taskListTrace);
+      const baseline = nextTaskList ?? previousTaskList;
+      const update = todoWriteToTaskListTrace(block.name, block.input as PebbleJsonValue | undefined, baseline);
+      if (update !== undefined) {
+        traces.push(update.trace);
+        nextTaskList = update.tasks;
       }
     }
   }
-  return traces;
+  return { traces, taskList: nextTaskList };
 }
 
 interface TodoLike {
@@ -99,7 +106,8 @@ interface TodoLike {
 function todoWriteToTaskListTrace(
   toolName: string,
   rawInput: PebbleJsonValue | undefined,
-): PebbleAgentTrace | undefined {
+  previousTaskList: TaskListUpdateTask[],
+): { trace: PebbleAgentTrace; tasks: TaskListUpdateTask[] } | undefined {
   if (toolName !== 'TodoWrite') {
     return undefined;
   }
@@ -110,9 +118,8 @@ function todoWriteToTaskListTrace(
   if (!Array.isArray(todosRaw)) {
     return undefined;
   }
-  const tasks: TaskListUpdateTask[] = [];
-  const changes: TaskListUpdateChange[] = [];
-  for (const [index, raw] of todosRaw.entries()) {
+  const todos: RawTodo[] = [];
+  for (const raw of todosRaw) {
     if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
       continue;
     }
@@ -124,11 +131,10 @@ function todoWriteToTaskListTrace(
     if (status === undefined) {
       continue;
     }
-    const id = `todo-${index}`;
-    tasks.push({ id, description: todo.content, status });
-    changes.push({ id, oldStatus: null, newStatus: status });
+    todos.push({ description: todo.content, status });
   }
-  return { type: 'task-list-update', data: { tasks, changes } };
+  const { tasks, changes } = diffTaskList(previousTaskList, todos);
+  return { trace: { type: 'task-list-update', data: { tasks, changes } }, tasks };
 }
 
 function mapTodoStatus(value: PebbleJsonValue | undefined): TaskListUpdateStatus | undefined {

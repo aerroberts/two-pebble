@@ -6,6 +6,7 @@ import type {
   SubagentStopHookInput,
 } from '@anthropic-ai/claude-agent-sdk';
 import type { UsageReport } from '../../../pricing';
+import type { TaskListUpdateTask } from '../../../traces';
 import {
   assistantMessageToTraces,
   type ConvertedClaudeCodeEvent,
@@ -32,6 +33,10 @@ export class ClaudeCodeEventConverter {
   private readonly activeSubagentIds: string[] = [];
   private readonly subagentTemplateIds = new Map<string, string>();
   private readonly processedSubagentTranscriptPaths = new Set<string>();
+  // Tracks the most recently emitted task-list snapshot so subsequent
+  // TodoWrite calls can compute a real diff (oldStatus -> newStatus)
+  // instead of always reporting changes against an empty baseline.
+  private previousTaskList: TaskListUpdateTask[] = [];
 
   /**
    * Translates a single SDK message into Pebble events.
@@ -110,7 +115,11 @@ export class ClaudeCodeEventConverter {
   }
 
   private convertAssistantMessage(message: SDKAssistantMessage): ConvertedClaudeCodeEvent[] {
-    return wrapTraces(assistantMessageToTraces(message), this.readSubagentMetadata(message));
+    const { traces, taskList } = assistantMessageToTraces(message, this.previousTaskList);
+    if (taskList !== null) {
+      this.previousTaskList = taskList;
+    }
+    return wrapTraces(traces, this.readSubagentMetadata(message));
   }
 
   private convertUserMessage(message: SDKUserMessage): ConvertedClaudeCodeEvent[] {
