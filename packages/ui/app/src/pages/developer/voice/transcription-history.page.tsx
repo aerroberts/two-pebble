@@ -1,4 +1,4 @@
-import { Button, Header, PageLayout, RelativeTime, Section, Select, Surface } from '@two-pebble/components';
+import { Button, Header, ListLayout, PageLayout, RelativeTime, Select } from '@two-pebble/components';
 import {
   type ThreadSnapshotCellRecord,
   type ThreadSummaryRecord,
@@ -77,37 +77,32 @@ export function TranscriptionHistoryPage() {
     <PageLayout width="fixed">
       <Header
         actionItems={
-          <div className="flex items-center gap-2">
+          <>
             <Select options={LIMIT_OPTIONS} value={limit} onChange={setLimit} />
             <Button onClick={() => void loadHistory()} type="button">
               Refresh
             </Button>
-          </div>
+          </>
         }
         subtitle="Recent speech-to-text results recorded by voice capture flows."
       >
         Transcription History
       </Header>
-      <Section title="Recent transcriptions">
-        {entries.length === 0 ? <Surface>{emptyState}</Surface> : null}
-        <div className="flex flex-col gap-2">
-          {entries.map((entry) => (
-            <Surface key={entry.id}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="mb-2 text-[12px] leading-4 text-content-muted">
-                    <RelativeTime date={entry.updatedAt} hideIcon />
-                  </div>
-                  <p className="whitespace-pre-wrap break-words text-[13px] leading-5 text-content">{entry.text}</p>
-                </div>
-                <Button onClick={() => void copyText(entry)} type="button">
-                  {copiedId === entry.id ? 'Copied' : 'Copy'}
-                </Button>
-              </div>
-            </Surface>
-          ))}
-        </div>
-      </Section>
+      <ListLayout
+        emptyState={emptyState}
+        items={entries.map((entry) => ({
+          icon: 'mic',
+          key: entry.id,
+          onClick: () => void copyText(entry),
+          subtitle: <RelativeTime date={entry.updatedAt} hideIcon />,
+          title: entry.text,
+          trailingAccessory: (
+            <Button onClick={() => void copyText(entry)} type="button">
+              {copiedId === entry.id ? 'Copied' : 'Copy'}
+            </Button>
+          ),
+        }))}
+      />
     </PageLayout>
   );
 }
