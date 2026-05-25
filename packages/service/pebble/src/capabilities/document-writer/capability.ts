@@ -1,4 +1,5 @@
 import { AgentCapability } from '../agent-capability';
+import systemPrompt from './prompts/system.md?raw';
 import { buildListDocumentsTool } from './tools/list-documents/handler';
 import { buildReadDocumentTool } from './tools/read-document/handler';
 import { buildUpdateDocumentTool } from './tools/update-document/handler';
@@ -20,6 +21,7 @@ export class DocumentWriterCapability extends AgentCapability<Record<string, nev
 
   public override hookOnRegister() {
     return {
+      system: systemPrompt,
       tools: [
         buildWriteDocumentTool(this),
         buildUpdateDocumentTool(this),

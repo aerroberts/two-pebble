@@ -4,6 +4,7 @@ import { Cell } from '../../thread';
 import type { TaskListUpdateTask } from '../../traces';
 import allTasksTerminalPrompt from './prompts/all-terminal.md?raw';
 import currentActionableTasksPrompt from './prompts/current-actionable.md?raw';
+import systemPrompt from './prompts/system.md?raw';
 import { buildMarkTaskCompleteTool } from './tools/mark-task-complete/handler';
 import { buildMarkTaskInvalidTool } from './tools/mark-task-invalid/handler';
 import { mirrorStatusToDocumentBinding, syncTasksFromDocumentBinding } from './utils/document-binding';
@@ -57,6 +58,7 @@ export class ProgressiveTaskListCapability extends AgentCapability<ProgressiveTa
    */
   public override hookOnRegister() {
     return {
+      system: systemPrompt,
       tools: [buildMarkTaskCompleteTool(this), buildMarkTaskInvalidTool(this)],
     };
   }

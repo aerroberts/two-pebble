@@ -2,6 +2,7 @@ import { AgentExitHook, ToolResponse } from '../../agent';
 import type { AgentStatus } from '../../agent/types';
 import { Cell, type DataCells } from '../../thread';
 import { AgentCapability } from '../agent-capability';
+import systemPrompt from './prompts/system.md?raw';
 import { buildCompleteTaskTool } from './tools/complete-task/handler';
 import { buildFailTaskTool } from './tools/fail-task/handler';
 import { buildSubmitDeliverableTool } from './tools/submit-deliverable/handler';
@@ -68,6 +69,7 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
    */
   public override hookOnRegister(_config: TaskLifecycleCapabilityConfig) {
     return {
+      system: systemPrompt,
       tools: [buildSubmitDeliverableTool(this), buildCompleteTaskTool(this), buildFailTaskTool(this)],
     };
   }

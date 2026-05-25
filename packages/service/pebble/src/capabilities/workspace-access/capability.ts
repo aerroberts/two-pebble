@@ -1,4 +1,5 @@
 import { AgentCapability } from '../agent-capability';
+import systemPrompt from './prompts/system.md?raw';
 import { buildBashTool } from './tools/bash/handler';
 import { buildCreateFileTool } from './tools/create-file/handler';
 import { buildEditFileTool } from './tools/edit-file/handler';
@@ -24,6 +25,7 @@ export class WorkspaceAccessCapability extends AgentCapability {
    */
   public override hookOnRegister() {
     return {
+      system: systemPrompt,
       tools: [
         buildBashTool(this),
         buildReadFileTool(this),

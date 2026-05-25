@@ -60,7 +60,7 @@ interface SignalTestRuntime {
   signals: MemorySignalOperations;
 }
 
-function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
+export function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
   return {
     agent: { setName: async () => undefined },
     documents: {

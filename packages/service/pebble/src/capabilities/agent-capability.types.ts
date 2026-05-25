@@ -13,5 +13,6 @@ export interface CapabilityState<T> {
 }
 
 export interface RegisterHookResult {
+  system: string;
   tools: AgentTool[];
 }

@@ -68,7 +68,7 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
    * Runs after the capability is freshly registered, and again in re-hydration to rebuild tools, though some tools might be discarded
    */
   public hookOnRegister(_config: TConfig): RegisterHookResult {
-    return { tools: [] };
+    return { system: '', tools: [] };
   }
 
   /**

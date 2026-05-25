@@ -20,6 +20,7 @@ export class SignalTestCapability extends AgentCapability {
    */
   public override hookOnRegister() {
     return {
+      system: 'Signal test capability system prompt.',
       tools: [
         new NativeTool({
           description: 'Register a test signal.',

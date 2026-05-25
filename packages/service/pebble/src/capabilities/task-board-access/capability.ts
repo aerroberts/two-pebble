@@ -1,5 +1,6 @@
 import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
+import systemPrompt from './prompts/system.md?raw';
 import taskDescriptionGuidancePrompt from './prompts/task-description-guidance.md?raw';
 import { buildCreateTaskTool } from './tools/create-task/handler';
 import { buildDescribeTaskBoardTool } from './tools/describe-task-board/handler';
@@ -50,6 +51,7 @@ export class TaskBoardAccessCapability extends AgentCapability<TaskBoardAccessCa
    */
   public override hookOnRegister(_config: TaskBoardAccessCapabilityConfig) {
     return {
+      system: systemPrompt,
       tools: [
         buildDescribeTaskBoardTool(this),
         buildCreateTaskTool(this),

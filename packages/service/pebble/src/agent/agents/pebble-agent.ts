@@ -116,6 +116,7 @@ export class PebbleAgent extends Agent {
 
     // On fresh launch, we run this hook and handle new tools
     const registration = capability.hookOnRegister(config);
+    this.registerCapabilitySystemPrompt(capability, registration.system);
     for (const tool of registration.tools) {
       this.registerTool(capability, tool);
     }
@@ -135,6 +136,14 @@ export class PebbleAgent extends Agent {
     tool.initialize(this);
     this.agentTools.push({ capabilityId: capability.id, tool });
     this.thread.pushUser(`Tool Registration: ${tool.id}`, ...tool.describe());
+  }
+
+  private registerCapabilitySystemPrompt(capability: AgentCapability, system: string): void {
+    const prompt = system.trim();
+    if (prompt.length === 0) {
+      return;
+    }
+    this.thread.pushSystem(`Capability System Prompt: ${capability.id}`, Cell.text(prompt));
   }
 
   /**

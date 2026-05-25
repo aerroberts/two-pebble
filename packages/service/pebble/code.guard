@@ -18,6 +18,16 @@
         }
       }
     },
+    // Every capability owns a system prompt file. The required
+    // RegisterHookResult.system type enforces that hookOnRegister supplies
+    // a system string at compile time.
+    {
+      "find": "src/capabilities/*/prompts/system.md",
+      "asserts": {
+        "exists": true,
+        "type": "file"
+      }
+    },
     // Capability folders must not contain direct TypeScript files other than capability.ts. Move schemas, helpers, tests, and prompt text into subfolders.
     {
       "find": "src/capabilities/*/*.ts",

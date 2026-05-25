@@ -4,6 +4,7 @@ import type { DataCells } from '../../thread';
 import { Cell } from '../../thread';
 import type { ParentMessageDirection } from '../../traces';
 import { AgentCapability } from '../agent-capability';
+import systemPrompt from './prompts/system.md?raw';
 import { buildAskParentAgentTool } from './tools/ask-parent-agent/handler';
 import { buildNotifyParentAgentTool } from './tools/notify-parent-agent/handler';
 import { buildReadParentAgentMessagesTool } from './tools/read-parent-agent-messages/handler';
@@ -43,6 +44,7 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
    */
   public override hookOnRegister() {
     return {
+      system: systemPrompt,
       tools: [
         buildNotifyParentAgentTool(this),
         buildAskParentAgentTool(this),

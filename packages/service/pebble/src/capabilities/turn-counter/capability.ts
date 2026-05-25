@@ -1,4 +1,5 @@
 import { AgentCapability } from '../agent-capability';
+import systemPrompt from './prompts/system.md?raw';
 import type { TurnCounterCapabilityConfig } from './utils/types';
 
 /**
@@ -19,6 +20,13 @@ export class TurnCounterCapability extends AgentCapability<TurnCounterCapability
     if (typeof config.start === 'number') {
       this.countSlot.set(config.start);
     }
+  }
+
+  public override hookOnRegister() {
+    return {
+      system: systemPrompt,
+      tools: [],
+    };
   }
 
   /**

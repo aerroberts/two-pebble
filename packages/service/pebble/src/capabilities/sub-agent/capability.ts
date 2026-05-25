@@ -4,6 +4,7 @@ import { Cell } from '../../thread';
 import { AgentCapability } from '../agent-capability';
 import lifecyclePrimerPrompt from './prompts/lifecycle-primer.md?raw';
 import nextActionGuidePrompt from './prompts/next-action-guide.md?raw';
+import systemPrompt from './prompts/system.md?raw';
 import { buildAskSubAgentTool } from './tools/ask-sub-agent/handler';
 import { buildKillSubAgentTool } from './tools/kill-sub-agent/handler';
 import { buildListSubAgentsTool } from './tools/list-sub-agents/handler';
@@ -66,6 +67,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   public override hookOnRegister(config: SubAgentCapabilityConfig) {
     this.referencesValue = readReferences(config);
     return {
+      system: systemPrompt,
       tools: [
         buildSpawnSubAgentTool(this),
         buildListSubAgentsTool(this),

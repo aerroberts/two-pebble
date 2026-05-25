@@ -1,4 +1,5 @@
 import { AgentCapability } from '../agent-capability';
+import systemPrompt from './prompts/system.md?raw';
 import { buildSetAgentNameTool } from './tools/set-agent-name/handler';
 
 /**
@@ -15,6 +16,7 @@ export class AgentNamingCapability extends AgentCapability<Record<string, never>
 
   public override hookOnRegister() {
     return {
+      system: systemPrompt,
       tools: [buildSetAgentNameTool(this)],
     };
   }
