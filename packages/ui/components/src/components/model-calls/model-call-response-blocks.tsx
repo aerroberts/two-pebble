@@ -56,9 +56,15 @@ function renderModelCallResponseBlock(block: ModelCallResponseBlock) {
     case 'tool':
       return (
         <div className="flex flex-col gap-2">
-          <div className="font-mono text-xs text-content-muted">
-            {block.toolid}
-            {block.callid.length > 0 ? ` / ${block.callid}` : ''}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+            <span className="uppercase tracking-[0.08em] text-content-muted">Tool</span>
+            <span className="font-mono text-content">{block.toolid}</span>
+            {block.callid.length > 0 ? (
+              <>
+                <span className="uppercase tracking-[0.08em] text-content-muted">Call ID</span>
+                <span className="font-mono text-content-muted">{block.callid}</span>
+              </>
+            ) : null}
           </div>
           <CodeBlock content={stringifyJsonForDisplay(block.payload)} language="json" />
         </div>
