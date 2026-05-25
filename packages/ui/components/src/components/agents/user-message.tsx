@@ -84,7 +84,9 @@ function DocumentPill(props: { documentId: string; name: string }) {
       className="inline-flex w-fit items-center gap-1 rounded-md border border-border bg-surface-alt px-1.5 py-0.5 text-[11px] font-medium text-content"
       data-document-id={props.documentId}
     >
-      <span aria-hidden="true">@</span>
+      <span aria-hidden="true" className="text-content-muted">
+        doc:
+      </span>
       {props.name.length > 0 ? props.name : 'document'}
     </span>
   );
@@ -96,7 +98,9 @@ function BoardPill(props: { boardId: string; name: string }) {
       className="inline-flex w-fit items-center gap-1 rounded-md border border-border bg-surface-alt px-1.5 py-0.5 text-[11px] font-medium text-content"
       data-board-id={props.boardId}
     >
-      <span aria-hidden="true">#</span>
+      <span aria-hidden="true" className="text-content-muted">
+        board:
+      </span>
       {props.name.length > 0 ? props.name : 'board'}
     </span>
   );
