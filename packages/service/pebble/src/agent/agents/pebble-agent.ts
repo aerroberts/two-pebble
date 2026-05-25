@@ -18,6 +18,14 @@ import type {
 } from '../types';
 import type { ToolResultThreadEventInput } from './pebble-agent-runtime-types';
 
+const PEBBLE_SYSTEM_PROMPT = [
+  'You are a Pebble agent — a structured agent running inside the Two Pebble runtime.',
+  '',
+  'The runtime composes your context as a sequence of role-tagged cells: a Pebble system prompt (this one), an Agent system prompt that defines your specific role, optional Capability system prompts that describe additional capabilities available to you, and ongoing user/assistant messages.',
+  '',
+  'You interact with the world exclusively through the tools registered against your capabilities. The runtime relays your tool calls, returns results, and tracks task state on your behalf. Your job is to follow your Agent system prompt, use the available tools accurately, and communicate clearly.',
+].join('\n');
+
 /**
  * Pebble agents are those built into our system to allow higher level actions and orchestration.
  * They allow capabilities to be registered and tools to be registered and used by the agent.
@@ -53,8 +61,15 @@ export class PebbleAgent extends Agent {
       });
     });
 
-    if (config.restoredThread === undefined && config.systemPrompt !== undefined && config.systemPrompt.length > 0) {
-      this.thread.pushSystem('System Prompt', Cell.text(config.systemPrompt));
+    if (config.restoredThread === undefined) {
+      this.thread.pushSystem('Pebble System Prompt', Cell.header1('Pebble System Prompt'), Cell.text(PEBBLE_SYSTEM_PROMPT));
+      if (config.systemPrompt !== undefined && config.systemPrompt.length > 0) {
+        this.thread.pushSystem(
+          'Agent System Prompt',
+          Cell.header1('Agent System Prompt'),
+          Cell.text(config.systemPrompt),
+        );
+      }
     }
 
     this.on('message', () => this.onIncomingMessage());
