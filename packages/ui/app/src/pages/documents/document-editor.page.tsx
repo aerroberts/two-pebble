@@ -5,41 +5,87 @@ import {
   Header,
   IconButton,
   PageLayout,
-  type SlashCommand,
-  SlashCommandPopover,
   type SlashTrigger,
   Surface,
   TipTapEditor,
   Tooltip,
 } from '@two-pebble/components';
-import { useCallback, useState } from 'react';
+import { useDocuments, useTaskBoards } from '@two-pebble/realtime';
+import { useCallback, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { DocumentAgentPills } from './document-agent-pills';
+import { DocumentInsertPopover, type DocumentInsertSelection } from './document-insert-popover';
 import { useDocumentEditorPageState } from './use-document-editor-page-state';
 
-const DOCUMENT_SLASH_COMMANDS: SlashCommand[] = [
-  {
-    id: 'task',
-    label: 'Task',
-    description: 'Add a checklist item',
-    icon: 'list-todo',
-  },
-];
+interface ReferenceItem {
+  id: string;
+  name: string;
+}
 
 export function DocumentEditorPage() {
   const state = useDocumentEditorPageState();
   const [editor, setEditor] = useState<Editor | null>(null);
   const [slashTrigger, setSlashTrigger] = useState<SlashTrigger | null>(null);
+  const documents = useDocuments();
+  const boards = useTaskBoards();
 
-  const handleSlashSelect = useCallback(
-    (command: SlashCommand) => {
+  const documentItems = useMemo<ReferenceItem[]>(() => {
+    const value = documents.value;
+    if (value === null) {
+      return [];
+    }
+    const rows: ReferenceItem[] = [];
+    for (const entry of value.values()) {
+      if (entry.value !== null && entry.value.id !== state.documentId) {
+        rows.push({ id: entry.value.id, name: entry.value.name });
+      }
+    }
+    rows.sort((left, right) => left.name.localeCompare(right.name));
+    return rows;
+  }, [documents.value, state.documentId]);
+
+  const boardItems = useMemo<ReferenceItem[]>(() => {
+    const value = boards.value;
+    if (value === null) {
+      return [];
+    }
+    const rows: ReferenceItem[] = [];
+    for (const entry of value.values()) {
+      if (entry.value !== null) {
+        rows.push({ id: entry.value.id, name: entry.value.name });
+      }
+    }
+    rows.sort((left, right) => left.name.localeCompare(right.name));
+    return rows;
+  }, [boards.value]);
+
+  const handleInsertSelect = useCallback(
+    (selection: DocumentInsertSelection) => {
       if (editor === null || slashTrigger === null) {
         setSlashTrigger(null);
         return;
       }
-      if (command.id === 'task') {
-        deleteTriggerRange(editor, slashTrigger);
+      deleteTriggerRange(editor, slashTrigger);
+      if (selection.kind === 'task') {
         editor.chain().focus().insertTodoItem({ text: slashTrigger.query }).run();
+      } else if (selection.kind === 'document') {
+        editor
+          .chain()
+          .focus()
+          .insertContent([
+            { type: 'documentMention', attrs: { documentId: selection.item.id, name: selection.item.name } },
+            { type: 'text', text: ' ' },
+          ])
+          .run();
+      } else {
+        editor
+          .chain()
+          .focus()
+          .insertContent([
+            { type: 'boardMention', attrs: { boardId: selection.item.id, name: selection.item.name } },
+            { type: 'text', text: ' ' },
+          ])
+          .run();
       }
       setSlashTrigger(null);
     },
@@ -106,12 +152,13 @@ export function DocumentEditorPage() {
             onEditorReady={setEditor}
             onSlashTrigger={setSlashTrigger}
           />
-          <SlashCommandPopover
+          <DocumentInsertPopover
             anchorLeft={slashTrigger?.anchorLeft ?? 0}
             anchorTop={slashTrigger?.anchorTop ?? 0}
-            commands={DOCUMENT_SLASH_COMMANDS}
+            boards={boardItems}
+            documents={documentItems}
             onCancel={() => setSlashTrigger(null)}
-            onSelect={handleSlashSelect}
+            onSelect={handleInsertSelect}
             open={slashTrigger !== null}
             query={slashTrigger?.command ?? ''}
           />

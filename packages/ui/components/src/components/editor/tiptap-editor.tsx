@@ -5,6 +5,8 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useRef } from 'react';
+import { BoardMentionNode } from '../input/rich-message-composer/board-mention-node';
+import { DocumentMentionNode } from '../input/rich-message-composer/document-mention-node';
 import { readActiveSlashTrigger, type SlashTrigger } from './slash/slash-trigger';
 import { TodoItemNode } from './todo-item-node';
 
@@ -49,6 +51,8 @@ export function TipTapEditor(props: TipTapEditorProps) {
       Image,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing...' }),
       TodoItemNode,
+      BoardMentionNode,
+      DocumentMentionNode,
     ],
     content: props.initialContent,
     editable: props.editable ?? true,
