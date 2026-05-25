@@ -7,6 +7,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useRef } from 'react';
 import { BoardMentionNode } from '../input/rich-message-composer/board-mention-node';
 import { DocumentMentionNode } from '../input/rich-message-composer/document-mention-node';
+import { CodeBlockLanguageNode } from './code-block-language-node';
 import { readActiveSlashTrigger, type SlashTrigger } from './slash/slash-trigger';
 import { TodoItemNode } from './todo-item-node';
 
@@ -46,7 +47,8 @@ export function TipTapEditor(props: TipTapEditorProps) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({ codeBlock: false }),
+      CodeBlockLanguageNode,
       Link.configure({ openOnClick: false }),
       Image,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing...' }),

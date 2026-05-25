@@ -700,3 +700,57 @@ body {
   pointer-events: none;
   color: var(--color-content-muted);
 }
+
+/* Prism token colors for document code blocks. Decorations applied by the
+   CodeBlockLanguageNode plugin emit `prism-token prism-token-<type>` classes
+   on inline spans. */
+.prism-token-comment,
+.prism-token-prolog,
+.prism-token-doctype,
+.prism-token-cdata {
+  color: var(--color-content-subtle);
+  font-style: italic;
+}
+.prism-token-punctuation {
+  color: var(--color-content-muted);
+}
+.prism-token-keyword,
+.prism-token-class-name,
+.prism-token-builtin {
+  color: var(--color-accent);
+}
+.prism-token-string,
+.prism-token-attr-value,
+.prism-token-char {
+  color: var(--color-success);
+}
+.prism-token-number,
+.prism-token-boolean,
+.prism-token-constant,
+.prism-token-symbol {
+  color: var(--color-danger);
+}
+.prism-token-function,
+.prism-token-tag,
+.prism-token-selector,
+.prism-token-attr-name {
+  color: var(--color-content);
+  font-weight: 500;
+}
+.prism-token-operator,
+.prism-token-entity,
+.prism-token-url {
+  color: var(--color-content-muted);
+}
+.prism-token-property,
+.prism-token-regex,
+.prism-token-important {
+  color: var(--color-warning, var(--color-danger));
+}
+.prism-token-title,
+.prism-token-bold {
+  font-weight: 600;
+}
+.prism-token-italic {
+  font-style: italic;
+}
