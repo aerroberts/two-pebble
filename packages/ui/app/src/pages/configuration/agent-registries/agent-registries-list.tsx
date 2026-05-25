@@ -1,4 +1,4 @@
-import { ClaudeCodeLogo, CodexLogo, ListLayout, ProviderLogo, Section } from '@two-pebble/components';
+import { Button, ClaudeCodeLogo, CodexLogo, ListLayout, ProviderLogo, Section } from '@two-pebble/components';
 import type {
   AgentRegistryRecord,
   InferenceProfileRecord,
@@ -11,6 +11,9 @@ interface AgentRegistriesListProps {
   inferenceProfiles: LoadableRegistry<InferenceProfileRecord>;
   installs: LoadableRegistry<ThirdPartyAgentInstallRecord>;
   onRegistryClick: (registryId: string) => void;
+  onCreatePebble: () => void;
+  onCreateFramework: () => void;
+  creating: boolean;
 }
 
 interface RegistryListItem {
@@ -29,7 +32,20 @@ export function AgentRegistriesList(props: AgentRegistriesListProps) {
 
   return (
     <>
-      <Section title="Pebble agents">
+      <Section
+        actionItems={
+          <Button
+            disabled={props.creating}
+            leftIcon="plus"
+            onClick={props.onCreatePebble}
+            type="button"
+            variant="secondary"
+          >
+            Add Pebble agent
+          </Button>
+        }
+        title="Pebble agents"
+      >
         <ListLayout
           emptyState={loading ? 'Loading agents.' : 'No Pebble agents configured.'}
           items={pebbleEntries.map((entry) =>
@@ -37,7 +53,14 @@ export function AgentRegistriesList(props: AgentRegistriesListProps) {
           )}
         />
       </Section>
-      <Section title="Framework agents">
+      <Section
+        actionItems={
+          <Button disabled={props.creating} leftIcon="plus" onClick={props.onCreateFramework} type="button">
+            Add framework agent
+          </Button>
+        }
+        title="Framework agents"
+      >
         <ListLayout
           emptyState={loading ? 'Loading agents.' : 'No framework agents configured.'}
           items={frameworkEntries.map((entry) =>
