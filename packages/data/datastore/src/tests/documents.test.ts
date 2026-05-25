@@ -19,6 +19,14 @@ describe('feature: operation documents.read', () => {
     await datastore.close();
     expect(read.id).toBe(document.id);
   });
+
+  test('archived: read throws on archived (soft-deleted) documents', async () => {
+    const datastore = await useDatastoreForTesting();
+    const document = await datastore.documents.create({ name: 'Runbook' });
+    await datastore.documents.delete({ id: document.id });
+    await expect(datastore.documents.read({ id: document.id })).rejects.toThrow(/not found/);
+    await datastore.close();
+  });
 });
 
 describe('feature: operation documents.list', () => {
