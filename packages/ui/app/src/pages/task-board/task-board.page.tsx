@@ -147,12 +147,9 @@ export function TaskBoardPage() {
             selectedTaskId={state.selectedTaskId ?? undefined}
             onSelectTask={toggleSelect}
             onRenameTask={(id: string, name: string) => void state.renameTaskFromList(id, name)}
-            onCreateTaskAfter={(input) =>
-              state.createTaskAfter({ poolId: input.poolId, name: input.name, templateId: input.templateId })
-            }
+            onCreateTaskAfter={(input) => state.createTaskAfter({ poolId: input.poolId, name: input.name })}
             onDeleteTask={(id: string) => void state.deleteTaskFromList(id)}
             emptyState="No tasks yet."
-            templateOptions={state.taskTemplates.map((template) => ({ value: template.id, label: template.name }))}
             renderTaskAccessory={(taskId) => {
               const task = state.tasks.find((entry) => entry.id === taskId);
               if (task === undefined) {
