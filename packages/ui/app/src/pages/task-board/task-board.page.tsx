@@ -114,10 +114,13 @@ export function TaskBoardPage() {
     />
   );
 
+  const detailTitle = state.selectedTask ? state.selectedTask.name || 'Untitled task' : undefined;
+
   return (
     <DataPanelLayout
       open={state.selectedTask !== null}
       panel={detailPanel}
+      title={detailTitle}
       closeable
       onClose={() => state.setSelectedTaskId(null)}
     >

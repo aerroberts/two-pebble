@@ -68,9 +68,6 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
             onChange={props.onChangeStatus}
             status={props.task.status}
           />
-          <AppBox as="h2" variant="task-detail-title">
-            {props.task.name || 'Untitled task'}
-          </AppBox>
         </AppBox>
         <AppBox variant="task-detail-actions">{renderDelegateControl(props)}</AppBox>
       </AppBox>
