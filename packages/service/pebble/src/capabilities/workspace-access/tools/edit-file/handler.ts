@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
+import type { WorkspaceAccessCapability } from '../../capability';
 import editFileToolDescription from '../../prompts/edit-file-tool-description.md?raw';
 import { resolveWorkspacePath } from '../../utils/path-safety';
 
@@ -12,13 +13,13 @@ const schema = z.object({
   replaceAll: z.boolean().optional().describe('When true, replaces every occurrence. Defaults to false.'),
 });
 
-export function buildEditFileTool(workspacePath: string) {
+export function buildEditFileTool(capability: WorkspaceAccessCapability) {
   return new NativeTool({
     description: editFileToolDescription,
     name: 'edit-file',
     schema,
   }).onInvoke(async (input) => {
-    const absolute = resolveWorkspacePath(workspacePath, input.path);
+    const absolute = resolveWorkspacePath(capability.workspacePath(), input.path);
     const original = await fs.readFile(absolute, 'utf8');
     const occurrences = countOccurrences(original, input.oldString);
     if (occurrences === 0) {

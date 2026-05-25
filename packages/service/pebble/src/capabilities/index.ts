@@ -1,3 +1,4 @@
+export { getAgentBridge, getCapabilityRunners, installAgentBridge, installCapabilityRunners } from './agent-bridge';
 export { AgentNamingCapability } from './agent-naming/capability';
 export {
   buildCapability,
@@ -14,7 +15,6 @@ export type {
   TaskInput,
   TaskStatus,
 } from './progressive-task-list/utils/types';
-export { getCapabilityRunners, installCapabilityRunners } from './runners';
 export { SubAgentCapability } from './sub-agent/capability';
 export { TaskBoardAccessCapability } from './task-board-access/capability';
 export type { TaskBoardAccessCapabilityConfig } from './task-board-access/utils/task-board-access-types';

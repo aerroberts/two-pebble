@@ -3,6 +3,7 @@ import path from 'node:path';
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
+import type { WorkspaceAccessCapability } from '../../capability';
 import createFileToolDescription from '../../prompts/create-file-tool-description.md?raw';
 import { resolveWorkspacePath } from '../../utils/path-safety';
 
@@ -11,13 +12,13 @@ const schema = z.object({
   content: z.string().describe('Contents to write.'),
 });
 
-export function buildCreateFileTool(workspacePath: string) {
+export function buildCreateFileTool(capability: WorkspaceAccessCapability) {
   return new NativeTool({
     description: createFileToolDescription,
     name: 'create-file',
     schema,
   }).onInvoke(async (input) => {
-    const absolute = resolveWorkspacePath(workspacePath, input.path);
+    const absolute = resolveWorkspacePath(capability.workspacePath(), input.path);
     await fs.mkdir(path.dirname(absolute), { recursive: true });
     try {
       await fs.writeFile(absolute, input.content, { flag: 'wx' });

@@ -9,7 +9,7 @@ import type {
 } from '../../../agent';
 import { PebbleAgent } from '../../../agent/agents/pebble-agent';
 import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
-import { installCapabilityRunners } from '../../../capabilities';
+import { installAgentBridge } from '../../../capabilities';
 import { Cell } from '../../../thread';
 import { SubAgentCapability } from '../capability';
 
@@ -213,7 +213,7 @@ function buildSubAgentCapabilityRuntime() {
       return 'agents:child123';
     },
   };
-  installCapabilityRunners(agent, {
+  installAgentBridge(agent, {
     signal,
     subAgent,
   });

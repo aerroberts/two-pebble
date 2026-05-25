@@ -1,10 +1,12 @@
-import { AgentExitHook, NativeTool, ToolResponse } from '../../agent';
-import type { TaskBoardRunner } from '../../agent/task-board-runner';
+import { AgentExitHook, ToolResponse } from '../../agent';
+import type { TaskBoardRunner } from '../../agent/agent-bridge';
 import type { AgentStatus } from '../../agent/types';
 import { Cell, type DataCells } from '../../thread';
+import { getAgentBridge } from '../agent-bridge';
 import { AgentCapability } from '../agent-capability';
-import { getCapabilityRunners } from '../runners';
-import { completeTaskSchema, failTaskSchema, submitDeliverableSchema } from './tools/task-lifecycle-schemas';
+import { buildCompleteTaskTool } from './tools/complete-task/handler';
+import { buildFailTaskTool } from './tools/fail-task/handler';
+import { buildSubmitDeliverableTool } from './tools/submit-deliverable/handler';
 import type { TaskLifecycleCapabilityConfig } from './utils/task-lifecycle-types';
 
 /**
@@ -62,66 +64,59 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
 
   /**
    * Exposes the completion tools to the model. Each tool routes through the
-   * owner-aware runner method; if the agent's id no longer matches the task
+   * owner-aware bridge method; if the agent's id no longer matches the task
    * owner (e.g. user undelegated), the call surfaces a `TaskOwnershipError`
    * back to the model so it can revise its plan.
    */
   public override hookOnRegister(_config: TaskLifecycleCapabilityConfig) {
     return {
-      tools: [
-        new NativeTool({
-          description: 'Submit one required deliverable for the assigned task.',
-          name: 'submit-deliverable',
-          schema: submitDeliverableSchema,
-        }).onInvoke(async (input) => {
-          const submission = await this.runner().submitDeliverable({
-            agentId: this.agent.agentId,
-            taskId: this.requireTaskId(),
-            deliverableId: input.deliverableId,
-            payload: input.payload,
-          });
-          this.markDeliverableSubmitted(submission.deliverableId);
-          return ToolResponse.success([Cell.text(`Submitted deliverable ${submission.deliverableId}.`)]);
-        }),
-        new NativeTool({
-          description: 'Mark the assigned task as successfully complete.',
-          name: 'complete-task',
-          schema: completeTaskSchema,
-        }).onInvoke(async (input) => {
-          await this.ensureDeliverableStateLoaded();
-          const missing = this.requiredDeliverableIdsSlot.value.filter(
-            (id) => !this.submittedDeliverableIdsSlot.value.includes(id),
-          );
-          if (missing.length > 0) {
-            return ToolResponse.error(`Cannot complete: deliverables not yet submitted: ${missing.join(', ')}`, [
-              Cell.text(`Cannot complete: deliverables not yet submitted: ${missing.join(', ')}`),
-            ]);
-          }
-          await this.runner().setOwnedTaskStatus({
-            agentId: this.agent.agentId,
-            taskId: this.requireTaskId(),
-            status: 'success',
-            reason: input.reason ?? 'agent marked task complete',
-          });
-          this.completedSlot.set(true);
-          return ToolResponse.success([Cell.text('Task marked as success. You can exit now.')]);
-        }),
-        new NativeTool({
-          description: 'Mark the assigned task as failed. Use only when the task cannot be completed.',
-          name: 'fail-task',
-          schema: failTaskSchema,
-        }).onInvoke(async (input) => {
-          await this.runner().setOwnedTaskStatus({
-            agentId: this.agent.agentId,
-            taskId: this.requireTaskId(),
-            status: 'failure',
-            reason: input.reason,
-          });
-          this.completedSlot.set(true);
-          return ToolResponse.success([Cell.text('Task marked as failure. You can exit now.')]);
-        }),
-      ],
+      tools: [buildSubmitDeliverableTool(this), buildCompleteTaskTool(this), buildFailTaskTool(this)],
     };
+  }
+
+  public async submitDeliverable(input: {
+    deliverableId: string;
+    payload: { type: 'text'; content: string } | { type: 'pr_url'; url: string };
+  }) {
+    const submission = await this.runner().submitDeliverable({
+      agentId: this.agent.agentId,
+      taskId: this.requireTaskId(),
+      deliverableId: input.deliverableId,
+      payload: input.payload,
+    });
+    this.markDeliverableSubmitted(submission.deliverableId);
+    return ToolResponse.success([Cell.text(`Submitted deliverable ${submission.deliverableId}.`)]);
+  }
+
+  public async completeTask(reason: string | undefined) {
+    await this.ensureDeliverableStateLoaded();
+    const missing = this.requiredDeliverableIdsSlot.value.filter(
+      (id) => !this.submittedDeliverableIdsSlot.value.includes(id),
+    );
+    if (missing.length > 0) {
+      return ToolResponse.error(`Cannot complete: deliverables not yet submitted: ${missing.join(', ')}`, [
+        Cell.text(`Cannot complete: deliverables not yet submitted: ${missing.join(', ')}`),
+      ]);
+    }
+    await this.runner().setOwnedTaskStatus({
+      agentId: this.agent.agentId,
+      taskId: this.requireTaskId(),
+      status: 'success',
+      reason: reason ?? 'agent marked task complete',
+    });
+    this.completedSlot.set(true);
+    return ToolResponse.success([Cell.text('Task marked as success. You can exit now.')]);
+  }
+
+  public async failTask(reason: string) {
+    await this.runner().setOwnedTaskStatus({
+      agentId: this.agent.agentId,
+      taskId: this.requireTaskId(),
+      status: 'failure',
+      reason,
+    });
+    this.completedSlot.set(true);
+    return ToolResponse.success([Cell.text('Task marked as failure. You can exit now.')]);
   }
 
   /**
@@ -142,7 +137,7 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
    * `running → waiting` flips the task to `waiting`; `waiting → running`
    * flips it back to `working`. Terminal agent edges (failed/offline) are
    * left to the existing `syncOwnedTasksFromAgentStatus` safety net since
-   * the capability cannot guarantee the runner is still wired at that point.
+   * the capability cannot guarantee the bridge is still wired at that point.
    */
   public override hookOnAgentStatusChange(previous: AgentStatus, next: AgentStatus): void {
     if (this.completedSlot.value) {
@@ -176,9 +171,9 @@ export class TaskLifecycleCapability extends AgentCapability<TaskLifecycleCapabi
   }
 
   private runner(): TaskBoardRunner {
-    const runner = getCapabilityRunners(this.agent).taskBoard;
+    const runner = getAgentBridge(this.agent).taskBoard;
     if (runner === undefined) {
-      throw new Error('task-board runner is not installed.');
+      throw new Error('task-board bridge is not installed.');
     }
     return runner;
   }

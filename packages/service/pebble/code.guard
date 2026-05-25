@@ -33,7 +33,13 @@
       "find": "src/capabilities/*/capability.ts",
       "asserts": {
         "exists": true,
-        "type": "file"
+        "type": "file",
+        // Capabilities own state, lifecycle hooks, and tool registration order only.
+        // Tool construction belongs in tools/<tool-name>/handler.ts so schemas,
+        // descriptions, and invoke behavior stay together and are easy to review.
+        "content": {
+          "lacks": ["new NativeTool", "new CliTool", "new AgentTool", ".onInvoke("]
+        }
       }
     },
     // Capability folders must not contain direct TypeScript files other than capability.ts. Move schemas, helpers, tests, and prompt text into subfolders.
@@ -42,6 +48,29 @@
       "exclude": "src/capabilities/*/capability.ts",
       "asserts": {
         "exists": false
+      }
+    },
+    // Capability tool modules live one folder per tool. Do not put schemas,
+    // indexes, or shared modules directly under tools/; move shared helpers
+    // to utils/ and keep each concrete tool in tools/<tool-name>/handler.ts.
+    {
+      "find": "src/capabilities/*/tools/*.ts",
+      "asserts": {
+        "exists": false
+      }
+    },
+    // Every concrete tool handler owns the tool's schema, creates the tool,
+    // and attaches its invoke behavior. The exported builder accepts the
+    // capability object so handlers can use capability state without reaching
+    // around the capability abstraction.
+    {
+      "find": "src/capabilities/*/tools/*/handler.ts",
+      "asserts": {
+        "exists": true,
+        "type": "file",
+        "content": {
+          "includes": ["const schema", "export function build", ".onInvoke"]
+        }
       }
     },
     // Capability prompt folders must contain Markdown files only.

@@ -2,7 +2,7 @@ import { expect } from 'bun:test';
 import type { RegisterSignalInput, ResolveSignalInput, SendSignalInput, SignalRunner } from '../../../agent';
 import { PebbleAgent } from '../../../agent/agents/pebble-agent';
 import { SignalTestProvider } from '../../../agent/agents/signal-test-provider';
-import { installCapabilityRunners } from '../../../capabilities';
+import { installAgentBridge } from '../../../capabilities';
 import { Cell } from '../../../thread';
 import type { PebbleAgentTrace } from '../../../traces';
 import { ParentLinkCapability } from '../capability';
@@ -124,7 +124,7 @@ function buildParentLinkRuntime() {
     },
     snapshot: async () => ({ openAwaited: [], received: [] }),
   };
-  installCapabilityRunners(agent, { signal });
+  installAgentBridge(agent, { signal });
   capability.attach(agent);
   capability.initialize({ parentAgentId: 'agents:parent123' });
   const tools = capability.hookOnRegister().tools;

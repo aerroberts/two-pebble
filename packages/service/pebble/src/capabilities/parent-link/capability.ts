@@ -1,10 +1,13 @@
 import type { AgentSignal } from '../../agent';
-import { AgentExitHook, NativeTool, ToolResponse } from '../../agent';
+import { AgentExitHook, ToolResponse } from '../../agent';
 import type { DataCells } from '../../thread';
 import { Cell } from '../../thread';
 import type { ParentMessageDirection } from '../../traces';
 import { AgentCapability } from '../agent-capability';
-import { notifyParentSchema, parentMessageSchema, readParentMessagesSchema } from './tools/parent-link-schemas';
+import { buildAskParentAgentTool } from './tools/ask-parent-agent/handler';
+import { buildNotifyParentAgentTool } from './tools/notify-parent-agent/handler';
+import { buildReadParentAgentMessagesTool } from './tools/read-parent-agent-messages/handler';
+import { buildRespondToParentAgentTool } from './tools/respond-to-parent-agent/handler';
 import { objectData, stringField } from './utils/parent-link-signal-data';
 import type { ParentLinkCapabilityConfig, PendingParentResponse } from './utils/parent-link-types';
 
@@ -41,46 +44,10 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
   public override hookOnRegister() {
     return {
       tools: [
-        new NativeTool({
-          description: 'Send a message to the parent agent.',
-          name: 'notify-parent-agent',
-          schema: notifyParentSchema,
-        }).onInvoke((input) => this.notifyParent(input.message, input.expectsReply === true)),
-        new NativeTool({
-          description: 'Ask the parent agent a question and wait for its reply.',
-          name: 'ask-parent-agent',
-          schema: parentMessageSchema,
-        }).onInvoke((input) => this.askParent(input.message)),
-        new NativeTool({
-          description: 'Read queued parent messages without waiting.',
-          name: 'read-parent-agent-messages',
-          schema: readParentMessagesSchema,
-        }).onInvoke(() =>
-          ToolResponse.success([Cell.text('No queued parent messages. Signal responses resume the agent.')]),
-        ),
-        new NativeTool({
-          description: 'Respond to the parent agent.',
-          name: 'respond-to-parent-agent',
-          schema: parentMessageSchema,
-        }).onInvoke(async (input) => {
-          const pending = this.pendingParentResponseSlot.value;
-          if (pending === null) {
-            return ToolResponse.error('No parent response is pending.', [Cell.text('No parent response is pending.')]);
-          }
-          const data = {
-            childAgentId: this.agent.agentId,
-            message: input.message,
-            type: 'sub-agent-response' as const,
-          };
-          await this.resolveSignal({
-            agentId: pending.parentAgentId,
-            capabilityId: pending.parentCapabilityId,
-            data,
-            signalId: pending.responseSignalId,
-          });
-          this.pendingParentResponseSlot.set(null);
-          return ToolResponse.success([Cell.text('Sent response to parent.')]);
-        }),
+        buildNotifyParentAgentTool(this),
+        buildAskParentAgentTool(this),
+        buildReadParentAgentMessagesTool(this),
+        buildRespondToParentAgentTool(this),
       ],
     };
   }
@@ -168,7 +135,7 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     throw new Error('parent-link capability does not know its parent agent yet.');
   }
 
-  private async notifyParent(message: string, expectsReply: boolean) {
+  public async notifyParent(message: string, expectsReply: boolean) {
     if (expectsReply) {
       return this.askParent(message);
     }
@@ -186,7 +153,7 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     return ToolResponse.success([Cell.text('Sent message to parent.')]);
   }
 
-  private async askParent(message: string) {
+  public async askParent(message: string) {
     const signalId = await this.registerSignal({
       description: 'Wait for parent agent to answer.',
       name: 'Parent response',
@@ -199,6 +166,25 @@ export class ParentLinkCapability extends AgentCapability<ParentLinkCapabilityCo
     }
     await this.sendAskParentSignal(message, signalId);
     return ToolResponse.success([Cell.text('Asked parent agent and waiting for a response.')]);
+  }
+
+  public async respondToParent(message: string) {
+    const pending = this.pendingParentResponseSlot.value;
+    if (pending === null) {
+      return ToolResponse.error('No parent response is pending.', [Cell.text('No parent response is pending.')]);
+    }
+    await this.resolveSignal({
+      agentId: pending.parentAgentId,
+      capabilityId: pending.parentCapabilityId,
+      data: {
+        childAgentId: this.agent.agentId,
+        message,
+        type: 'sub-agent-response',
+      },
+      signalId: pending.responseSignalId,
+    });
+    this.pendingParentResponseSlot.set(null);
+    return ToolResponse.success([Cell.text('Sent response to parent.')]);
   }
 
   private async sendAskParentSignal(message: string, responseSignalId: string): Promise<void> {

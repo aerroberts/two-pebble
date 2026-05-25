@@ -1,11 +1,11 @@
+import type { AgentSignal, RegisterSignalInput, ResolveSignalInput, SendSignalInput } from '../agent/agent-bridge';
 import type { PebbleAgent } from '../agent/agents/pebble-agent';
 import { AgentExitHook } from '../agent/hooks/agent-exit-hook';
 import { EarlyExit } from '../agent/hooks/early-exit';
-import type { AgentSignal, RegisterSignalInput, ResolveSignalInput, SendSignalInput } from '../agent/signal-runner';
 import type { AgentStatus } from '../agent/types';
 import type { PebbleJsonValue } from '../types';
+import { getAgentBridge } from './agent-bridge';
 import type { CapabilityState, RegisterHookResult } from './agent-capability.types';
-import { getCapabilityRunners } from './runners';
 
 /**
  * Base class for Pebble runtime capabilities.
@@ -153,7 +153,7 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
   }
 
   protected async registerSignal(input: Omit<RegisterSignalInput, 'capabilityId'>): Promise<string> {
-    const signalId = await this.requireSignalRunner().register({ ...input, capabilityId: this.id });
+    const signalId = await this.requireSignalBridge().register({ ...input, capabilityId: this.id });
     this.agent.emit('trace', {
       type: 'signal-registered',
       data: {
@@ -169,18 +169,18 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
   }
 
   protected async sendSignal(input: SendSignalInput): Promise<void> {
-    await this.requireSignalRunner().send(input);
+    await this.requireSignalBridge().send(input);
   }
 
   protected async resolveSignal(input: ResolveSignalInput): Promise<void> {
-    await this.requireSignalRunner().resolve(input);
+    await this.requireSignalBridge().resolve(input);
   }
 
-  private requireSignalRunner() {
-    const runner = getCapabilityRunners(this.agent).signal;
-    if (runner === undefined) {
-      throw new Error('signal runner is not installed.');
+  private requireSignalBridge() {
+    const bridge = getAgentBridge(this.agent).signal;
+    if (bridge === undefined) {
+      throw new Error('signal bridge is not installed.');
     }
-    return runner;
+    return bridge;
   }
 }

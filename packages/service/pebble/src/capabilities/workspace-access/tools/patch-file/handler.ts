@@ -4,6 +4,7 @@ import { applyPatch } from 'diff';
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
+import type { WorkspaceAccessCapability } from '../../capability';
 import patchFileToolDescription from '../../prompts/patch-file-tool-description.md?raw';
 import { resolveWorkspacePath } from '../../utils/path-safety';
 
@@ -12,13 +13,13 @@ const schema = z.object({
   patch: z.string().describe('Unified diff to apply. Standard `diff -u` format with --- / +++ headers and @@ hunks.'),
 });
 
-export function buildPatchFileTool(workspacePath: string) {
+export function buildPatchFileTool(capability: WorkspaceAccessCapability) {
   return new NativeTool({
     description: patchFileToolDescription,
     name: 'patch-file',
     schema,
   }).onInvoke(async (input) => {
-    const absolute = resolveWorkspacePath(workspacePath, input.path);
+    const absolute = resolveWorkspacePath(capability.workspacePath(), input.path);
     let original: string;
     try {
       original = await fs.readFile(absolute, 'utf8');

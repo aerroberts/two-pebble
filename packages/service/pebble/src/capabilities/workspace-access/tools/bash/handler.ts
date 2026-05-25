@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { z } from 'zod/v4';
 import { NativeTool, ToolResponse } from '../../../../agent';
 import { Cell } from '../../../../thread';
+import type { WorkspaceAccessCapability } from '../../capability';
 import bashToolDescription from '../../prompts/bash-tool-description.md?raw';
 
 const MAX_OUTPUT_CHARS = 3000;
@@ -19,7 +20,7 @@ const schema = z.object({
     .describe(`Optional timeout in ms. Defaults to ${DEFAULT_TIMEOUT_MS}, capped at ${MAX_TIMEOUT_MS}.`),
 });
 
-export function buildBashTool(workspacePath: string) {
+export function buildBashTool(capability: WorkspaceAccessCapability) {
   return new NativeTool({
     description: bashToolDescription
       .replace('{{maxOutputChars}}', String(MAX_OUTPUT_CHARS))
@@ -29,7 +30,7 @@ export function buildBashTool(workspacePath: string) {
     schema,
   }).onInvoke(async (input) => {
     const timeoutMs = Math.min(input.timeoutMs ?? DEFAULT_TIMEOUT_MS, MAX_TIMEOUT_MS);
-    const result = await runBash(input.command, workspacePath, timeoutMs);
+    const result = await runBash(input.command, capability.workspacePath(), timeoutMs);
     return ToolResponse.success([
       Cell.text(
         [

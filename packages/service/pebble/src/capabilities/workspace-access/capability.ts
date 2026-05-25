@@ -23,16 +23,19 @@ export class WorkspaceAccessCapability extends AgentCapability {
    * selection stay consistent across tools.
    */
   public override hookOnRegister() {
-    const workspacePath = this.agent.workspacePath;
     return {
       tools: [
-        buildBashTool(workspacePath),
-        buildReadFileTool(workspacePath),
-        buildCreateFileTool(workspacePath),
-        buildWriteFileTool(workspacePath),
-        buildEditFileTool(workspacePath),
-        buildPatchFileTool(workspacePath),
+        buildBashTool(this),
+        buildReadFileTool(this),
+        buildCreateFileTool(this),
+        buildWriteFileTool(this),
+        buildEditFileTool(this),
+        buildPatchFileTool(this),
       ],
     };
+  }
+
+  public workspacePath(): string {
+    return this.agent.workspacePath;
   }
 }
