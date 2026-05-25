@@ -1,41 +1,37 @@
 import type { ClientProtocol } from '@two-pebble/protocol';
 import { WsBridgeClient } from '@two-pebble/ws-bridge';
 import type { Command } from 'commander';
-import { DEFAULT_DAEMON_PORT, daemonUrlForPort } from '../consts';
+import { DAEMON_URL } from '../consts';
 
-interface SharedOptions {
-  port?: string;
-}
-
-interface BoardCreateOptions extends SharedOptions {
+interface BoardCreateOptions {
   name: string;
 }
 
-interface PoolCreateOptions extends SharedOptions {
+interface PoolCreateOptions {
   name: string;
   board: string;
   parent?: string;
   dep?: string[];
 }
 
-interface TaskCreateOptions extends SharedOptions {
+interface TaskCreateOptions {
   name: string;
   board: string;
   pool?: string;
   dep?: string[];
 }
 
-interface SetStatusOptions extends SharedOptions {
+interface SetStatusOptions {
   task: string;
   status: string;
   reason: string;
 }
 
-interface ListOptions extends SharedOptions {
+interface ListOptions {
   board: string;
 }
 
-interface EventsOptions extends SharedOptions {
+interface EventsOptions {
   task: string;
 }
 
@@ -54,9 +50,8 @@ export function registerTaskCommand(program: Command) {
   task
     .command('board-create')
     .requiredOption('--name <name>', 'board name')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
     .action(async (options: BoardCreateOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const result = await client.do('createTaskBoard', { name: options.name });
         writeJson(result);
       }),
@@ -68,9 +63,8 @@ export function registerTaskCommand(program: Command) {
     .requiredOption('--board <boardId>', 'board id')
     .option('--parent <poolId>', 'parent pool id (defaults to board root)')
     .option('--dep <id...>', 'sibling id this pool depends on (repeatable)')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
     .action(async (options: PoolCreateOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const result = await client.do('createTaskPool', {
           boardId: options.board,
           parentPoolId: options.parent ?? null,
@@ -87,9 +81,8 @@ export function registerTaskCommand(program: Command) {
     .requiredOption('--board <boardId>', 'board id')
     .option('--pool <poolId>', 'containing pool id (defaults to board root)')
     .option('--dep <id...>', 'sibling id this task depends on (repeatable)')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
     .action(async (options: TaskCreateOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const result = await client.do('createTask', {
           boardId: options.board,
           poolId: options.pool ?? null,
@@ -105,9 +98,8 @@ export function registerTaskCommand(program: Command) {
     .requiredOption('--task <taskId>', 'task id')
     .requiredOption('--status <status>', 'one of: working, waiting, success, failure')
     .requiredOption('--reason <reason>', 'natural language reason for the status change')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
     .action(async (options: SetStatusOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const result = await client.do('setTaskStatus', {
           id: options.task,
           status: parseStatus(options.status),
@@ -120,9 +112,8 @@ export function registerTaskCommand(program: Command) {
   task
     .command('list')
     .requiredOption('--board <boardId>', 'board id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
     .action(async (options: ListOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const result = await client.do('listTasks', { boardId: options.board });
         writeJson(result);
       }),
@@ -131,9 +122,8 @@ export function registerTaskCommand(program: Command) {
   task
     .command('events')
     .requiredOption('--task <taskId>', 'task id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
     .action(async (options: EventsOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const result = await client.do('listTaskEvents', { taskId: options.task });
         writeJson(result);
       }),
@@ -142,9 +132,8 @@ export function registerTaskCommand(program: Command) {
   task
     .command('board-list')
     .description('List every task board')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions) =>
-      runAction(options, async (client) => {
+    .action(async () =>
+      runAction(async (client) => {
         const result = await client.do('listTaskBoards', {});
         writeJson(result);
       }),
@@ -153,9 +142,8 @@ export function registerTaskCommand(program: Command) {
   task
     .command('board-delete')
     .requiredOption('--board <boardId>', 'board id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { board: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { board: string }) =>
+      runAction(async (client) => {
         const result = await client.do('deleteTaskBoard', { id: options.board });
         writeJson(result);
       }),
@@ -164,9 +152,8 @@ export function registerTaskCommand(program: Command) {
   task
     .command('pool-delete')
     .requiredOption('--pool <poolId>', 'pool id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { pool: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { pool: string }) =>
+      runAction(async (client) => {
         const result = await client.do('deleteTaskPool', { id: options.pool });
         writeJson(result);
       }),
@@ -176,9 +163,8 @@ export function registerTaskCommand(program: Command) {
     .command('delete')
     .description('Delete a task')
     .requiredOption('--task <taskId>', 'task id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { task: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { task: string }) =>
+      runAction(async (client) => {
         const result = await client.do('deleteTask', { id: options.task });
         writeJson(result);
       }),
@@ -188,9 +174,8 @@ export function registerTaskCommand(program: Command) {
     .command('rename')
     .requiredOption('--task <taskId>', 'task id')
     .requiredOption('--name <name>', 'new task name')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { task: string; name: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { task: string; name: string }) =>
+      runAction(async (client) => {
         const result = await client.do('renameTask', { id: options.task, name: options.name });
         writeJson(result);
       }),
@@ -200,9 +185,8 @@ export function registerTaskCommand(program: Command) {
     .command('set-description')
     .requiredOption('--task <taskId>', 'task id')
     .requiredOption('--description <text>', 'new task description (natural language)')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { task: string; description: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { task: string; description: string }) =>
+      runAction(async (client) => {
         const result = await client.do('updateTaskDescription', {
           id: options.task,
           description: options.description,
@@ -216,9 +200,8 @@ export function registerTaskCommand(program: Command) {
     .description('Delegate a task to a runtime agent built from the named registry')
     .requiredOption('--task <taskId>', 'task id')
     .requiredOption('--registry <registryId>', 'agent registry id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { task: string; registry: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { task: string; registry: string }) =>
+      runAction(async (client) => {
         const result = await client.do('delegateTask', {
           taskId: options.task,
           agentRegistryId: options.registry,
@@ -230,9 +213,8 @@ export function registerTaskCommand(program: Command) {
   task
     .command('undelegate')
     .requiredOption('--task <taskId>', 'task id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { task: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { task: string }) =>
+      runAction(async (client) => {
         const result = await client.do('undelegateTask', { taskId: options.task });
         writeJson(result);
       }),
@@ -244,9 +226,8 @@ export function registerTaskCommand(program: Command) {
     .requiredOption('--board <boardId>', 'board id')
     .requiredOption('--from <fromId>', 'the depending task or pool id')
     .requiredOption('--to <toId>', 'the depended-on task or pool id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { board: string; from: string; to: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { board: string; from: string; to: string }) =>
+      runAction(async (client) => {
         const result = await client.do('createTaskDependency', {
           boardId: options.board,
           fromId: options.from,
@@ -260,18 +241,16 @@ export function registerTaskCommand(program: Command) {
     .command('dep-delete')
     .requiredOption('--from <fromId>', 'the depending task or pool id')
     .requiredOption('--to <toId>', 'the depended-on task or pool id')
-    .option('--port <port>', 'daemon port (defaults to the main port)')
-    .action(async (options: SharedOptions & { from: string; to: string }) =>
-      runAction(options, async (client) => {
+    .action(async (options: { from: string; to: string }) =>
+      runAction(async (client) => {
         const result = await client.do('deleteTaskDependency', { fromId: options.from, toId: options.to });
         writeJson(result);
       }),
     );
 }
 
-async function runAction(options: SharedOptions, callback: (client: WsBridgeClient<ClientProtocol>) => Promise<void>) {
-  const port = resolvePort(options.port);
-  const client = new WsBridgeClient<ClientProtocol>({ url: daemonUrlForPort(port) });
+async function runAction(callback: (client: WsBridgeClient<ClientProtocol>) => Promise<void>) {
+  const client = new WsBridgeClient<ClientProtocol>({ url: DAEMON_URL });
   await client.connect(() => undefined);
   try {
     await callback(client);
@@ -282,17 +261,6 @@ async function runAction(options: SharedOptions, callback: (client: WsBridgeClie
   } finally {
     client.close();
   }
-}
-
-function resolvePort(raw?: string): number {
-  if (raw === undefined) {
-    return DEFAULT_DAEMON_PORT;
-  }
-  const explicit = Number(raw);
-  if (!Number.isInteger(explicit) || explicit <= 0) {
-    throw new Error(`peb task: invalid --port value "${raw}"`);
-  }
-  return explicit;
 }
 
 function parseStatus(raw: string): SettableStatus {

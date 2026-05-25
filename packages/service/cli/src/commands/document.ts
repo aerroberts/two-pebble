@@ -3,33 +3,26 @@ import { markdownToTipTap, type TipTapDocument, tipTapToMarkdown } from '@two-pe
 import type { ClientProtocol } from '@two-pebble/protocol';
 import { WsBridgeClient } from '@two-pebble/ws-bridge';
 import type { Command } from 'commander';
-import { DEFAULT_DAEMON_PORT, daemonUrlForPort } from '../consts';
+import { DAEMON_URL } from '../consts';
 
-const MAX_DAEMON_PROBES = 100;
-
-interface SharedOptions {
-  port?: string;
-  url?: string;
-}
-
-interface ListOptions extends SharedOptions {
+interface ListOptions {
   limit?: string;
   offset?: string;
 }
 
-interface ReadOptions extends SharedOptions {
+interface ReadOptions {
   id: string;
   json?: boolean;
 }
 
-interface WriteOptions extends SharedOptions {
+interface WriteOptions {
   file?: string;
   id?: string;
   name: string;
   stdin?: boolean;
 }
 
-interface DeleteOptions extends SharedOptions {
+interface DeleteOptions {
   id: string;
 }
 
@@ -45,10 +38,8 @@ export function registerDocumentCommand(program: Command) {
     .command('list')
     .option('--limit <limit>', 'maximum documents to list', '50')
     .option('--offset <offset>', 'documents to skip', '0')
-    .option('--port <port>', 'daemon port (defaults to scanning)')
-    .option('--url <url>', 'daemon websocket URL (overrides --port)')
     .action((options: ListOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const result = await client.do('listDocuments', {
           limit: parsePositiveInteger(options.limit ?? '50', '--limit'),
           offset: parseNonNegativeInteger(options.offset ?? '0', '--offset'),
@@ -67,10 +58,8 @@ export function registerDocumentCommand(program: Command) {
     .command('read')
     .requiredOption('--id <id>', 'document id')
     .option('--json', 'print raw TipTap JSON instead of Markdown')
-    .option('--port <port>', 'daemon port (defaults to scanning)')
-    .option('--url <url>', 'daemon websocket URL (overrides --port)')
     .action((options: ReadOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const record = await client.do('readDocument', { id: options.id });
         const content = JSON.parse(record.content) as TipTapDocument;
         if (options.json === true) {
@@ -87,10 +76,8 @@ export function registerDocumentCommand(program: Command) {
     .option('--id <id>', 'document id to update')
     .option('--file <path>', 'Markdown file to import')
     .option('--stdin', 'read Markdown from stdin')
-    .option('--port <port>', 'daemon port (defaults to scanning)')
-    .option('--url <url>', 'daemon websocket URL (overrides --port)')
     .action((options: WriteOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const markdown = await readMarkdownInput(options);
         const content = JSON.stringify(markdownToTipTap(markdown));
         if (options.id !== undefined) {
@@ -107,20 +94,17 @@ export function registerDocumentCommand(program: Command) {
   document
     .command('delete')
     .requiredOption('--id <id>', 'document id')
-    .option('--port <port>', 'daemon port (defaults to scanning)')
-    .option('--url <url>', 'daemon websocket URL (overrides --port)')
     .action((options: DeleteOptions) =>
-      runAction(options, async (client) => {
+      runAction(async (client) => {
         const deleted = await client.do('deleteDocument', { id: options.id });
         process.stdout.write(`${JSON.stringify(deleted, null, 2)}\n`);
       }),
     );
 }
 
-async function runAction(options: SharedOptions, callback: (client: WsBridgeClient<ClientProtocol>) => Promise<void>) {
+async function runAction(callback: (client: WsBridgeClient<ClientProtocol>) => Promise<void>) {
   try {
-    const url = await resolveDaemonUrl(options);
-    const client = new WsBridgeClient<ClientProtocol>({ url });
+    const client = new WsBridgeClient<ClientProtocol>({ url: DAEMON_URL });
     await client.connect(() => undefined);
     try {
       await callback(client);
@@ -131,47 +115,6 @@ async function runAction(options: SharedOptions, callback: (client: WsBridgeClie
     const message = error instanceof Error ? error.message : String(error);
     process.stderr.write(`peb document: ${message}\n`);
     process.exitCode = 1;
-  }
-}
-
-async function resolveDaemonUrl(options: SharedOptions): Promise<string> {
-  if (options.url !== undefined) {
-    return options.url;
-  }
-  if (process.env.TWO_PEBBLE_DAEMON_URL !== undefined) {
-    return process.env.TWO_PEBBLE_DAEMON_URL;
-  }
-  if (options.port !== undefined) {
-    return daemonUrlForPort(parsePositiveInteger(options.port, '--port'));
-  }
-  return scanForDaemon();
-}
-
-async function scanForDaemon(): Promise<string> {
-  const tried: number[] = [];
-  for (let port = DEFAULT_DAEMON_PORT; port < DEFAULT_DAEMON_PORT + MAX_DAEMON_PROBES; port += 1) {
-    tried.push(port);
-    const status = await tryReadStatus(port);
-    if (status !== null) {
-      return daemonUrlForPort(port);
-    }
-  }
-  throw new Error(`no daemon found (scanned ports ${tried.join(', ')})`);
-}
-
-async function tryReadStatus(port: number) {
-  const client = new WsBridgeClient<ClientProtocol>({ url: daemonUrlForPort(port) });
-  try {
-    await client.connect(() => undefined);
-  } catch {
-    return null;
-  }
-  try {
-    return await client.do('getDaemonStatus', {});
-  } catch {
-    return null;
-  } finally {
-    client.close();
   }
 }
 
