@@ -96,6 +96,8 @@ function formatByteCount(count: number) {
   return `${count} ${count === 1 ? 'byte' : 'bytes'}`;
 }
 
+const SHELL_COMMAND_PREVIEW_LENGTH = 100;
+
 function readToolMetadata(toolId: string, input: unknown): string | undefined {
   if (input === null || typeof input !== 'object') {
     return undefined;
@@ -104,6 +106,14 @@ function readToolMetadata(toolId: string, input: unknown): string | undefined {
   const normalizedId = toolId.toLowerCase();
   if (normalizedId === 'bash') {
     return readStringField(record, 'description') ?? readStringField(record, 'command');
+  }
+  if (normalizedId === 'shell') {
+    const description = readStringField(record, 'description');
+    if (description !== undefined) {
+      return description;
+    }
+    const command = readStringField(record, 'command');
+    return command === undefined ? undefined : command.slice(0, SHELL_COMMAND_PREVIEW_LENGTH);
   }
   if (normalizedId === 'read') {
     const path = readStringField(record, 'file_path') ?? readStringField(record, 'filePath');

@@ -5,7 +5,8 @@ export function summarizeToolInput(toolId: string, input: object): string | unde
 
   switch (toolId) {
     case 'Bash':
-    case 'BashOutput': {
+    case 'BashOutput':
+    case 'shell': {
       const description = readString(fields.description);
       if (description !== undefined) {
         return description;
