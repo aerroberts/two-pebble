@@ -7,7 +7,7 @@ import {
   SidebarSection,
   TwoPebbleLogo,
 } from '@two-pebble/components';
-import { useAgents } from '@two-pebble/realtime';
+import { useAgents, useDocuments } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppShellProps } from './app-shell-props';
 import { AssistantCommandK } from './assistant-command-k';
@@ -22,7 +22,9 @@ export function MainAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const agents = useAgents();
+  const documents = useDocuments();
   const activeAgentCount = agents.values().filter((agent) => agent.status === 'running').length;
+  const documentCount = documents.values().length;
   const mode = getSidebarMode(location.pathname);
 
   return (
@@ -59,7 +61,7 @@ export function MainAppShell(props: AppShellProps) {
           }
           tone={mode === 'main' ? 'default' : 'auxiliary'}
         >
-          {renderSidebarContent(mode, location.pathname, navigate, activeAgentCount)}
+          {renderSidebarContent(mode, location.pathname, navigate, activeAgentCount, documentCount)}
         </Sidebar>
       }
     >
@@ -74,6 +76,7 @@ function renderSidebarContent(
   pathname: string,
   navigate: SidebarNavigate,
   activeAgentCount: number,
+  documentCount: number,
 ) {
   if (mode === 'configuration') {
     return (
@@ -138,6 +141,13 @@ function renderSidebarContent(
         />
         <SidebarOption
           active={pathname.startsWith('/documents')}
+          badge={
+            documentCount > 0 ? (
+              <output aria-label={`${documentCount} ${documentCount === 1 ? 'document' : 'documents'}`}>
+                {documentCount}
+              </output>
+            ) : undefined
+          }
           icon="file-text"
           label="Documents"
           onClick={() => navigate('/documents')}
