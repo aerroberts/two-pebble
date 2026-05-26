@@ -42,7 +42,7 @@ export const BoardMentionNode = Node.create({
       'span',
       mergeAttributes(HTMLAttributes, {
         class:
-          'inline-flex items-center align-baseline gap-1 rounded-md border border-border bg-surface-alt px-1 py-0 text-[11px] font-medium leading-4 text-content',
+          'inline-flex items-center align-baseline gap-1 rounded-md border border-border bg-surface px-1 py-0 text-[11px] font-medium leading-4 text-content',
         contenteditable: 'false',
       }),
       ['span', { class: 'text-content-muted', 'aria-hidden': 'true' }, 'board:'],

@@ -19,7 +19,7 @@ export function UserMessageTrace(props: TraceComponentProps<'user-message'>) {
   return (
     <AgentTraceItem
       content={
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-2">
           {cells.map((cell) => (
             <UserMessageCell cell={cell} key={cellKey(cell)} />
           ))}
@@ -81,7 +81,7 @@ function UserMessageCell(props: { cell: CellContent }) {
 function DocumentPill(props: { documentId: string; name: string }) {
   return (
     <a
-      className="inline-flex w-fit items-center gap-1 rounded-md border border-border bg-surface-alt px-1.5 py-0.5 text-[11px] font-medium text-content no-underline transition-colors hover:border-accent hover:text-accent"
+      className="inline-flex w-fit items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-[11px] font-medium text-content no-underline transition-colors hover:border-accent hover:text-accent"
       data-document-id={props.documentId}
       href={`/documents/${props.documentId}`}
     >
@@ -96,7 +96,7 @@ function DocumentPill(props: { documentId: string; name: string }) {
 function BoardPill(props: { boardId: string; name: string }) {
   return (
     <a
-      className="inline-flex w-fit items-center gap-1 rounded-md border border-border bg-surface-alt px-1.5 py-0.5 text-[11px] font-medium text-content no-underline transition-colors hover:border-accent hover:text-accent"
+      className="inline-flex w-fit items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-[11px] font-medium text-content no-underline transition-colors hover:border-accent hover:text-accent"
       data-board-id={props.boardId}
       href={`/tasks/${props.boardId}`}
     >
