@@ -12,7 +12,7 @@ export type SidebarSubitemProps = (ButtonProps | AnchorProps) & {
 export function SidebarSubitem(props: SidebarSubitemProps) {
   const { active = false, label, trailing, href, ...rest } = props;
   const textClass = active ? 'text-accent' : 'text-content-subtle hover:text-content';
-  const rootClass = `group relative flex w-full items-center gap-2 rounded-md py-1 pl-8 pr-2 text-left text-[11px] leading-4 transition-colors ${textClass}`;
+  const rootClass = `group relative flex w-full items-center gap-2 rounded-md py-1 pl-8 pr-2.5 text-left text-[11px] leading-4 transition-colors ${textClass}`;
   const labelClass =
     'min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-left font-heading font-normal text-inherit no-underline';
 
