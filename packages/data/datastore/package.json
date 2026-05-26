@@ -16,7 +16,7 @@
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
     "db:check": "drizzle-kit check",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "bun scripts/migrate.ts",
+    "db:migrate": "drizzle-kit migrate",
     "guard": "guardrails",
     "lint": "biome check --write .",
     "test": "bun test ./src/tests/*.test.ts",

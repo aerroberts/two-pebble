@@ -1,10 +1,9 @@
 import { createDaemonLogFilePath, DAEMON_PORT, defaultDatabaseFilePath, defaultHost } from '../src/consts';
 import { TwoPebbleDaemon } from '../src/two-pebble-daemon';
 
-const explicitDatabasePath = process.env.TWO_PEBBLE_DATABASE_PATH;
 const logFilePath = process.env.TWO_PEBBLE_LOG_FILE_PATH ?? createDaemonLogFilePath();
 const daemon = new TwoPebbleDaemon({
-  databaseFilePath: explicitDatabasePath ?? defaultDatabaseFilePath(),
+  databaseFilePath: defaultDatabaseFilePath(),
   host: defaultHost,
   logFilePath,
   port: DAEMON_PORT,
