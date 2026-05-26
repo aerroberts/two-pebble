@@ -346,6 +346,14 @@ function buildTestBridge(input: { signals: SignalOperations; subAgents: SubAgent
       readTodos: async () => [],
       update: async () => ({ id: '', name: '' }),
     },
+    github: {
+      submitPr: async () => ({
+        deliverableId: 'deliverable:test',
+        signalId: 'pr:test',
+        taskId: 'task:test',
+        trackedPrId: 'tracked-pr:test',
+      }),
+    },
     signals: input.signals,
     subAgents: input.subAgents,
     taskBoards: {

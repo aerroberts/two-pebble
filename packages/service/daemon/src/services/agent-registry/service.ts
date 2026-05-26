@@ -22,7 +22,9 @@ import type {
   TaskStatus,
 } from '@two-pebble/pebble';
 import { Cell, PebbleAgent } from '@two-pebble/pebble';
+import { toProtocolTrackedPr } from '../../handlers/tracked-prs.list.handler';
 import { DaemonService } from '../daemon-service';
+import { parseGithubPrUrl } from '../github/github-url';
 import type { TaskBoardService } from '../task-board/service';
 import { attachAgentNaming } from './agent-naming/attach-agent-naming';
 import { resolveBuildInput } from './build-input';
@@ -577,6 +579,52 @@ export class AgentRegistryService extends DaemonService {
           return { id: record.id, name: record.name };
         },
       },
+      github: {
+        submitPr: async (input) => {
+          const parsed = parseGithubPrUrl(input.url);
+          const deliverable = await this.datastore.taskBoards.deliverables.read({ id: input.deliverableId });
+          if (deliverable.type !== 'pr_url') {
+            throw new Error(`deliverable "${input.deliverableId}" expects payload type "${deliverable.type}"`);
+          }
+          const task = await this.datastore.taskBoards.tasks.read({ id: deliverable.taskId });
+          if (task.ownerId !== input.agentId) {
+            throw new Error(`task "${task.id}" is not owned by agent "${input.agentId}"`);
+          }
+          const integration = await this.findGithubIntegration(parsed.repo);
+          const tracked = await this.datastore.trackedPrs.upsert({
+            taskId: task.id,
+            deliverableId: deliverable.id,
+            agentId: input.agentId,
+            integrationId: integration.id,
+            repo: parsed.repo,
+            number: parsed.number,
+            url: input.url,
+            state: 'mergeable',
+          });
+          await this.datastore.agent.signals.register({
+            agentId: input.agentId,
+            capabilityId: 'github',
+            description: `Wait for GitHub PR ${input.url} to change state.`,
+            name: 'GitHub PR update',
+            signalId: `pr:${tracked.id}`,
+          });
+          const { result, events } = await this.taskBoards.setTaskStatusAsAgent({
+            agentId: input.agentId,
+            taskId: task.id,
+            status: 'waiting',
+            reason: 'auto: waiting for GitHub PR',
+          });
+          this.broadcastTaskEvents(events);
+          this.daemon.events.emit('taskUpdated', result);
+          this.daemon.events.emit('trackedPrRecorded', toProtocolTrackedPr(tracked));
+          return {
+            deliverableId: deliverable.id,
+            trackedPrId: tracked.id,
+            taskId: task.id,
+            signalId: `pr:${tracked.id}`,
+          };
+        },
+      },
       signals: {
         markResolved: async (input) => {
           await this.datastore.agent.signals.markResolved({ id: input.id });
@@ -821,6 +869,20 @@ export class AgentRegistryService extends DaemonService {
     for (const event of events) {
       this.daemon.events.emit('taskEventRecorded', event as never);
     }
+  }
+
+  private async findGithubIntegration(repo: string) {
+    const { items } = await this.datastore.integrations.list({ limit: 500, offset: 0 });
+    const matching = items
+      .filter((item) => item.provider === 'github')
+      .find((item) => {
+        const repos = item.data.repos;
+        return !Array.isArray(repos) || repos.length === 0 || repos.includes(repo);
+      });
+    if (matching === undefined) {
+      throw new Error(`No GitHub integration configured for ${repo}.`);
+    }
+    return matching;
   }
 }
 

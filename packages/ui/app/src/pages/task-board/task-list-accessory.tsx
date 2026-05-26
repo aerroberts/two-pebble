@@ -1,5 +1,5 @@
-import { Select, type SelectOption } from '@two-pebble/components';
-import type { ProtocolTaskRecord } from '@two-pebble/realtime';
+import { PrStatusIcon, Select, type SelectOption } from '@two-pebble/components';
+import { type ProtocolTaskRecord, useTrackedPrsForTask } from '@two-pebble/realtime';
 
 const NO_AGENT_VALUE = '__none__';
 
@@ -38,14 +38,27 @@ export function TaskListAccessory(props: TaskListAccessoryProps) {
   };
 
   return (
-    <Select
-      aria-label={`Task ${props.task.name} owner`}
-      disabled={props.delegating || props.delegateOptions.length === 0}
-      onChange={onDelegateChange}
-      options={delegateOptionsWithNone}
-      placeholder="Delegate"
-      value={currentOwnerValue}
-      variant="borderless"
-    />
+    <>
+      <TaskPrStatus taskId={props.task.id} />
+      <Select
+        aria-label={`Task ${props.task.name} owner`}
+        disabled={props.delegating || props.delegateOptions.length === 0}
+        onChange={onDelegateChange}
+        options={delegateOptionsWithNone}
+        placeholder="Delegate"
+        value={currentOwnerValue}
+        variant="borderless"
+      />
+    </>
   );
+}
+
+function TaskPrStatus(props: { taskId: string }) {
+  const { prs } = useTrackedPrsForTask({ taskId: props.taskId });
+  const pr = prs[0];
+  if (pr === undefined) {
+    return null;
+  }
+  const checksInFlight = pr.checks.some((check) => check.status === 'queued' || check.status === 'in_progress');
+  return <PrStatusIcon state={pr.state} checksInFlight={checksInFlight} />;
 }

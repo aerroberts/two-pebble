@@ -15,6 +15,8 @@ export type {
   DocumentSummary,
   DocumentTodoList,
   DocumentUpdateInput,
+  GithubOperations,
+  GithubSubmitPrInput,
   MarkSignalResolvedInput,
   RegisterSignalInput,
   ResolveSignalInput,

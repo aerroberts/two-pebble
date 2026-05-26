@@ -29,6 +29,9 @@ export function useIntegrationsPageState() {
     if (provider === 'ollama') {
       return { data: { baseUrl: '' }, name: '', provider } as const;
     }
+    if (provider === 'github') {
+      return { data: { token: '', repos: [] as string[] }, name: '', provider } as const;
+    }
     return { data: { apiKey: '' }, name: '', provider } as const;
   }
 

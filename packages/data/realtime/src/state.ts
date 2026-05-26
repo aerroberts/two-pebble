@@ -28,6 +28,8 @@ import { createTasksState } from './states/tasks/state';
 import type { TasksState } from './states/tasks/types';
 import { createThirdPartyAgentInstallsState } from './states/third-party-agent-installs/state';
 import type { ThirdPartyAgentInstallsState } from './states/third-party-agent-installs/types';
+import { createTrackedPrsState } from './states/tracked-prs/state';
+import type { TrackedPrsState } from './states/tracked-prs/types';
 import { createWorkspacesState } from './states/workspaces/state';
 import type { WorkspacesState } from './states/workspaces/types';
 import { createWorktreesState } from './states/worktrees/state';
@@ -47,6 +49,7 @@ export interface RealtimeState
     IntegrationsState,
     RepositoriesState,
     TasksState,
+    TrackedPrsState,
     ThirdPartyAgentInstallsState,
     WorkspacesState,
     WorktreesState,
@@ -68,6 +71,7 @@ export function createRealtimeState(): RealtimeState {
     ...createIntegrationsState(),
     ...createRepositoriesState(),
     ...createTasksState(),
+    ...createTrackedPrsState(),
     ...createThirdPartyAgentInstallsState(),
     ...createWorkspacesState(),
     ...createWorktreesState(),

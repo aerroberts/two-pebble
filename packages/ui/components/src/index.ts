@@ -277,6 +277,11 @@ export {
 } from './components/states/not-connected-page/not-connected-page';
 export { NotFoundPage, type NotFoundPageProps } from './components/states/not-found-page/not-found-page';
 export {
+  PrStatusIcon,
+  type PrStatusIconProps,
+  type PrStatusIconState,
+} from './components/tasks/pr-status-icon/pr-status-icon';
+export {
   TaskGraph,
   type TaskGraphInput,
   type TaskGraphInputDependency,

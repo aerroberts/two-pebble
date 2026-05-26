@@ -71,6 +71,14 @@ export function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
       readTodos: async () => [],
       update: async () => ({ id: '', name: '' }),
     },
+    github: {
+      submitPr: async () => ({
+        deliverableId: 'deliverable:test',
+        signalId: 'pr:test',
+        taskId: 'task:test',
+        trackedPrId: 'tracked-pr:test',
+      }),
+    },
     signals,
     subAgents: {
       kill: async () => undefined,

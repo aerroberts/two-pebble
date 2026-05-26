@@ -7,6 +7,8 @@ export function getIntegrationStatus(integration: IntegrationRecord): StatusStat
     case 'openai':
     case 'openrouter':
       return integration.data.apiKey.length > 0 ? 'connected' : 'disconnected';
+    case 'github':
+      return integration.data.token.length > 0 ? 'connected' : 'disconnected';
     case 'ollama':
       return integration.data.baseUrl.length > 0 ? 'connected' : 'disconnected';
   }

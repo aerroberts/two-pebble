@@ -259,6 +259,12 @@ export interface TaskBoardSubmitDeliverableInput {
   payload: TaskDeliverablePayload;
 }
 
+export interface GithubSubmitPrInput {
+  agentId: string;
+  deliverableId: string;
+  url: string;
+}
+
 export type DocumentTodoList = DocumentTodo[];
 
 export interface AgentOperations {
@@ -304,4 +310,10 @@ export interface TaskBoardOperations {
   setTaskStatus(input: TaskBoardSetTaskStatusInput): Promise<void>;
   submitDeliverable(input: TaskBoardSubmitDeliverableInput): Promise<TaskBoardDeliverableSubmission>;
   updateTaskDescription(input: TaskBoardUpdateTaskDescriptionInput): Promise<void>;
+}
+
+export interface GithubOperations {
+  submitPr(
+    input: GithubSubmitPrInput,
+  ): Promise<{ deliverableId: string; trackedPrId: string; taskId: string; signalId: string }>;
 }

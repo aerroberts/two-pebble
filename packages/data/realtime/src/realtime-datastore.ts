@@ -98,6 +98,7 @@ import { listThirdPartyAgentInstallsOperation } from './operations/third-party-a
 import { updateThirdPartyAgentInstallOperation } from './operations/third-party-agent-installs.update.operation';
 import { readThreadSnapshotOperation } from './operations/thread.snapshot.read.operation';
 import { listThreadsOperation } from './operations/threads.list.operation';
+import { listTrackedPrsOperation } from './operations/tracked-prs.list.operation';
 import { transcribeAudioOperation } from './operations/transcribe-audio.operation';
 import { listWorkspacesOperation } from './operations/workspaces.list.operation';
 import { createWorktreeOperation } from './operations/worktrees.create.operation';
@@ -121,6 +122,7 @@ import { listenToIntegrations } from './states/integrations/listen';
 import { listenToRepositories } from './states/repositories/listen';
 import { listenToTasks } from './states/tasks/listen';
 import { listenToThirdPartyAgentInstalls } from './states/third-party-agent-installs/listen';
+import { listenToTrackedPrs } from './states/tracked-prs/listen';
 import { listenToWorkspaces } from './states/workspaces/listen';
 import { listenToWorktrees } from './states/worktrees/listen';
 import type {
@@ -387,6 +389,12 @@ export class RealtimeDatastore {
   public get taskDeliverableSubmissions() {
     return {
       list: listTaskDeliverableSubmissionsOperation({ datastore: this }),
+    };
+  }
+
+  public get trackedPrs() {
+    return {
+      list: listTrackedPrsOperation({ datastore: this }),
     };
   }
 
@@ -658,6 +666,7 @@ export class RealtimeDatastore {
     listenToWorkspaces({ datastore: this });
     listenToAgentRegistries({ datastore: this });
     listenToTasks({ datastore: this });
+    listenToTrackedPrs({ datastore: this });
   }
 
   private handleConnectionClosed(client: RealtimeClient): void {

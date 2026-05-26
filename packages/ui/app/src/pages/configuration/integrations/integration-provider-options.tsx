@@ -1,4 +1,4 @@
-import { ProviderLogo } from '@two-pebble/components';
+import { Icon, ProviderLogo } from '@two-pebble/components';
 import type { IntegrationProvider } from '@two-pebble/realtime';
 
 type IntegrationProviderOption = {
@@ -12,4 +12,5 @@ export const integrationProviderOptions: IntegrationProviderOption[] = [
   { icon: <ProviderLogo size="xs" provider="openrouter" />, label: 'OpenRouter', value: 'openrouter' },
   { icon: <ProviderLogo size="xs" provider="anthropic" />, label: 'Anthropic', value: 'anthropic' },
   { icon: <ProviderLogo size="xs" provider="ollama" />, label: 'Ollama', value: 'ollama' },
+  { icon: <Icon name="git-pull-request" className="size-4" />, label: 'GitHub', value: 'github' },
 ];

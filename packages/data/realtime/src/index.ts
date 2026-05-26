@@ -238,6 +238,8 @@ export type {
   ThreadSnapshotRecord,
   ThreadSummaryRecord,
 } from './states/thread-snapshots/types';
+export { useMyOpenPrs, useTrackedPrsForTask } from './states/tracked-prs/hooks/use-tracked-prs.hook';
+export type { TrackedPrRecord, TrackedPrsState } from './states/tracked-prs/types';
 export { useWorkspaces } from './states/workspaces/hooks/use-workspaces.hook';
 export type { WorkspaceRecord, WorkspacesState } from './states/workspaces/types';
 export { useCreateWorktree } from './states/worktrees/hooks/use-create-worktree.hook';

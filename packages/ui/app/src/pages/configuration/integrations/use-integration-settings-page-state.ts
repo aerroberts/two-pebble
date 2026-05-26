@@ -33,6 +33,15 @@ export function useIntegrationSettingsPageState() {
     if (integration.value.provider === 'ollama') {
       return;
     }
+    if (integration.value.provider === 'github') {
+      void updateIntegration({
+        data: { token: apiKey, repos: integration.value.data.repos ?? [] },
+        id: integrationId,
+        name,
+        provider: 'github',
+      });
+      return;
+    }
 
     void updateIntegration({ data: { apiKey }, id: integrationId, name, provider: integration.value.provider });
   };
@@ -53,6 +62,9 @@ export function useIntegrationSettingsPageState() {
       setName(integration.value.name);
       if ('apiKey' in integration.value.data) {
         setApiKey(integration.value.data.apiKey);
+      }
+      if ('token' in integration.value.data) {
+        setApiKey(integration.value.data.token);
       }
       if ('baseUrl' in integration.value.data) {
         setBaseUrl(integration.value.data.baseUrl);

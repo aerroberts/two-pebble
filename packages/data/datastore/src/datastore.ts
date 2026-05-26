@@ -85,6 +85,7 @@ import { taskDeliverableSubmissionsUpsertOperation } from './operations/task-del
 import { taskDeliverablesCreateOperation } from './operations/task-deliverables.create';
 import { taskDeliverablesDeleteOperation } from './operations/task-deliverables.delete';
 import { taskDeliverablesListOperation } from './operations/task-deliverables.list';
+import { taskDeliverablesReadOperation } from './operations/task-deliverables.read';
 import { taskDependenciesCreateOperation } from './operations/task-dependencies.create';
 import { taskDependenciesDeleteOperation } from './operations/task-dependencies.delete';
 import { taskDependenciesListOperation } from './operations/task-dependencies.list';
@@ -106,6 +107,7 @@ import { taskTemplatesUpdateOperation } from './operations/task-templates.update
 import { tasksCreateOperation } from './operations/tasks.create';
 import { tasksDeleteOperation } from './operations/tasks.delete';
 import { tasksListOperation } from './operations/tasks.list';
+import { tasksReadOperation } from './operations/tasks.read';
 import { tasksRenameOperation } from './operations/tasks.rename';
 import { tasksSetOwnerOperation } from './operations/tasks.set-owner';
 import { tasksSetPoolOperation } from './operations/tasks.set-pool';
@@ -117,6 +119,9 @@ import { thirdPartyAgentInstallsListOperation } from './operations/third-party-a
 import { thirdPartyAgentInstallsReadOperation } from './operations/third-party-agent-installs.read';
 import { thirdPartyAgentInstallsUpdateOperation } from './operations/third-party-agent-installs.update';
 import { threadsListOperation } from './operations/threads.list';
+import { trackedPrsListOpenOperation, trackedPrsListOperation } from './operations/tracked-prs.list';
+import { trackedPrsUpdateOperation } from './operations/tracked-prs.update';
+import { trackedPrsUpsertOperation } from './operations/tracked-prs.upsert';
 import { workspacesCreateOperation } from './operations/workspaces.create';
 import { workspacesListOperation } from './operations/workspaces.list';
 import { workspacesReadOperation } from './operations/workspaces.read';
@@ -426,6 +431,7 @@ export class Datastore {
         create: bind(tasksCreateOperation, 'tasks.create'),
         delete: bind(tasksDeleteOperation, 'tasks.delete'),
         list: bind(tasksListOperation, 'tasks.list'),
+        read: bind(tasksReadOperation, 'tasks.read'),
         rename: bind(tasksRenameOperation, 'tasks.rename'),
         setOwner: bind(tasksSetOwnerOperation, 'tasks.set-owner'),
         setPool: bind(tasksSetPoolOperation, 'tasks.set-pool'),
@@ -436,6 +442,7 @@ export class Datastore {
         create: bind(taskDeliverablesCreateOperation, 'task-deliverables.create'),
         delete: bind(taskDeliverablesDeleteOperation, 'task-deliverables.delete'),
         list: bind(taskDeliverablesListOperation, 'task-deliverables.list'),
+        read: bind(taskDeliverablesReadOperation, 'task-deliverables.read'),
       },
       deliverableSubmissions: {
         list: bind(taskDeliverableSubmissionsListOperation, 'task-deliverable-submissions.list'),
@@ -451,6 +458,16 @@ export class Datastore {
         list: bind(taskEventsListOperation, 'task-events.list'),
         record: bind(taskEventsRecordOperation, 'task-events.record'),
       },
+    };
+  }
+
+  public get trackedPrs() {
+    const bind = this.operationBinder();
+    return {
+      list: bind(trackedPrsListOperation, 'tracked-prs.list'),
+      listOpen: bind(trackedPrsListOpenOperation, 'tracked-prs.list-open'),
+      update: bind(trackedPrsUpdateOperation, 'tracked-prs.update'),
+      upsert: bind(trackedPrsUpsertOperation, 'tracked-prs.upsert'),
     };
   }
 

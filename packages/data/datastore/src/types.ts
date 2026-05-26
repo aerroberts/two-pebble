@@ -38,6 +38,7 @@ import type {
   taskTemplateDeliverablesTable,
   taskTemplatesTable,
   thirdPartyAgentInstallsTable,
+  trackedPrsTable,
   workspacesTable,
   worktreesTable,
 } from './schema';
@@ -109,6 +110,7 @@ export interface DatastoreSchema extends Record<string, object> {
   taskTemplatesTable: typeof taskTemplatesTable;
   tasksTable: typeof tasksTable;
   thirdPartyAgentInstallsTable: typeof thirdPartyAgentInstallsTable;
+  trackedPrsTable: typeof trackedPrsTable;
   worktreesTable: typeof worktreesTable;
   workspacesTable: typeof workspacesTable;
 }
@@ -330,6 +332,33 @@ export interface TaskDeliverableSubmissionRecord {
 }
 
 export type TaskDeliverablePayload = { type: 'text'; content: string } | { type: 'pr_url'; url: string };
+
+export type TrackedPrState = 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+
+export interface TrackedPrCheckRun {
+  name: string;
+  status: 'queued' | 'in_progress' | 'completed';
+  conclusion: 'success' | 'failure' | 'cancelled' | null;
+  url: string;
+}
+
+export interface TrackedPrRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  taskId: string;
+  deliverableId: string;
+  agentId: string;
+  integrationId: string;
+  repo: string;
+  number: number;
+  url: string;
+  state: TrackedPrState;
+  checks: string;
+  lastCheckedAt: number;
+  lastEventAt: number | null;
+  etag: string | null;
+}
 
 export interface TaskDependencyRecord {
   id: string;
