@@ -19,7 +19,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 type TaskBoardView = 'graph' | 'list' | 'settings';
 type ActionRunner = () => Promise<void>;
 type PoolId = string | null;
-type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure';
+type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 type CreateTaskAfterInput = { poolId: PoolId; name?: string; templateId?: string | null };
 type SelectedTaskRecord = ProtocolTaskRecord | null;
 type OwnerAgentResult = AgentLike | null;

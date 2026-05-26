@@ -6,13 +6,14 @@ import { SelectContent } from '../../input/select/select-content';
 import { TaskStatusIcon } from '../task-status-icon/task-status-icon';
 import type { TaskStatusIconStatus } from '../task-status-icon/types';
 
-export type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure';
+export type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 
 const SETTABLE_OPTIONS: SelectOption[] = [
   { value: 'working', label: 'Working', icon: <TaskStatusIcon status="working" size="sm" /> },
   { value: 'waiting', label: 'Waiting', icon: <TaskStatusIcon status="waiting" size="sm" /> },
   { value: 'success', label: 'Done', icon: <TaskStatusIcon status="success" size="sm" /> },
   { value: 'failure', label: 'Failed', icon: <TaskStatusIcon status="failure" size="sm" /> },
+  { value: 'canceled', label: 'Canceled', icon: <TaskStatusIcon status="canceled" size="sm" /> },
 ];
 
 export interface TaskStatusIconSelectProps {
