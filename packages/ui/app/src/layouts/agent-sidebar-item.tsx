@@ -98,10 +98,15 @@ function agentLabel(agent: AgentRecord): string {
   return agent.name.length > 0 ? agent.name : agent.id;
 }
 
-function AgentSidebarStatusIcon(
-  props: Pick<AgentSidebarItemProps, 'agent' | 'onArchive' | 'onFail' | 'onResume' | 'onStop'>,
-) {
-  const { agent, onStop, onArchive, onResume, onFail } = props;
+type AgentSidebarStatusIconProps = Pick<
+  AgentSidebarItemProps,
+  'agent' | 'onArchive' | 'onFail' | 'onResume' | 'onStop'
+> & {
+  subdued?: boolean;
+};
+
+function AgentSidebarStatusIcon(props: AgentSidebarStatusIconProps) {
+  const { agent, onStop, onArchive, onResume, onFail, subdued = false } = props;
   const config = iconConfigForStatus({ status: agent.status, onStop, onArchive, onResume, onFail });
   const handleIconClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -110,6 +115,23 @@ function AgentSidebarStatusIcon(
   };
 
   if (config.hoverIcon && config.hoverAction) {
+    if (subdued) {
+      return (
+        <button
+          aria-label={config.hoverLabel ?? undefined}
+          className="relative inline-flex h-4 w-4 shrink-0 items-center justify-center text-current hover:text-content"
+          onClick={handleIconClick}
+          type="button"
+        >
+          <span className="absolute inset-0 inline-flex items-center justify-center transition-opacity group-hover:opacity-0">
+            {config.defaultIcon}
+          </span>
+          <span className="absolute inset-0 inline-flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+            {config.hoverIcon}
+          </span>
+        </button>
+      );
+    }
     return (
       <AppIconSwap
         aria-label={config.hoverLabel ?? undefined}
@@ -118,6 +140,14 @@ function AgentSidebarStatusIcon(
         onClick={handleIconClick}
         type="button"
       />
+    );
+  }
+
+  if (subdued) {
+    return (
+      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-current">
+        {config.defaultIcon}
+      </span>
     );
   }
 
@@ -155,6 +185,7 @@ export function AgentSidebarSubitem(props: AgentSidebarSubitemProps) {
           onFail={onFail}
           onResume={onResume}
           onStop={onStop}
+          subdued
         />
       }
     />
