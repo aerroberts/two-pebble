@@ -86,7 +86,13 @@ function replayTasks(input: ReplayTasksInput): void {
     }
     input.engine.addTask({ id: task.id, poolId: poolId ?? undefined });
     const stored = task.status;
-    if (stored === 'working' || stored === 'waiting' || stored === 'success' || stored === 'failure') {
+    if (
+      stored === 'working' ||
+      stored === 'waiting' ||
+      stored === 'success' ||
+      stored === 'failure' ||
+      stored === 'canceled'
+    ) {
       input.engine.setTaskStatus(task.id, stored);
     }
   }

@@ -39,9 +39,9 @@ interface EventsOptions extends SharedOptions {
   task: string;
 }
 
-type SettableStatus = 'working' | 'waiting' | 'success' | 'failure';
+type SettableStatus = 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 
-const SETTABLE_STATUSES: SettableStatus[] = ['working', 'waiting', 'success', 'failure'];
+const SETTABLE_STATUSES: SettableStatus[] = ['working', 'waiting', 'success', 'failure', 'canceled'];
 
 /**
  * Registers task board, pool, task, and dependency commands.
@@ -103,7 +103,7 @@ export function registerTaskCommand(program: Command) {
   task
     .command('set-status')
     .requiredOption('--task <taskId>', 'task id')
-    .requiredOption('--status <status>', 'one of: working, waiting, success, failure')
+    .requiredOption('--status <status>', 'one of: working, waiting, success, failure, canceled')
     .requiredOption('--reason <reason>', 'natural language reason for the status change')
     .option('--port <port>', 'daemon port (defaults to the main port)')
     .action(async (options: SetStatusOptions) =>

@@ -403,7 +403,7 @@ export class TaskBoardService extends DaemonService {
       const { items: tasks } = await this.datastore.taskBoards.tasks.list({ boardId: board.id });
       const owned = tasks.filter((task) => task.ownerId === input.agentId);
       for (const task of owned) {
-        if (task.status === 'success' || task.status === 'failure') {
+        if (task.status === 'success' || task.status === 'failure' || task.status === 'canceled') {
           continue;
         }
         try {

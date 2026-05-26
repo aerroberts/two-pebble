@@ -119,7 +119,7 @@ export interface SubAgentKillInput {
   reason: string;
 }
 
-export type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure';
+export type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 export type TaskStatus = 'pending' | SettableTaskStatus;
 
 export interface TaskBoardPoolNode {

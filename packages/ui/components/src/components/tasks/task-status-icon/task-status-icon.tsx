@@ -21,6 +21,7 @@ const STATUS_CONFIG: Record<TaskStatusIconStatus, StatusConfig> = {
   waiting: { iconName: 'square', color: 'text-content-muted' },
   success: { iconName: 'check', color: 'text-success' },
   failure: { iconName: 'x', color: 'text-danger' },
+  canceled: { iconName: 'circle-slash', color: 'text-content-muted' },
 };
 
 const SIZE_CLASS: Record<TaskStatusIconSize, string> = {
