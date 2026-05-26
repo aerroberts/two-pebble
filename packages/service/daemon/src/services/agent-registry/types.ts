@@ -185,6 +185,7 @@ export interface RecordTraceInput {
   agentId: string;
   events: DaemonEventSink;
   orderId: number;
+  persistSubAgentRecordOnInvoke?: boolean;
   trace: PebbleAgentTrace;
   workspaceId: string;
 }
