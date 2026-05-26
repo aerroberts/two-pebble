@@ -249,6 +249,7 @@ export { NavButton, type NavButtonProps } from './components/navigation/nav-butt
 export { Sidebar, type SidebarProps } from './components/navigation/sidebar/sidebar';
 export { SidebarOption, type SidebarOptionProps } from './components/navigation/sidebar-option/sidebar-option';
 export { SidebarSection, type SidebarSectionProps } from './components/navigation/sidebar-section/sidebar-section';
+export { SidebarSubitem, type SidebarSubitemProps } from './components/navigation/sidebar-subitem/sidebar-subitem';
 export { AgentControlPage } from './components/pages/agent-control-page/agent-control-page';
 export { ChartsPage } from './components/pages/charts-page/charts-page';
 export { OperationsPage } from './components/pages/operations-page/operations-page';
