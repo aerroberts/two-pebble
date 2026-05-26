@@ -1,4 +1,4 @@
-import { AppBox, Button, Input, Select } from '@two-pebble/components';
+import { AppBox, Button, Icon, IconButton, Input, Select } from '@two-pebble/components';
 import { useTemplateDeliverables } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
 
@@ -30,8 +30,8 @@ export interface TaskTemplateEditorSidebarProps {
 }
 
 const DELIVERABLE_TYPE_OPTIONS = [
-  { value: 'text', label: 'Text' },
-  { value: 'pr_url', label: 'PR URL' },
+  { value: 'text', label: 'Text', icon: <Icon name="file-text" color="text-current" /> },
+  { value: 'pr_url', label: 'PR URL', icon: <Icon name="git-pull-request" color="text-current" /> },
 ];
 
 /**
@@ -83,29 +83,40 @@ export function TaskTemplateEditorSidebar(props: TaskTemplateEditorSidebarProps)
           Add
         </Button>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         {deliverables.map((deliverable) => (
-          <div key={deliverable.id} className="grid grid-cols-[1fr_1fr_8rem_auto] items-end gap-2">
-            <Input
-              aria-label="Deliverable name"
-              label="Name"
-              value={deliverable.name}
-              onChange={(event) => props.onUpdateDeliverable({ id: deliverable.id, name: event.target.value })}
-            />
-            <Input
+          <div
+            key={deliverable.id}
+            className="flex flex-col gap-2 rounded-md border border-border bg-surface-neutral p-2"
+          >
+            <div className="grid grid-cols-[1fr_8rem_auto] items-end gap-2">
+              <Input
+                aria-label="Deliverable name"
+                label="Name"
+                value={deliverable.name}
+                onChange={(event) => props.onUpdateDeliverable({ id: deliverable.id, name: event.target.value })}
+              />
+              <Select
+                options={DELIVERABLE_TYPE_OPTIONS}
+                value={deliverable.type}
+                onChange={(value) =>
+                  props.onUpdateDeliverable({ id: deliverable.id, type: value as 'text' | 'pr_url' })
+                }
+              />
+              <IconButton
+                aria-label="Delete deliverable"
+                icon="trash"
+                onClick={() => props.onDeleteDeliverable(deliverable.id)}
+                variant="secondary"
+              />
+            </div>
+            <textarea
               aria-label="Deliverable description"
-              label="Description"
+              className="block min-h-16 w-full resize-y rounded-md border border-border bg-surface px-3 py-2 text-sm leading-5 text-content outline-none placeholder:text-content-subtle focus:border-strong"
               value={deliverable.description}
               onChange={(event) => props.onUpdateDeliverable({ id: deliverable.id, description: event.target.value })}
+              placeholder="Description"
             />
-            <Select
-              options={DELIVERABLE_TYPE_OPTIONS}
-              value={deliverable.type}
-              onChange={(value) => props.onUpdateDeliverable({ id: deliverable.id, type: value as 'text' | 'pr_url' })}
-            />
-            <Button leftIcon="trash" onClick={() => props.onDeleteDeliverable(deliverable.id)}>
-              Remove
-            </Button>
           </div>
         ))}
       </div>
