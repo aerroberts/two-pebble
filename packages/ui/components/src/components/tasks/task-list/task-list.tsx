@@ -83,9 +83,8 @@ export function TaskList(props: TaskListProps) {
     return <div className="px-3 py-4 text-[12px] text-content-muted">{props.emptyState ?? 'Nothing to show.'}</div>;
   }
 
-  const focusLastCell = () => {
-    for (let index = flatOrder.length - 1; index >= 0; index -= 1) {
-      const taskId = flatOrder[index];
+  const focusFirstCell = () => {
+    for (const taskId of flatOrder) {
       if (taskId === undefined) {
         continue;
       }
@@ -134,6 +133,7 @@ export function TaskList(props: TaskListProps) {
 
   return (
     <ul className="flex flex-col gap-0.5">
+      {canCreate ? <TaskListGhostRow depth={0} onCreateTask={createFromGhost} onArrowDown={focusFirstCell} /> : null}
       {tree.map((node) => (
         <TaskListNodeRow
           key={node.id}
@@ -150,7 +150,6 @@ export function TaskList(props: TaskListProps) {
           onChangeStatus={props.onChangeStatus}
         />
       ))}
-      {canCreate ? <TaskListGhostRow depth={0} onCreateTask={createFromGhost} onArrowUp={focusLastCell} /> : null}
     </ul>
   );
 }
@@ -345,7 +344,7 @@ function TaskListCellRow(props: TaskListCellRowProps) {
 interface TaskListGhostRowProps {
   depth: number;
   onCreateTask: (name: string) => void | Promise<void>;
-  onArrowUp?: () => void;
+  onArrowDown?: () => void;
 }
 
 function TaskListGhostRow(props: TaskListGhostRowProps) {
@@ -367,9 +366,9 @@ function TaskListGhostRow(props: TaskListGhostRowProps) {
       }
       return;
     }
-    if (event.key === 'ArrowUp' && props.onArrowUp !== undefined) {
+    if (event.key === 'ArrowDown' && props.onArrowDown !== undefined) {
       event.preventDefault();
-      props.onArrowUp();
+      props.onArrowDown();
     }
   };
 
