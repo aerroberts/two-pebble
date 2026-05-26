@@ -59,7 +59,12 @@ export async function expectSpawnSendsTaskInstructions(): Promise<void> {
     });
   expect(runtime.spawned).toEqual([
     {
-      instructions: 'Find the answer.',
+      instructions: subAgentInstructions({
+        childName: 'research-one',
+        instructions: 'Find the answer.',
+        subAgentId: 'reviewer',
+        workspace: 'inherit',
+      }),
       mode: 'task',
       name: 'research-one',
       subAgentId: 'reviewer',
@@ -86,7 +91,12 @@ export async function expectSpawnUsesRequestedWorkspaceMode(): Promise<void> {
     });
   expect(runtime.spawned).toEqual([
     {
-      instructions: 'Edit in isolation.',
+      instructions: subAgentInstructions({
+        childName: 'isolated-one',
+        instructions: 'Edit in isolation.',
+        subAgentId: 'reviewer',
+        workspace: 'worktree',
+      }),
       mode: 'task',
       name: 'isolated-one',
       subAgentId: 'reviewer',
@@ -294,13 +304,35 @@ function buildSubAgentCapabilityRuntime(config: { spawnRuntime?: 'framework' | '
     description: 'Parent agent',
     name: 'Parent',
     provider: new SignalTestProvider(),
-    workspacePath: '',
+    workspacePath: '/workspace/parent',
   });
   capability.attach(agent);
   const tools = capability.hookOnRegister({
     agents: [{ agentRegistryId: 'agent-registries:review', name: 'reviewer' }],
   }).tools;
   return { capability, registeredSignals, resolvedSignals, sentSignals, sentSubAgentMessages, spawned, tools };
+}
+
+function subAgentInstructions(input: {
+  childName: string;
+  instructions: string;
+  subAgentId: string;
+  workspace: 'inherit' | 'worktree';
+}): string {
+  const currentWorkspace =
+    input.workspace === 'inherit'
+      ? '/workspace/parent'
+      : 'a fresh worktree created from the parent workspace; the runtime launches you inside it';
+  return [
+    'Sub-agent launch context:',
+    `- You are child agent "${input.childName}" (${input.subAgentId}) spawned by parent "Parent" (agents:parent123).`,
+    `- Workspace mode: ${input.workspace} from the parent workspace.`,
+    '- Parent workspace: /workspace/parent.',
+    `- Current workspace: ${currentWorkspace}.`,
+    '',
+    'Parent instructions:',
+    input.instructions,
+  ].join('\n');
 }
 
 function buildTestBridge(input: { signals: SignalOperations; subAgents: SubAgentOperations }): AgentBridge {

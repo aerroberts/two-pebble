@@ -70,7 +70,9 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       ]);
     }
     this.requireReference(input.subAgentId);
-    const spawned = await this.bridge.subAgents.spawn(input);
+    const workspace = input.workspace ?? 'inherit';
+    const instructions = this.buildInitialInstructions({ ...input, workspace });
+    const spawned = await this.bridge.subAgents.spawn({ ...input, instructions, workspace });
     const child: ChildRecord = {
       agentId: spawned.agentId,
       lifecycle: 'running',
@@ -80,7 +82,7 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       subAgentId: input.subAgentId,
     };
     this.childrenSlot.set([...this.childrenSlot.value, child]);
-    this.traceSubAgentInvoke(child.agentId, child.subAgentId, input.instructions);
+    this.traceSubAgentInvoke(child.agentId, child.subAgentId, instructions);
     return ToolResponse.success([Cell.text(`Spawned ${input.name} (${spawned.agentId}).`)]);
   }
 
@@ -220,6 +222,23 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
         input: [Cell.text(instructions)],
       },
     });
+  }
+
+  private buildInitialInstructions(input: SpawnSubAgentInput & { workspace: 'inherit' | 'worktree' }): string {
+    const currentWorkspace =
+      input.workspace === 'inherit'
+        ? this.agent.workspacePath
+        : 'a fresh worktree created from the parent workspace; the runtime launches you inside it';
+    return [
+      'Sub-agent launch context:',
+      `- You are child agent "${input.name}" (${input.subAgentId}) spawned by parent "${this.agent.name}" (${this.agent.agentId}).`,
+      `- Workspace mode: ${input.workspace} from the parent workspace.`,
+      `- Parent workspace: ${this.agent.workspacePath.length > 0 ? this.agent.workspacePath : '(none)'}.`,
+      `- Current workspace: ${currentWorkspace.length > 0 ? currentWorkspace : '(none)'}.`,
+      '',
+      'Parent instructions:',
+      input.instructions,
+    ].join('\n');
   }
 
   private requireReference(subAgentId: string): void {
