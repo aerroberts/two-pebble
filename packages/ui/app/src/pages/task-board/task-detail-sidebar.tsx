@@ -54,6 +54,7 @@ export interface TaskDetailSidebarProps {
   onOpenAgent: (agentId: string) => void;
   onChangeStatus: (status: TaskStatusIconSelectStatus) => void;
   onCreateTemplateFromTask: () => void;
+  onAddDeliverable: () => void;
 }
 
 /**
@@ -93,12 +94,13 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         tasks={props.taskReferences}
         value={descriptionDoc}
       />
-      {props.deliverables.length > 0 ? (
-        <div className="flex flex-col gap-2 pt-3">
-          <AppBox variant="muted-xs">Deliverables</AppBox>
-          {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
-        </div>
-      ) : null}
+      <div className="flex flex-col gap-2 pt-3">
+        <AppBox variant="muted-xs">Deliverables</AppBox>
+        {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
+        <Button leftIcon="plus" onClick={props.onAddDeliverable} type="button" variant="secondary">
+          Add deliverable
+        </Button>
+      </div>
       <AppBox variant="controls-row">
         <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
           Create template from task

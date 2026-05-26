@@ -116,6 +116,16 @@ export function TaskBoardPage() {
           prompt: state.selectedTask.description,
         });
       }}
+      onAddDeliverable={() => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.createTaskDeliverable({
+          taskId: state.selectedTask.id,
+          name: 'New deliverable',
+          type: 'text',
+        });
+      }}
     />
   ) : null;
 

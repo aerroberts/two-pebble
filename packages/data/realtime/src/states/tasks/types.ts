@@ -31,6 +31,7 @@ export type DeleteTaskTemplateInput = RealtimeEmitPayload<'deleteTaskTemplate'>;
 export type CreateTaskTemplateDeliverableInput = RealtimeEmitPayload<'createTaskTemplateDeliverable'>;
 export type UpdateTaskTemplateDeliverableInput = RealtimeEmitPayload<'updateTaskTemplateDeliverable'>;
 export type DeleteTaskTemplateDeliverableInput = RealtimeEmitPayload<'deleteTaskTemplateDeliverable'>;
+export type CreateTaskDeliverableInput = RealtimeEmitPayload<'createTaskDeliverable'>;
 
 export interface TasksState {
   taskBoards: LoadableRegistry<TaskBoardRecord>;
