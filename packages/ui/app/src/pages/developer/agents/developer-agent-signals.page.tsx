@@ -1,4 +1,4 @@
-import { Button, Header, PageLayout, Section, Table, type TableColumn } from '@two-pebble/components';
+import { Button, Header, ListLayout, PageLayout, RelativeTime, Section } from '@two-pebble/components';
 import type { AgentSignalWireRecord } from '@two-pebble/protocol';
 import { type AgentRecord, useAgents, useRealtimeDatastore } from '@two-pebble/realtime';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -18,15 +18,30 @@ interface AgentSignalRow {
   updatedAt: number;
 }
 
-const signalColumns: TableColumn<AgentSignalRow>[] = [
-  { id: 'agent', header: 'Agent', cell: (row) => row.agentName },
-  { id: 'signal', header: 'Signal', cell: (row) => row.name },
-  { id: 'kind', header: 'Kind', cell: (row) => row.kind },
-  { id: 'status', header: 'Status', cell: (row) => row.status },
-  { id: 'capability', header: 'Capability', cell: (row) => row.capabilityId },
-  { id: 'updated', header: 'Updated', cell: (row) => new Date(row.updatedAt).toLocaleString() },
-  { id: 'description', header: 'Description', cell: (row) => row.description },
-];
+const CAPABILITY_ICONS: Record<string, string> = {
+  documents: 'file-text',
+  'sub-agent': 'workflow',
+  'sub-agents': 'workflow',
+  signals: 'radio',
+  'task-boards': 'list-checks',
+  tasks: 'list-checks',
+  voice: 'mic',
+};
+
+function iconForSignal(row: AgentSignalRow): string {
+  const direct = CAPABILITY_ICONS[row.capabilityId];
+  if (direct !== undefined) {
+    return direct;
+  }
+  if (row.kind === 'awaited') {
+    return 'clock';
+  }
+  return 'radio';
+}
+
+function subtitleForSignal(row: AgentSignalRow): string {
+  return [row.agentName, row.capabilityId, row.kind, row.status].join(' • ');
+}
 
 export function DeveloperAgentSignalsPage() {
   const agents = useAgents();
@@ -78,12 +93,16 @@ export function DeveloperAgentSignalsPage() {
         Signals
       </Header>
       <Section>
-        <Table
-          columns={signalColumns}
-          rows={rows}
-          getRowKey={(row) => row.id}
-          onRowClick={(row) => navigate(`/agents/${row.agentId}`)}
-          emptyMessage={emptyMessage}
+        <ListLayout
+          emptyState={emptyMessage}
+          items={rows.map((row) => ({
+            icon: iconForSignal(row),
+            key: row.id,
+            onClick: () => navigate(`/agents/${row.agentId}`),
+            subtitle: subtitleForSignal(row),
+            title: row.description.length > 0 ? row.description : row.name,
+            value: <RelativeTime date={new Date(row.updatedAt).toISOString()} silent />,
+          }))}
         />
       </Section>
     </PageLayout>
