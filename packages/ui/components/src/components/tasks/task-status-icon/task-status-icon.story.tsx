@@ -12,7 +12,15 @@ const meta: Meta<typeof TaskStatusIcon> = {
 export default meta;
 type Story = StoryObj<typeof TaskStatusIcon>;
 
-const ALL_STATUSES: TaskStatusIconStatus[] = ['blocked', 'open', 'working', 'waiting', 'success', 'failure'];
+const ALL_STATUSES: TaskStatusIconStatus[] = [
+  'blocked',
+  'open',
+  'working',
+  'waiting',
+  'success',
+  'failure',
+  'canceled',
+];
 
 export const AllStatuses: Story = {
   render: () => (

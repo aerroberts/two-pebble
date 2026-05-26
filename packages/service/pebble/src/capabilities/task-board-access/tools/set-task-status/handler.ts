@@ -6,7 +6,7 @@ import type { TaskBoardAccessCapability } from '../../capability';
 const schema = z.object({
   boardId: z.string().optional().describe('Task board id. Omit to use the active board.'),
   taskId: z.string().min(1).describe('Task id to update.'),
-  status: z.enum(['working', 'waiting', 'success', 'failure']).describe('New task status.'),
+  status: z.enum(['working', 'waiting', 'success', 'failure', 'canceled']).describe('New task status.'),
   reason: z.string().min(1).describe('Why the status changed.'),
 });
 

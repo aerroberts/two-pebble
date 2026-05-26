@@ -10,5 +10,5 @@ export interface TaskStatusEvent {
   taskId: string;
   kind: 'status';
   reason: string;
-  status: 'blocked' | 'open' | 'working' | 'waiting' | 'success' | 'failure';
+  status: 'blocked' | 'open' | 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 }
