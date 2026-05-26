@@ -25,6 +25,7 @@ export interface AgentInputProps {
   /** When false, the voice capture toggle is hidden — used by prompt editors. */
   enableVoice?: boolean;
   minHeight?: number;
+  maxHeight?: number;
 }
 
 /**
@@ -88,6 +89,7 @@ export function AgentInput(props: AgentInputProps) {
       documents={documentItems}
       draftStorageKey={props.draftStorageKey}
       initialMode={props.initialMode}
+      maxHeight={props.maxHeight}
       minHeight={props.minHeight}
       onSubmit={props.onSubmit}
       placeholder={props.placeholder}

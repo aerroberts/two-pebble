@@ -48,7 +48,7 @@ export function TaskTemplateEditorSidebar(props: TaskTemplateEditorSidebarProps)
   useEffect(() => {
     setName(props.template.name);
     setPrompt(props.template.prompt);
-  }, [props.template.id, props.template.name, props.template.prompt]);
+  }, [props.template.name, props.template.prompt]);
 
   return (
     <div className="flex flex-col gap-2">

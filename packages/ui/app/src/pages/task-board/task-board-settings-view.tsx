@@ -1,10 +1,7 @@
-import { AppBox, Button, Input, ListLayout, type ListLayoutItem, Section, Surface } from '@two-pebble/components';
+import { AppBox, Button, ListLayout, type ListLayoutItem, Section, Surface } from '@two-pebble/components';
 import type { TaskPoolRecord } from '@two-pebble/realtime';
 
 interface TaskBoardSettingsViewProps {
-  boardNameDraft: string;
-  onBoardNameChange: (value: string) => void;
-  onBoardNameSave: () => void;
   pools: TaskPoolRecord[];
   onDeletePool: (poolId: string) => void;
   onDeleteBoard: () => void;
@@ -17,24 +14,12 @@ interface TaskBoardSettingsViewProps {
 export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
   return (
     <>
-      <Section compact title="Board name">
-        <Input
-          aria-label="Board name"
-          onBlur={props.onBoardNameSave}
-          onChange={(event) => props.onBoardNameChange(event.target.value)}
-          placeholder="Untitled board"
-          value={props.boardNameDraft}
-        />
-      </Section>
-      <Section
-        compact
-        title="Task templates"
-        actionItems={
+      <Section compact title="Task templates">
+        <div className="flex justify-end pb-2">
           <Button leftIcon="plus" onClick={() => props.onCreateTemplate({ name: 'New template', prompt: '' })}>
             Add template
           </Button>
-        }
-      >
+        </div>
         <ListLayout
           emptyState="No task templates yet."
           items={props.templates.map((template) => ({

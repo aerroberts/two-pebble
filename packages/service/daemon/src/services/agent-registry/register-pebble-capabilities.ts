@@ -1,4 +1,4 @@
-import type { Logger } from '@two-pebble/logger';
+import { logger } from '@two-pebble/logger';
 import type { Agent, PebbleJsonValue } from '@two-pebble/pebble';
 import { PebbleAgent } from '@two-pebble/pebble';
 import { buildCapability } from '@two-pebble/pebble/capabilities';
@@ -13,13 +13,11 @@ export interface CapabilitySpec {
 interface FreshAttachInput {
   agent: Agent;
   capabilities: CapabilitySpec[];
-  logger: Logger;
 }
 
 interface RehydrateAttachInput {
   agent: Agent;
   capabilities: CapabilitySpec[];
-  logger: Logger;
   slots: CapabilityRehydrateSlots;
 }
 
@@ -40,7 +38,7 @@ export function attachFreshPebbleCapabilities(input: FreshAttachInput): void {
       input.agent.registerCapability(capability, spec.config);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      input.logger.warn('capability registration failed', { capabilityId: spec.id, error: message });
+      logger.warn('capability registration failed', { capabilityId: spec.id, error: message });
     }
   }
 }
@@ -61,7 +59,7 @@ export function attachRehydratedPebbleCapabilities(input: RehydrateAttachInput):
       input.agent.hydrateCapability(capability, spec.config, restoredSlots);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      input.logger.warn('capability rehydrate failed', { capabilityId: spec.id, error: message });
+      logger.warn('capability rehydrate failed', { capabilityId: spec.id, error: message });
     }
   }
 }
@@ -71,7 +69,7 @@ export function attachRehydratedPebbleCapabilities(input: RehydrateAttachInput):
  * shapes are dropped with a warning so a malformed registry row can't
  * crash the launch path.
  */
-export function parseCapabilitySpecs(serialized: string, logger: Logger): CapabilitySpec[] {
+export function parseCapabilitySpecs(serialized: string): CapabilitySpec[] {
   let parsed: PebbleJsonValue;
   try {
     parsed = JSON.parse(serialized) as PebbleJsonValue;

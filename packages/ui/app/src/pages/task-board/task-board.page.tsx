@@ -105,19 +105,29 @@ export function TaskBoardPage() {
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
       submissions={state.selectedTaskDeliverableSubmissions}
+      onCreateTemplateFromTask={() => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.createTaskTemplate({
+          name: state.selectedTask.name || 'New template',
+          prompt: state.selectedTask.description,
+        });
+      }}
     />
   ) : null;
 
-  const templateDetailPanel = selectedTemplate !== null ? (
-    <TaskTemplateEditorSidebar
-      template={selectedTemplate}
-      onUpdateTemplate={(input) => void state.updateTaskTemplate(input)}
-      onDeleteTemplate={handleDeleteTemplate}
-      onCreateDeliverable={(input) => void state.createTaskTemplateDeliverable(input)}
-      onUpdateDeliverable={(input) => void state.updateTaskTemplateDeliverable(input)}
-      onDeleteDeliverable={(id) => void state.deleteTaskTemplateDeliverable(id)}
-    />
-  ) : null;
+  const templateDetailPanel =
+    selectedTemplate !== null ? (
+      <TaskTemplateEditorSidebar
+        template={selectedTemplate}
+        onUpdateTemplate={(input) => void state.updateTaskTemplate(input)}
+        onDeleteTemplate={handleDeleteTemplate}
+        onCreateDeliverable={(input) => void state.createTaskTemplateDeliverable(input)}
+        onUpdateDeliverable={(input) => void state.updateTaskTemplateDeliverable(input)}
+        onDeleteDeliverable={(id) => void state.deleteTaskTemplateDeliverable(id)}
+      />
+    ) : null;
 
   const drawerOpen = state.selectedTask !== null || selectedTemplate !== null;
   const detailPanel = state.selectedTask !== null ? taskDetailPanel : templateDetailPanel;
@@ -148,8 +158,14 @@ export function TaskBoardPage() {
     />
   );
 
+  const detailTitle = state.selectedTask
+    ? state.selectedTask.name || 'Untitled task'
+    : selectedTemplate !== null
+      ? selectedTemplate.name || 'Untitled template'
+      : undefined;
+
   return (
-    <DataPanelLayout open={drawerOpen} panel={detailPanel} closeable onClose={onCloseDrawer}>
+    <DataPanelLayout open={drawerOpen} panel={detailPanel} title={detailTitle} closeable onClose={onCloseDrawer}>
       <WorkbenchPageLayout body={state.view === 'graph' ? 'fill' : 'padded-scroll'} header={header}>
         {state.view === 'graph' ? (
           <TaskGraph
@@ -164,12 +180,9 @@ export function TaskBoardPage() {
             selectedTaskId={state.selectedTaskId ?? undefined}
             onSelectTask={toggleSelect}
             onRenameTask={(id: string, name: string) => void state.renameTaskFromList(id, name)}
-            onCreateTaskAfter={(input) =>
-              state.createTaskAfter({ poolId: input.poolId, name: input.name, templateId: input.templateId })
-            }
+            onCreateTaskAfter={(input) => state.createTaskAfter({ poolId: input.poolId, name: input.name })}
             onDeleteTask={(id: string) => void state.deleteTaskFromList(id)}
             emptyState="No tasks yet."
-            templateOptions={state.taskTemplates.map((template) => ({ value: template.id, label: template.name }))}
             renderTaskAccessory={(taskId) => {
               const task = state.tasks.find((entry) => entry.id === taskId);
               if (task === undefined) {
@@ -191,9 +204,6 @@ export function TaskBoardPage() {
           />
         ) : (
           <TaskBoardSettingsView
-            boardNameDraft={state.boardNameDraft}
-            onBoardNameChange={(value: string) => state.setBoardNameDraft(value)}
-            onBoardNameSave={() => void state.saveBoardName()}
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
             onDeleteBoard={() => void state.deleteBoard()}

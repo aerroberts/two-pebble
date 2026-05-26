@@ -1,12 +1,5 @@
-import { renderAgentSystemPromptToText, type TipTapDocument } from '@two-pebble/datatypes';
 import type { Agent } from '@two-pebble/pebble';
-import {
-  FrameworkAgent,
-  PebbleAgent,
-  ProviderFactory,
-  renderAgentNamingInstruction,
-  renderPebbleAgentNamingInstruction,
-} from '@two-pebble/pebble';
+import { FrameworkAgent, PebbleAgent, ProviderFactory } from '@two-pebble/pebble';
 import { ClaudeCodeAgent, CodexAgent, type ThirdPartyAgentFramework } from '@two-pebble/pebble/frameworks';
 import type { BuildLaunchAgentInput, BuildLaunchAgentInput_Framework } from './types';
 
@@ -26,7 +19,7 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
       framework: buildFrameworkAdapter(input),
       freshLaunch: Object.keys(input.resumeMetadata).length === 0,
       name: input.registry.name,
-      systemPrompt: composeFrameworkSystemPrompt(input.agentId, input.registry.systemPrompt),
+      systemPrompt: input.systemPrompt,
       workspacePath: input.workspacePath,
     });
   }
@@ -39,7 +32,7 @@ export function buildLaunchAgent(input: BuildLaunchAgentInput): Agent {
     description: input.description,
     name: input.registry.name,
     provider,
-    systemPrompt: composePebbleSystemPrompt(input.agentId, input.registry.systemPrompt),
+    systemPrompt: input.systemPrompt,
     workspacePath: input.workspacePath,
     ...(input.restoredThread === undefined ? {} : { restoredThread: input.restoredThread }),
   });
@@ -61,22 +54,4 @@ function buildFrameworkAdapter(input: BuildLaunchAgentInput_Framework): ThirdPar
     });
   }
   throw new Error(`Unsupported third-party agent framework: ${(input.install as { frameworkId: string }).frameworkId}`);
-}
-
-function composeFrameworkSystemPrompt(agentId: string, registrySystemPrompt: TipTapDocument): string {
-  const naming = renderAgentNamingInstruction(agentId);
-  const body = renderAgentSystemPromptToText(registrySystemPrompt);
-  if (body.length === 0) {
-    return naming;
-  }
-  return `${naming}\n\n${body}`;
-}
-
-function composePebbleSystemPrompt(agentId: string, registrySystemPrompt: TipTapDocument): string {
-  const naming = renderPebbleAgentNamingInstruction(agentId);
-  const body = renderAgentSystemPromptToText(registrySystemPrompt);
-  if (body.length === 0) {
-    return naming;
-  }
-  return `${naming}\n\n${body}`;
 }

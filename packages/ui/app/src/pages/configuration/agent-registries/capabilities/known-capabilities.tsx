@@ -1,7 +1,6 @@
 import type { ComponentType } from 'react';
-import { ProgressiveTaskListEditor } from './editors/progressive-task-list-editor';
 import { TaskBoardAccessEditor } from './editors/task-board-access-editor';
-import type { CapabilityConfigValue, ProgressiveTaskListConfig, TaskBoardAccessConfig } from './types';
+import type { CapabilityConfigValue, TaskBoardAccessConfig } from './types';
 
 export interface CapabilityEditorProps<TConfig extends CapabilityConfigValue> {
   config: TConfig;
@@ -30,13 +29,6 @@ export interface KnownCapability<TConfig extends CapabilityConfigValue> {
  * means adding a new entry here too.
  */
 export const knownCapabilities: KnownCapability<CapabilityConfigValue>[] = [
-  {
-    id: 'progressive-task-list',
-    title: 'To-do list',
-    description: 'Give the agent a structured task list with completion tools and per-turn status reminders.',
-    defaultConfig: { tasks: [] } as ProgressiveTaskListConfig,
-    Editor: ProgressiveTaskListEditor as object as ComponentType<CapabilityEditorProps<CapabilityConfigValue>>,
-  },
   {
     id: 'workspace-access',
     title: 'Workspace access',

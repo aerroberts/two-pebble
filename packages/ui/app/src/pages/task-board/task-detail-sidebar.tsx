@@ -48,6 +48,7 @@ export interface TaskDetailSidebarProps {
   onUndelegate: () => void;
   onOpenAgent: (agentId: string) => void;
   onChangeStatus: (status: TaskStatusIconSelectStatus) => void;
+  onCreateTemplateFromTask: () => void;
 }
 
 /**
@@ -68,9 +69,6 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
             onChange={props.onChangeStatus}
             status={props.task.status}
           />
-          <AppBox as="h2" variant="task-detail-title">
-            {props.task.name || 'Untitled task'}
-          </AppBox>
         </AppBox>
         <AppBox variant="task-detail-actions">{renderDelegateControl(props)}</AppBox>
       </AppBox>
@@ -88,6 +86,11 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
           {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
         </div>
       ) : null}
+      <AppBox variant="controls-row">
+        <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
+          Create template from task
+        </Button>
+      </AppBox>
     </>
   );
 }

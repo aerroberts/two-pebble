@@ -64,15 +64,14 @@ export class TwoPebbleDaemon {
   }
 
   /**
-   * Migrates storage and starts the WebSocket protocol server.
-   * If the preferred port is busy, increments up to portRange-1 times before
-   * giving up. The datastore is created against the actual bound port so each
-   * concurrent daemon instance owns its own SQLite file.
+   * Migrates storage and starts the WebSocket protocol server on the
+   * hardcoded daemon port. EADDRINUSE is fatal; the daemon assumes one
+   * instance per host.
    */
   public async launch(): Promise<void> {
     logger.info('ws server launching', { hostname: this.input.host, port: this.input.port });
     this.server = await this.bindServer();
-    const databaseFilePath = this.resolveDatabaseFilePath(this.server.port);
+    const databaseFilePath = this.input.databaseFilePath;
     this.datastore = new Datastore({ databaseFilePath });
     await this.datastore.migrate();
     this.registerMetricsSink(this.datastore);
@@ -110,42 +109,13 @@ export class TwoPebbleDaemon {
   }
 
   private async bindServer(): Promise<DaemonServer> {
-    const range = Math.max(1, this.input.portRange ?? 1);
-    let lastError: Error | undefined;
-    for (let offset = 0; offset < range; offset += 1) {
-      const port = this.input.port + offset;
-      const candidate = new WsBridgeServer({
-        hostname: this.input.host,
-        port,
-        fetch: (request) => this.fetch(request),
-      });
-      try {
-        await candidate.launch();
-        return candidate;
-      } catch (error) {
-        const wrapped = error instanceof Error ? error : new Error(String(error));
-        lastError = wrapped;
-        if (!this.isAddressInUseError(wrapped)) {
-          throw wrapped;
-        }
-        logger.info('port busy, trying next', { port });
-      }
-    }
-    throw lastError ?? new Error('Daemon could not bind any port in the requested range.');
-  }
-
-  private isAddressInUseError(error: Error): boolean {
-    return (error as Error & { code?: string }).code === 'EADDRINUSE';
-  }
-
-  private resolveDatabaseFilePath(port: number): string {
-    if (this.input.databaseFilePath !== undefined) {
-      return this.input.databaseFilePath;
-    }
-    if (this.input.databaseFilePathForPort !== undefined) {
-      return this.input.databaseFilePathForPort(port);
-    }
-    throw new Error('TwoPebbleDaemon requires databaseFilePath or databaseFilePathForPort.');
+    const candidate = new WsBridgeServer({
+      hostname: this.input.host,
+      port: this.input.port,
+      fetch: (request) => this.fetch(request),
+    });
+    await candidate.launch();
+    return candidate;
   }
 
   /**

@@ -1,6 +1,7 @@
 import { describe, it } from 'bun:test';
 import {
   expectSendRejectsTerminalTask,
+  expectSendToFrameworkChildUsesSubAgentSend,
   expectSpawnRegistersNewToolSurface,
   expectSpawnSendsTaskInstructions,
   expectTeammateFollowUpUsesChildSignal,
@@ -22,6 +23,10 @@ describe('feature: sub-agent capability registration', () => {
 
   it('happy: teammate follow-up resolves the child response signal', async () => {
     await expectTeammateFollowUpUsesChildSignal();
+  });
+
+  it('happy: framework child follow-up sends a normal child message', async () => {
+    await expectSendToFrameworkChildUsesSubAgentSend();
   });
 
   it('unhappy: send rejects terminal task children', async () => {
