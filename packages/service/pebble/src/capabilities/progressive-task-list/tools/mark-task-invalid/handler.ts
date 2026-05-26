@@ -13,10 +13,13 @@ export function buildMarkTaskInvalidTool(capability: ProgressiveTaskListCapabili
     description: 'Marks a progressive task as invalid or impossible.',
     name: 'mark-task-invalid',
     schema,
-  }).onInvoke(async (input) => {
+  }).onInvoke((input) => {
     try {
       capability.completeTaskUnsuccessfully(input.taskId, input.reason);
-      await capability.mirrorStatusToDocument({ taskId: input.taskId, status: 'invalid' });
+      // Intentionally do NOT mirror status back into the bound document.
+      // Document todos are immutable templates — the agent's "invalid"
+      // verdict applies only to the in-memory progressive task list
+      // mapped off those todos at launch time.
       return ToolResponse.success([Cell.text(`Marked ${input.taskId} invalid.`)]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
