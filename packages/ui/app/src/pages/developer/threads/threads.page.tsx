@@ -51,7 +51,6 @@ export function ThreadsPage() {
     rows.map((thread) => ({
       key: thread.threadId,
       onClick: () => navigate(`/developer/agents/thread-log/${encodeURIComponent(thread.threadId)}`),
-      subtitle: formatThreadSubtitle(thread),
       title: thread.threadId,
       value: <RelativeTime date={thread.updatedAt} silent />,
     }));
@@ -76,13 +75,4 @@ export function ThreadsPage() {
       </Section>
     </PageLayout>
   );
-}
-
-function formatThreadSubtitle(thread: ThreadSummaryRecord): string {
-  const cellLabel = `${thread.cellCount} cell${thread.cellCount === 1 ? '' : 's'}`;
-  if (thread.agentIds.length === 0) {
-    return cellLabel;
-  }
-  const agentLabel = `${thread.agentIds.length} agent${thread.agentIds.length === 1 ? '' : 's'}`;
-  return `${cellLabel} • ${agentLabel}`;
 }
