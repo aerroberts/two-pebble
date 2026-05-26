@@ -18,12 +18,13 @@ import type {
   TaskPoolRecord,
   ThirdPartyAgentInstallRecord,
 } from '@two-pebble/realtime';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
 import { TaskBoardSettingsView } from './task-board-settings-view';
 import { TaskDetailSidebar } from './task-detail-sidebar';
 import { TaskListAccessory } from './task-list-accessory';
+import { TaskTemplateEditorSidebar } from './task-template-editor-sidebar';
 import { type TaskBoardView, useTaskBoardPageState } from './use-task-board-page-state';
 
 const VIEW_OPTIONS = [
@@ -45,6 +46,8 @@ const STATUS_SORT_ORDER: Record<string, number> = {
 
 export function TaskBoardPage() {
   const state = useTaskBoardPageState();
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const selectedTemplate = state.taskTemplates.find((entry) => entry.id === selectedTemplateId) ?? null;
 
   const graphInput = useMemo<TaskGraphInput>(
     () => buildGraphInput(state.tasks, state.pools, state.dependencies),
@@ -64,10 +67,23 @@ export function TaskBoardPage() {
   }
 
   const toggleSelect = (id: string) => {
+    setSelectedTemplateId(null);
     state.setSelectedTaskId(state.selectedTaskId === id ? null : id);
   };
 
-  const detailPanel = state.selectedTask ? (
+  const selectTemplate = (id: string) => {
+    state.setSelectedTaskId(null);
+    setSelectedTemplateId(selectedTemplateId === id ? null : id);
+  };
+
+  const handleDeleteTemplate = (id: string) => {
+    if (selectedTemplateId === id) {
+      setSelectedTemplateId(null);
+    }
+    void state.deleteTaskTemplate(id);
+  };
+
+  const taskDetailPanel = state.selectedTask ? (
     <TaskDetailSidebar
       task={{
         id: state.selectedTask.id,
@@ -92,6 +108,24 @@ export function TaskBoardPage() {
     />
   ) : null;
 
+  const templateDetailPanel = selectedTemplate !== null ? (
+    <TaskTemplateEditorSidebar
+      template={selectedTemplate}
+      onUpdateTemplate={(input) => void state.updateTaskTemplate(input)}
+      onDeleteTemplate={handleDeleteTemplate}
+      onCreateDeliverable={(input) => void state.createTaskTemplateDeliverable(input)}
+      onUpdateDeliverable={(input) => void state.updateTaskTemplateDeliverable(input)}
+      onDeleteDeliverable={(id) => void state.deleteTaskTemplateDeliverable(id)}
+    />
+  ) : null;
+
+  const drawerOpen = state.selectedTask !== null || selectedTemplate !== null;
+  const detailPanel = state.selectedTask !== null ? taskDetailPanel : templateDetailPanel;
+  const onCloseDrawer = () => {
+    state.setSelectedTaskId(null);
+    setSelectedTemplateId(null);
+  };
+
   const header = (
     <WorkbenchHeader
       title={
@@ -115,12 +149,7 @@ export function TaskBoardPage() {
   );
 
   return (
-    <DataPanelLayout
-      open={state.selectedTask !== null}
-      panel={detailPanel}
-      closeable
-      onClose={() => state.setSelectedTaskId(null)}
-    >
+    <DataPanelLayout open={drawerOpen} panel={detailPanel} closeable onClose={onCloseDrawer}>
       <WorkbenchPageLayout body={state.view === 'graph' ? 'fill' : 'padded-scroll'} header={header}>
         {state.view === 'graph' ? (
           <TaskGraph
@@ -170,11 +199,8 @@ export function TaskBoardPage() {
             onDeleteBoard={() => void state.deleteBoard()}
             templates={state.taskTemplates}
             onCreateTemplate={(input) => void state.createTaskTemplate(input)}
-            onUpdateTemplate={(input) => void state.updateTaskTemplate(input)}
-            onDeleteTemplate={(id) => void state.deleteTaskTemplate(id)}
-            onCreateTemplateDeliverable={(input) => void state.createTaskTemplateDeliverable(input)}
-            onUpdateTemplateDeliverable={(input) => void state.updateTaskTemplateDeliverable(input)}
-            onDeleteTemplateDeliverable={(id) => void state.deleteTaskTemplateDeliverable(id)}
+            onSelectTemplate={selectTemplate}
+            selectedTemplateId={selectedTemplateId}
           />
         )}
       </WorkbenchPageLayout>
