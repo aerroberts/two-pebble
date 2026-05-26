@@ -6,7 +6,7 @@ export interface TasksUpdateStatusOperation {
   name: 'setTaskStatus';
   request: {
     id: string;
-    status: 'working' | 'waiting' | 'success' | 'failure';
+    status: 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
     reason: string;
   };
   response: {

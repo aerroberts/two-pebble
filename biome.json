@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!node_modules", "!bun.lock", "!**/fixtures/fail"]
+    "includes": [
+      "**",
+      "!node_modules",
+      "!bun.lock",
+      "!**/fixtures/fail",
+      "!packages/ui/components/src/styles/globals.css"
+    ]
   },
   "formatter": {
     "enabled": true,

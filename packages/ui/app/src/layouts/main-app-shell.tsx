@@ -121,12 +121,9 @@ function renderSidebarContent(
           active={pathname.startsWith('/agents') || pathname.startsWith('/threads')}
           badge={
             activeAgentCount > 0 ? (
-              <span
-                aria-label={`${activeAgentCount} ${activeAgentCount === 1 ? 'agent' : 'agents'} active`}
-                role="status"
-              >
+              <output aria-label={`${activeAgentCount} ${activeAgentCount === 1 ? 'agent' : 'agents'} active`}>
                 {activeAgentCount} active
-              </span>
+              </output>
             ) : undefined
           }
           icon="bot"
