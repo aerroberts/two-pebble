@@ -12,6 +12,7 @@ export function handler(ctx: DaemonHandlerContext) {
       poolId: payload.poolId,
       name: payload.name,
       description: payload.description ?? '',
+      descriptionContent: payload.descriptionContent,
       dependsOn: payload.dependsOn,
       templateId: payload.templateId ?? null,
     });

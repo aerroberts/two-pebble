@@ -7,6 +7,7 @@ export interface TasksUpdateDescriptionOperation {
   request: {
     id: string;
     description: string;
+    descriptionContent?: string | null;
   };
   response: {
     id: string;

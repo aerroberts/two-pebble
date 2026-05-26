@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from '../../content/icon/icon';
-import type { RichComposerBoard, RichComposerDocument, RichComposerReference } from './composer-types';
+import type {
+  RichComposerBoard,
+  RichComposerDocument,
+  RichComposerReference,
+  RichComposerTask,
+} from './composer-types';
 
 export interface SlashDocumentPopoverProps {
   /** Active slash trigger; popover hides when this is null. */
@@ -15,6 +20,7 @@ export interface SlashDocumentPopoverProps {
   query: string;
   boards?: ReadonlyArray<RichComposerBoard>;
   documents: ReadonlyArray<RichComposerDocument>;
+  tasks?: ReadonlyArray<RichComposerTask>;
   onSelect: (document: RichComposerDocument) => void;
   onCancel: () => void;
 }
@@ -29,6 +35,7 @@ export interface SlashReferencePopoverProps {
   query: string;
   boards: ReadonlyArray<RichComposerBoard>;
   documents: ReadonlyArray<RichComposerDocument>;
+  tasks: ReadonlyArray<RichComposerTask>;
   onSelect: (reference: RichComposerReference) => void;
   onCancel: () => void;
 }
@@ -49,10 +56,12 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
 
   const filtered = useMemo(
     () =>
-      buildReferences(props.documents, props.boards).filter((reference) =>
-        props.query.length === 0 ? true : reference.item.name.toLowerCase().includes(props.query),
+      buildReferences(props.documents, props.boards, props.tasks).filter((reference) =>
+        props.query.length === 0
+          ? true
+          : reference.item.name.toLowerCase().includes(props.query) || reference.type.includes(props.query),
       ),
-    [props.query, props.documents, props.boards],
+    [props.query, props.documents, props.boards, props.tasks],
   );
   const activeIndex = clamp(rawActiveIndex, 0, Math.max(filtered.length - 1, 0));
 
@@ -108,7 +117,7 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
         </span>
       </div>
       {filtered.length === 0 ? (
-        <div className="px-3 py-3 text-[12px] text-content-muted">No matching documents or boards.</div>
+        <div className="px-3 py-3 text-[12px] text-content-muted">No matching references.</div>
       ) : (
         <ul className="max-h-[240px] overflow-y-auto py-1">
           {filtered.map((reference, index) => (
@@ -128,7 +137,13 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
               >
                 <Icon
                   color="text-content-muted"
-                  name={reference.type === 'document' ? 'file-text' : 'layout-dashboard'}
+                  name={
+                    reference.type === 'document'
+                      ? 'file-text'
+                      : reference.type === 'task'
+                        ? 'list-todo'
+                        : 'layout-dashboard'
+                  }
                 />
                 <span className="min-w-0 flex-1 truncate font-medium">{reference.item.name}</span>
                 <span className="shrink-0 text-[10px] uppercase text-content-subtle">{reference.type}</span>
@@ -150,6 +165,7 @@ export function SlashDocumentPopover(props: SlashDocumentPopoverProps) {
       anchorTop={props.anchorTop}
       boards={props.boards ?? []}
       documents={props.documents}
+      tasks={props.tasks ?? []}
       onCancel={props.onCancel}
       onSelect={(reference) => {
         if (reference.type === 'document') {
@@ -175,9 +191,11 @@ function clamp(value: number, min: number, max: number): number {
 function buildReferences(
   documents: ReadonlyArray<RichComposerDocument>,
   boards: ReadonlyArray<RichComposerBoard>,
+  tasks: ReadonlyArray<RichComposerTask>,
 ): RichComposerReference[] {
   return [
     ...documents.map((item) => ({ type: 'document' as const, item })),
     ...boards.map((item) => ({ type: 'board' as const, item })),
+    ...tasks.map((item) => ({ type: 'task' as const, item })),
   ].sort((left, right) => left.item.name.localeCompare(right.item.name));
 }

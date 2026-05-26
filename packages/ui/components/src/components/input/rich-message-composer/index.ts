@@ -12,6 +12,7 @@ export type {
   RichComposerReference,
   RichComposerSlashTrigger,
   RichComposerSubmitPayload,
+  RichComposerTask,
 } from './composer-types';
 export { DocumentMentionNode } from './document-mention-node';
 export {
@@ -20,5 +21,6 @@ export {
   type RichMessageComposerVoiceHandlers,
 } from './rich-message-composer';
 export { RichTextField, type RichTextFieldProps } from './rich-text-field';
+export { TaskMentionNode } from './task-mention-node';
 export { tipTapDocToCells } from './tiptap-doc-to-cells';
 export { tipTapDocToMarkdown } from './tiptap-doc-to-markdown';

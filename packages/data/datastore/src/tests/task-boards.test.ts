@@ -217,9 +217,15 @@ describe('feature: operation tasks.update-description', () => {
   test('happy: updateDescription changes the task description', async () => {
     const datastore = await useDatastoreForTesting();
     const { taskId } = await seedBoardWithOneTask(datastore);
-    const updated = await datastore.taskBoards.tasks.updateDescription({ id: taskId, description: 'New body' });
+    const content = '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"New body"}]}]}';
+    const updated = await datastore.taskBoards.tasks.updateDescription({
+      id: taskId,
+      description: 'New body',
+      descriptionContent: content,
+    });
     await datastore.close();
     expect(updated.description).toBe('New body');
+    expect(updated.descriptionContent).toBe(content);
   });
 });
 

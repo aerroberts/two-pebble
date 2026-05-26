@@ -9,6 +9,7 @@ export interface TasksCreateOperation {
     poolId: string | null;
     name: string;
     description?: string;
+    descriptionContent?: string | null;
     templateId?: string | null;
     dependsOn: string[];
   };

@@ -33,6 +33,19 @@ export const BOARD_MENTION_DOC: JSONContent = {
   ],
 };
 
+export const TASK_MENTION_DOC: JSONContent = {
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: 'follow ' },
+        { type: 'taskMention', attrs: { taskId: 'task-1', name: 'QA checklist' } },
+      ],
+    },
+  ],
+};
+
 export const MIXED_MENTION_DOC: JSONContent = {
   type: 'doc',
   content: [

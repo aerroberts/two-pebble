@@ -31,6 +31,7 @@ export interface CreateTaskInput {
   poolId: string | null;
   name: string;
   description?: string;
+  descriptionContent?: string | null;
   dependsOn: string[];
   templateId?: string | null;
 }

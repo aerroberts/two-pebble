@@ -1,6 +1,10 @@
+import { logger } from '@two-pebble/logger';
+import { Cell } from '@two-pebble/pebble';
 import type { DaemonProtocol } from '@two-pebble/protocol';
 import type { ProtocolInboundOps, ProtocolOpByName } from '@two-pebble/ws-bridge';
 import type { DaemonHandlerContext } from '../types';
+import { resolveReferenceCells } from './resolve-document-reference-cells';
+import { taskDescriptionToCells } from './task-description-cells';
 
 type DelegateTaskOperation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'delegateTask'>;
 type Payload = DelegateTaskOperation['request'];
@@ -10,6 +14,10 @@ export function handler(ctx: DaemonHandlerContext) {
     const task = await findTask(ctx, payload.taskId);
     const registry = await ctx.datastore.agentRegistries.read({ id: payload.agentRegistryId });
     const taskDescription = task.description ?? '';
+    const descriptionCells = taskDescriptionToCells({
+      description: taskDescription,
+      descriptionContent: task.descriptionContent ?? null,
+    });
     const message = [
       'Please complete the assigned task.',
       '',
@@ -21,9 +29,30 @@ export function handler(ctx: DaemonHandlerContext) {
     ]
       .filter((line): line is string => line !== undefined)
       .join('\n');
+    const rawCells = [
+      Cell.text(
+        [
+          'Please complete the assigned task.',
+          '',
+          `Task: ${task.name}`,
+          `Task id: ${task.id}`,
+          `Board id: ${task.boardId}`,
+        ].join('\n'),
+      ),
+      ...(descriptionCells.length > 0 ? [Cell.header2('Description'), ...descriptionCells] : []),
+      ...(task.additionalContext.length > 0
+        ? [Cell.header2('Additional context'), Cell.text(task.additionalContext)]
+        : []),
+    ];
+    const cells = await resolveReferenceCells({
+      cells: rawCells,
+      datastore: ctx.datastore,
+      logger,
+    });
     const launched = await ctx.agentRegistry.launch({
       agentRegistryId: payload.agentRegistryId,
       message,
+      cells,
     });
     const taskAssignedTrace = await ctx.datastore.agent.traces.record({
       agentId: launched.id,
@@ -72,6 +101,7 @@ interface MinimalTaskRow {
   boardId: string;
   name: string;
   description: string | null;
+  descriptionContent: string | null;
   additionalContext: string;
   ownerId: string | null;
 }

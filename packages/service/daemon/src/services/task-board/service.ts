@@ -130,8 +130,8 @@ export class TaskBoardService extends DaemonService {
    * Updates a task's free-form description and persists the change.
    * Like rename, the engine ignores prose fields, so this is a pure DB write.
    */
-  public async updateTaskDescription(id: string, description: string) {
-    return this.datastore.taskBoards.tasks.updateDescription({ id, description });
+  public async updateTaskDescription(id: string, description: string, descriptionContent?: string | null) {
+    return this.datastore.taskBoards.tasks.updateDescription({ id, description, descriptionContent });
   }
 
   /**
@@ -202,6 +202,7 @@ export class TaskBoardService extends DaemonService {
       poolId,
       name: input.name,
       description: input.description,
+      descriptionContent: input.descriptionContent,
       templateId: input.templateId ?? null,
       status: 'pending',
     });
