@@ -15,15 +15,10 @@ export function SearchableDropdown(props: SearchableDropdownProps) {
     return <div className="px-2 py-4 text-center text-[12px] font-medium leading-4 text-content-muted">No matches</div>;
   }
   return (
-    <div
-      className="max-h-[240px] overflow-y-auto p-1"
-      // biome-ignore lint/a11y/useSemanticElements: searchable Radix-style dropdown, not a native form select
-      role="listbox"
-    >
+    <div className="max-h-[240px] overflow-y-auto p-1" role="listbox">
       {props.options.map((option, i) => (
         <div
           key={option.value}
-          // biome-ignore lint/a11y/useSemanticElements: option inside a non-native listbox
           role="option"
           tabIndex={-1}
           aria-selected={option.value === props.currentValue}

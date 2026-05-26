@@ -120,7 +120,6 @@ export function DocumentInsertPopover(props: DocumentInsertPopoverProps) {
     <div
       className="z-[1100] fixed flex w-[280px] flex-col overflow-hidden rounded-md border border-border bg-surface-raised shadow-modal"
       style={{ left: props.anchorLeft, top: props.anchorTop + 4 }}
-      // biome-ignore lint/a11y/useSemanticElements: floating popover, not an inline form control
       role="listbox"
       aria-label="Insert into document"
     >
