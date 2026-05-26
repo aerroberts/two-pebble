@@ -1,9 +1,18 @@
 'use client';
 
-import { useToast } from '@two-pebble/components';
-import { useAppSettings, useSendAssistantMessage } from '@two-pebble/realtime';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { MinimalSelect, type SelectOption, useToast } from '@two-pebble/components';
+import {
+  useAgentRegistries,
+  useAppSettings,
+  useInferenceProfiles,
+  useLaunchAgent,
+  useSendAssistantMessage,
+  useThirdPartyAgentInstalls,
+} from '@two-pebble/realtime';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AgentInput, type RichComposerSubmitPayload } from '../shared/agent-input/agent-input';
+import { agentRegistryIcon } from '../shared/agents/agent-registry-icon';
 
 /**
  * Global Command-K assistant overlay.
@@ -19,13 +28,32 @@ import { AgentInput, type RichComposerSubmitPayload } from '../shared/agent-inpu
 export function AssistantCommandK() {
   const appSettings = useAppSettings();
   const sendAssistantMessage = useSendAssistantMessage();
+  const launchAgent = useLaunchAgent();
+  const agentRegistries = useAgentRegistries();
+  const inferenceProfiles = useInferenceProfiles();
+  const installs = useThirdPartyAgentInstalls();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const settings = appSettings.value;
   const enabled = settings?.assistantCommandKEnabled ?? false;
   const startInVoiceMode = settings?.assistantCommandKVoiceModeEnabled ?? false;
+  const assistantRegistryId = settings?.assistantAgentRegistryId ?? null;
+
+  const agentRegistryOptions = useMemo<SelectOption[]>(() => {
+    const sorted = agentRegistries.values().sort((left, right) => left.name.localeCompare(right.name));
+    return sorted.map((registry) => ({
+      icon: agentRegistryIcon(registry, inferenceProfiles, installs),
+      label:
+        registry.id === assistantRegistryId ? 'Assistant' : registry.name.length > 0 ? registry.name : 'Untitled agent',
+      value: registry.id,
+    }));
+  }, [agentRegistries, assistantRegistryId, inferenceProfiles, installs]);
+
+  const activeAgentId = selectedAgentId ?? assistantRegistryId;
 
   const close = useCallback(() => {
     setOpen(false);
@@ -66,21 +94,29 @@ export function AssistantCommandK() {
     return null;
   }
 
-  const registryId = settings?.assistantAgentRegistryId ?? null;
-
-  const sendToAssistant = async (payload: RichComposerSubmitPayload) => {
+  const sendToAgent = async (payload: RichComposerSubmitPayload) => {
     const trimmed = payload.markdown.trim();
     if (trimmed.length === 0 && payload.cells.length === 0) {
       return;
     }
     close();
-    if (registryId === null) {
-      toast('Pick an Assistant agent in Settings before sending.', 'error');
+    if (activeAgentId === null) {
+      toast('Pick an agent before sending.', 'error');
       return;
     }
     try {
-      const result = await sendAssistantMessage({ message: trimmed, cells: payload.cells });
-      toast(result.launched ? 'Started Assistant and sent message.' : 'Sent to Assistant.', 'success');
+      if (activeAgentId === assistantRegistryId) {
+        const result = await sendAssistantMessage({ message: trimmed, cells: payload.cells });
+        toast(result.launched ? 'Started Assistant and sent message.' : 'Sent to Assistant.', 'success');
+        return;
+      }
+      const launched = await launchAgent({
+        agentRegistryId: activeAgentId,
+        message: trimmed,
+        cells: payload.cells,
+      });
+      toast('Launched agent.', 'success');
+      navigate(`/agents/${launched.id}`);
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : 'Failed to send.';
       toast(message, 'error');
@@ -109,10 +145,19 @@ export function AssistantCommandK() {
           initialMode={startInVoiceMode ? 'voice' : 'text'}
           maxHeight={280}
           minHeight={120}
-          onSubmit={(payload) => void sendToAssistant(payload)}
+          onSubmit={(payload) => void sendToAgent(payload)}
           placeholder="Type or speak — Enter to send, / for documents"
-          submitDisabled={registryId === null}
+          submitDisabled={activeAgentId === null}
         />
+        <div className="flex pt-1">
+          <MinimalSelect
+            ariaLabel="Agent"
+            onChange={setSelectedAgentId}
+            options={agentRegistryOptions}
+            placeholder={agentRegistries.status === 'loading' ? 'Loading agents' : 'Assistant'}
+            value={activeAgentId ?? undefined}
+          />
+        </div>
       </div>
     </>
   );
