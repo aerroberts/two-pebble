@@ -15,6 +15,7 @@ import {
   parseTranscript,
   parseTranscriptUsages,
   type SubagentMetadata,
+  taskSystemMessageToTaskListTrace,
   userMessageToTraces,
   wrapTraces,
 } from './claude-code-trace-mapping';
@@ -50,6 +51,9 @@ export class ClaudeCodeEventConverter {
     }
     if (message.type === 'result') {
       return convertResultMessage(message, provider);
+    }
+    if (message.type === 'system') {
+      return this.convertSystemMessage(message);
     }
     return [];
   }
@@ -116,6 +120,15 @@ export class ClaudeCodeEventConverter {
       this.previousTaskList = taskList;
     }
     return wrapTraces(traces, this.readSubagentMetadata(message));
+  }
+
+  private convertSystemMessage(message: SDKMessage): ConvertedClaudeCodeEvent[] {
+    const update = taskSystemMessageToTaskListTrace(message, this.previousTaskList);
+    if (update === undefined) {
+      return [];
+    }
+    this.previousTaskList = update.tasks;
+    return [{ kind: 'agent-trace', trace: update.trace }];
   }
 
   private convertUserMessage(message: SDKUserMessage): ConvertedClaudeCodeEvent[] {
