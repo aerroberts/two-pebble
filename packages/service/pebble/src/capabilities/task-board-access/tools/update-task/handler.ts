@@ -8,7 +8,10 @@ const schema = z.object({
   taskId: z.string().min(1).describe('Task id to update.'),
   name: z.string().optional().describe('Optional replacement task name.'),
   description: z.string().optional().describe('Optional replacement task description.'),
-  status: z.enum(['working', 'waiting', 'success', 'failure']).optional().describe('Optional replacement status.'),
+  status: z
+    .enum(['working', 'waiting', 'success', 'failure', 'canceled'])
+    .optional()
+    .describe('Optional replacement status.'),
   reason: z.string().optional().describe('Required when status is provided.'),
 });
 

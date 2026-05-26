@@ -292,7 +292,7 @@ export class TaskBoard {
   }
 
   private requireValidTransition(taskId: string, current: TaskEffectiveStatus, requested: SettableTaskStatus): void {
-    if (current === 'success' || current === 'failure') {
+    if (current === 'success' || current === 'failure' || current === 'canceled') {
       throw new InvalidStatusTransitionError(taskId, current, requested);
     }
     if (current === 'blocked' && (requested === 'working' || requested === 'waiting')) {
@@ -312,7 +312,7 @@ export class TaskBoard {
   private isResolved(id: string): boolean {
     if (this.tasksById.has(id)) {
       const stored = this.storedStatusByTaskId.get(id) as TaskStoredStatus;
-      return stored === 'success' || stored === 'failure';
+      return stored === 'success' || stored === 'failure' || stored === 'canceled';
     }
     if (!this.poolsById.has(id)) {
       return false;
@@ -329,7 +329,7 @@ export class TaskBoard {
 
   private computeEffectiveStatus(taskId: string): TaskEffectiveStatus {
     const stored = this.storedStatusByTaskId.get(taskId) as TaskStoredStatus;
-    if (stored === 'success' || stored === 'failure') {
+    if (stored === 'success' || stored === 'failure' || stored === 'canceled') {
       return stored;
     }
     if (stored === 'working' || stored === 'waiting') {

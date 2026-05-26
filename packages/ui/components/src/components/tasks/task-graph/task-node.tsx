@@ -37,6 +37,13 @@ const TASK_NODE_CONFIG: Record<TaskStatusIconStatus, TaskNodeStatusConfig> = {
     icon: 'x',
     iconColor: 'text-danger',
   },
+  canceled: {
+    bg: 'bg-surface-alt',
+    ring: 'ring-1 ring-border',
+    icon: 'circle-slash',
+    iconColor: 'text-content-muted',
+    opacity: 'opacity-60',
+  },
 };
 
 export function TaskNode(props: NodeProps<TaskFlowNode>) {
