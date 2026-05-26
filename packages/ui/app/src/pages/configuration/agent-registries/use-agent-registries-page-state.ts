@@ -8,6 +8,11 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const DEFAULT_PEBBLE_CAPABILITIES: { id: string; config: Record<string, never> }[] = [
+  { id: 'workspace-access', config: {} },
+  { id: 'document-writer', config: {} },
+];
+
 export function useAgentRegistriesPageState() {
   const createAgentRegistry = useCreateAgentRegistry();
   const agentRegistries = useAgentRegistries();
@@ -28,6 +33,7 @@ export function useAgentRegistriesPageState() {
     setCreating(true);
     try {
       const created = await createAgentRegistry({
+        capabilities: JSON.stringify(DEFAULT_PEBBLE_CAPABILITIES),
         inferenceProfileId: profile.id,
         name: '',
         systemPrompt: emptyAgentSystemPrompt(),

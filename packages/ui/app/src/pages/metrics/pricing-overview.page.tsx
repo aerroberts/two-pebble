@@ -151,22 +151,31 @@ export function PricingOverviewPage() {
     [agents, agentRegistries, integrations, inferenceProfiles],
   );
 
+  // Only keep series that actually have non-zero spend within the selected
+  // range; agents/groups whose variants exist historically but contributed
+  // nothing in this window get dropped from the legend so the chart key
+  // matches what the chart is rendering.
+  const seriesBucketsInRange = useMemo(
+    () => seriesBuckets.filter((entry) => entry.buckets.some((bucket) => bucket.sum > 0 || bucket.sampleCount > 0)),
+    [seriesBuckets],
+  );
+
   const series = useMemo<StackedTimelineBarChartSeries[]>(() => {
-    return seriesBuckets.map((entry) => ({
+    return seriesBucketsInRange.map((entry) => ({
       id: entry.value,
       label: labelLookup[groupBy].get(entry.value) ?? entry.value,
     }));
-  }, [seriesBuckets, groupBy, labelLookup]);
+  }, [seriesBucketsInRange, groupBy, labelLookup]);
 
   const points = useMemo<StackedTimelineBarChartPoint[]>(() => {
     const out: StackedTimelineBarChartPoint[] = [];
-    for (const entry of seriesBuckets) {
+    for (const entry of seriesBucketsInRange) {
       for (const bucket of entry.buckets) {
         out.push({ timestamp: bucket.bucketStart, seriesId: entry.value, value: bucket.sum });
       }
     }
     return out;
-  }, [seriesBuckets]);
+  }, [seriesBucketsInRange]);
 
   const totalSum = useMemo(() => {
     let sum = 0;

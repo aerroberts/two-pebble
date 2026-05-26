@@ -1,6 +1,5 @@
 import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../../content/icon/icon';
-import { Select, type SelectOption } from '../../input/select/select';
 import { TaskStatusIcon } from '../task-status-icon/task-status-icon';
 import type { TaskStatusIconStatus } from '../task-status-icon/types';
 import {
@@ -27,7 +26,6 @@ export interface TaskListCreateAfterInput {
   poolId: string | null;
   afterTaskId: string | null;
   name?: string;
-  templateId?: string | null;
 }
 
 export interface TaskListProps {
@@ -39,7 +37,6 @@ export interface TaskListProps {
   onRenameTask?: (taskId: string, name: string) => void;
   onCreateTaskAfter?: (input: TaskListCreateAfterInput) => Promise<string | undefined>;
   onDeleteTask?: (taskId: string) => void;
-  templateOptions?: SelectOption[];
   /**
    * Optional trailing accessory rendered to the right of each task row.
    * Used by the task board page to embed delegation + status controls
@@ -64,7 +61,7 @@ export function TaskList(props: TaskListProps) {
   const [pendingFocusId, setPendingFocusId] = useState<string | null>(null);
   useFocusPending(pendingFocusId, cellRefs.current, () => setPendingFocusId(null));
 
-  const createFromGhost = async (name: string, templateId: string | null) => {
+  const createFromGhost = async (name: string) => {
     if (props.onCreateTaskAfter === undefined) {
       return;
     }
@@ -73,7 +70,6 @@ export function TaskList(props: TaskListProps) {
       poolId: null,
       afterTaskId: null,
       name: trimmed.length > 0 ? trimmed : undefined,
-      templateId,
     });
     if (newTaskId === undefined) {
       return;
@@ -87,9 +83,8 @@ export function TaskList(props: TaskListProps) {
     return <div className="px-3 py-4 text-[12px] text-content-muted">{props.emptyState ?? 'Nothing to show.'}</div>;
   }
 
-  const focusLastCell = () => {
-    for (let index = flatOrder.length - 1; index >= 0; index -= 1) {
-      const taskId = flatOrder[index];
+  const focusFirstCell = () => {
+    for (const taskId of flatOrder) {
       if (taskId === undefined) {
         continue;
       }
@@ -138,6 +133,7 @@ export function TaskList(props: TaskListProps) {
 
   return (
     <ul className="flex flex-col gap-0.5">
+      {canCreate ? <TaskListGhostRow depth={0} onCreateTask={createFromGhost} onArrowDown={focusFirstCell} /> : null}
       {tree.map((node) => (
         <TaskListNodeRow
           key={node.id}
@@ -154,14 +150,6 @@ export function TaskList(props: TaskListProps) {
           onChangeStatus={props.onChangeStatus}
         />
       ))}
-      {canCreate ? (
-        <TaskListGhostRow
-          depth={0}
-          onCreateTask={createFromGhost}
-          onArrowUp={focusLastCell}
-          templateOptions={props.templateOptions ?? []}
-        />
-      ) : null}
     </ul>
   );
 }
@@ -355,15 +343,13 @@ function TaskListCellRow(props: TaskListCellRowProps) {
 
 interface TaskListGhostRowProps {
   depth: number;
-  onCreateTask: (name: string, templateId: string | null) => void | Promise<void>;
-  onArrowUp?: () => void;
-  templateOptions: SelectOption[];
+  onCreateTask: (name: string) => void | Promise<void>;
+  onArrowDown?: () => void;
 }
 
 function TaskListGhostRow(props: TaskListGhostRowProps) {
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
-  const [templateId, setTemplateId] = useState('none');
 
   const handleKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -373,16 +359,16 @@ function TaskListGhostRow(props: TaskListGhostRowProps) {
       }
       setBusy(true);
       try {
-        await props.onCreateTask(draft, templateId === 'none' ? null : templateId);
+        await props.onCreateTask(draft);
         setDraft('');
       } finally {
         setBusy(false);
       }
       return;
     }
-    if (event.key === 'ArrowUp' && props.onArrowUp !== undefined) {
+    if (event.key === 'ArrowDown' && props.onArrowDown !== undefined) {
       event.preventDefault();
-      props.onArrowUp();
+      props.onArrowDown();
     }
   };
 
@@ -394,14 +380,6 @@ function TaskListGhostRow(props: TaskListGhostRowProps) {
       >
         <span className="inline-block w-3.5 shrink-0" />
         <TaskStatusIcon status="open" size="sm" />
-        {props.templateOptions.length > 0 ? (
-          <Select
-            options={[{ value: 'none', label: 'No template' }, ...props.templateOptions]}
-            value={templateId}
-            onChange={(value) => setTemplateId(value)}
-            variant="borderless"
-          />
-        ) : null}
         <input
           aria-label="New task name"
           className="flex-1 truncate bg-transparent font-heading font-normal tracking-[0.08em] text-current outline-none"

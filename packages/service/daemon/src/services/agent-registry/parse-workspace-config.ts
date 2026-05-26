@@ -1,4 +1,5 @@
 import type { AgentRegistryWorkspaceConfig } from '@two-pebble/datatypes';
+import { logger } from '@two-pebble/logger';
 import type { PebbleJsonValue } from '@two-pebble/pebble';
 import type { ParseWorkspaceConfigInput } from './types';
 
@@ -22,14 +23,14 @@ export function parseWorkspaceConfig(input: ParseWorkspaceConfigInput): AgentReg
     parsed = JSON.parse(raw) as PebbleJsonValue;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    input.logger.warn('agent registry workspace config parse failed', {
+    logger.warn('agent registry workspace config parse failed', {
       error: message,
       registryId: input.registry.id,
     });
     return FALLBACK_CONFIG;
   }
   if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    input.logger.warn('agent registry workspace config not object', { registryId: input.registry.id });
+    logger.warn('agent registry workspace config not object', { registryId: input.registry.id });
     return FALLBACK_CONFIG;
   }
   const record = parsed as Record<string, PebbleJsonValue | undefined>;
@@ -49,6 +50,6 @@ export function parseWorkspaceConfig(input: ParseWorkspaceConfigInput): AgentReg
   if (kind === 'worktree' && typeof record.repositoryId === 'string') {
     return { kind: 'worktree', repositoryId: record.repositoryId };
   }
-  input.logger.warn('agent registry workspace config kind invalid', { registryId: input.registry.id });
+  logger.warn('agent registry workspace config kind invalid', { registryId: input.registry.id });
   return FALLBACK_CONFIG;
 }

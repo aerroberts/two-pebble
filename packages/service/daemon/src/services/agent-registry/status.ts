@@ -1,5 +1,5 @@
 import type { Datastore } from '@two-pebble/datastore';
-import type { Logger } from '@two-pebble/logger';
+import { logger } from '@two-pebble/logger';
 import type { Agent, PebbleJsonRecord } from '@two-pebble/pebble';
 import type { DaemonEventSink } from '../../types';
 import type { TaskBoardService } from '../task-board/service';
@@ -7,7 +7,6 @@ import type { PersistAgentStatusInput } from './types';
 
 interface InterruptStaleRunningAgentsInput {
   datastore: Datastore;
-  logger: Logger;
 }
 
 /**
@@ -21,15 +20,14 @@ export async function interruptStaleRunningAgents(input: InterruptStaleRunningAg
   for (const agent of interrupted) {
     await input.datastore.agent.setStatus({ id: agent.id, status: 'interrupted' }).catch((error) => {
       const message = error instanceof Error ? error.message : String(error);
-      input.logger.warn('agent interrupt audit failed', { agentId: agent.id, error: message });
+      logger.warn('agent interrupt audit failed', { agentId: agent.id, error: message });
     });
   }
-  input.logger.info('agent interrupt audit complete', { count: interrupted.length });
+  logger.info('agent interrupt audit complete', { count: interrupted.length });
 }
 
 interface PersistStatusInput extends PersistAgentStatusInput {
   datastore: Datastore;
-  logger: Logger;
   activeAgents: Map<string, Agent>;
   taskBoards: TaskBoardService;
   /**
@@ -57,7 +55,7 @@ export async function persistAgentStatus(input: PersistStatusInput): Promise<voi
     input.onStatusPersisted?.(input.agentId, input.status);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    input.logger.warn('agent status write failed', { agentId: input.agentId, error: message });
+    logger.warn('agent status write failed', { agentId: input.agentId, error: message });
     return;
   }
   if (input.status !== 'failed') {
@@ -77,7 +75,7 @@ export async function persistAgentStatus(input: PersistStatusInput): Promise<voi
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    input.logger.warn('task status sync from agent failed', { agentId: input.agentId, error: message });
+    logger.warn('task status sync from agent failed', { agentId: input.agentId, error: message });
   }
 }
 
@@ -85,7 +83,6 @@ interface PersistMetadataInput {
   agentId: string;
   datastore: Datastore;
   events: DaemonEventSink;
-  logger: Logger;
   metadata: PebbleJsonRecord;
 }
 
@@ -103,6 +100,6 @@ export async function persistAgentMetadata(input: PersistMetadataInput): Promise
     input.events.emit('agentRecorded', updated);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    input.logger.warn('agent metadata write failed', { agentId: input.agentId, error: message });
+    logger.warn('agent metadata write failed', { agentId: input.agentId, error: message });
   }
 }

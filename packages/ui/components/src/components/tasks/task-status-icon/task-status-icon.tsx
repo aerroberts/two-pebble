@@ -16,7 +16,7 @@ interface StatusConfig {
 
 const STATUS_CONFIG: Record<TaskStatusIconStatus, StatusConfig> = {
   blocked: { iconName: 'slash', color: 'text-content-muted' },
-  open: { iconName: 'dot', color: 'text-content-subtle' },
+  open: { iconName: 'circle-dot-dashed', color: 'text-content-subtle' },
   working: { iconName: 'loader-circle', color: 'text-accent', animation: 'animate-spin' },
   waiting: { iconName: 'square', color: 'text-content-muted' },
   success: { iconName: 'check', color: 'text-success' },

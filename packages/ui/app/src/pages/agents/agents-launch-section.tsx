@@ -1,4 +1,4 @@
-import { Section, Select, type SelectOption, Surface } from '@two-pebble/components';
+import { MinimalSelect, Section, type SelectOption, Surface } from '@two-pebble/components';
 import { AgentInput, type RichComposerSubmitPayload } from '../../shared/agent-input/agent-input';
 
 interface AgentsLaunchSectionProps {
@@ -14,22 +14,16 @@ interface AgentsLaunchSectionProps {
  * New-agent launch surface.
  *
  * Picks a registry and hands the first turn straight to the shared rich
- * composer. /doc mentions inserted here ride through as structured
- * `documentReference` cells on the launch operation, so the agent's
- * opening turn includes resolved document snapshots.
+ * composer. The agent picker sits below the input as a minimal inline
+ * dropdown (name + chevron, no chrome) so the composer dominates the
+ * surface visually. /doc mentions inserted here ride through as
+ * structured `documentReference` cells on the launch operation, so the
+ * agent's opening turn includes resolved document snapshots.
  */
 export function AgentsLaunchSection(props: AgentsLaunchSectionProps) {
   return (
     <Section title="Launch">
       <Surface>
-        <Select
-          fullWidth
-          label="Agent"
-          onChange={props.onAgentRegistryIdChange}
-          options={props.agentRegistryOptions}
-          placeholder={props.agentRegistriesLoading ? 'Loading agents' : 'Select agent'}
-          value={props.agentRegistryId}
-        />
         <AgentInput
           ariaLabel="Launch message"
           disabled={props.launching}
@@ -38,6 +32,15 @@ export function AgentsLaunchSection(props: AgentsLaunchSectionProps) {
           placeholder="Enter to launch — / to reference a document"
           submitDisabled={props.agentRegistryId.length === 0}
         />
+        <div className="flex pt-1">
+          <MinimalSelect
+            ariaLabel="Agent"
+            onChange={props.onAgentRegistryIdChange}
+            options={props.agentRegistryOptions}
+            placeholder={props.agentRegistriesLoading ? 'Loading agents' : 'Select agent'}
+            value={props.agentRegistryId}
+          />
+        </div>
       </Surface>
     </Section>
   );

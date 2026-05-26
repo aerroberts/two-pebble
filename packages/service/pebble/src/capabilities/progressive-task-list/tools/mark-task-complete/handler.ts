@@ -13,14 +13,13 @@ export function buildMarkTaskCompleteTool(capability: ProgressiveTaskListCapabil
     description: 'Marks a progressive task as completed.',
     name: 'mark-task-complete',
     schema,
-  }).onInvoke(async (input) => {
+  }).onInvoke((input) => {
     try {
       capability.completeTaskSuccessfully(input.taskId, input.reason);
-      await capability.mirrorStatusToDocument({
-        taskId: input.taskId,
-        status: 'completed',
-        completionType: 'manual',
-      });
+      // Intentionally do NOT mirror status back into the bound document.
+      // Document todos are immutable templates — the agent's completion
+      // applies only to the in-memory progressive task list mapped off
+      // those todos at launch time.
       return ToolResponse.success([Cell.text(`Marked ${input.taskId} complete.`)]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
