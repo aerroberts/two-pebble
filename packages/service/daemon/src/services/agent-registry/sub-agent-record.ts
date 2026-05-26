@@ -38,9 +38,9 @@ export async function readSubAgent(datastore: Datastore, id: string) {
  * Idempotent sub-agent record creation.
  *
  * Reads first and returns the existing record when one already exists for the
- * given id, so framework agents emitting repeated sub-agent-invoke traces (or
- * concurrent ensureSubAgent callers that lose the in-memory pending-map race)
- * never end up with duplicate rows. Falls back to the read path again on a
+ * given id, so repeated sub-agent-invoke traces (or concurrent
+ * ensureSubAgent callers that lose the in-memory pending-map race) never end
+ * up with duplicate rows. Falls back to the read path again on a
  * unique-constraint error from the underlying create so we stay safe even
  * under concurrent writers we did not coordinate through `pending`.
  */

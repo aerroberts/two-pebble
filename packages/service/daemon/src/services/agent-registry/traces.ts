@@ -8,7 +8,7 @@ interface RecordAgentTraceInput extends RecordTraceInput {
 }
 
 export async function recordAgentTrace(input: RecordAgentTraceInput): Promise<void> {
-  if (input.trace.type === 'sub-agent-invoke') {
+  if (input.trace.type === 'sub-agent-invoke' && input.persistSubAgentRecordOnInvoke !== false) {
     await ensureSubAgent(
       { datastore: input.datastore, pending: input.pending },
       {

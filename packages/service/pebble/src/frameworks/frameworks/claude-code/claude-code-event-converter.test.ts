@@ -162,11 +162,12 @@ describe('feature: claude code event converter — result messages', () => {
 });
 
 describe('feature: claude code event converter — sub-agent transcripts', () => {
-  it('happy: SubagentStop emits invoke + outcome + stop + per-model usage', () => {
+  it('happy: SubagentStop emits stop + per-model usage without durable sub-agent traces', () => {
     const stop = subagentStopHookInput('child-1', 'researcher', '/tmp/x.jsonl');
     const events = new ClaudeCodeEventConverter().convertSubagentStop(stop, successTranscript, 'anthropic');
     const kinds = events.map((event) => event.kind);
-    expect(kinds).toEqual(['agent-trace', 'agent-trace', 'sub-agent-stop', 'usage', 'sub-agent-usage']);
+    expect(kinds).toEqual(['sub-agent-stop', 'usage', 'sub-agent-usage']);
+    expect(events.some((event) => event.kind === 'agent-trace' && event.trace.type === 'sub-agent-invoke')).toBe(false);
   });
 
   it('unhappy: same transcript path is processed only once', () => {

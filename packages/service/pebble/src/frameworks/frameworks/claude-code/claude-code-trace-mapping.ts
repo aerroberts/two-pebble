@@ -8,7 +8,6 @@ import type {
   SDKTaskStartedMessage,
   SDKTaskUpdatedMessage,
   SDKUserMessage,
-  SubagentStopHookInput,
 } from '@anthropic-ai/claude-agent-sdk';
 import type { ToolResultBlockParam } from '@anthropic-ai/sdk/resources';
 import type { UsageReport } from '../../../pricing';
@@ -341,23 +340,6 @@ export function convertResultMessage(message: SDKResultMessage, provider: string
     });
   }
   return events;
-}
-
-export function invokeTrace(input: SubagentStopHookInput, parsed: ParsedTranscript): PebbleAgentTrace {
-  return {
-    type: 'sub-agent-invoke',
-    data: { agentInstanceId: input.agent_id, agentTemplateId: input.agent_type, input: parsed.input },
-  };
-}
-
-export function outcomeTrace(input: SubagentStopHookInput, parsed: ParsedTranscript): PebbleAgentTrace {
-  if (parsed.status === 'failure') {
-    return {
-      type: 'sub-agent-failure',
-      data: { agentInstanceId: input.agent_id, error: parsed.error ?? 'Sub-agent failed.', output: parsed.output },
-    };
-  }
-  return { type: 'sub-agent-success', data: { agentInstanceId: input.agent_id, output: parsed.output } };
 }
 
 export function parseTranscript(transcript: string): ParsedTranscript {

@@ -12,8 +12,6 @@ import {
   type ConvertedClaudeCodeEvent,
   convertResultMessage,
   type ForwardedMetadata,
-  invokeTrace,
-  outcomeTrace,
   parseTranscript,
   parseTranscriptUsages,
   type SubagentMetadata,
@@ -91,8 +89,6 @@ export class ClaudeCodeEventConverter {
     }
     const parsed = parseTranscript(transcript);
     const events: ConvertedClaudeCodeEvent[] = [
-      { kind: 'agent-trace', trace: invokeTrace(input, parsed) },
-      { kind: 'agent-trace', trace: outcomeTrace(input, parsed) },
       {
         kind: 'sub-agent-stop',
         event: {
