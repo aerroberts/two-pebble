@@ -44,6 +44,12 @@ export class PebbleAgent extends Agent {
   private readonly capabilities: AgentCapability[] = [];
   private readonly agentTools: AgentToolRegistration[] = [];
 
+  // Set by `stop` so the agentic loop exits at the next boundary without
+  // queuing another model call. Cleared every time the loop reads it so
+  // a later message can run a fresh loop on the same instance.
+  private stopRequested = false;
+  private stopReason = '';
+
   public constructor(config: PebbleAgentConfig) {
     super({
       agentId: config.agentId,
@@ -298,6 +304,20 @@ export class PebbleAgent extends Agent {
    */
   private async runLoop(): Promise<boolean> {
     while (true) {
+      // If a stop was requested, exit the loop without starting another turn.
+      // The in-flight turn (if any) already completed because the check sits
+      // at the loop boundary; this only prevents a fresh model call.
+      if (this.stopRequested) {
+        const reason = this.stopReason;
+        this.stopRequested = false;
+        this.stopReason = '';
+        this.emit('trace', {
+          type: 'agent-failure',
+          data: { content: [Cell.text(`Stopped: ${reason}`)], error: `stopped: ${reason}` },
+        });
+        return false;
+      }
+
       // First we process any durable signals that might have woken the agent
       const waitingForSignal = await this.pullSignals();
       if (waitingForSignal) {
@@ -338,6 +358,19 @@ export class PebbleAgent extends Agent {
       }
     }
     return false;
+  }
+
+  /**
+   * Soft-stops the agent. Records a stop request so the agentic loop exits
+   * at the next iteration boundary instead of queuing another model call.
+   * The currently in-flight turn (model call + any pending tools) completes
+   * because there is no way to interrupt it mid-flight, but no new turn is
+   * started. The registry service flips the durable status to idle after
+   * this returns.
+   */
+  public async stop(reason: string): Promise<void> {
+    this.stopRequested = true;
+    this.stopReason = reason;
   }
 
   /**
