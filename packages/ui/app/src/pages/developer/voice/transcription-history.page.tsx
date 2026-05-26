@@ -1,4 +1,4 @@
-import { Button, Header, ListLayout, PageLayout, RelativeTime, Select } from '@two-pebble/components';
+import { Button, Header, ListLayout, PageLayout, RelativeTime, Select, useToast } from '@two-pebble/components';
 import {
   type ThreadSnapshotCellRecord,
   type ThreadSummaryRecord,
@@ -25,10 +25,10 @@ const LIMIT_OPTIONS = [
 export function TranscriptionHistoryPage() {
   const listThreads = useListThreads();
   const readThreadSnapshot = useReadThreadSnapshot();
+  const { toast } = useToast();
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [limit, setLimit] = useState('50');
   const [entries, setEntries] = useState<TranscriptionHistoryEntry[]>([]);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const numericLimit = useMemo(() => Number.parseInt(limit, 10), [limit]);
 
@@ -61,9 +61,12 @@ export function TranscriptionHistoryPage() {
   }, [loadHistory]);
 
   const copyText = async (entry: TranscriptionHistoryEntry) => {
-    await navigator.clipboard.writeText(entry.text);
-    setCopiedId(entry.id);
-    window.setTimeout(() => setCopiedId((current) => (current === entry.id ? null : current)), 1200);
+    try {
+      await navigator.clipboard.writeText(entry.text);
+      toast('Transcription copied to clipboard.', 'success');
+    } catch {
+      toast('Failed to copy transcription.', 'error');
+    }
   };
 
   const emptyState =
@@ -94,13 +97,8 @@ export function TranscriptionHistoryPage() {
           icon: 'mic',
           key: entry.id,
           onClick: () => void copyText(entry),
-          subtitle: <RelativeTime date={entry.updatedAt} hideIcon />,
           title: entry.text,
-          trailingAccessory: (
-            <Button onClick={() => void copyText(entry)} type="button">
-              {copiedId === entry.id ? 'Copied' : 'Copy'}
-            </Button>
-          ),
+          trailingAccessory: <RelativeTime date={entry.updatedAt} hideIcon />,
         }))}
       />
     </PageLayout>
