@@ -23,6 +23,7 @@ export function installAgentPersistenceListeners(install: AgentListenerInstallIn
         agentId: input.agentId,
         events: input.events,
         orderId: nextOrderId(),
+        persistSubAgentRecordOnInvoke: !(input.agent instanceof FrameworkAgent),
         trace,
         workspaceId: input.workspaceId,
       })
@@ -74,16 +75,14 @@ export function installAgentPersistenceListeners(install: AgentListenerInstallIn
  * We treat those framework subagents as in-flight tool calls instead:
  * - `subAgentStart` becomes a `tool-call-start` trace on the parent.
  * - `subAgentStop` becomes `tool-call-success` or `tool-call-failure`.
- * - `subAgentTrace` is dropped — the parent's own trace stream already
- *   carries the relevant model/assistant activity; subagent-internal
- *   traces would add noise without distinct identity.
+ * - `subAgentTrace` is dropped — subagent-internal traces are framework
+ *   implementation details and should not create a durable child stream.
  * - `subAgentUsage` is still priced, but the line items are attributed
  *   to the parent so cost-per-agent reports stay correct.
  *
  * The listener is only attached to framework agents; Pebble sub-agents
- * keep their existing path through `recordAgentTrace` →
- * `ensureSubAgent`, because those are user-configured first-class
- * agents.
+ * keep their existing first-class agent records from the parent
+ * `SubAgentCapability` launch path.
  */
 export function installSubAgentListeners(install: AgentListenerInstallInput): void {
   const { context, input, nextOrderId } = install;
