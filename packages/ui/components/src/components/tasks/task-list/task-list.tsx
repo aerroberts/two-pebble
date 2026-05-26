@@ -54,9 +54,61 @@ export interface TaskListProps {
   onChangeStatus?: (taskId: string, status: TaskListSettableStatus) => void;
 }
 
+type TaskSection = 'active' | 'completed' | 'failed';
+
+function sectionForTask(task: TaskListTask): TaskSection {
+  if (task.status === 'success') {
+    return 'completed';
+  }
+  if (task.status === 'failure') {
+    return 'failed';
+  }
+  return 'active';
+}
+
+function pruneEmptyPools(nodes: TaskListNode[]): TaskListNode[] {
+  const result: TaskListNode[] = [];
+  for (const node of nodes) {
+    if (node.kind === 'task') {
+      result.push(node);
+      continue;
+    }
+    const children = pruneEmptyPools(node.children);
+    if (children.length === 0) {
+      continue;
+    }
+    result.push({ ...node, children });
+  }
+  return result;
+}
+
 export function TaskList(props: TaskListProps) {
-  const tree = useMemo(() => buildTaskListTree(props.tasks, props.pools), [props.tasks, props.pools]);
-  const flatOrder = useMemo(() => collectFlatTaskOrder(tree), [tree]);
+  const activeTasks = useMemo(() => props.tasks.filter((task) => sectionForTask(task) === 'active'), [props.tasks]);
+  const completedTasks = useMemo(
+    () => props.tasks.filter((task) => sectionForTask(task) === 'completed'),
+    [props.tasks],
+  );
+  const failedTasks = useMemo(() => props.tasks.filter((task) => sectionForTask(task) === 'failed'), [props.tasks]);
+  const activeTree = useMemo(
+    () => pruneEmptyPools(buildTaskListTree(activeTasks, props.pools)),
+    [activeTasks, props.pools],
+  );
+  const completedTree = useMemo(
+    () => pruneEmptyPools(buildTaskListTree(completedTasks, props.pools)),
+    [completedTasks, props.pools],
+  );
+  const failedTree = useMemo(
+    () => pruneEmptyPools(buildTaskListTree(failedTasks, props.pools)),
+    [failedTasks, props.pools],
+  );
+  const flatOrder = useMemo(
+    () => [
+      ...collectFlatTaskOrder(activeTree),
+      ...collectFlatTaskOrder(completedTree),
+      ...collectFlatTaskOrder(failedTree),
+    ],
+    [activeTree, completedTree, failedTree],
+  );
   const cellRefs = useRef(new Map<string, HTMLInputElement>());
   const [pendingFocusId, setPendingFocusId] = useState<string | null>(null);
   useFocusPending(pendingFocusId, cellRefs.current, () => setPendingFocusId(null));
@@ -79,7 +131,7 @@ export function TaskList(props: TaskListProps) {
 
   const canCreate = props.onCreateTaskAfter !== undefined;
 
-  if (tree.length === 0 && !canCreate) {
+  if (flatOrder.length === 0 && !canCreate) {
     return <div className="px-3 py-4 text-[12px] text-content-muted">{props.emptyState ?? 'Nothing to show.'}</div>;
   }
 
@@ -131,26 +183,51 @@ export function TaskList(props: TaskListProps) {
     }
   };
 
+  const renderNodes = (nodes: TaskListNode[]) =>
+    nodes.map((node) => (
+      <TaskListNodeRow
+        key={node.id}
+        node={node}
+        depth={0}
+        selectedTaskId={props.selectedTaskId}
+        cellRefs={cellRefs.current}
+        onSelectTask={props.onSelectTask}
+        onRenameTask={props.onRenameTask}
+        onDeleteEmpty={handleDeleteEmpty}
+        onEnter={handleEnter}
+        onMoveFocus={moveFocus}
+        renderTaskAccessory={props.renderTaskAccessory}
+        onChangeStatus={props.onChangeStatus}
+      />
+    ));
+
   return (
-    <ul className="flex flex-col gap-0.5">
-      {canCreate ? <TaskListGhostRow depth={0} onCreateTask={createFromGhost} onArrowDown={focusFirstCell} /> : null}
-      {tree.map((node) => (
-        <TaskListNodeRow
-          key={node.id}
-          node={node}
-          depth={0}
-          selectedTaskId={props.selectedTaskId}
-          cellRefs={cellRefs.current}
-          onSelectTask={props.onSelectTask}
-          onRenameTask={props.onRenameTask}
-          onDeleteEmpty={handleDeleteEmpty}
-          onEnter={handleEnter}
-          onMoveFocus={moveFocus}
-          renderTaskAccessory={props.renderTaskAccessory}
-          onChangeStatus={props.onChangeStatus}
-        />
-      ))}
-    </ul>
+    <div className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-0.5">
+        {canCreate ? <TaskListGhostRow depth={0} onCreateTask={createFromGhost} onArrowDown={focusFirstCell} /> : null}
+        {renderNodes(activeTree)}
+      </ul>
+      {completedTree.length > 0 ? (
+        <TaskListSection title="Completed">{renderNodes(completedTree)}</TaskListSection>
+      ) : null}
+      {failedTree.length > 0 ? <TaskListSection title="Failed">{renderNodes(failedTree)}</TaskListSection> : null}
+    </div>
+  );
+}
+
+interface TaskListSectionProps {
+  title: string;
+  children: ReactNode;
+}
+
+function TaskListSection(props: TaskListSectionProps) {
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="px-3 pt-2 pb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-content-muted">
+        {props.title}
+      </div>
+      <ul className="flex flex-col gap-0.5">{props.children}</ul>
+    </div>
   );
 }
 
