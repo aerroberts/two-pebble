@@ -68,6 +68,7 @@ import { handler as listTaskBoardsHandler } from './handlers/task-boards.list.ha
 import { handler as updateTaskBoardHandler } from './handlers/task-boards.update.handler';
 import { handler as listTaskDeliverableSubmissionsHandler } from './handlers/task-deliverable-submissions.list.handler';
 import { handler as submitTaskDeliverableHandler } from './handlers/task-deliverable-submissions.submit.handler';
+import { handler as createTaskDeliverableHandler } from './handlers/task-deliverables.create.handler';
 import { handler as listTaskDeliverablesHandler } from './handlers/task-deliverables.list.handler';
 import { handler as createTaskDependencyHandler } from './handlers/task-dependencies.create.handler';
 import { handler as deleteTaskDependencyHandler } from './handlers/task-dependencies.delete.handler';
@@ -225,6 +226,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('updateTaskTemplateDeliverable', updateTaskTemplateDeliverableHandler(context));
   register('deleteTaskTemplateDeliverable', deleteTaskTemplateDeliverableHandler(context));
   register('listTaskDeliverables', listTaskDeliverablesHandler(context));
+  register('createTaskDeliverable', createTaskDeliverableHandler(context));
   register('listTaskDeliverableSubmissions', listTaskDeliverableSubmissionsHandler(context));
   register('submitTaskDeliverable', submitTaskDeliverableHandler(context));
   register('listMetricNames', listMetricNamesHandler(context));

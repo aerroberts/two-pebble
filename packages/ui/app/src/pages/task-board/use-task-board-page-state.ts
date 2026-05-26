@@ -306,6 +306,16 @@ export function useTaskBoardPageState() {
       handle(async () => {
         await templateMutations.deleteDeliverable({ id });
       }),
+    createTaskDeliverable: (input: {
+      taskId: string;
+      name: string;
+      description?: string;
+      type: 'text' | 'pr_url';
+      orderIndex?: number;
+    }) =>
+      handle(async () => {
+        await mutations.createTaskDeliverable(input);
+      }),
   };
 }
 

@@ -90,6 +90,7 @@ import type { TaskBoardDeletedEvent, TaskBoardUpdatedEvent } from './protocol/ta
 import type { TaskDeliverableSubmissionsListOperation } from './protocol/task-deliverable-submissions.list';
 import type { TaskDeliverableSubmissionRecordedEvent } from './protocol/task-deliverable-submissions.recorded';
 import type { TaskDeliverableSubmissionsSubmitOperation } from './protocol/task-deliverable-submissions.submit';
+import type { TaskDeliverablesCreateOperation } from './protocol/task-deliverables.create';
 import type { TaskDeliverablesListOperation } from './protocol/task-deliverables.list';
 import type { TaskDeliverableUpdatedEvent } from './protocol/task-deliverables.updated';
 import type { TaskDependenciesCreateOperation } from './protocol/task-dependencies.create';
@@ -251,6 +252,7 @@ export type DaemonOperations = [
   TaskTemplateDeliverablesUpdateOperation,
   TaskTemplateDeliverablesDeleteOperation,
   TaskDeliverablesListOperation,
+  TaskDeliverablesCreateOperation,
   TaskDeliverableSubmissionsListOperation,
   TaskDeliverableSubmissionsSubmitOperation,
   MetricsListNamesOperation,

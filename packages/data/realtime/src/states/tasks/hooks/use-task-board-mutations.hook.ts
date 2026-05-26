@@ -3,6 +3,7 @@
 import { useRealtimeDatastore } from '../../../hooks/use-realtime-datastore.hook';
 import type {
   CreateTaskBoardInput,
+  CreateTaskDeliverableInput,
   CreateTaskDependencyInput,
   CreateTaskInput,
   CreateTaskPoolInput,
@@ -40,5 +41,6 @@ export function useTaskBoardMutations() {
     deleteTask: (input: DeleteTaskInput) => datastore.tasks.delete(input),
     createDependency: (input: CreateTaskDependencyInput) => datastore.taskDependencies.create(input),
     deleteDependency: (input: DeleteTaskDependencyInput) => datastore.taskDependencies.delete(input),
+    createTaskDeliverable: (input: CreateTaskDeliverableInput) => datastore.taskDeliverables.create(input),
   };
 }
