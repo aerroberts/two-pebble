@@ -32,9 +32,10 @@ export class ClaudeCodeEventConverter {
   private readonly activeSubagentIds: string[] = [];
   private readonly subagentTemplateIds = new Map<string, string>();
   private readonly processedSubagentTranscriptPaths = new Set<string>();
-  // Tracks the most recently emitted task-list snapshot so subsequent
-  // TodoWrite calls can compute a real diff (oldStatus -> newStatus)
-  // instead of always reporting changes against an empty baseline.
+  private readonly hiddenTaskIds = new Set<string>();
+  // Tracks the framework task snapshot, including progress/description
+  // messages that do not deserve their own visible trace. Later lifecycle
+  // changes and TodoWrite calls still diff against this state.
   private previousTaskList: TaskListUpdateTask[] = [];
 
   /**
@@ -123,11 +124,22 @@ export class ClaudeCodeEventConverter {
   }
 
   private convertSystemMessage(message: SDKMessage): ConvertedClaudeCodeEvent[] {
+    const taskId = readTaskMessageId(message);
+    if (taskId !== undefined && shouldHideTaskMessage(message, this.hiddenTaskIds)) {
+      this.hiddenTaskIds.add(taskId);
+      if (isTerminalTaskMessage(message)) {
+        this.hiddenTaskIds.delete(taskId);
+      }
+      return [];
+    }
     const update = taskSystemMessageToTaskListTrace(message, this.previousTaskList);
     if (update === undefined) {
       return [];
     }
     this.previousTaskList = update.tasks;
+    if (update.trace === undefined) {
+      return [];
+    }
     return [{ kind: 'agent-trace', trace: update.trace }];
   }
 
@@ -155,4 +167,43 @@ export class ClaudeCodeEventConverter {
       this.activeSubagentIds.splice(index, 1);
     }
   }
+}
+
+function readTaskMessageId(message: SDKMessage): string | undefined {
+  if (message.type !== 'system') {
+    return undefined;
+  }
+  if (
+    message.subtype === 'task_notification' ||
+    message.subtype === 'task_progress' ||
+    message.subtype === 'task_started' ||
+    message.subtype === 'task_updated'
+  ) {
+    return message.task_id;
+  }
+  return undefined;
+}
+
+function shouldHideTaskMessage(message: SDKMessage, hiddenTaskIds: Set<string>): boolean {
+  const taskId = readTaskMessageId(message);
+  if (taskId === undefined) {
+    return false;
+  }
+  if (hiddenTaskIds.has(taskId)) {
+    return true;
+  }
+  return message.type === 'system' && 'skip_transcript' in message && message.skip_transcript === true;
+}
+
+function isTerminalTaskMessage(message: SDKMessage): boolean {
+  if (message.type !== 'system') {
+    return false;
+  }
+  if (message.subtype === 'task_notification') {
+    return true;
+  }
+  if (message.subtype !== 'task_updated') {
+    return false;
+  }
+  return message.patch.status === 'completed' || message.patch.status === 'failed' || message.patch.status === 'killed';
 }

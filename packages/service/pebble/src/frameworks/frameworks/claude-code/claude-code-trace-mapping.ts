@@ -168,7 +168,7 @@ function mapTodoStatus(value: PebbleJsonValue | undefined): TaskListUpdateStatus
 export function taskSystemMessageToTaskListTrace(
   message: SDKMessage,
   previousTaskList: TaskListUpdateTask[],
-): { trace: PebbleAgentTrace; tasks: TaskListUpdateTask[] } | undefined {
+): { trace: PebbleAgentTrace | undefined; tasks: TaskListUpdateTask[] } | undefined {
   if (!isTaskSystemMessage(message)) {
     return undefined;
   }
@@ -178,6 +178,9 @@ export function taskSystemMessageToTaskListTrace(
   }
   const todos = upsertRawTodo(previousTaskList, todo);
   const { tasks, changes } = diffTaskList(previousTaskList, todos);
+  if (changes.length === 0) {
+    return { trace: undefined, tasks };
+  }
   return { trace: { type: 'task-list-update', data: { tasks, changes } }, tasks };
 }
 

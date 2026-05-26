@@ -34,12 +34,13 @@ export function assistantTodoWriteMessage(callId: string) {
   return { type: 'assistant', message: { content: [block] } } as never;
 }
 
-export function taskStartedMessage(taskId: string, description: string) {
+export function taskStartedMessage(taskId: string, description: string, options?: { skipTranscript?: boolean }) {
   return {
     type: 'system',
     subtype: 'task_started',
     task_id: taskId,
     description,
+    ...(options?.skipTranscript === true ? { skip_transcript: true } : {}),
   } as never;
 }
 

@@ -108,6 +108,58 @@ describe('feature: claude code event converter — framework task messages', () 
     ]);
   });
 
+  it('happy: repeated task_progress updates internal task state without emitting duplicate traces', () => {
+    const converter = new ClaudeCodeEventConverter();
+    converter.convertMessage(taskProgressMessage('task-2', 'Scanning traces'), 'anthropic');
+    const progressEvents = converter.convertMessage(
+      taskProgressMessage('task-2', 'Still scanning traces'),
+      'anthropic',
+    );
+    const completionEvents = converter.convertMessage(
+      taskUpdatedMessage('task-2', { status: 'completed' }),
+      'anthropic',
+    );
+    expect(progressEvents).toEqual([]);
+    expect(completionEvents).toMatchObject([
+      {
+        kind: 'agent-trace',
+        trace: {
+          type: 'task-list-update',
+          data: {
+            tasks: [{ id: 'task-2', description: 'Still scanning traces', status: 'completed' }],
+            changes: [{ id: 'task-2', oldStatus: 'open', newStatus: 'completed' }],
+          },
+        },
+      },
+    ]);
+  });
+
+  it('happy: task_updated description-only patches do not emit task-list traces', () => {
+    const converter = new ClaudeCodeEventConverter();
+    converter.convertMessage(taskStartedMessage('task-4', 'Initial summary'), 'anthropic');
+    const renameEvents = converter.convertMessage(
+      taskUpdatedMessage('task-4', { description: 'Precise summary' }),
+      'anthropic',
+    );
+    const completionEvents = converter.convertMessage(
+      taskUpdatedMessage('task-4', { status: 'completed' }),
+      'anthropic',
+    );
+    expect(renameEvents).toEqual([]);
+    expect(completionEvents).toMatchObject([
+      {
+        kind: 'agent-trace',
+        trace: {
+          type: 'task-list-update',
+          data: {
+            tasks: [{ id: 'task-4', description: 'Precise summary', status: 'completed' }],
+            changes: [{ id: 'task-4', oldStatus: 'open', newStatus: 'completed' }],
+          },
+        },
+      },
+    ]);
+  });
+
   it('happy: terminal task notifications map failed or stopped tasks to invalid', () => {
     const events = new ClaudeCodeEventConverter().convertMessage(
       taskNotificationMessage('task-3', 'failed', 'Search failed.'),
@@ -119,6 +171,20 @@ describe('feature: claude code event converter — framework task messages', () 
         trace: { type: 'task-list-update', data: { tasks: [{ id: 'task-3', status: 'invalid' }] } },
       },
     ]);
+  });
+
+  it('happy: skip_transcript framework tasks stay out of the trace stream', () => {
+    const converter = new ClaudeCodeEventConverter();
+    expect(
+      converter.convertMessage(
+        taskStartedMessage('task-hidden', 'Background work', { skipTranscript: true }),
+        'anthropic',
+      ),
+    ).toEqual([]);
+    expect(converter.convertMessage(taskUpdatedMessage('task-hidden', { status: 'running' }), 'anthropic')).toEqual([]);
+    expect(converter.convertMessage(taskUpdatedMessage('task-hidden', { status: 'completed' }), 'anthropic')).toEqual(
+      [],
+    );
   });
 });
 
