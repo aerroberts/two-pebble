@@ -1,7 +1,12 @@
 import type {
   ModelUsage as ClaudeCodeSdkModelUsage,
   SDKAssistantMessage,
+  SDKMessage,
   SDKResultMessage,
+  SDKTaskNotificationMessage,
+  SDKTaskProgressMessage,
+  SDKTaskStartedMessage,
+  SDKTaskUpdatedMessage,
   SDKUserMessage,
 } from '@anthropic-ai/claude-agent-sdk';
 import type { ToolResultBlockParam } from '@anthropic-ai/sdk/resources';
@@ -97,8 +102,15 @@ export function assistantMessageToTraces(
   return { traces, taskList: nextTaskList };
 }
 
+type TaskSystemMessage =
+  | SDKTaskNotificationMessage
+  | SDKTaskProgressMessage
+  | SDKTaskStartedMessage
+  | SDKTaskUpdatedMessage;
+
 interface TodoLike {
   content?: PebbleJsonValue;
+  id?: PebbleJsonValue;
   status?: PebbleJsonValue;
 }
 
@@ -130,7 +142,11 @@ function todoWriteToTaskListTrace(
     if (status === undefined) {
       continue;
     }
-    todos.push({ description: todo.content, status });
+    todos.push({
+      description: todo.content,
+      ...(typeof todo.id === 'string' ? { id: todo.id } : {}),
+      status,
+    });
   }
   const { tasks, changes } = diffTaskList(previousTaskList, todos);
   return { trace: { type: 'task-list-update', data: { tasks, changes } }, tasks };
@@ -147,6 +163,100 @@ function mapTodoStatus(value: PebbleJsonValue | undefined): TaskListUpdateStatus
     return 'completed';
   }
   return undefined;
+}
+
+export function taskSystemMessageToTaskListTrace(
+  message: SDKMessage,
+  previousTaskList: TaskListUpdateTask[],
+): { trace: PebbleAgentTrace; tasks: TaskListUpdateTask[] } | undefined {
+  if (!isTaskSystemMessage(message)) {
+    return undefined;
+  }
+  const todo = taskSystemMessageToRawTodo(message, previousTaskList);
+  if (todo === undefined) {
+    return undefined;
+  }
+  const todos = upsertRawTodo(previousTaskList, todo);
+  const { tasks, changes } = diffTaskList(previousTaskList, todos);
+  return { trace: { type: 'task-list-update', data: { tasks, changes } }, tasks };
+}
+
+function isTaskSystemMessage(message: SDKMessage): message is TaskSystemMessage {
+  return (
+    message.type === 'system' &&
+    (message.subtype === 'task_notification' ||
+      message.subtype === 'task_progress' ||
+      message.subtype === 'task_started' ||
+      message.subtype === 'task_updated')
+  );
+}
+
+function taskSystemMessageToRawTodo(
+  message: TaskSystemMessage,
+  previousTaskList: TaskListUpdateTask[],
+): RawTodo | undefined {
+  const previous = previousTaskList.find((task) => task.id === message.task_id);
+  if (message.subtype === 'task_started') {
+    return { description: message.description, id: message.task_id, status: 'open' };
+  }
+  if (message.subtype === 'task_progress') {
+    return { description: message.description, id: message.task_id, status: 'open' };
+  }
+  if (message.subtype === 'task_updated') {
+    const status = mapTaskStatus(message.patch.status) ?? previous?.status;
+    if (status === undefined) {
+      return undefined;
+    }
+    return {
+      description: message.patch.description ?? previous?.description ?? message.task_id,
+      id: message.task_id,
+      status,
+    };
+  }
+  const status = mapTaskNotificationStatus(message.status);
+  return {
+    description: previous?.description ?? message.summary,
+    id: message.task_id,
+    status,
+  };
+}
+
+function upsertRawTodo(previousTaskList: TaskListUpdateTask[], todo: RawTodo): RawTodo[] {
+  const todos: RawTodo[] = previousTaskList.map((task) => ({
+    description: task.description,
+    id: task.id,
+    status: task.status,
+  }));
+  const index = todos.findIndex((item) => item.id === todo.id);
+  if (index === -1) {
+    todos.push(todo);
+  } else {
+    todos[index] = todo;
+  }
+  return todos;
+}
+
+function mapTaskStatus(value: SDKTaskUpdatedMessage['patch']['status']): TaskListUpdateStatus | undefined {
+  if (value === 'pending') {
+    return 'pending';
+  }
+  if (value === 'running') {
+    return 'open';
+  }
+  if (value === 'completed') {
+    return 'completed';
+  }
+  if (value === 'failed' || value === 'killed') {
+    return 'invalid';
+  }
+  return undefined;
+}
+
+function mapTaskNotificationStatus(value: SDKTaskNotificationMessage['status']): TaskListUpdateStatus {
+  if (value === 'completed') {
+    return 'completed';
+  }
+  return 'invalid';
 }
 
 export function userMessageToTraces(message: SDKUserMessage): PebbleAgentTrace[] {

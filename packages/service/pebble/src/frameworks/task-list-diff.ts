@@ -2,6 +2,7 @@ import type { TaskListUpdateChange, TaskListUpdateStatus, TaskListUpdateTask } f
 
 export interface RawTodo {
   description: string;
+  id?: string;
   status: TaskListUpdateStatus;
 }
 
@@ -26,7 +27,7 @@ export function diffTaskList(
   const previousById = new Map(previous.map((task) => [task.id, task]));
 
   for (const todo of todos) {
-    const id = nextUniqueId(todo.description, usedIds);
+    const id = nextUniqueId(todo, usedIds);
     usedIds.add(id);
     tasks.push({ id, description: todo.description, status: todo.status });
     const prior = previousById.get(id);
@@ -42,8 +43,8 @@ export function diffTaskList(
   return { tasks, changes };
 }
 
-function nextUniqueId(description: string, used: Set<string>): string {
-  const base = slugify(description);
+function nextUniqueId(todo: RawTodo, used: Set<string>): string {
+  const base = taskIdBase(todo);
   if (!used.has(base)) {
     return base;
   }
@@ -53,6 +54,11 @@ function nextUniqueId(description: string, used: Set<string>): string {
       return candidate;
     }
   }
+}
+
+function taskIdBase(todo: RawTodo): string {
+  const id = todo.id?.trim();
+  return id === undefined || id.length === 0 ? slugify(todo.description) : id;
 }
 
 function slugify(description: string): string {

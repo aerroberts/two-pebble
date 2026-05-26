@@ -51,6 +51,13 @@ describe('feature: shared task-list diff', () => {
     expect(next.changes).toEqual([{ id: 'second', oldStatus: 'pending', newStatus: 'completed' }]);
   });
 
+  it('happy: preserves explicit framework task ids', () => {
+    const previous = diffTaskList([], [{ id: 'task-123', description: 'Research API', status: 'open' }]).tasks;
+    const next = diffTaskList(previous, [{ id: 'task-123', description: 'Research API', status: 'completed' }]);
+    expect(next.tasks).toEqual([{ id: 'task-123', description: 'Research API', status: 'completed' }]);
+    expect(next.changes).toEqual([{ id: 'task-123', oldStatus: 'open', newStatus: 'completed' }]);
+  });
+
   it('edge: duplicate descriptions get positional suffixes', () => {
     const result = diffTaskList(
       [],
