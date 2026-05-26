@@ -7,7 +7,11 @@ export function DeveloperArchivedAgentsPage() {
   const agents = useAgents();
   const navigate = useNavigate();
   const archivedAgents = useMemo(
-    () => agents.values().filter(isTerminal).sort((left, right) => right.startedAt - left.startedAt),
+    () =>
+      agents
+        .values()
+        .filter(isTerminal)
+        .sort((left, right) => right.startedAt - left.startedAt),
     [agents],
   );
 
