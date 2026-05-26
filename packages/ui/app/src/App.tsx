@@ -30,6 +30,7 @@ import { ThirdPartyAgentsPage } from './pages/configuration/third-party-agents/t
 import { VoiceSettingsPage } from './pages/configuration/voice/voice-settings.page';
 import { DocumentEditorPage } from './pages/documents/document-editor.page';
 import { DocumentsPage } from './pages/documents/documents.page';
+import { ExamplesPage } from './pages/examples/examples.page';
 import { MetricDetailPage } from './pages/metrics/metric-detail.page';
 import { MetricsExplorerPage } from './pages/metrics/metrics-explorer.page';
 import { PricingExplorerPage } from './pages/metrics/pricing-explorer.page';
@@ -294,6 +295,14 @@ export function App() {
         }
       />
       <Route path="/developer/*" element={<DeveloperRoutes />} />
+      <Route
+        path="/examples"
+        element={
+          <MainAppShell>
+            <ExamplesPage />
+          </MainAppShell>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

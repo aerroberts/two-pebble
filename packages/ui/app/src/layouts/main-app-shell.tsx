@@ -13,9 +13,10 @@ import type { AppShellProps } from './app-shell-props';
 import { AssistantCommandK } from './assistant-command-k';
 import { ConfigurationSidebar } from './configuration-sidebar';
 import { DeveloperSidebar } from './developer-sidebar';
+import { ExamplesSidebar } from './examples-sidebar';
 import { MetricsSidebar } from './metrics-sidebar';
 
-type SidebarMode = 'main' | 'configuration' | 'metrics' | 'developer';
+type SidebarMode = 'main' | 'configuration' | 'metrics' | 'developer' | 'examples';
 type SidebarNavigate = (path: string) => void;
 
 export function MainAppShell(props: AppShellProps) {
@@ -56,6 +57,12 @@ export function MainAppShell(props: AppShellProps) {
                 icon="bug"
                 onClick={() => navigate('/developer')}
                 variant={location.pathname.startsWith('/developer') ? 'primary' : 'secondary'}
+              />
+              <IconButton
+                aria-label="Open examples"
+                icon="square-dashed-mouse-pointer"
+                onClick={() => navigate('/examples')}
+                variant={location.pathname.startsWith('/examples') ? 'primary' : 'secondary'}
               />
             </ModalActions>
           }
@@ -99,6 +106,14 @@ function renderSidebarContent(
       <>
         <SidebarSection title={<TwoPebbleLogo withText text="Developer" />} />
         <DeveloperSidebar />
+      </>
+    );
+  }
+  if (mode === 'examples') {
+    return (
+      <>
+        <SidebarSection title={<TwoPebbleLogo withText text="Examples" />} />
+        <ExamplesSidebar />
       </>
     );
   }
@@ -173,6 +188,9 @@ function getSidebarMode(pathname: string): SidebarMode {
   if (pathname.startsWith('/developer')) {
     return 'developer';
   }
+  if (pathname.startsWith('/examples')) {
+    return 'examples';
+  }
   return 'main';
 }
 
@@ -199,6 +217,9 @@ function getPageName(pathname: string): string {
   }
   if (pathname.startsWith('/developer')) {
     return 'Developer';
+  }
+  if (pathname.startsWith('/examples')) {
+    return 'Examples';
   }
   return 'two pebble';
 }
