@@ -1,4 +1,12 @@
-import { AppBox, AppButton, AppIconSwap, AppSidebarItemFrame, AppSpinningIcon, Icon } from '@two-pebble/components';
+import {
+  AppBox,
+  AppButton,
+  AppIconSwap,
+  AppSidebarItemFrame,
+  AppSpinningIcon,
+  Icon,
+  SidebarSubitem,
+} from '@two-pebble/components';
 import type { AgentRecord, AgentStatus } from '@two-pebble/realtime';
 import type { MouseEvent, ReactNode } from 'react';
 
@@ -11,6 +19,8 @@ interface AgentSidebarItemProps {
   onResume?: () => void;
   onFail?: () => void;
 }
+
+type AgentSidebarSubitemProps = AgentSidebarItemProps;
 
 interface IconConfig {
   defaultIcon: ReactNode;
@@ -88,8 +98,10 @@ function agentLabel(agent: AgentRecord): string {
   return agent.name.length > 0 ? agent.name : agent.id;
 }
 
-export function AgentSidebarItem(props: AgentSidebarItemProps) {
-  const { active, agent, onSelect, onStop, onArchive, onResume, onFail } = props;
+function AgentSidebarStatusIcon(
+  props: Pick<AgentSidebarItemProps, 'agent' | 'onArchive' | 'onFail' | 'onResume' | 'onStop'>,
+) {
+  const { agent, onStop, onArchive, onResume, onFail } = props;
   const config = iconConfigForStatus({ status: agent.status, onStop, onArchive, onResume, onFail });
   const handleIconClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -97,8 +109,8 @@ export function AgentSidebarItem(props: AgentSidebarItemProps) {
     config.hoverAction?.();
   };
 
-  const iconNode =
-    config.hoverIcon && config.hoverAction ? (
+  if (config.hoverIcon && config.hoverAction) {
+    return (
       <AppIconSwap
         aria-label={config.hoverLabel ?? undefined}
         defaultIcon={config.defaultIcon}
@@ -106,18 +118,45 @@ export function AgentSidebarItem(props: AgentSidebarItemProps) {
         onClick={handleIconClick}
         type="button"
       />
-    ) : (
-      <AppBox as="span" variant="icon-static">
-        {config.defaultIcon}
-      </AppBox>
     );
+  }
+
+  return (
+    <AppBox as="span" variant="icon-static">
+      {config.defaultIcon}
+    </AppBox>
+  );
+}
+
+export function AgentSidebarItem(props: AgentSidebarItemProps) {
+  const { active, agent, onSelect, onStop, onArchive, onResume, onFail } = props;
 
   return (
     <AppSidebarItemFrame active={active}>
       <AppButton onClick={onSelect} type="button" variant="sidebar-label">
         {agentLabel(agent)}
       </AppButton>
-      {iconNode}
+      <AgentSidebarStatusIcon agent={agent} onArchive={onArchive} onFail={onFail} onResume={onResume} onStop={onStop} />
     </AppSidebarItemFrame>
+  );
+}
+
+export function AgentSidebarSubitem(props: AgentSidebarSubitemProps) {
+  const { active, agent, onSelect, onStop, onArchive, onResume, onFail } = props;
+  return (
+    <SidebarSubitem
+      active={active}
+      label={agentLabel(agent)}
+      onClick={onSelect}
+      trailing={
+        <AgentSidebarStatusIcon
+          agent={agent}
+          onArchive={onArchive}
+          onFail={onFail}
+          onResume={onResume}
+          onStop={onStop}
+        />
+      }
+    />
   );
 }
