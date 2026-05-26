@@ -156,10 +156,7 @@ export function PricingOverviewPage() {
   // nothing in this window get dropped from the legend so the chart key
   // matches what the chart is rendering.
   const seriesBucketsInRange = useMemo(
-    () =>
-      seriesBuckets.filter((entry) =>
-        entry.buckets.some((bucket) => bucket.sum > 0 || bucket.sampleCount > 0),
-      ),
+    () => seriesBuckets.filter((entry) => entry.buckets.some((bucket) => bucket.sum > 0 || bucket.sampleCount > 0)),
     [seriesBuckets],
   );
 
