@@ -1,5 +1,4 @@
 import type { Datastore } from '@two-pebble/datastore';
-import type { Logger } from '@two-pebble/logger';
 import type { Agent } from '@two-pebble/pebble';
 import type { TaskBoardService } from '../task-board/service';
 import { recordConversationCell, recordModelCall, recordPriceLineItem } from './recording';
@@ -11,7 +10,6 @@ import type { AgentListenerContext } from './types';
 interface BuildAgentListenerContextInput {
   activeAgents: Map<string, Agent>;
   datastore: Datastore;
-  logger: Logger;
   pending: SubAgentCreatePromiseMap;
   taskBoards: TaskBoardService;
   onStatusPersisted?: (
@@ -26,7 +24,6 @@ interface BuildAgentListenerContextInput {
 export function buildAgentListenerContext(input: BuildAgentListenerContextInput): AgentListenerContext {
   return {
     datastore: input.datastore,
-    logger: input.logger,
     pending: input.pending,
     taskBoards: input.taskBoards,
     persistAgentStatus: (statusInput) =>
@@ -34,7 +31,6 @@ export function buildAgentListenerContext(input: BuildAgentListenerContextInput)
         ...statusInput,
         activeAgents: input.activeAgents,
         datastore: input.datastore,
-        logger: input.logger,
         taskBoards: input.taskBoards,
         ...(input.onStatusPersisted === undefined ? {} : { onStatusPersisted: input.onStatusPersisted }),
       }),

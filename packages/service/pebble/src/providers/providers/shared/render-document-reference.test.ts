@@ -24,11 +24,13 @@ describe('feature: document reference rendering', () => {
 
   test('happy: omits open-tasks block when no todos are present', () => {
     const out = renderDocumentReferenceText(baseContent);
-    expect(out).toBe('[document: Plan (id: doc-1)]\n\nbody');
+    expect(out).toBe('{begin referenced document: Plan (id: doc-1)}\n\nbody\n\n{end referenced document}');
   });
 
   test('happy: emits open-tasks block listing only open todos', () => {
     const out = renderDocumentReferenceText({ ...baseContent, todos: mixedTodos });
+    expect(out).toContain('{begin open tasks}');
+    expect(out).toContain('{end open tasks}');
     expect(out).toContain('id=01A status=open "Wire daemon resolver"');
     expect(out).toContain('id=01C status=open "Add capability"');
     expect(out).not.toContain('01B');
@@ -37,6 +39,7 @@ describe('feature: document reference rendering', () => {
 
   test('happy: omits open-tasks block when no todos are open', () => {
     const out = renderDocumentReferenceText({ ...baseContent, todos: terminalTodos });
+    expect(out).not.toContain('{begin open tasks}');
     expect(out).not.toContain('<open-tasks>');
   });
 });

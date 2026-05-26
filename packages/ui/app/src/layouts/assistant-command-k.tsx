@@ -107,6 +107,8 @@ export function AssistantCommandK() {
         <AgentInput
           ariaLabel="Assistant message"
           initialMode={startInVoiceMode ? 'voice' : 'text'}
+          maxHeight={280}
+          minHeight={120}
           onSubmit={(payload) => void sendToAssistant(payload)}
           placeholder="Type or speak — Enter to send, / for documents"
           submitDisabled={registryId === null}

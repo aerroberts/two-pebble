@@ -8,6 +8,7 @@ import type {
   SendSignalInput,
   SignalOperations,
   SubAgentOperations,
+  SubAgentSendInput,
   SubAgentSpawnInput,
 } from '../../../bridge';
 import { Cell } from '../../../thread';
@@ -58,17 +59,7 @@ export async function expectSpawnSendsTaskInstructions(): Promise<void> {
   expect(runtime.spawned).toEqual([
     { instructions: 'Find the answer.', mode: 'task', name: 'research-one', subAgentId: 'reviewer' },
   ]);
-  expect(runtime.sentSignals[0]).toMatchObject({
-    agentId: 'agents:child123',
-    capabilityId: 'parent-linked-task',
-    data: {
-      instructions: 'Find the answer.',
-      parentAgentId: 'agents:parent123',
-      parentCapabilityId: 'sub-agent',
-      type: 'parent-instructions',
-    },
-    name: 'Parent instructions',
-  });
+  expect(runtime.sentSignals).toEqual([]);
   expect(result).toMatchObject({
     content: [Cell.text('Spawned research-one (agents:child123).')],
     status: 'success',
@@ -150,6 +141,54 @@ export async function expectTeammateFollowUpUsesChildSignal(): Promise<void> {
   });
 }
 
+export async function expectSendToFrameworkChildUsesSubAgentSend(): Promise<void> {
+  const runtime = buildSubAgentCapabilityRuntime({ spawnRuntime: 'framework' });
+  await runtime.tools
+    .find((tool) => tool.id === 'spawn-sub-agent')
+    ?.invoke({
+      instructions: 'Start.',
+      mode: 'teammate',
+      name: 'pair-one',
+      subAgentId: 'reviewer',
+    });
+  runtime.capability.hookOnSignal({
+    agentId: 'agents:parent123',
+    capabilityId: 'sub-agent',
+    data: {
+      childAgentId: 'agents:child123',
+      childName: 'pair-one',
+      message: 'Initial result.',
+      status: 'response',
+      type: 'sub-agent-result',
+    },
+    description: 'Framework child responded.',
+    id: 'agent-signals:framework-response',
+    kind: 'push',
+    name: 'Sub-agent result',
+    signalId: 'signal-framework-response',
+    status: 'received',
+  });
+  const result = await runtime.tools
+    .find((tool) => tool.id === 'send-agent')
+    ?.invoke({
+      instructions: 'Follow up.',
+      name: 'pair-one',
+    });
+  expect(runtime.sentSubAgentMessages).toEqual([
+    {
+      childAgentId: 'agents:child123',
+      childName: 'pair-one',
+      instructions: 'Follow up.',
+      mode: 'teammate',
+    },
+  ]);
+  expect(runtime.resolvedSignals).toEqual([]);
+  expect(result).toMatchObject({
+    content: [Cell.text('Sent instructions to pair-one.')],
+    status: 'success',
+  });
+}
+
 export async function expectSendRejectsTerminalTask(): Promise<void> {
   const runtime = buildSubAgentCapabilityRuntime();
   await runtime.tools
@@ -189,11 +228,12 @@ export async function expectSendRejectsTerminalTask(): Promise<void> {
   });
 }
 
-function buildSubAgentCapabilityRuntime() {
+function buildSubAgentCapabilityRuntime(config: { spawnRuntime?: 'framework' | 'pebble' } = {}) {
   const capability = new SubAgentCapability();
   const registeredSignals: RegisterSignalInput[] = [];
   const resolvedSignals: ResolveSignalInput[] = [];
   const sentSignals: SendSignalInput[] = [];
+  const sentSubAgentMessages: SubAgentSendInput[] = [];
   const spawned: SubAgentSpawnInput[] = [];
   const signals: SignalOperations = {
     markResolved: async () => undefined,
@@ -211,9 +251,12 @@ function buildSubAgentCapabilityRuntime() {
   };
   const subAgents: SubAgentOperations = {
     kill: async () => undefined,
+    send: async (message) => {
+      sentSubAgentMessages.push(message);
+    },
     spawn: async (input) => {
       spawned.push(input);
-      return 'agents:child123';
+      return { agentId: 'agents:child123', runtime: config.spawnRuntime ?? 'pebble' };
     },
   };
   const agent = new PebbleAgent({
@@ -228,7 +271,7 @@ function buildSubAgentCapabilityRuntime() {
   const tools = capability.hookOnRegister({
     agents: [{ agentRegistryId: 'agent-registries:review', name: 'reviewer' }],
   }).tools;
-  return { capability, registeredSignals, resolvedSignals, sentSignals, spawned, tools };
+  return { capability, registeredSignals, resolvedSignals, sentSignals, sentSubAgentMessages, spawned, tools };
 }
 
 function buildTestBridge(input: { signals: SignalOperations; subAgents: SubAgentOperations }): AgentBridge {

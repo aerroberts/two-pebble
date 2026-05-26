@@ -15,19 +15,22 @@ export interface DocumentReferenceCellContent {
 
 /**
  * Serializes a `documentReference` cell into a plain-text block for
- * provider prompts. Appends an `<open-tasks>` section listing only open
- * todos so the model knows which task ids it can act on via the
- * `progressive-task-list` capability tools. Terminal todos are skipped
- * to keep context lean.
+ * provider prompts.
+ *
+ * The reference body is wrapped in `{begin referenced document: name}`
+ * / `{end referenced document}` markers (and any open-task list in
+ * `{begin open tasks}` / `{end open tasks}`) instead of XML-style tags
+ * so the resulting text plays nicely with markdown renderers.
  */
 export function renderDocumentReferenceText(content: DocumentReferenceCellContent): string {
-  const header = `[document: ${content.name} (id: ${content.documentId})]`;
+  const header = `{begin referenced document: ${content.name} (id: ${content.documentId})}`;
+  const footer = '{end referenced document}';
   const body = content.contentSnapshot;
   const openTasksBlock = renderOpenTasksBlock(content.todos);
   if (openTasksBlock.length === 0) {
-    return `${header}\n\n${body}`;
+    return `${header}\n\n${body}\n\n${footer}`;
   }
-  return `${header}\n\n${body}\n\n${openTasksBlock}`;
+  return `${header}\n\n${body}\n\n${openTasksBlock}\n\n${footer}`;
 }
 
 function renderOpenTasksBlock(todos: DocumentTodo[] | undefined): string {
@@ -39,5 +42,5 @@ function renderOpenTasksBlock(todos: DocumentTodo[] | undefined): string {
     return '';
   }
   const lines = openTodos.map((todo) => `- id=${todo.id} status=${todo.status} "${todo.text}"`);
-  return ['<open-tasks>', ...lines, '</open-tasks>'].join('\n');
+  return ['{begin open tasks}', ...lines, '{end open tasks}'].join('\n');
 }

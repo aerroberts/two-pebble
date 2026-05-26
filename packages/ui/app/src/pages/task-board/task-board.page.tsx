@@ -89,6 +89,15 @@ export function TaskBoardPage() {
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
       submissions={state.selectedTaskDeliverableSubmissions}
+      onCreateTemplateFromTask={() => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.createTaskTemplate({
+          name: state.selectedTask.name || 'New template',
+          prompt: state.selectedTask.description,
+        });
+      }}
     />
   ) : null;
 
@@ -114,10 +123,13 @@ export function TaskBoardPage() {
     />
   );
 
+  const detailTitle = state.selectedTask ? state.selectedTask.name || 'Untitled task' : undefined;
+
   return (
     <DataPanelLayout
       open={state.selectedTask !== null}
       panel={detailPanel}
+      title={detailTitle}
       closeable
       onClose={() => state.setSelectedTaskId(null)}
     >
@@ -135,12 +147,9 @@ export function TaskBoardPage() {
             selectedTaskId={state.selectedTaskId ?? undefined}
             onSelectTask={toggleSelect}
             onRenameTask={(id: string, name: string) => void state.renameTaskFromList(id, name)}
-            onCreateTaskAfter={(input) =>
-              state.createTaskAfter({ poolId: input.poolId, name: input.name, templateId: input.templateId })
-            }
+            onCreateTaskAfter={(input) => state.createTaskAfter({ poolId: input.poolId, name: input.name })}
             onDeleteTask={(id: string) => void state.deleteTaskFromList(id)}
             emptyState="No tasks yet."
-            templateOptions={state.taskTemplates.map((template) => ({ value: template.id, label: template.name }))}
             renderTaskAccessory={(taskId) => {
               const task = state.tasks.find((entry) => entry.id === taskId);
               if (task === undefined) {
@@ -162,9 +171,6 @@ export function TaskBoardPage() {
           />
         ) : (
           <TaskBoardSettingsView
-            boardNameDraft={state.boardNameDraft}
-            onBoardNameChange={(value: string) => state.setBoardNameDraft(value)}
-            onBoardNameSave={() => void state.saveBoardName()}
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
             onDeleteBoard={() => void state.deleteBoard()}

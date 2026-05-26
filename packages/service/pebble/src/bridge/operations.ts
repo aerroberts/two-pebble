@@ -106,12 +106,25 @@ export interface MarkSignalResolvedInput {
 }
 
 export type SubAgentMode = 'task' | 'teammate';
+export type SubAgentRuntime = 'framework' | 'pebble';
 
 export interface SubAgentSpawnInput {
   instructions: string;
   mode: SubAgentMode;
   name: string;
   subAgentId: string;
+}
+
+export interface SubAgentSpawnOutput {
+  agentId: string;
+  runtime: SubAgentRuntime;
+}
+
+export interface SubAgentSendInput {
+  childAgentId: string;
+  childName: string;
+  instructions: string;
+  mode: SubAgentMode;
 }
 
 export interface SubAgentKillInput {
@@ -269,7 +282,8 @@ export interface SignalOperations {
 
 export interface SubAgentOperations {
   kill(input: SubAgentKillInput): Promise<void>;
-  spawn(input: SubAgentSpawnInput): Promise<string>;
+  send(input: SubAgentSendInput): Promise<void>;
+  spawn(input: SubAgentSpawnInput): Promise<SubAgentSpawnOutput>;
 }
 
 export interface TaskBoardOperations {

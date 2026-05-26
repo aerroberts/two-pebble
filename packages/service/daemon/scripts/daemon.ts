@@ -1,16 +1,13 @@
-import { createDaemonLogFilePath, databaseFilePathForPort, defaultHost, defaultPort } from '../src/consts';
+import { createDaemonLogFilePath, DAEMON_PORT, defaultDatabaseFilePath, defaultHost } from '../src/consts';
 import { TwoPebbleDaemon } from '../src/two-pebble-daemon';
 
-const PORT_RANGE = 100;
 const explicitDatabasePath = process.env.TWO_PEBBLE_DATABASE_PATH;
 const logFilePath = process.env.TWO_PEBBLE_LOG_FILE_PATH ?? createDaemonLogFilePath();
 const daemon = new TwoPebbleDaemon({
-  databaseFilePath: explicitDatabasePath,
-  databaseFilePathForPort: explicitDatabasePath === undefined ? databaseFilePathForPort : undefined,
+  databaseFilePath: explicitDatabasePath ?? defaultDatabaseFilePath(),
   host: defaultHost,
   logFilePath,
-  port: defaultPort,
-  portRange: PORT_RANGE,
+  port: DAEMON_PORT,
 });
 
 await daemon.launch();

@@ -74,6 +74,9 @@ export function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
     signals,
     subAgents: {
       kill: async () => undefined,
+      send: async () => {
+        throw new Error('not used');
+      },
       spawn: async () => {
         throw new Error('not used');
       },

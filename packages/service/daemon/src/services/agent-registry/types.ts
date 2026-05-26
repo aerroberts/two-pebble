@@ -5,7 +5,6 @@ import type {
   IntegrationRecord,
   ThirdPartyAgentInstallRecord,
 } from '@two-pebble/datastore';
-import type { Logger } from '@two-pebble/logger';
 import type {
   Agent,
   AgentBridge,
@@ -18,6 +17,7 @@ import type {
   PricingLineItem,
   ProviderResult,
   SubAgentLifecycleEvent,
+  SubAgentMode,
   SubAgentTraceEvent,
   SubAgentUsageEvent,
   UsageReport,
@@ -45,6 +45,7 @@ export interface LaunchAgentInput {
    * the agents row so the relationship can be inspected and persisted.
    */
   parentAgentId?: string;
+  parentSubAgent?: ParentSubAgentLink;
   /**
    * Optional capability specs to attach in addition to whatever the
    * registry row declares.
@@ -90,6 +91,7 @@ export interface RunAgentInput {
    * Optional parent agent id recorded for launched child agents.
    */
   parentAgentId?: string;
+  parentSubAgent?: ParentSubAgentLink;
   /**
    * Inference profile and integration ids the agent was launched under.
    * Carried so the persistence listener can tag every price line item and
@@ -107,11 +109,16 @@ export interface RunAgentInput {
   extraCapabilities?: ExtraCapabilitySpec[];
 }
 
+export interface ParentSubAgentLink {
+  childName: string;
+  mode: SubAgentMode;
+  parentAgentId: string;
+}
+
 export type NextAgentTraceOrderId = () => number;
 
 export interface AgentListenerContext {
   datastore: Datastore;
-  logger: Logger;
   pending: SubAgentCreatePromiseMap;
   taskBoards: TaskBoardService;
   persistAgentStatus(input: PersistAgentStatusInput): Promise<void>;
@@ -141,6 +148,7 @@ export interface BuildLaunchAgentInput_Pebble {
    * so the framework can pick its session back up.
    */
   resumeMetadata: PebbleJsonRecord;
+  systemPrompt: string;
   /**
    * Pre-existing thread cells for Pebble agents on the rehydrate path.
    * Absent for fresh launches (the agent boots a fresh thread on its
@@ -159,6 +167,7 @@ export interface BuildLaunchAgentInput_Framework {
   registry: AgentRegistryRecord;
   /** Resume metadata previously persisted under the agent record. */
   resumeMetadata: PebbleJsonRecord;
+  systemPrompt: string;
   workspacePath: string;
 }
 
@@ -273,11 +282,9 @@ export type BuildLaunchAgentParams = BuildLaunchAgentParams_Pebble | BuildLaunch
 export interface ResolveLaunchWorkspaceInput {
   events: DaemonEventSink;
   datastore: Datastore;
-  logger: Logger;
   registry: AgentRegistryRecord;
 }
 
 export interface ParseWorkspaceConfigInput {
-  logger: Logger;
   registry: AgentRegistryRecord;
 }

@@ -70,18 +70,18 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
       ]);
     }
     this.requireReference(input.subAgentId);
-    const childAgentId = await this.bridge.subAgents.spawn(input);
+    const spawned = await this.bridge.subAgents.spawn(input);
     const child: ChildRecord = {
-      agentId: childAgentId,
+      agentId: spawned.agentId,
       lifecycle: 'running',
       mode: input.mode,
       name: input.name,
+      runtime: spawned.runtime,
       subAgentId: input.subAgentId,
     };
     this.childrenSlot.set([...this.childrenSlot.value, child]);
-    await this.sendChildInstructions({ child, instructions: input.instructions });
     this.traceSubAgentInvoke(child.agentId, child.subAgentId, input.instructions);
-    return ToolResponse.success([Cell.text(`Spawned ${input.name} (${childAgentId}).`)]);
+    return ToolResponse.success([Cell.text(`Spawned ${input.name} (${spawned.agentId}).`)]);
   }
 
   public async sendAgent(input: SendAgentInput) {
@@ -177,6 +177,15 @@ export class SubAgentCapability extends AgentCapability<SubAgentCapabilityConfig
   }
 
   private async sendChildInstructions(input: { child: ChildRecord; instructions: string }): Promise<void> {
+    if (input.child.runtime === 'framework') {
+      await this.bridge.subAgents.send({
+        childAgentId: input.child.agentId,
+        childName: input.child.name,
+        instructions: input.instructions,
+        mode: input.child.mode,
+      });
+      return;
+    }
     const data = {
       instructions: input.instructions,
       parentAgentId: this.agent.agentId,

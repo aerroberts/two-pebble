@@ -1,3 +1,4 @@
+import type { SubAgentRuntime } from '../../../bridge';
 import type { PebbleJsonRecord } from '../../../types';
 
 /**
@@ -21,6 +22,7 @@ export interface ChildRecord {
   pendingWaitSignalId?: string | undefined;
   resultMessage?: string | undefined;
   resultStatus?: ChildResultStatus | undefined;
+  runtime: SubAgentRuntime;
   subAgentId: string;
 }
 

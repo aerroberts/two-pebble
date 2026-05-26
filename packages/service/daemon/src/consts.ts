@@ -4,17 +4,22 @@ import path from 'node:path';
 const homeRootDirectoryPath = path.resolve(os.homedir(), '.two-pebble');
 
 export const defaultHost = process.env.TWO_PEBBLE_HOST ?? '127.0.0.1';
-export const defaultPort = Number(process.env.TWO_PEBBLE_PORT ?? '49152');
+
+/**
+ * Hardcoded daemon port. Two Pebble assumes one daemon instance per
+ * host so neither the daemon nor the CLI tries to probe alternative
+ * ports.
+ */
+export const DAEMON_PORT = 49152;
+
 export const defaultLogDirectoryPath = path.resolve(homeRootDirectoryPath, 'logs');
 export const defaultDataDirectoryPath = path.resolve(homeRootDirectoryPath, 'data');
 
 /**
- * Builds the database file path for a given daemon port.
- * Each port owns its own database file so multiple daemon instances can
- * coexist without colliding on the SQLite write lock.
+ * Canonical daemon database file path.
  */
-export function databaseFilePathForPort(port: number) {
-  return path.join(defaultDataDirectoryPath, `two-pebble-${port}.db`);
+export function defaultDatabaseFilePath() {
+  return path.join(defaultDataDirectoryPath, `two-pebble-${DAEMON_PORT}.db`);
 }
 
 export function createDaemonLogFilePath() {

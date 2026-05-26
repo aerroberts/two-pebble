@@ -187,6 +187,7 @@ export {
   tipTapDocToCells,
   tipTapDocToMarkdown,
 } from './components/input/rich-message-composer';
+export { MinimalSelect, type MinimalSelectProps } from './components/input/select/minimal-select';
 export { Select, type SelectOption, type SelectProps } from './components/input/select/select';
 export { TabSelect, type TabSelectOption, type TabSelectProps } from './components/input/tab-select/tab-select';
 export { ThemeLoader, type ThemeLoaderProps } from './components/input/theme-toggle/theme-loader';
