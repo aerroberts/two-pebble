@@ -34,6 +34,46 @@ export function assistantTodoWriteMessage(callId: string) {
   return { type: 'assistant', message: { content: [block] } } as never;
 }
 
+export function taskStartedMessage(taskId: string, description: string) {
+  return {
+    type: 'system',
+    subtype: 'task_started',
+    task_id: taskId,
+    description,
+  } as never;
+}
+
+export function taskUpdatedMessage(
+  taskId: string,
+  patch: { description?: string; status?: 'pending' | 'running' | 'completed' | 'failed' | 'killed' },
+) {
+  return {
+    type: 'system',
+    subtype: 'task_updated',
+    task_id: taskId,
+    patch,
+  } as never;
+}
+
+export function taskProgressMessage(taskId: string, description: string) {
+  return {
+    type: 'system',
+    subtype: 'task_progress',
+    task_id: taskId,
+    description,
+  } as never;
+}
+
+export function taskNotificationMessage(taskId: string, status: 'completed' | 'failed' | 'stopped', summary: string) {
+  return {
+    type: 'system',
+    subtype: 'task_notification',
+    task_id: taskId,
+    status,
+    summary,
+  } as never;
+}
+
 export function assistantTextMessageFor(agentId: string, agentType: string, content: string) {
   return {
     type: 'assistant',

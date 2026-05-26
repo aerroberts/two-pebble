@@ -13,6 +13,10 @@ import {
   subagentStopHookInput,
   successResultMessage,
   successTranscript,
+  taskNotificationMessage,
+  taskProgressMessage,
+  taskStartedMessage,
+  taskUpdatedMessage,
 } from './claude-code-event-converter.test-env';
 
 describe('feature: claude code event converter — assistant messages', () => {
@@ -50,6 +54,71 @@ describe('feature: claude code event converter — TodoWrite tool', () => {
   it('happy: in_progress maps to open status in the synthesized task list', () => {
     const events = new ClaudeCodeEventConverter().convertMessage(assistantTodoWriteMessage('call-1'), 'anthropic');
     expectTaskListStatuses(events);
+  });
+});
+
+describe('feature: claude code event converter — framework task messages', () => {
+  it('happy: task_started emits a task-list-update using the framework task id', () => {
+    const events = new ClaudeCodeEventConverter().convertMessage(
+      taskStartedMessage('task-1', 'Inspect billing'),
+      'anthropic',
+    );
+    expect(events).toMatchObject([
+      {
+        kind: 'agent-trace',
+        trace: {
+          type: 'task-list-update',
+          data: {
+            tasks: [{ id: 'task-1', description: 'Inspect billing', status: 'open' }],
+            changes: [{ id: 'task-1', oldStatus: null, newStatus: 'open' }],
+          },
+        },
+      },
+    ]);
+  });
+
+  it('happy: task_updated transitions the existing framework task status', () => {
+    const converter = new ClaudeCodeEventConverter();
+    converter.convertMessage(taskStartedMessage('task-1', 'Inspect billing'), 'anthropic');
+    const events = converter.convertMessage(taskUpdatedMessage('task-1', { status: 'completed' }), 'anthropic');
+    expect(events).toMatchObject([
+      {
+        kind: 'agent-trace',
+        trace: {
+          type: 'task-list-update',
+          data: {
+            tasks: [{ id: 'task-1', description: 'Inspect billing', status: 'completed' }],
+            changes: [{ id: 'task-1', oldStatus: 'open', newStatus: 'completed' }],
+          },
+        },
+      },
+    ]);
+  });
+
+  it('happy: task_progress can create a visible open task when it is the first task event seen', () => {
+    const events = new ClaudeCodeEventConverter().convertMessage(
+      taskProgressMessage('task-2', 'Scanning traces'),
+      'anthropic',
+    );
+    expect(events).toMatchObject([
+      {
+        kind: 'agent-trace',
+        trace: { type: 'task-list-update', data: { tasks: [{ id: 'task-2', status: 'open' }] } },
+      },
+    ]);
+  });
+
+  it('happy: terminal task notifications map failed or stopped tasks to invalid', () => {
+    const events = new ClaudeCodeEventConverter().convertMessage(
+      taskNotificationMessage('task-3', 'failed', 'Search failed.'),
+      'anthropic',
+    );
+    expect(events).toMatchObject([
+      {
+        kind: 'agent-trace',
+        trace: { type: 'task-list-update', data: { tasks: [{ id: 'task-3', status: 'invalid' }] } },
+      },
+    ]);
   });
 });
 
