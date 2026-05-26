@@ -20,10 +20,12 @@ import type {
   RichComposerReference,
   RichComposerSlashTrigger,
   RichComposerSubmitPayload,
+  RichComposerTask,
 } from './composer-types';
 import { DocumentMentionNode } from './document-mention-node';
 import { SlashReferencePopover } from './slash-document-popover';
 import { insertTranscriptAtCursor, readActiveSlashTrigger, replaceTriggerWithReferenceMention } from './slash-trigger';
+import { TaskMentionNode } from './task-mention-node';
 import { tipTapDocToCells } from './tiptap-doc-to-cells';
 import { tipTapDocToMarkdown } from './tiptap-doc-to-markdown';
 
@@ -39,6 +41,8 @@ export interface RichMessageComposerProps {
   documents: ReadonlyArray<RichComposerDocument>;
   /** Task boards available to the slash command. */
   boards?: ReadonlyArray<RichComposerBoard>;
+  /** Tasks available to the slash command. */
+  tasks?: ReadonlyArray<RichComposerTask>;
   /** Called whenever the underlying document changes. */
   onChange?: (doc: JSONContent) => void;
   disabled?: boolean;
@@ -101,6 +105,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
       Placeholder.configure({ placeholder: props.placeholder ?? 'Type a message — / for commands, Enter to send' }),
       BoardMentionNode,
       DocumentMentionNode,
+      TaskMentionNode,
     ],
     content: loadInitialDoc(draftStorageKey),
     editorProps: {
@@ -291,6 +296,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
         anchorTop={slashTrigger?.anchorTop ?? 0}
         boards={props.boards ?? []}
         documents={props.documents}
+        tasks={props.tasks ?? []}
         onCancel={handleSlashCancel}
         onSelect={handleReferenceSelected}
         open={popoverOpen}

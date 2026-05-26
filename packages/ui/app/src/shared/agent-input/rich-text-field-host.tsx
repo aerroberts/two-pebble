@@ -5,6 +5,7 @@ import {
   type RichComposerBoard,
   type RichComposerDocument,
   type RichComposerSubmitPayload,
+  type RichComposerTask,
   RichTextField,
 } from '@two-pebble/components';
 import { useDocuments, useTaskBoards } from '@two-pebble/realtime';
@@ -23,6 +24,7 @@ export interface RichTextFieldHostProps {
   ariaLabel?: string;
   minHeight?: number;
   disabled?: boolean;
+  tasks?: ReadonlyArray<RichComposerTask>;
 }
 
 /**
@@ -75,6 +77,7 @@ export function RichTextFieldHost(props: RichTextFieldHostProps) {
       minHeight={props.minHeight}
       onCommit={props.onCommit}
       placeholder={props.placeholder}
+      tasks={props.tasks ?? []}
     />
   );
 }

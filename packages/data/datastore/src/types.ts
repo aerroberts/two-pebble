@@ -279,6 +279,7 @@ export interface TaskRecord {
   poolId: string | null;
   name: string;
   description: string;
+  descriptionContent: string | null;
   templateId: string | null;
   additionalContext: string;
   ownerId: string | null;

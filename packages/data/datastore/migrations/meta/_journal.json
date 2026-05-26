@@ -8,6 +8,13 @@
       "when": 1778969846097,
       "tag": "0000_long_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1779872400000,
+      "tag": "0001_rich_task_descriptions",
+      "breakpoints": true
     }
   ]
 }

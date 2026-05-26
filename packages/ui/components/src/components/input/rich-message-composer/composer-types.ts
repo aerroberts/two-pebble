@@ -11,6 +11,11 @@ export interface RichComposerBoard {
   name: string;
 }
 
+export interface RichComposerTask {
+  id: string;
+  name: string;
+}
+
 export type RichComposerReference =
   | {
       type: 'document';
@@ -19,6 +24,10 @@ export type RichComposerReference =
   | {
       type: 'board';
       item: RichComposerBoard;
+    }
+  | {
+      type: 'task';
+      item: RichComposerTask;
     };
 
 export interface RichComposerSubmitPayload {

@@ -17,6 +17,8 @@ export const tasksTable = customTable('tasks', {
   name: text('name').notNull(),
   // Free-form description shown in the detail panel.
   description: text('description').notNull().default(''),
+  // Rich TipTap document backing the description editor.
+  descriptionContent: text('description_content'),
   // Template this task was created from, kept as an informational pointer.
   templateId: text('template_id'),
   // Prompt context copied from the template at task creation.

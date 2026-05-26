@@ -9,6 +9,7 @@ import {
   MISSING_ID_MENTION_DOC,
   MIXED_MENTION_DOC,
   PLAIN_PARAGRAPH_DOC,
+  TASK_MENTION_DOC,
 } from './tiptap-doc-to-cells.test-fixtures';
 
 describe('feature: tiptap doc to cells', () => {
@@ -29,6 +30,11 @@ describe('feature: tiptap doc to cells', () => {
     expect(cells.map((cell) => cell.type)).toEqual(['text', 'boardReference', 'text']);
     const reference = cells[1];
     expect(reference?.type === 'boardReference' ? reference.content.boardId : null).toBe('board-1');
+  });
+
+  test('happy: renders a task mention into readable text', () => {
+    const cells = tipTapDocToCells(TASK_MENTION_DOC);
+    expect(cells).toEqual([{ type: 'text', content: { text: 'follow [task: QA checklist (id: task-1)]' } }]);
   });
 
   test('happy: preserves mixed document and board mention ordering', () => {

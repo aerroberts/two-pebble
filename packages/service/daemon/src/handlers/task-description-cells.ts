@@ -1,28 +1,36 @@
-import type { JSONContent } from '@tiptap/core';
+import type { TipTapDocument, TipTapNode } from '@two-pebble/datatypes';
 import { Cell, type CellContent } from '@two-pebble/pebble';
 
-/**
- * Converts a TipTap composer document into the structured DataCell wire
- * format the daemon protocol accepts.
- *
- * Rules:
- * - Contiguous text/paragraph content is flushed as a single `text` cell so
- *   markdown-style formatting (paragraphs, hard breaks) round-trips.
- * - Each `documentMention` node becomes its own `documentReference` cell.
- *   The composer only knows `{ documentId, name }`; the daemon refreshes
- *   `contentSnapshot` and `documentUpdatedAt` from durable storage during
- *   event conversion.
- * - Each `boardMention` node becomes its own `boardReference` cell. The
- *   daemon refreshes `{ boardId, name }` from durable storage before the
- *   model sees it.
- * - Each `taskMention` node becomes readable text because the shared cell
- *   protocol does not have a dedicated task-reference cell yet.
- * - A `codeBlock` node maps to a code cell.
- *
- * Returning an empty array signals that the composer has nothing
- * sendable; callers should short-circuit submit in that case.
- */
-export function tipTapDocToCells(doc: JSONContent): CellContent[] {
+export function taskDescriptionToCells(input: {
+  description: string;
+  descriptionContent: string | null;
+}): CellContent[] {
+  const doc = parseTipTapDocument(input.descriptionContent);
+  if (doc === null) {
+    const trimmed = input.description.trim();
+    return trimmed.length > 0 ? [Cell.text(trimmed)] : [];
+  }
+  const cells = tipTapDocToCells(doc);
+  if (cells.length > 0) {
+    return cells;
+  }
+  const trimmed = input.description.trim();
+  return trimmed.length > 0 ? [Cell.text(trimmed)] : [];
+}
+
+function parseTipTapDocument(content: string | null): TipTapDocument | null {
+  if (content === null || content.length === 0) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(content) as TipTapDocument;
+    return parsed.type === 'doc' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function tipTapDocToCells(doc: TipTapDocument): CellContent[] {
   const cells: CellContent[] = [];
   let textBuffer = '';
 
@@ -34,7 +42,7 @@ export function tipTapDocToCells(doc: JSONContent): CellContent[] {
     textBuffer = '';
   };
 
-  const visit = (node: JSONContent | undefined): void => {
+  const visit = (node: TipTapNode | undefined): void => {
     if (node === undefined) {
       return;
     }
@@ -70,32 +78,18 @@ export function tipTapDocToCells(doc: JSONContent): CellContent[] {
       flushText();
       const documentId = typeof node.attrs?.documentId === 'string' ? node.attrs.documentId : '';
       const name = typeof node.attrs?.name === 'string' ? node.attrs.name : '';
-      if (documentId.length === 0) {
-        return;
+      if (documentId.length > 0) {
+        cells.push(Cell.documentReference({ documentId, name, contentSnapshot: '', documentUpdatedAt: 0 }));
       }
-      cells.push(
-        Cell.documentReference({
-          documentId,
-          name,
-          contentSnapshot: '',
-          documentUpdatedAt: 0,
-        }),
-      );
       return;
     }
     if (node.type === 'boardMention') {
       flushText();
       const boardId = typeof node.attrs?.boardId === 'string' ? node.attrs.boardId : '';
       const name = typeof node.attrs?.name === 'string' ? node.attrs.name : '';
-      if (boardId.length === 0) {
-        return;
+      if (boardId.length > 0) {
+        cells.push(Cell.boardReference({ boardId, name }));
       }
-      cells.push(
-        Cell.boardReference({
-          boardId,
-          name,
-        }),
-      );
       return;
     }
     if (node.type === 'taskMention') {

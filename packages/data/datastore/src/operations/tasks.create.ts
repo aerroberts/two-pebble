@@ -5,6 +5,7 @@ type OperationHandlerInput = {
   poolId: string | null;
   name: string;
   description?: string;
+  descriptionContent?: string | null;
   templateId?: string | null;
   additionalContext?: string;
   status: string;
@@ -22,6 +23,7 @@ export function tasksCreateOperation(ctx: DatastoreContext) {
         poolId: input.poolId,
         name: input.name,
         description: input.description ?? '',
+        descriptionContent: input.descriptionContent ?? null,
         templateId: input.templateId ?? null,
         additionalContext: input.additionalContext ?? '',
         status: input.status,

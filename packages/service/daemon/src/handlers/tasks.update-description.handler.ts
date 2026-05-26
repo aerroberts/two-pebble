@@ -7,7 +7,11 @@ type Payload = UpdateTaskDescriptionOperation['request'];
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
-    const record = await ctx.taskBoards.updateTaskDescription(payload.id, payload.description);
+    const record = await ctx.taskBoards.updateTaskDescription(
+      payload.id,
+      payload.description,
+      payload.descriptionContent,
+    );
     const refreshed = await ctx.taskBoards.listTasks(record.boardId);
     for (const task of refreshed) {
       ctx.events.emit('taskUpdated', task);

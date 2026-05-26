@@ -1,6 +1,9 @@
 import {
   AppBox,
   Button,
+  type JSONContent,
+  type RichComposerSubmitPayload,
+  type RichComposerTask,
   Select,
   type SelectOption,
   TaskStatusIcon,
@@ -39,11 +42,13 @@ export interface TaskDetailSidebarProps {
   task: TaskDetailSidebarTask;
   ownerAgent: TaskDetailSidebarOwnerAgent | null;
   description: string;
+  descriptionContent: string | null;
+  taskReferences: ReadonlyArray<RichComposerTask>;
   delegateAgents: SelectOption[];
   delegateDisabled: boolean;
   deliverables: TaskDetailSidebarDeliverable[];
   submissions: TaskDetailSidebarDeliverableSubmission[];
-  onDescriptionSave: (markdown: string) => void;
+  onDescriptionSave: (markdown: string, content: string) => void;
   onDelegate: (agentRegistryId: string) => void;
   onUndelegate: () => void;
   onOpenAgent: (agentId: string) => void;
@@ -59,7 +64,14 @@ export interface TaskDetailSidebarProps {
  * description textarea at the bottom.
  */
 export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
-  const descriptionDoc = useMemo(() => markdownToTipTap(props.description), [props.description]);
+  const descriptionDoc = useMemo(
+    () => parseDescriptionContent(props.descriptionContent, props.description),
+    [props.descriptionContent, props.description],
+  );
+  const handleDescriptionCommit = (payload: RichComposerSubmitPayload) => {
+    props.onDescriptionSave(payload.markdown, JSON.stringify(payload.doc));
+  };
+
   return (
     <>
       <AppBox variant="task-detail-header">
@@ -76,8 +88,9 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
       <RichTextFieldHost
         ariaLabel="Task description"
         minHeight={120}
-        onCommit={(payload) => props.onDescriptionSave(payload.markdown)}
+        onCommit={handleDescriptionCommit}
         placeholder="Describe this task — / to reference a document"
+        tasks={props.taskReferences}
         value={descriptionDoc}
       />
       {props.deliverables.length > 0 ? (
@@ -93,6 +106,20 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
       </AppBox>
     </>
   );
+}
+
+function parseDescriptionContent(content: string | null, markdown: string): JSONContent {
+  if (content !== null && content.length > 0) {
+    try {
+      const parsed = JSON.parse(content) as JSONContent;
+      if (parsed.type === 'doc') {
+        return parsed;
+      }
+    } catch {
+      // Fall back to the legacy markdown column below.
+    }
+  }
+  return markdownToTipTap(markdown);
 }
 
 function renderDeliverableRow(

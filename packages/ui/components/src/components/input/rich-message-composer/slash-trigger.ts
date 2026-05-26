@@ -70,6 +70,18 @@ export function replaceTriggerWithReferenceMention(
     replaceTriggerWithDocumentMention(editor, trigger, selection.item);
     return;
   }
+  if (selection.type === 'task') {
+    editor
+      .chain()
+      .focus()
+      .deleteRange({ from: trigger.from, to: trigger.to })
+      .insertContent([
+        { type: 'taskMention', attrs: { taskId: selection.item.id, name: selection.item.name } },
+        { type: 'text', text: ' ' },
+      ])
+      .run();
+    return;
+  }
   editor
     .chain()
     .focus()

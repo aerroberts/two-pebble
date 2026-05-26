@@ -57,6 +57,13 @@ export function useTaskBoardPageState() {
     }
     return contents.tasks.find((task) => task.id === selectedTaskId) ?? null;
   }, [contents.tasks, selectedTaskId]);
+  const taskReferences = useMemo(
+    () =>
+      contents.tasks
+        .filter((task) => task.id !== selectedTaskId)
+        .map((task) => ({ id: task.id, name: task.name.length > 0 ? task.name : 'Untitled task' })),
+    [contents.tasks, selectedTaskId],
+  );
   const taskEventsState = useTaskEvents({ taskId: selectedTask?.id ?? '' });
   const selectedTaskDeliverablesState = useTaskDeliverables({ taskId: selectedTask?.id ?? '' });
   const selectedTaskDeliverableSubmissionsState = useTaskDeliverableSubmissions({ taskId: selectedTask?.id ?? '' });
@@ -116,6 +123,7 @@ export function useTaskBoardPageState() {
     selectedDependents,
     selectedTask,
     selectedTaskId,
+    taskReferences,
     setBoardNameDraft,
     setSelectedTaskId,
     setTaskNameDraft,
@@ -149,15 +157,21 @@ export function useTaskBoardPageState() {
         }
         await mutations.renameTask({ id: selectedTask.id, name: trimmed });
       }),
-    saveTaskDescription: (nextDescription: string) =>
+    saveTaskDescription: (nextDescription: string, nextDescriptionContent?: string) =>
       handle(async () => {
         if (selectedTask === null) {
           return;
         }
-        if (nextDescription === selectedTask.description) {
+        const currentContent = selectedTask.descriptionContent ?? null;
+        const nextContent = nextDescriptionContent ?? null;
+        if (nextDescription === selectedTask.description && nextContent === currentContent) {
           return;
         }
-        await mutations.updateTaskDescription({ id: selectedTask.id, description: nextDescription });
+        await mutations.updateTaskDescription({
+          id: selectedTask.id,
+          description: nextDescription,
+          descriptionContent: nextContent,
+        });
       }),
     setSelectedTaskStatus: (status: SettableTaskStatus) =>
       handle(async () => {
