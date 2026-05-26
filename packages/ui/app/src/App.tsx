@@ -1,6 +1,7 @@
 import { LoadingPage, NotConnectedPage } from '@two-pebble/components';
 import { useRealtimeConnection } from '@two-pebble/realtime';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { DeveloperRoutes } from './developer-routes';
 import { AgentsAppShell } from './layouts/agents-app-shell';
 import { AutomationsAppShell } from './layouts/automations-app-shell';
@@ -41,6 +42,7 @@ import { RedirectToDeveloperThread } from './redirect-to-developer-thread';
 
 export function App() {
   const connection = useRealtimeConnection();
+  useInternalLinkInterception();
 
   if (connection.status === 'connecting') {
     return <LoadingPage />;
@@ -295,4 +297,46 @@ export function App() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
+}
+
+/**
+ * Intercepts clicks on anchor tags with same-origin hrefs and routes them
+ * through react-router so embedded pills (and any future internal links
+ * rendered by the shared components package) navigate without a reload.
+ */
+function useInternalLinkInterception() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handler = (event: MouseEvent) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+      const anchor = target.closest('a');
+      if (anchor === null) {
+        return;
+      }
+      const href = anchor.getAttribute('href');
+      if (href === null || href.length === 0) {
+        return;
+      }
+      if (anchor.target === '_blank' || anchor.hasAttribute('download')) {
+        return;
+      }
+      if (!href.startsWith('/') || href.startsWith('//')) {
+        return;
+      }
+      event.preventDefault();
+      navigate(href);
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [navigate]);
 }
