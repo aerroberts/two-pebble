@@ -28,6 +28,13 @@ export abstract class Agent extends Events<AgentEvents> {
 
   public readonly bridge: AgentBridge;
 
+  // Single-shot abort controller wired into the agent's lifecycle. Subclasses can
+  // pass `abortSignal` down to in-flight async work (model calls, framework
+  // sessions) so a manual stop interrupts cooperatively. Once aborted the
+  // controller stays aborted — agents are not reused after a stop.
+  private readonly abortController = new AbortController();
+  private stopping = false;
+
   public constructor(input: AgentInput) {
     super();
     this.agentId = input.agentId;
@@ -35,6 +42,53 @@ export abstract class Agent extends Events<AgentEvents> {
     this.description = input.description;
     this.workspacePath = input.workspacePath;
     this.bridge = input.bridge;
+  }
+
+  /** AbortSignal that fires when `stop()` is called. */
+  public get abortSignal(): AbortSignal {
+    return this.abortController.signal;
+  }
+
+  /**
+   * Manually stops the agent. Idempotent: a second call is a no-op so callers
+   * (daemon, capabilities, tools) don't have to coordinate.
+   *
+   * Order of effects:
+   *   1. Flip the AbortController so cooperative async work bails out.
+   *   2. Delegate to the subclass-specific `onStop` hook (framework session
+   *      teardown for FrameworkAgent, run-loop quiescence for PebbleAgent).
+   *   3. Transition to `idle` if the subclass didn't already land on a
+   *      terminal state, so the runtime status reflects the stop without
+   *      leaving the agent in `running`/`waiting` limbo.
+   */
+  public async stop(reason: string): Promise<void> {
+    if (this.stopping) {
+      return;
+    }
+    this.stopping = true;
+    if (!this.abortController.signal.aborted) {
+      this.abortController.abort(reason);
+    }
+    try {
+      await this.onStop(reason);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.changeStatus('failed', `stop failed: ${message}`);
+      throw error;
+    }
+    const current = this.status;
+    if (current !== 'idle' && current !== 'failed' && current !== 'offline') {
+      this.changeStatus('idle', `stopped: ${reason}`);
+    }
+  }
+
+  /**
+   * Subclass-specific stop work. Runs after the abort signal has been raised
+   * and before the base class settles status to `idle`. Default is a no-op so
+   * subclasses without dedicated teardown still inherit a working `stop()`.
+   */
+  protected async onStop(_reason: string): Promise<void> {
+    return;
   }
 
   /**

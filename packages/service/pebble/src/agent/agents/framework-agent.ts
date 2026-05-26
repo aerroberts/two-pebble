@@ -133,16 +133,14 @@ export class FrameworkAgent extends Agent {
   }
 
   /**
-   * Soft-stops the agent. Forwards the request to the underlying framework
-   * (frameworks without an interrupt API are no-ops by default) and flips
-   * status to idle unconditionally so the persistence listener writes the
-   * change to the durable record — the in-memory status can lag the DB
-   * after rehydrate, so gating on the in-memory value would skip the
-   * write in the common stale-agent case.
+   * Tears down the framework session as part of the base-class `stop()`
+   * sequence. The base class raises the abort signal before this runs and
+   * settles status to `idle` after it returns. Forced settlement (even when
+   * the in-memory status lags the DB after rehydrate) is preserved by the
+   * base class so the persistence listener still writes the change.
    */
-  public async stop(reason: string): Promise<void> {
+  protected override async onStop(reason: string): Promise<void> {
     await this.framework.stop(reason);
-    this.changeStatus('idle', `stopped: ${reason}`);
   }
 
   /**

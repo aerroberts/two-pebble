@@ -275,6 +275,13 @@ export class PebbleAgent extends Agent {
       if (waitingForSignal) {
         return;
       }
+      // When the base-class `stop()` aborts mid-loop, the loop returns
+      // cooperatively. The base class is responsible for the `idle`
+      // transition with the stop reason, so skip the success trace here to
+      // avoid a misleading agent-success record.
+      if (this.abortSignal.aborted) {
+        return;
+      }
       this.emit('trace', {
         type: 'agent-success',
         data: { content: [] },
@@ -298,6 +305,14 @@ export class PebbleAgent extends Agent {
    */
   private async runLoop(): Promise<boolean> {
     while (true) {
+      // Cooperative cancellation: bail before kicking off another step when
+      // `stop()` has been requested. In-flight model calls and tool use are
+      // not preempted — they finish their current await — but no further
+      // model invocation is started after the abort.
+      if (this.abortSignal.aborted) {
+        return false;
+      }
+
       // First we process any durable signals that might have woken the agent
       const waitingForSignal = await this.pullSignals();
       if (waitingForSignal) {
