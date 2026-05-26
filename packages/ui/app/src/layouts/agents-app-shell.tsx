@@ -1,12 +1,5 @@
 import { AppBox, AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection } from '@two-pebble/components';
-import {
-  type AgentRecord,
-  useAgents,
-  useCompleteAgent,
-  useFailAgent,
-  useResumeAgent,
-  useStopAgent,
-} from '@two-pebble/realtime';
+import { useAgents, useCompleteAgent, useFailAgent, useResumeAgent, useStopAgent } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AgentSidebarItem } from './agent-sidebar-item';
 import type { AppShellProps } from './app-shell-props';
@@ -115,4 +108,3 @@ export function AgentsAppShell(props: AppShellProps) {
     </MainAppShell>
   );
 }
-

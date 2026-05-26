@@ -95,6 +95,7 @@ export function SlashCommandPopover(props: SlashCommandPopoverProps) {
     <div
       className="z-[1100] fixed flex w-[260px] flex-col overflow-hidden rounded-md border border-border bg-surface-raised shadow-modal"
       style={{ left: props.anchorLeft, top: props.anchorTop + 4 }}
+      // biome-ignore lint/a11y/useSemanticElements: floating popover anchored to the editor caret
       role="listbox"
       aria-label="Insert block"
     >
