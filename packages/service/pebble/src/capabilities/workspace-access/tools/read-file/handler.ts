@@ -6,7 +6,7 @@ import type { WorkspaceAccessCapability } from '../../capability';
 import readFileToolDescription from '../../prompts/read-file-tool-description.md?raw';
 import { resolveWorkspacePath } from '../../utils/path-safety';
 
-const MAX_OUTPUT_CHARS = 3000;
+const MAX_OUTPUT_CHARS = 10000;
 
 const schema = z.object({
   path: z.string().describe('Workspace-relative path to read.'),
