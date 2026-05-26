@@ -45,12 +45,15 @@ const DELIVERABLE_TYPE_OPTIONS = [
 export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
   return (
     <>
-      <Section compact title="Task templates">
-        <div className="flex justify-end pb-2">
+      <Section
+        compact
+        title="Task templates"
+        actionItems={
           <Button leftIcon="plus" onClick={() => props.onCreateTemplate({ name: 'New template', prompt: '' })}>
             Add template
           </Button>
-        </div>
+        }
+      >
         <ListLayout
           emptyState="No task templates yet."
           items={props.templates.map((template) => ({
