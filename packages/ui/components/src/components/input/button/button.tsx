@@ -14,9 +14,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Button(props: ButtonProps) {
   const { variant = 'secondary', children, className, disabled, leftIcon, rightIcon, ...rest } = props;
   const variantClass = getButtonVariantClassName(variant);
-  const disabledClass = disabled
-    ? 'cursor-not-allowed opacity-55'
-    : 'cursor-pointer active:scale-[0.97]';
+  const disabledClass = disabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer active:scale-[0.97]';
   const classes =
     `inline-flex h-7 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2 text-[12px] font-medium leading-4 transition-[background-color,border-color,color,transform,opacity] duration-150 ease-out [&_svg]:h-3.5 [&_svg]:w-3.5 ${variantClass} ${disabledClass} ${className ?? ''}`.trim();
 
