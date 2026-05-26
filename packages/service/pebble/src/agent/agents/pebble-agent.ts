@@ -83,7 +83,11 @@ export class PebbleAgent extends Agent {
     if (this.restoredFromThread || this.systemPromptInitialized) {
       return;
     }
-    this.thread.pushSystem('Pebble System Prompt', Cell.header1('Pebble System Prompt'), Cell.text(PEBBLE_SYSTEM_PROMPT));
+    this.thread.pushSystem(
+      'Pebble System Prompt',
+      Cell.header1('Pebble System Prompt'),
+      Cell.text(PEBBLE_SYSTEM_PROMPT),
+    );
     const prompt = this.initialSystemPrompt.trim();
     if (prompt.length === 0) {
       this.systemPromptInitialized = true;

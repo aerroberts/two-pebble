@@ -17,6 +17,7 @@ import type {
   PricingLineItem,
   ProviderResult,
   SubAgentLifecycleEvent,
+  SubAgentMode,
   SubAgentTraceEvent,
   SubAgentUsageEvent,
   UsageReport,
@@ -44,6 +45,7 @@ export interface LaunchAgentInput {
    * the agents row so the relationship can be inspected and persisted.
    */
   parentAgentId?: string;
+  parentSubAgent?: ParentSubAgentLink;
   /**
    * Optional capability specs to attach in addition to whatever the
    * registry row declares.
@@ -89,6 +91,7 @@ export interface RunAgentInput {
    * Optional parent agent id recorded for launched child agents.
    */
   parentAgentId?: string;
+  parentSubAgent?: ParentSubAgentLink;
   /**
    * Inference profile and integration ids the agent was launched under.
    * Carried so the persistence listener can tag every price line item and
@@ -104,6 +107,12 @@ export interface RunAgentInput {
    * are attached.
    */
   extraCapabilities?: ExtraCapabilitySpec[];
+}
+
+export interface ParentSubAgentLink {
+  childName: string;
+  mode: SubAgentMode;
+  parentAgentId: string;
 }
 
 export type NextAgentTraceOrderId = () => number;

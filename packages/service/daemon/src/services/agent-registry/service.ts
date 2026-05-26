@@ -15,6 +15,7 @@ import type {
   Agent,
   AgentBridge,
   AgentSignal,
+  DataCells,
   TaskBoardEventRecord,
   TaskBoardPoolNode,
   TaskBoardTaskNode,
@@ -39,7 +40,7 @@ import { installFreshLaunchAgent } from './sub-agent/install';
 import { readSubAgentReferenceMap } from './sub-agent/sub-agent-references';
 import type { AgentTerminateInput, SubAgentReferenceMap } from './sub-agent/sub-agent-types';
 import type { SubAgentCreatePromiseMap } from './sub-agents';
-import type { ExtraCapabilitySpec, LaunchAgentInput, RunAgentInput } from './types';
+import type { ExtraCapabilitySpec, LaunchAgentInput, ParentSubAgentLink, RunAgentInput } from './types';
 
 /**
  * Owns the lifecycle of every active runtime agent the daemon is managing.
@@ -50,6 +51,7 @@ import type { ExtraCapabilitySpec, LaunchAgentInput, RunAgentInput } from './typ
 export class AgentRegistryService extends DaemonService {
   public readonly id = 'agent-registry';
   private readonly activeAgents = new Map<string, Agent>();
+  private readonly parentSubAgentResultBindings = new Map<string, { agent: Agent; key: string }>();
   private readonly subAgentCreatePromises: SubAgentCreatePromiseMap = new Map();
   private readonly pendingRehydrations = new Map<string, Promise<Agent>>();
 
@@ -269,6 +271,13 @@ export class AgentRegistryService extends DaemonService {
     installAgentPersistenceListeners({ context, input, nextOrderId });
     installSubAgentListeners({ context, input, nextOrderId });
     this.activeAgents.set(input.agentId, input.agent);
+    if (input.parentSubAgent !== undefined) {
+      this.bindParentSubAgentResult({
+        agent: input.agent,
+        childAgentId: input.agentId,
+        link: input.parentSubAgent,
+      });
+    }
     if (input.agent instanceof PebbleAgent) {
       input.agent.initializeSystemPrompt();
     }
@@ -386,6 +395,7 @@ export class AgentRegistryService extends DaemonService {
       ...(input.cells === undefined ? {} : { cells: input.cells }),
       registry,
       ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
+      ...(input.parentSubAgent === undefined ? {} : { parentSubAgent: input.parentSubAgent }),
       ...(combinedExtras === undefined ? {} : { extraCapabilities: combinedExtras }),
       ...profileIds,
       workspaceId: launchWorkspace.workspace.id,
@@ -411,11 +421,84 @@ export class AgentRegistryService extends DaemonService {
         specs: combinedSpecs,
       });
     }
-    if (input.parentAgentId !== undefined) {
+    if (input.parentAgentId !== undefined && input.cells === undefined && input.message.trim().length === 0) {
       return;
     }
     const cells = input.cells !== undefined && input.cells.length > 0 ? input.cells : [Cell.text(input.message)];
     input.agent.sendMessage(cells);
+  }
+
+  private bindParentSubAgentResult(input: { agent: Agent; childAgentId: string; link: ParentSubAgentLink }): void {
+    const key = `${input.link.parentAgentId}/${input.link.childName}/${input.link.mode}`;
+    const existing = this.parentSubAgentResultBindings.get(input.childAgentId);
+    if (existing?.agent === input.agent && existing.key === key) {
+      return;
+    }
+    this.parentSubAgentResultBindings.set(input.childAgentId, { agent: input.agent, key });
+    input.agent.on('finalMessage', ({ content }) => {
+      const message = this.cellsToText(content);
+      void this.sendParentSubAgentResult({
+        childAgentId: input.childAgentId,
+        childName: input.link.childName,
+        message: message.length === 0 ? 'Child agent finished without a text response.' : message,
+        parentAgentId: input.link.parentAgentId,
+        status: input.link.mode === 'task' ? 'success' : 'response',
+      });
+    });
+    input.agent.on('status', ({ message, status }) => {
+      if (status !== 'failed') {
+        return;
+      }
+      void this.sendParentSubAgentResult({
+        childAgentId: input.childAgentId,
+        childName: input.link.childName,
+        message,
+        parentAgentId: input.link.parentAgentId,
+        status: 'failure',
+      });
+    });
+  }
+
+  private async sendParentSubAgentResult(input: {
+    childAgentId: string;
+    childName: string;
+    message: string;
+    parentAgentId: string;
+    status: 'failure' | 'response' | 'success';
+  }): Promise<void> {
+    await this.datastore.agent.signals.sendPush({
+      agentId: input.parentAgentId,
+      capabilityId: 'sub-agent',
+      data: {
+        childAgentId: input.childAgentId,
+        childName: input.childName,
+        message: input.message,
+        status: input.status,
+        type: 'sub-agent-result',
+      },
+      description: `Framework child ${input.childName} reported ${input.status}.`,
+      name: 'Sub-agent result',
+      signalId: crypto.randomUUID(),
+    });
+    await this.wakeIfSignalsReady(input.parentAgentId);
+  }
+
+  private cellsToText(cells: DataCells): string {
+    return cells
+      .map((cell) => {
+        if (cell.type === 'text' || cell.type === 'header1' || cell.type === 'header2') {
+          return cell.content.text;
+        }
+        if (cell.type === 'codeBlock') {
+          return cell.content.code;
+        }
+        if (cell.type === 'data') {
+          return JSON.stringify(cell.content.value);
+        }
+        return '';
+      })
+      .filter((value) => value.length > 0)
+      .join('\n');
   }
 
   private buildAgentBridge(agentId: string, references: SubAgentReferenceMap): AgentBridge {
@@ -538,23 +621,64 @@ export class AgentRegistryService extends DaemonService {
         kill: async (input) => {
           await this.terminate({ agentId: input.childAgentId, reason: input.reason });
         },
+        send: async (input) => {
+          const child = await this.rehydrate(input.childAgentId);
+          this.bindParentSubAgentResult({
+            agent: child,
+            childAgentId: input.childAgentId,
+            link: {
+              childName: input.childName,
+              mode: input.mode,
+              parentAgentId: agentId,
+            },
+          });
+          child.sendMessage([Cell.header2('Parent Instructions'), Cell.text(input.instructions)]);
+        },
         spawn: async (input) => {
           const agentRegistryId = references.get(input.subAgentId);
           if (agentRegistryId === undefined) {
             throw new Error(`Unknown sub-agent reference: ${input.subAgentId}`);
           }
+          const registry = await this.datastore.agentRegistries.read({ id: agentRegistryId });
+          const runtime = registry.kind === 'framework' ? 'framework' : 'pebble';
           const launched = await this.launch({
             agentRegistryId,
-            extraCapabilities: [
-              {
-                id: input.mode === 'task' ? 'parent-linked-task' : 'parent-linked-teammate',
-                config: { childName: input.name, parentAgentId: agentId },
-              },
-            ],
-            message: '',
+            ...(runtime === 'pebble'
+              ? {
+                  extraCapabilities: [
+                    {
+                      id: input.mode === 'task' ? 'parent-linked-task' : 'parent-linked-teammate',
+                      config: { childName: input.name, parentAgentId: agentId },
+                    },
+                  ],
+                }
+              : {
+                  parentSubAgent: {
+                    childName: input.name,
+                    mode: input.mode,
+                    parentAgentId: agentId,
+                  },
+                }),
+            message: runtime === 'framework' ? input.instructions : '',
             parentAgentId: agentId,
           });
-          return launched.id;
+          if (runtime === 'pebble') {
+            await this.datastore.agent.signals.sendPush({
+              agentId: launched.id,
+              capabilityId: input.mode === 'task' ? 'parent-linked-task' : 'parent-linked-teammate',
+              data: {
+                instructions: input.instructions,
+                parentAgentId: agentId,
+                parentCapabilityId: 'sub-agent',
+                type: 'parent-instructions',
+              },
+              description: `Parent sent instructions to ${input.name}.`,
+              name: 'Parent instructions',
+              signalId: crypto.randomUUID(),
+            });
+            await this.wakeIfSignalsReady(launched.id);
+          }
+          return { agentId: launched.id, runtime };
         },
       },
       taskBoards: {
