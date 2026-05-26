@@ -1,5 +1,11 @@
 import type { CellContent } from '@two-pebble/pebble';
 
+export type AgentLaunchWorkspaceOverride =
+  | { kind: 'absolute'; path: string }
+  | { kind: 'inherit'; workspaceId: string }
+  | { kind: 'none' }
+  | { kind: 'worktree'; parentWorkspaceId?: string; repositoryId?: string };
+
 /**
  * Defines the AgentLaunchOperation protocol contract for daemon bridge messages.
  * Request and response fields stay explicit so callers can rely on the wire shape.
@@ -24,6 +30,12 @@ export interface AgentLaunchOperation {
      * agent can mark todos in that document complete.
      */
     sourceDocumentId?: string;
+    /**
+     * Optional launch-time workspace override. Used by orchestration paths
+     * such as sub-agent spawning to inherit an existing workspace or force
+     * a fresh worktree instead of blindly using the registry default.
+     */
+    workspaceOverride?: AgentLaunchWorkspaceOverride;
   };
   response: {
     id: string;

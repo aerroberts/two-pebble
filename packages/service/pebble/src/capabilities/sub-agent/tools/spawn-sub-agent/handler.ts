@@ -15,6 +15,12 @@ const schema = (references: SubAgentReference[]) =>
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
       .describe('Unique short kebab-case name for this child.'),
     subAgentId: subAgentIdSchema(references).describe('Configured sub-agent id to launch.'),
+    workspace: z
+      .enum(['inherit', 'worktree'])
+      .default('inherit')
+      .describe(
+        'Workspace isolation for the child. Use inherit for the same workspace as the parent; use worktree for a fresh sibling worktree.',
+      ),
   });
 
 /**

@@ -4,6 +4,7 @@ import {
   expectSendToFrameworkChildUsesSubAgentSend,
   expectSpawnRegistersNewToolSurface,
   expectSpawnSendsTaskInstructions,
+  expectSpawnUsesRequestedWorkspaceMode,
   expectTeammateFollowUpUsesChildSignal,
   expectWaitRegistersFanInSignal,
 } from './sub-agent-capability.test-env';
@@ -15,6 +16,10 @@ describe('feature: sub-agent capability registration', () => {
 
   it('happy: spawn launches a named task child and sends initial instructions', async () => {
     await expectSpawnSendsTaskInstructions();
+  });
+
+  it('happy: spawn forwards the requested workspace mode', async () => {
+    await expectSpawnUsesRequestedWorkspaceMode();
   });
 
   it('happy: wait registers a fan-in signal for unresolved children', async () => {

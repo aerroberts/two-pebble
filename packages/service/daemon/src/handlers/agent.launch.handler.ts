@@ -26,6 +26,7 @@ export function handler(ctx: DaemonHandlerContext) {
       message: payload.message,
       ...(cells === undefined ? {} : { cells }),
       ...(extraCapabilities === undefined ? {} : { extraCapabilities }),
+      ...(payload.workspaceOverride === undefined ? {} : { workspaceOverride: payload.workspaceOverride }),
     });
   };
 }

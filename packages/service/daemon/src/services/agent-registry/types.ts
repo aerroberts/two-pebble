@@ -51,7 +51,14 @@ export interface LaunchAgentInput {
    * registry row declares.
    */
   extraCapabilities?: ExtraCapabilitySpec[];
+  workspaceOverride?: LaunchWorkspaceOverride;
 }
+
+export type LaunchWorkspaceOverride =
+  | { kind: 'absolute'; path: string }
+  | { kind: 'inherit'; workspaceId: string }
+  | { kind: 'none' }
+  | { kind: 'worktree'; parentWorkspaceId?: string; repositoryId?: string };
 
 export interface ResolvedLaunchWorkspace {
   workspace: ResolvedWorkspace;
@@ -284,6 +291,7 @@ export interface ResolveLaunchWorkspaceInput {
   events: DaemonEventSink;
   datastore: Datastore;
   registry: AgentRegistryRecord;
+  workspaceOverride?: LaunchWorkspaceOverride;
 }
 
 export interface ParseWorkspaceConfigInput {

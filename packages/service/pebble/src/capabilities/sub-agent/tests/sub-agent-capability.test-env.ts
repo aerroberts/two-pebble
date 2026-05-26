@@ -37,6 +37,7 @@ export function expectSpawnRegistersNewToolSurface(): void {
         properties: {
           mode: { enum: ['task', 'teammate'] },
           subAgentId: { enum: ['researcher'] },
+          workspace: { enum: ['inherit', 'worktree'] },
         },
       },
       name: 'spawn-sub-agent',
@@ -57,13 +58,41 @@ export async function expectSpawnSendsTaskInstructions(): Promise<void> {
       subAgentId: 'reviewer',
     });
   expect(runtime.spawned).toEqual([
-    { instructions: 'Find the answer.', mode: 'task', name: 'research-one', subAgentId: 'reviewer' },
+    {
+      instructions: 'Find the answer.',
+      mode: 'task',
+      name: 'research-one',
+      subAgentId: 'reviewer',
+      workspace: 'inherit',
+    },
   ]);
   expect(runtime.sentSignals).toEqual([]);
   expect(result).toMatchObject({
     content: [Cell.text('Spawned research-one (agents:child123).')],
     status: 'success',
   });
+}
+
+export async function expectSpawnUsesRequestedWorkspaceMode(): Promise<void> {
+  const runtime = buildSubAgentCapabilityRuntime();
+  await runtime.tools
+    .find((tool) => tool.id === 'spawn-sub-agent')
+    ?.invoke({
+      instructions: 'Edit in isolation.',
+      mode: 'task',
+      name: 'isolated-one',
+      subAgentId: 'reviewer',
+      workspace: 'worktree',
+    });
+  expect(runtime.spawned).toEqual([
+    {
+      instructions: 'Edit in isolation.',
+      mode: 'task',
+      name: 'isolated-one',
+      subAgentId: 'reviewer',
+      workspace: 'worktree',
+    },
+  ]);
 }
 
 export async function expectWaitRegistersFanInSignal(): Promise<void> {

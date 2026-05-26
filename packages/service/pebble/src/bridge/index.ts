@@ -31,6 +31,7 @@ export type {
   SubAgentSendInput,
   SubAgentSpawnInput,
   SubAgentSpawnOutput,
+  SubAgentWorkspaceMode,
   TaskBoardCreatePoolInput,
   TaskBoardCreateTaskInput,
   TaskBoardDeletePoolInput,

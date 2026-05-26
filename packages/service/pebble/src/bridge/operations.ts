@@ -107,12 +107,14 @@ export interface MarkSignalResolvedInput {
 
 export type SubAgentMode = 'task' | 'teammate';
 export type SubAgentRuntime = 'framework' | 'pebble';
+export type SubAgentWorkspaceMode = 'inherit' | 'worktree';
 
 export interface SubAgentSpawnInput {
   instructions: string;
   mode: SubAgentMode;
   name: string;
   subAgentId: string;
+  workspace?: SubAgentWorkspaceMode;
 }
 
 export interface SubAgentSpawnOutput {

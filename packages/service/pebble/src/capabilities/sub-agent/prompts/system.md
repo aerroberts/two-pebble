@@ -6,6 +6,8 @@ Use task mode for bounded work that should end with complete or failure. Task ch
 
 Use teammate mode for an ongoing collaborator. Teammate children respond to you, sleep, and can resume when you send follow-up instructions.
 
+Choose the workspace setting when spawning a child. Bias toward `inherit`: the child uses your workspace, can directly inspect your files, and can see changes/results left in that workspace. Choose `worktree` only when isolation matters, such as parallel edit-heavy work where children should not interfere with each other's files. A child in its own worktree cannot directly see your uncommitted files or results unless you include the relevant context in its instructions.
+
 Use wait-for-agents to fan in after launching or messaging children. It waits until every named child has produced a new result.
 
 Use send-agent to send follow-up instructions to a named non-terminal child. Use kill-sub-agent to stop a named child.

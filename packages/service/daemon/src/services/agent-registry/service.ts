@@ -343,6 +343,7 @@ export class AgentRegistryService extends DaemonService {
       events: this.daemon.events,
       datastore: this.datastore,
       registry,
+      ...(input.workspaceOverride === undefined ? {} : { workspaceOverride: input.workspaceOverride }),
     });
     const description = buildInput.description;
     const agent = await this.datastore.agent.create({
@@ -641,6 +642,11 @@ export class AgentRegistryService extends DaemonService {
           }
           const registry = await this.datastore.agentRegistries.read({ id: agentRegistryId });
           const runtime = registry.kind === 'framework' ? 'framework' : 'pebble';
+          const parent = await this.datastore.agent.read({ id: agentId });
+          const workspaceOverride =
+            input.workspace === 'worktree'
+              ? { kind: 'worktree' as const, parentWorkspaceId: parent.workspaceId }
+              : { kind: 'inherit' as const, workspaceId: parent.workspaceId };
           const launched = await this.launch({
             agentRegistryId,
             ...(runtime === 'pebble'
@@ -661,6 +667,7 @@ export class AgentRegistryService extends DaemonService {
                 }),
             message: runtime === 'framework' ? input.instructions : '',
             parentAgentId: agentId,
+            workspaceOverride,
           });
           if (runtime === 'pebble') {
             await this.datastore.agent.signals.sendPush({

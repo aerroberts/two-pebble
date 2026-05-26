@@ -1,4 +1,4 @@
-import type { SubAgentRuntime } from '../../../bridge';
+import type { SubAgentRuntime, SubAgentWorkspaceMode } from '../../../bridge';
 import type { PebbleJsonRecord } from '../../../types';
 
 /**
@@ -31,6 +31,7 @@ export interface SpawnSubAgentInput {
   mode: ChildMode;
   name: string;
   subAgentId: string;
+  workspace?: SubAgentWorkspaceMode;
 }
 
 export interface SendAgentInput {

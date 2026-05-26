@@ -1,4 +1,5 @@
 import type { CellContent } from '@two-pebble/pebble';
+import type { AgentLaunchWorkspaceOverride } from '@two-pebble/protocol';
 import type { LoadableRegistry } from '../../loadable';
 
 export interface AgentsState {
@@ -45,6 +46,7 @@ export interface LaunchAgentInput {
    * todos embedded in the document body.
    */
   sourceDocumentId?: string;
+  workspaceOverride?: AgentLaunchWorkspaceOverride;
 }
 
 export interface SendAgentMessageInput {
