@@ -569,6 +569,7 @@ export class AgentRegistryService extends DaemonService {
             content,
             projectId: parent.projectId,
             references,
+            ...(input.section === undefined ? {} : { section: input.section }),
           });
           this.daemon.events.emit('documentUpdated', record);
           return { id: record.id, name: record.name };
@@ -603,6 +604,7 @@ export class AgentRegistryService extends DaemonService {
             id: input.id,
             content,
             ...(input.name === undefined ? {} : { name: input.name }),
+            ...(input.section === undefined ? {} : { section: input.section }),
             references: serializeDocumentReferences(nextRefs),
           });
           this.daemon.events.emit('documentUpdated', record);
