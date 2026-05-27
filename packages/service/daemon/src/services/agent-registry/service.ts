@@ -372,6 +372,7 @@ export class AgentRegistryService extends DaemonService {
       description,
       name: registry.name,
       ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
+      projectId: input.projectId ?? registry.projectId,
       workspaceId: launchWorkspace.workspace.id,
     });
     this.daemon.events.emit('agentRecorded', agent);
@@ -536,6 +537,7 @@ export class AgentRegistryService extends DaemonService {
             metadata: record.metadata,
             name: record.name,
             parentAgentId: record.parentAgentId ?? null,
+            projectId: record.projectId,
             startedAt: record.startedAt,
             status: record.status,
             workspaceId: record.workspaceId,
@@ -559,16 +561,24 @@ export class AgentRegistryService extends DaemonService {
           this.daemon.events.emit('documentUpdated', record);
         },
         create: async (input) => {
+          const parent = await this.datastore.agent.read({ id: agentId });
           const content = JSON.stringify(markdownToTipTap(input.markdown));
           const references = serializeDocumentReferences(appendAgentReference([], agentId, Date.now()));
-          const record = await this.datastore.documents.create({ name: input.name, content, references });
+          const record = await this.datastore.documents.create({
+            name: input.name,
+            content,
+            projectId: parent.projectId,
+            references,
+          });
           this.daemon.events.emit('documentUpdated', record);
           return { id: record.id, name: record.name };
         },
         list: async (input) => {
+          const parent = await this.datastore.agent.read({ id: agentId });
           const result = await this.datastore.documents.list({
             limit: input.limit ?? 50,
             offset: input.offset ?? 0,
+            projectId: parent.projectId,
           });
           return {
             items: result.items.map((item) => ({ id: item.id, name: item.name, updatedAt: item.updatedAt })),
@@ -689,6 +699,7 @@ export class AgentRegistryService extends DaemonService {
               : { kind: 'inherit' as const, workspaceId: parent.workspaceId };
           const launched = await this.launch({
             agentRegistryId,
+            projectId: parent.projectId,
             ...(runtime === 'pebble'
               ? {
                   extraCapabilities: [

@@ -64,6 +64,10 @@ import { openWorkspaceInIdeOperation } from './operations/known-ides.open-worksp
 import { listMetricNamesOperation } from './operations/metrics.list-names.operation';
 import { listMetricVariantsOperation } from './operations/metrics.list-variants.operation';
 import { queryMetricsAggregatedOperation } from './operations/metrics.query-aggregated.operation';
+import { createProjectOperation } from './operations/projects.create.operation';
+import { deleteProjectOperation } from './operations/projects.delete.operation';
+import { listProjectsOperation } from './operations/projects.list.operation';
+import { updateProjectOperation } from './operations/projects.update.operation';
 import { createRepositoryOperation } from './operations/repositories.create.operation';
 import { deleteRepositoryOperation } from './operations/repositories.delete.operation';
 import { listRepositoriesOperation } from './operations/repositories.list.operation';
@@ -263,6 +267,15 @@ export class RealtimeDatastore {
       delete: deleteRepositoryOperation({ datastore: this }),
       list: listRepositoriesOperation({ datastore: this }),
       update: updateRepositoryOperation({ datastore: this }),
+    };
+  }
+
+  public get projects() {
+    return {
+      create: createProjectOperation({ datastore: this }),
+      delete: deleteProjectOperation({ datastore: this }),
+      list: listProjectsOperation({ datastore: this }),
+      update: updateProjectOperation({ datastore: this }),
     };
   }
 

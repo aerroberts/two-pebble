@@ -17,6 +17,7 @@ import {
 } from '@two-pebble/realtime';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { projectPath, useProjectId } from '../../project-context';
 
 type TaskBoardView = 'graph' | 'list' | 'settings';
 type ActionRunner = () => Promise<void>;
@@ -36,16 +37,17 @@ export type { SettableTaskStatus, TaskBoardView };
 export function useTaskBoardPageState() {
   const params = useParams();
   const boardId = params.boardId ?? '';
+  const projectId = useProjectId();
   const navigate = useNavigate();
-  const taskBoards = useTaskBoards();
+  const taskBoards = useTaskBoards({ projectId });
   const contents = useTaskBoardContents({ boardId });
   const taskTemplates = useBoardTaskTemplates({ boardId });
   const mutations = useTaskBoardMutations();
   const templateMutations = useTaskTemplateMutations();
-  const agentRegistries = useAgentRegistries();
+  const agentRegistries = useAgentRegistries({ projectId });
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
-  const agents = useAgents();
+  const agents = useAgents({ projectId });
   const board = taskBoards.getItem(boardId)?.value ?? null;
   const [boardNameDraft, setBoardNameDraft] = useState('');
   const [taskNameDraft, setTaskNameDraft] = useState('');
@@ -273,7 +275,7 @@ export function useTaskBoardPageState() {
           return;
         }
         await mutations.deleteBoard({ id: board.id });
-        navigate('/tasks');
+        navigate(projectPath(projectId, '/tasks'));
       }),
     createTaskTemplate: (input: { name: string; prompt?: string }) =>
       handle(async () => {

@@ -7,7 +7,7 @@ type Payload = CreateTaskBoardOperation['request'];
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
-    const record = await ctx.taskBoards.createBoard({ name: payload.name });
+    const record = await ctx.taskBoards.createBoard({ name: payload.name, projectId: payload.projectId });
     ctx.events.emit('taskBoardUpdated', record);
     return { id: record.id };
   };

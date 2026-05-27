@@ -7,40 +7,43 @@ import {
   useAgentRegistries,
   useAppSettings,
   useInferenceProfiles,
+  useProjectMutations,
+  useProjects,
   useThirdPartyAgentInstalls,
   useUpdateAppSettings,
 } from '@two-pebble/realtime';
+import { readLastViewedProjectId } from '../../../project-context';
 import { agentRegistryIcon } from '../../../shared/agents/agent-registry-icon';
 
 const NONE_VALUE = '__none__';
 
 export function AssistantSettingsPage() {
   const appSettings = useAppSettings();
-  const agentRegistries = useAgentRegistries();
+  const projects = useProjects();
+  const projectId = readLastViewedProjectId() ?? projects.values()[0]?.id ?? '';
+  const project = projects.getItem(projectId)?.value ?? null;
+  const projectMutations = useProjectMutations();
+  const agentRegistries = useAgentRegistries(projectId.length === 0 ? undefined : { projectId });
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const updateAppSettings = useUpdateAppSettings();
 
   const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries, inferenceProfiles, installs);
   const settings = appSettings.value;
-  const assistantAgentRegistryId = settings?.assistantAgentRegistryId ?? NONE_VALUE;
+  const assistantAgentRegistryId = project?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantCommandKEnabled = settings?.assistantCommandKEnabled ?? false;
   const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
 
   const onAssistantAgentChange = (value: string) => {
-    if (settings === null) {
+    if (project === null) {
       return;
     }
     const nextRegistryId = value === NONE_VALUE ? null : value;
-    const registryChanged = nextRegistryId !== settings.assistantAgentRegistryId;
-    void updateAppSettings({
-      defaultKnownIdeId: settings.defaultKnownIdeId,
-      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
-      defaultSpeechProfileId: settings.defaultSpeechProfileId,
+    const registryChanged = nextRegistryId !== project.assistantAgentRegistryId;
+    void projectMutations.updateProject({
+      id: project.id,
       assistantAgentRegistryId: nextRegistryId,
-      assistantAgentId: registryChanged ? null : settings.assistantAgentId,
-      assistantCommandKEnabled: settings.assistantCommandKEnabled,
-      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      assistantAgentId: registryChanged ? null : project.assistantAgentId,
     });
   };
 

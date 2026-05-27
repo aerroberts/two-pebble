@@ -7,6 +7,7 @@ export interface DocumentRecord {
   createdAt: number;
   updatedAt: number;
   name: string;
+  projectId?: string;
   content: string;
   references: string;
 }
@@ -20,6 +21,7 @@ export interface DocumentsListOperation {
   request: {
     limit?: number;
     offset?: number;
+    projectId?: string;
   };
   response: {
     items: DocumentRecord[];

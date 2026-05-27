@@ -1,10 +1,11 @@
-import { count, desc } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 
 import type { AgentStatus, DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
   limit: number;
   offset: number;
+  projectId?: string;
 };
 
 /**
@@ -12,14 +13,26 @@ type OperationHandlerInput = {
  */
 export function agentListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
-    const rows = await ctx.database
+    const query = ctx.database
       .select()
       .from(ctx.schema.agentsTable)
       .orderBy(desc(ctx.schema.agentsTable.startedAt))
       .limit(input.limit)
-      .offset(input.offset)
-      .all();
-    const total = (await ctx.database.select({ value: count() }).from(ctx.schema.agentsTable).get())?.value ?? 0;
+      .offset(input.offset);
+    const rows =
+      input.projectId === undefined
+        ? await query.all()
+        : await query.where(eq(ctx.schema.agentsTable.projectId, input.projectId)).all();
+    const total =
+      input.projectId === undefined
+        ? ((await ctx.database.select({ value: count() }).from(ctx.schema.agentsTable).get())?.value ?? 0)
+        : ((
+            await ctx.database
+              .select({ value: count() })
+              .from(ctx.schema.agentsTable)
+              .where(eq(ctx.schema.agentsTable.projectId, input.projectId))
+              .get()
+          )?.value ?? 0);
 
     return {
       items: rows.map((row) => ({
@@ -31,6 +44,7 @@ export function agentListOperation(ctx: DatastoreContext) {
         name: row.name,
         parentAgentId: row.parentAgentId,
         parentResponseSignalId: row.parentResponseSignalId,
+        projectId: row.projectId,
         startedAt: row.startedAt,
         status: row.status as AgentStatus,
         workspaceId: row.workspaceId,

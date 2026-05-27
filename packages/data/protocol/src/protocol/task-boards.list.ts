@@ -7,6 +7,7 @@ export interface TaskBoardRecord {
   createdAt: number;
   updatedAt: number;
   name: string;
+  projectId: string;
 }
 
 /**
@@ -15,7 +16,9 @@ export interface TaskBoardRecord {
  */
 export interface TaskBoardsListOperation {
   name: 'listTaskBoards';
-  request: Record<string, never>;
+  request: {
+    projectId?: string;
+  };
   response: {
     items: TaskBoardRecord[];
   };

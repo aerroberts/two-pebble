@@ -8,6 +8,7 @@ import {
   useSendAssistantMessage,
 } from '@two-pebble/realtime';
 import { useMemo, useState } from 'react';
+import { useProject } from '../../project-context';
 
 export interface AssistantChatSubmitInput {
   markdown: string;
@@ -16,15 +17,16 @@ export interface AssistantChatSubmitInput {
 
 export function useAssistantPageState() {
   const appSettings = useAppSettings();
+  const { project, projectId } = useProject();
   const sendAssistantMessage = useSendAssistantMessage();
-  const agents = useAgents();
+  const agents = useAgents({ projectId });
   const toaster = useToast();
   const [chatError, setChatError] = useState('');
   const [chatSending, setChatSending] = useState(false);
 
   const settings = appSettings.value;
-  const registryId = settings?.assistantAgentRegistryId ?? null;
-  const agentId = settings?.assistantAgentId ?? null;
+  const registryId = project.assistantAgentRegistryId;
+  const agentId = project.assistantAgentId;
   const agent = agentId === null ? null : (agents.getItem(agentId)?.value ?? null);
   const liveness = useAgentLiveness(agentId ?? '');
   const traces = useAgentTraces({ agentId: agentId ?? '', agentIds: agentId === null ? [] : [agentId] });
@@ -47,7 +49,7 @@ export function useAssistantPageState() {
     setChatSending(true);
     setChatError('');
     try {
-      const result = await sendAssistantMessage({ message: markdown, cells: input.cells });
+      const result = await sendAssistantMessage({ message: markdown, cells: input.cells, projectId });
       if (result.launched && agentId !== null) {
         toaster.toast('Previous Assistant thread had ended; started a new conversation.', 'info');
       }

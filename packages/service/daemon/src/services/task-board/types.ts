@@ -17,6 +17,7 @@ export interface PoolReplayRow {
 
 export interface CreateBoardInput {
   name: string;
+  projectId?: string;
 }
 
 export interface CreatePoolInput {

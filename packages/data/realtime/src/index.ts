@@ -178,6 +178,15 @@ export type {
   KnownIdesState,
   OpenWorkspaceInIdeInput,
 } from './states/known-ides/types';
+export { useProjectMutations } from './states/projects/hooks/use-project-mutations.hook';
+export { useProjects } from './states/projects/hooks/use-projects.hook';
+export type {
+  CreateProjectInput,
+  DeleteProjectInput,
+  ProjectRecord,
+  ProjectsState,
+  UpdateProjectInput,
+} from './states/projects/types';
 export { useCreateRepository } from './states/repositories/hooks/use-create-repository.hook';
 export { useDeleteRepository } from './states/repositories/hooks/use-delete-repository.hook';
 export { useRepositories } from './states/repositories/hooks/use-repositories.hook';

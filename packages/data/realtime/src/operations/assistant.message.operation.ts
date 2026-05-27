@@ -1,9 +1,11 @@
 import type { CellContent } from '@two-pebble/pebble';
 import type { AgentRecord, AgentStatus } from '../states/agents/types';
 import type { AppSettingsRecord } from '../states/app-settings/types';
+import type { ProjectRecord } from '../states/projects/types';
 import type { RealtimeOperationContext } from '../types';
 
 export interface SendAssistantMessageInput {
+  projectId?: string;
   /** Markdown/text fallback for legacy logging and voice workflows. */
   message: string;
   /**
@@ -29,19 +31,23 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
       throw new Error('Assistant message cannot be empty.');
     }
 
+    const projectId = input.projectId ?? 'proj_default';
+    const project = await readProject(ctx, projectId);
     const settings = await readSettings(ctx);
-    const registryId = settings.assistantAgentRegistryId;
+    const registryId = project.assistantAgentRegistryId ?? settings.assistantAgentRegistryId;
     if (registryId === null) {
       throw new Error('Pick an Assistant agent in Settings before sending.');
     }
 
-    const currentAgent = await readCurrentAgent(ctx, settings.assistantAgentId);
+    const currentAgent = await readCurrentAgent(ctx, project.assistantAgentId ?? settings.assistantAgentId);
     if (currentAgent === null || RELAUNCH_STATUSES.has(currentAgent.status)) {
       const launched = await ctx.datastore.agent.launch({
         agentRegistryId: registryId,
         message,
+        projectId,
         ...(cells === undefined ? {} : { cells }),
       });
+      await ctx.datastore.projects.update({ id: projectId, assistantAgentId: launched.id });
       await ctx.datastore.appSettings.update({
         defaultKnownIdeId: settings.defaultKnownIdeId,
         defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
@@ -71,6 +77,20 @@ async function readSettings(ctx: RealtimeOperationContext): Promise<AppSettingsR
   const settings = await ctx.datastore.emit('readAppSettings', {});
   ctx.datastore.patch({ appSettings: ctx.datastore.state.appSettings.withValue(settings) });
   return settings;
+}
+
+async function readProject(ctx: RealtimeOperationContext, projectId: string): Promise<ProjectRecord> {
+  const cached = ctx.datastore.state.projects.getItem(projectId)?.value ?? null;
+  if (cached !== null) {
+    return cached;
+  }
+  const result = await ctx.datastore.emit('listProjects', {});
+  ctx.datastore.patch({ projects: ctx.datastore.state.projects.withReadyItems(result.items) });
+  const project = result.items.find((item) => item.id === projectId);
+  if (project === undefined) {
+    throw new Error(`Project not found: ${projectId}`);
+  }
+  return project;
 }
 
 async function readCurrentAgent(ctx: RealtimeOperationContext, agentId: string | null): Promise<AgentRecord | null> {

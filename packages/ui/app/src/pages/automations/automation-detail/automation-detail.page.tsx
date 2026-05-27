@@ -26,6 +26,7 @@ import {
 } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { projectPath, useProjectId } from '../../../project-context';
 import { formatAutomationInterval, formatTimestamp, nextDueAt } from '../automation-format';
 
 interface ScheduleOption {
@@ -58,10 +59,11 @@ const reportColumns: TableColumn<HeartbeatReport & { tickAt: number }>[] = [
 
 export function AutomationDetailPage() {
   const { automationId } = useParams();
+  const projectId = useProjectId();
   const navigate = useNavigate();
-  const automations = useAutomations();
+  const automations = useAutomations({ projectId });
   const heartbeats = useHeartbeats();
-  const agentRegistries = useAgentRegistries();
+  const agentRegistries = useAgentRegistries({ projectId });
   const updateAutomation = useUpdateAutomation();
   const deleteAutomation = useDeleteAutomation();
   const runNow = useRunAutomationNow();
@@ -77,11 +79,11 @@ export function AutomationDetailPage() {
   }, [automation]);
 
   if (automationId === undefined) {
-    return <Navigate replace to="/automations" />;
+    return <Navigate replace to={projectPath(projectId, '/automations')} />;
   }
 
   if (automations.status === 'ready' && automation === null) {
-    return <Navigate replace to="/automations" />;
+    return <Navigate replace to={projectPath(projectId, '/automations')} />;
   }
 
   if (automation === null || draft === null) {
@@ -134,7 +136,7 @@ export function AutomationDetailPage() {
 
   const handleDelete = async () => {
     await deleteAutomation({ id: automation.id });
-    navigate('/automations');
+    navigate(projectPath(projectId, '/automations'));
   };
 
   return (

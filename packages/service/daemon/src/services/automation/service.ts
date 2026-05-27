@@ -59,8 +59,23 @@ export class AutomationService extends DaemonService {
     if (now < nextDueAt) {
       return { outcome: 'skipped', detail: { reason: 'not-due', nextDueAt } };
     }
-    const launched = await this.fireAutomation(automation.id, now);
+    const launched = await this.fireAutomationIfAttached(automation.id, now);
+    if (launched === null) {
+      return { outcome: 'skipped', detail: { reason: 'detached' } };
+    }
     return { outcome: 'fired', detail: { agentId: launched.agentId } };
+  }
+
+  private async fireAutomationIfAttached(automationId: string, now: number): Promise<{ agentId: string } | null> {
+    try {
+      return await this.fireAutomation(automationId, now);
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Agent registry not found:')) {
+        logger.warn('automation skipped because registry is detached', { automationId });
+        return null;
+      }
+      throw error;
+    }
   }
 
   private async fireAutomation(automationId: string, now: number): Promise<{ agentId: string }> {
@@ -68,9 +83,11 @@ export class AutomationService extends DaemonService {
     if (row === null) {
       throw new Error(`Automation not found: ${automationId}`);
     }
+    const registry = await this.datastore.agentRegistries.read({ id: row.agentRegistryId });
     const launched = await this.agentRegistry.launch({
       agentRegistryId: row.agentRegistryId,
       message: row.message,
+      projectId: registry.projectId,
     });
     const updated = await this.datastore.automations.recordRun({ id: automationId, ranAt: now });
     this.daemon.events.emit('automationUpdated', updated);

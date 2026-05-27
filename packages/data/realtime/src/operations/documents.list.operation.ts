@@ -1,7 +1,7 @@
 import type { RealtimeOperationContext } from '../types';
 
 export function listDocumentsOperation(ctx: RealtimeOperationContext) {
-  return async function listDocuments(payload: { limit?: number; offset?: number } = {}) {
+  return async function listDocuments(payload: { limit?: number; offset?: number; projectId?: string } = {}) {
     if (ctx.datastore.state.documents.status === 'loading') {
       return;
     }
@@ -11,6 +11,7 @@ export function listDocumentsOperation(ctx: RealtimeOperationContext) {
       const result = await ctx.datastore.emit('listDocuments', {
         limit: payload.limit ?? 200,
         offset: payload.offset ?? 0,
+        projectId: payload.projectId,
       });
       ctx.datastore.patch({ documents: ctx.datastore.state.documents.withReadyItems(result.items) });
     } catch (error) {

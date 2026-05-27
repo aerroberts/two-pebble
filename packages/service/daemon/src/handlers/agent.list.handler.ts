@@ -10,6 +10,7 @@ export function handler(ctx: DaemonHandlerContext) {
     return ctx.datastore.agent.list({
       limit: payload.limit ?? 50,
       offset: payload.offset ?? 0,
+      projectId: payload.projectId,
     });
   };
 }

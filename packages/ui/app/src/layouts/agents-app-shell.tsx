@@ -9,6 +9,7 @@ import {
 } from '@two-pebble/realtime';
 import { Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { projectPath, useProjectId } from '../project-context';
 import { AgentSidebarItem, AgentSidebarSubitem } from './agent-sidebar-item';
 import type { AppShellProps } from './app-shell-props';
 import { MainAppShell } from './main-app-shell';
@@ -16,7 +17,8 @@ import { MainAppShell } from './main-app-shell';
 export function AgentsAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const agents = useAgents();
+  const projectId = useProjectId();
+  const agents = useAgents({ projectId });
   const stopAgent = useStopAgent();
   const completeAgent = useCompleteAgent();
   const resumeAgent = useResumeAgent();
@@ -48,23 +50,23 @@ export function AgentsAppShell(props: AppShellProps) {
   const renderAgentBranch = (agent: AgentRecord) => (
     <Fragment key={agent.id}>
       <AgentSidebarItem
-        active={location.pathname === `/agents/${agent.id}`}
+        active={location.pathname === projectPath(projectId, `/agents/${agent.id}`)}
         agent={agent}
         onArchive={() => handleArchive(agent.id)}
         onFail={() => handleFail(agent.id)}
         onResume={() => handleResume(agent.id)}
-        onSelect={() => navigate(`/agents/${agent.id}`)}
+        onSelect={() => navigate(projectPath(projectId, `/agents/${agent.id}`))}
         onStop={() => handleStop(agent.id)}
       />
       {(childrenByParentId.get(agent.id) ?? []).map((child) => (
         <AgentSidebarSubitem
-          active={location.pathname === `/agents/${child.id}`}
+          active={location.pathname === projectPath(projectId, `/agents/${child.id}`)}
           agent={child}
           key={child.id}
           onArchive={() => handleArchive(child.id)}
           onFail={() => handleFail(child.id)}
           onResume={() => handleResume(child.id)}
-          onSelect={() => navigate(`/agents/${child.id}`)}
+          onSelect={() => navigate(projectPath(projectId, `/agents/${child.id}`))}
           onStop={() => handleStop(child.id)}
         />
       ))}
@@ -77,10 +79,10 @@ export function AgentsAppShell(props: AppShellProps) {
         sidebar={
           <Sidebar>
             <SidebarOption
-              active={location.pathname === '/agents/new'}
+              active={location.pathname === projectPath(projectId, '/agents/new')}
               icon="plus"
               label="New agent"
-              onClick={() => navigate('/agents/new')}
+              onClick={() => navigate(projectPath(projectId, '/agents/new'))}
             />
             {activeAgents.length > 0 ? (
               <SidebarSection collapsible title="Active">

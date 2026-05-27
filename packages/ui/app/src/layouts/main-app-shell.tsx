@@ -1,16 +1,17 @@
 import {
   IconButton,
   ModalActions,
+  Select,
   Sidebar,
   SidebarLayout,
   SidebarOption,
   SidebarSection,
   TwoPebbleLogo,
 } from '@two-pebble/components';
-import { useAgents, useDocuments } from '@two-pebble/realtime';
+import { useAgents, useDocuments, useProjects } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { projectPath, useOptionalProject } from '../project-context';
 import type { AppShellProps } from './app-shell-props';
-import { AssistantCommandK } from './assistant-command-k';
 import { ConfigurationSidebar } from './configuration-sidebar';
 import { DeveloperSidebar } from './developer-sidebar';
 import { ExamplesSidebar } from './examples-sidebar';
@@ -22,11 +23,16 @@ type SidebarNavigate = (path: string) => void;
 export function MainAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const agents = useAgents();
-  const documents = useDocuments();
+  const projectContext = useOptionalProject();
+  const projectId = projectContext?.projectId;
+  const projects = useProjects();
+  const agents = useAgents(projectId === undefined ? undefined : { projectId });
+  const documents = useDocuments(projectId === undefined ? undefined : { projectId });
   const activeAgentCount = agents.values().filter((agent) => agent.status === 'running').length;
   const documentCount = documents.values().length;
-  const mode = getSidebarMode(location.pathname);
+  const pathname = projectId === undefined ? location.pathname : stripProjectPrefix(location.pathname, projectId);
+  const mode = getSidebarMode(pathname);
+  const scopedNavigate = (path: string) => navigate(projectId === undefined ? path : projectPath(projectId, path));
 
   return (
     <SidebarLayout
@@ -37,8 +43,8 @@ export function MainAppShell(props: AppShellProps) {
               <IconButton
                 aria-label="Go home"
                 icon="home"
-                onClick={() => navigate('/')}
-                variant={isHomeActive(location.pathname) ? 'primary' : 'secondary'}
+                onClick={() => scopedNavigate('/')}
+                variant={isHomeActive(pathname) ? 'primary' : 'secondary'}
               />
               <IconButton
                 aria-label="Open configuration"
@@ -61,30 +67,42 @@ export function MainAppShell(props: AppShellProps) {
               <IconButton
                 aria-label="Open examples"
                 icon="square-dashed-mouse-pointer"
-                onClick={() => navigate('/examples')}
-                variant={location.pathname.startsWith('/examples') ? 'primary' : 'secondary'}
+                onClick={() => scopedNavigate('/examples')}
+                variant={pathname.startsWith('/examples') ? 'primary' : 'secondary'}
               />
             </ModalActions>
           }
           tone={mode === 'main' ? 'default' : 'auxiliary'}
         >
-          {renderSidebarContent(mode, location.pathname, navigate, activeAgentCount, documentCount)}
+          {renderSidebarContent({
+            activeAgentCount,
+            documentCount,
+            globalNavigate: navigate,
+            mode,
+            navigate: scopedNavigate,
+            pathname,
+            projectId,
+            projects,
+          })}
         </Sidebar>
       }
     >
       {props.children}
-      <AssistantCommandK />
     </SidebarLayout>
   );
 }
 
-function renderSidebarContent(
-  mode: SidebarMode,
-  pathname: string,
-  navigate: SidebarNavigate,
-  activeAgentCount: number,
-  documentCount: number,
-) {
+function renderSidebarContent(input: {
+  activeAgentCount: number;
+  documentCount: number;
+  globalNavigate: SidebarNavigate;
+  mode: SidebarMode;
+  navigate: SidebarNavigate;
+  pathname: string;
+  projectId?: string;
+  projects: ReturnType<typeof useProjects>;
+}) {
+  const { activeAgentCount, documentCount, globalNavigate, mode, navigate, pathname, projectId, projects } = input;
   if (mode === 'configuration') {
     return (
       <>
@@ -119,7 +137,20 @@ function renderSidebarContent(
   }
   return (
     <>
-      <SidebarSection title={<TwoPebbleLogo withText text={getPageName(pathname)} />} />
+      <SidebarSection
+        title={
+          projectId === undefined ? (
+            <TwoPebbleLogo withText text={getPageName(pathname)} />
+          ) : (
+            <Select
+              fullWidth
+              onChange={(nextProjectId) => globalNavigate(projectPath(nextProjectId, pathname))}
+              options={projects.values().map((project) => ({ label: project.name, value: project.id }))}
+              value={projectId}
+            />
+          )
+        }
+      />
       <SidebarSection title="Home">
         <SidebarOption
           active={pathname === '/'}
@@ -176,6 +207,15 @@ function renderSidebarContent(
       </SidebarSection>
     </>
   );
+}
+
+function stripProjectPrefix(pathname: string, projectId: string): string {
+  const prefix = `/project/${projectId}`;
+  if (!pathname.startsWith(prefix)) {
+    return pathname;
+  }
+  const stripped = pathname.slice(prefix.length);
+  return stripped.length === 0 ? '/' : stripped;
 }
 
 function getSidebarMode(pathname: string): SidebarMode {

@@ -7,12 +7,14 @@ import {
 } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { projectPath, useProjectId } from '../../project-context';
 import { agentRegistryIcon } from '../../shared/agents/agent-registry-icon';
 
 export function useAgentsPageState() {
   const [agentRegistryId, setAgentRegistryId] = useState('');
+  const projectId = useProjectId();
   const [launching, setLaunching] = useState(false);
-  const agentRegistries = useAgentRegistries();
+  const agentRegistries = useAgentRegistries({ projectId });
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const agentRegistryList = agentRegistries.values().sort((left, right) => left.name.localeCompare(right.name));
@@ -32,10 +34,11 @@ export function useAgentsPageState() {
     try {
       const launched = await launchAgent({
         agentRegistryId,
+        projectId,
         message: payload.markdown,
         cells: payload.cells,
       });
-      navigate(`/agents/${launched.id}`);
+      navigate(projectPath(projectId, `/agents/${launched.id}`));
     } finally {
       setLaunching(false);
     }

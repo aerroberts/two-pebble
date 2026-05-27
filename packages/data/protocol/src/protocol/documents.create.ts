@@ -7,6 +7,7 @@ export interface CreateDocumentOperation {
   request: {
     content?: string;
     name?: string;
+    projectId?: string;
   };
   response: DocumentRecord;
 }
@@ -20,6 +21,7 @@ export interface DocumentRecord {
   createdAt: number;
   updatedAt: number;
   name: string;
+  projectId?: string;
   content: string;
   references: string;
 }

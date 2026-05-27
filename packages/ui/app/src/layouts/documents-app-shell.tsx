@@ -2,11 +2,13 @@ import { AppBox, AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection 
 import { type DocumentRecord, useDocumentMutations, useDocuments } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { projectPath, useProjectId } from '../project-context';
 import type { AppShellProps } from './app-shell-props';
 import { MainAppShell } from './main-app-shell';
 
 export function DocumentsAppShell(props: AppShellProps) {
-  const documents = useDocuments();
+  const projectId = useProjectId();
+  const documents = useDocuments({ projectId });
   const mutations = useDocumentMutations();
   const location = useLocation();
   const navigate = useNavigate();
@@ -16,8 +18,8 @@ export function DocumentsAppShell(props: AppShellProps) {
   const createDocument = async () => {
     setCreating(true);
     try {
-      const created = await mutations.createDocument({});
-      navigate(`/documents/${created.id}`);
+      const created = await mutations.createDocument({ projectId });
+      navigate(projectPath(projectId, `/documents/${created.id}`));
     } finally {
       setCreating(false);
     }
@@ -37,11 +39,11 @@ export function DocumentsAppShell(props: AppShellProps) {
               ) : (
                 documentList.map((document) => (
                   <SidebarOption
-                    active={location.pathname === `/documents/${document.id}`}
+                    active={location.pathname === projectPath(projectId, `/documents/${document.id}`)}
                     icon="file-text"
                     key={document.id}
                     label={displayDocumentName(document)}
-                    onClick={() => navigate(`/documents/${document.id}`)}
+                    onClick={() => navigate(projectPath(projectId, `/documents/${document.id}`))}
                   />
                 ))
               )}

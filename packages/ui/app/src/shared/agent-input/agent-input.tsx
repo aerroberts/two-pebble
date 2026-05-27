@@ -9,6 +9,7 @@ import {
 } from '@two-pebble/components';
 import { useDocuments, useTaskBoards } from '@two-pebble/realtime';
 import { useMemo } from 'react';
+import { useOptionalProject } from '../../project-context';
 import { VoiceCaptureButton } from '../voice/voice-capture-button';
 
 export type { RichComposerSubmitPayload } from '@two-pebble/components';
@@ -36,8 +37,9 @@ export interface AgentInputProps {
  * app-level dependencies (realtime, voice).
  */
 export function AgentInput(props: AgentInputProps) {
-  const documents = useDocuments();
-  const taskBoards = useTaskBoards();
+  const projectId = useOptionalProject()?.projectId;
+  const documents = useDocuments(projectId === undefined ? undefined : { projectId });
+  const taskBoards = useTaskBoards(projectId === undefined ? undefined : { projectId });
   const documentItems = useMemo<RichComposerDocument[]>(() => {
     const value = documents.value;
     if (value === null) {

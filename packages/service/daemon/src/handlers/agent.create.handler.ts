@@ -10,6 +10,7 @@ export function handler(ctx: DaemonHandlerContext) {
     const record = await ctx.datastore.agent.create({
       ...payload,
       parentAgentId: payload.parentAgentId ?? null,
+      projectId: payload.projectId,
       workspaceId: 'legacy',
     });
     ctx.events.emit('agentRecorded', record);

@@ -15,6 +15,7 @@ export interface AgentRecord {
   metadata: string;
   name: string;
   parentAgentId?: string | null;
+  projectId?: string;
   startedAt: number;
   status: AgentStatus;
   workspaceId: string;
@@ -24,6 +25,7 @@ export interface CreateAgentInput {
   description: string;
   name: string;
   parentAgentId?: string | null;
+  projectId?: string;
 }
 
 export interface CompleteAgentInput {
@@ -40,6 +42,7 @@ export interface ResumeAgentInput {
 
 export interface LaunchAgentInput {
   agentRegistryId: string;
+  projectId?: string;
   message: string;
   cells?: CellContent[];
   /**

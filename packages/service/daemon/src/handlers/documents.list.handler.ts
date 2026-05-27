@@ -10,6 +10,7 @@ export function handler(ctx: DaemonHandlerContext) {
     return ctx.datastore.documents.list({
       limit: payload.limit ?? 200,
       offset: payload.offset ?? 0,
+      projectId: payload.projectId,
     });
   };
 }

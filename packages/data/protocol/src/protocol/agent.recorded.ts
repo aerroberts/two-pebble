@@ -12,6 +12,7 @@ export interface AgentRecordedEvent {
     metadata: string;
     name: string;
     parentAgentId?: string | null;
+    projectId?: string;
     startedAt: number;
     status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
     workspaceId: string;
