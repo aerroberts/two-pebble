@@ -75,4 +75,9 @@ export function listenToTasks(ctx: RealtimeOperationContext): void {
       taskDeliverableSubmissions: ctx.datastore.state.taskDeliverableSubmissions.withItem(record.id, record, 'ready'),
     });
   });
+  client.listen('trackedPrRecorded', (record) => {
+    ctx.datastore.patch({
+      trackedPrs: ctx.datastore.state.trackedPrs.withItem(record.id, record, 'ready'),
+    });
+  });
 }

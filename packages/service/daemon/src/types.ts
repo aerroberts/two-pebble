@@ -10,6 +10,7 @@ import type {
 } from '@two-pebble/ws-bridge';
 import type { AgentRegistryService } from './services/agent-registry/service';
 import type { AutomationService } from './services/automation';
+import type { GithubService } from './services/github';
 import type { HeartbeatService } from './services/heartbeat';
 import type { LivenessService } from './services/liveness/service';
 import type { TaskBoardService } from './services/task-board/service';
@@ -61,6 +62,7 @@ export interface DaemonRuntimeContext {
   databaseFilePath: string;
   datastore: Datastore;
   events: DaemonEventSink;
+  github: GithubService;
   heartbeat: HeartbeatService;
   logsDirectoryPath: string;
   port: number;

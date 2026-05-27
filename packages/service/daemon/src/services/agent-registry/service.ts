@@ -23,6 +23,7 @@ import type {
 } from '@two-pebble/pebble';
 import { Cell, PebbleAgent } from '@two-pebble/pebble';
 import { DaemonService } from '../daemon-service';
+import type { GithubService } from '../github';
 import type { TaskBoardService } from '../task-board/service';
 import { attachAgentNaming } from './agent-naming/attach-agent-naming';
 import { resolveBuildInput } from './build-input';
@@ -61,6 +62,10 @@ export class AgentRegistryService extends DaemonService {
 
   private get taskBoards(): TaskBoardService {
     return this.daemon.requireService<TaskBoardService>('task-board');
+  }
+
+  private get github(): GithubService {
+    return this.daemon.requireService<GithubService>('github');
   }
 
   /**
@@ -219,6 +224,7 @@ export class AgentRegistryService extends DaemonService {
     if (record.status === 'interrupted' || record.status === 'offline' || record.status === 'failed') {
       throw new Error(`Agent "${agentId}" is ${record.status} and cannot be rehydrated.`);
     }
+    await this.github.repairSignalsForAgent(agentId);
     let references: SubAgentReferenceMap = new Map();
     if (record.agentRegistryId !== null && record.agentRegistryId !== undefined) {
       const registry = await this.datastore.agentRegistries.read({ id: record.agentRegistryId });
@@ -575,6 +581,24 @@ export class AgentRegistryService extends DaemonService {
           });
           this.daemon.events.emit('documentUpdated', record);
           return { id: record.id, name: record.name };
+        },
+      },
+      github: {
+        applySignal: async (input) => {
+          await this.github.applyPrSignal({ agentId, ...input });
+        },
+        hasOpenPrs: async () => this.github.hasOpenPrs(agentId),
+        submitPr: async (input) => {
+          const row = await this.github.submitPr({ agentId, ...input });
+          return {
+            deliverableId: row.deliverableId,
+            id: row.id,
+            number: row.number,
+            repo: row.repo,
+            state: row.state,
+            taskId: row.taskId,
+            url: row.url,
+          };
         },
       },
       signals: {

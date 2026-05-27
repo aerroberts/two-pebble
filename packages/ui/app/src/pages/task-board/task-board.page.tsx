@@ -207,6 +207,7 @@ export function TaskBoardPage() {
                   ownerName={owner?.name ?? null}
                   delegateOptions={delegateOptions}
                   delegating={state.delegating}
+                  trackedPrs={state.trackedPrsForTask(taskId)}
                   onDelegate={(agentRegistryId) => void state.delegateTaskById(taskId, agentRegistryId)}
                   onUndelegate={() => void state.undelegateTaskById(taskId)}
                 />

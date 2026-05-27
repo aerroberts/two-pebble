@@ -105,6 +105,26 @@ export interface MarkSignalResolvedInput {
   id: string;
 }
 
+export interface GithubSubmitPrInput {
+  deliverableId: string;
+  url: string;
+}
+
+export interface GithubTrackedPr {
+  id: string;
+  taskId: string;
+  deliverableId: string;
+  repo: string;
+  number: number;
+  url: string;
+  state: 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+}
+
+export interface GithubPrSignalInput {
+  prId: string;
+  next: 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+}
+
 export type SubAgentMode = 'task' | 'teammate';
 export type SubAgentRuntime = 'framework' | 'pebble';
 export type SubAgentWorkspaceMode = 'inherit' | 'worktree';
@@ -280,6 +300,12 @@ export interface SignalOperations {
   resolve(input: ResolveSignalInput): Promise<void>;
   send(input: SendSignalInput): Promise<void>;
   snapshot(input: SignalSnapshotInput): Promise<SignalSnapshot>;
+}
+
+export interface GithubOperations {
+  applySignal(input: GithubPrSignalInput): Promise<void>;
+  hasOpenPrs(): Promise<boolean>;
+  submitPr(input: GithubSubmitPrInput): Promise<GithubTrackedPr>;
 }
 
 export interface SubAgentOperations {

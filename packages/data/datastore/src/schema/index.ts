@@ -23,5 +23,6 @@ export { taskTemplateDeliverablesTable } from './task-template-deliverables.tabl
 export { taskTemplatesTable } from './task-templates.table';
 export { tasksTable } from './tasks.table';
 export { thirdPartyAgentInstallsTable } from './third-party-agent-installs.table';
+export { trackedPrsTable } from './tracked-prs.table';
 export { workspacesTable } from './workspaces.table';
 export { worktreesTable } from './worktrees.table';
