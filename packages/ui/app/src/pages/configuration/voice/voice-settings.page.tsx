@@ -27,6 +27,7 @@ export function VoiceSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
     });
   };
 
@@ -42,6 +43,7 @@ export function VoiceSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
     });
   };
 

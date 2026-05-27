@@ -9,6 +9,7 @@ type OperationHandlerInput = {
   assistantAgentId: string | null;
   assistantCommandKEnabled: boolean;
   assistantCommandKVoiceModeEnabled: boolean;
+  chatConversationFoldingEnabled: boolean;
 };
 
 /**
@@ -34,6 +35,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
           assistantAgentId: input.assistantAgentId,
           assistantCommandKEnabled: input.assistantCommandKEnabled,
           assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
+          chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
         })
         .returning()
         .get();
@@ -50,6 +52,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         assistantAgentId: input.assistantAgentId,
         assistantCommandKEnabled: input.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
+        chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
       })
       .where(eq(ctx.schema.appSettingsTable.id, 'singleton'))
       .returning()

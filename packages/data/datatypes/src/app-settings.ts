@@ -13,4 +13,11 @@ export interface AppSettings {
   assistantCommandKEnabled: boolean;
   /** When the Command-K overlay opens, auto-start the mic instead of showing the text+voice composer. */
   assistantCommandKVoiceModeEnabled: boolean;
+  /**
+   * Default the chat view to a folded conversation layout — each section
+   * collapses the tool / model traffic between a user message and the
+   * trailing assistant reply behind a click-to-expand control. Purely UI-level;
+   * the persisted trace stream is unchanged.
+   */
+  chatConversationFoldingEnabled: boolean;
 }
