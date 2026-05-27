@@ -95,7 +95,12 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
   const slashTriggerRef = useRef<RichComposerSlashTrigger | null>(null);
   slashTriggerRef.current = slashTrigger;
   const minHeight = props.minHeight ?? 80;
-  const maxHeight = props.maxHeight;
+  // Default to a sensible scroll cap so the composer stays in place once the
+  // user has typed enough to fill the surrounding chat / panel. Without this
+  // an unbounded editor pushes its surrounding container — and any send
+  // buttons — off-screen on long messages. Callers (e.g. Cmd+K overlay) can
+  // still pin a tighter cap.
+  const maxHeight = props.maxHeight ?? 320;
   const draftStorageKey = props.draftStorageKey;
   const voiceSlotEnabled = props.renderVoiceCapture !== undefined;
 
@@ -225,15 +230,8 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
   const showVoice = mode === 'voice' && voiceSlotEnabled;
   const popoverOpen = slashTrigger !== null && !showVoice;
 
-  const outerStyle: CSSProperties = { minHeight: minHeight + 16 };
-  if (maxHeight !== undefined) {
-    outerStyle.maxHeight = maxHeight + 16;
-  }
-  const editorStyle: CSSProperties = { minHeight };
-  if (maxHeight !== undefined) {
-    editorStyle.maxHeight = maxHeight;
-    editorStyle.overflowY = 'auto';
-  }
+  const outerStyle: CSSProperties = { minHeight: minHeight + 16, maxHeight: maxHeight + 16 };
+  const editorStyle: CSSProperties = { minHeight, maxHeight, overflowY: 'auto' };
 
   return (
     <div className="relative w-full min-w-0" style={outerStyle}>
