@@ -20,4 +20,11 @@ export interface AppSettings {
    * the persisted trace stream is unchanged.
    */
   chatConversationFoldingEnabled: boolean;
+  /**
+   * Agent registry id used by the document "Send to Agent" affordance. When
+   * a user clicks the button on a document, a fresh copy of this registry's
+   * agent launches with the document referenced as a single message. `null`
+   * hides the button.
+   */
+  documentRunnerAgentRegistryId: string | null;
 }

@@ -10,10 +10,12 @@ import {
   Surface,
   TipTapEditor,
   Tooltip,
+  useToast,
 } from '@two-pebble/components';
-import { useDocuments, useTaskBoards } from '@two-pebble/realtime';
+import { Cell } from '@two-pebble/pebble';
+import { useAppSettings, useDocuments, useLaunchAgent, useTaskBoards } from '@two-pebble/realtime';
 import { useCallback, useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useProjectId } from '../../project-context';
 import { DocumentAgentPills } from './document-agent-pills';
 import { DocumentInsertPopover, type DocumentInsertSelection } from './document-insert-popover';
@@ -37,6 +39,11 @@ export function DocumentEditorPage() {
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
   const documents = useDocuments({ projectId });
   const boards = useTaskBoards({ projectId });
+  const appSettings = useAppSettings();
+  const launchAgent = useLaunchAgent();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const documentRunnerRegistryId = appSettings.value?.documentRunnerAgentRegistryId ?? null;
 
   const documentItems = useMemo<ReferenceItem[]>(() => {
     const value = documents.value;
@@ -101,6 +108,36 @@ export function DocumentEditorPage() {
     [editor, slashTrigger],
   );
 
+  const handleSendToAgent = useCallback(async () => {
+    if (documentRunnerRegistryId === null) {
+      toast('Pick a document runner agent in settings first.', 'error');
+      return;
+    }
+    if (state.document === null) {
+      return;
+    }
+    try {
+      const launched = await launchAgent({
+        agentRegistryId: documentRunnerRegistryId,
+        projectId,
+        message: state.document.name,
+        cells: [
+          Cell.documentReference({
+            documentId: state.document.id,
+            name: state.document.name,
+            contentSnapshot: '',
+            documentUpdatedAt: 0,
+          }),
+        ],
+      });
+      toast('Sent document to agent.', 'success');
+      navigate(`/agents/${launched.id}`);
+    } catch (caughtError) {
+      const message = caughtError instanceof Error ? caughtError.message : 'Could not launch agent.';
+      toast(message, 'error');
+    }
+  }, [documentRunnerRegistryId, launchAgent, navigate, projectId, state.document, toast]);
+
   if (state.documentId.length === 0) {
     return <Navigate replace to="/documents" />;
   }
@@ -111,6 +148,17 @@ export function DocumentEditorPage() {
         compact
         actionItems={
           <>
+            {documentRunnerRegistryId === null ? null : (
+              <Tooltip content="Send to agent">
+                <IconButton
+                  aria-label="Send to agent"
+                  icon="send"
+                  onClick={() => void handleSendToAgent()}
+                  type="button"
+                  variant="secondary"
+                />
+              </Tooltip>
+            )}
             <Tooltip content="Add task">
               <IconButton
                 aria-label="Add task"

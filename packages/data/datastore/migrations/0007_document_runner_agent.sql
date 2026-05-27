@@ -1,0 +1,1 @@
+ALTER TABLE `app_settings` ADD `document_runner_agent_registry_id` text;

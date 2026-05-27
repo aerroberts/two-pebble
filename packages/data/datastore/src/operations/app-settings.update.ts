@@ -10,6 +10,7 @@ type OperationHandlerInput = {
   assistantCommandKEnabled: boolean;
   assistantCommandKVoiceModeEnabled: boolean;
   chatConversationFoldingEnabled: boolean;
+  documentRunnerAgentRegistryId: string | null;
 };
 
 /**
@@ -36,6 +37,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
           assistantCommandKEnabled: input.assistantCommandKEnabled,
           assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
           chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
+          documentRunnerAgentRegistryId: input.documentRunnerAgentRegistryId,
         })
         .returning()
         .get();
@@ -53,6 +55,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         assistantCommandKEnabled: input.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
         chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
+        documentRunnerAgentRegistryId: input.documentRunnerAgentRegistryId,
       })
       .where(eq(ctx.schema.appSettingsTable.id, 'singleton'))
       .returning()

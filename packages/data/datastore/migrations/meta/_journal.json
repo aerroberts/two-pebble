@@ -50,6 +50,13 @@
       "when": 1779922123145,
       "tag": "0006_chat_conversation_folding",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1779922442174,
+      "tag": "0007_document_runner_agent",
+      "breakpoints": true
     }
   ]
 }
