@@ -53,6 +53,7 @@ export function handler(ctx: DaemonHandlerContext) {
       agentRegistryId: payload.agentRegistryId,
       message,
       cells,
+      projectId: registry.projectId,
     });
     const taskAssignedTrace = await ctx.datastore.agent.traces.record({
       agentId: launched.id,

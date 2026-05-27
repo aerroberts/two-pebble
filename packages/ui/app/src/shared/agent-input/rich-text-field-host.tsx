@@ -10,6 +10,7 @@ import {
 } from '@two-pebble/components';
 import { useDocuments, useTaskBoards } from '@two-pebble/realtime';
 import { useMemo } from 'react';
+import { useOptionalProject } from '../../project-context';
 
 export interface RichTextFieldHostProps {
   /**
@@ -35,8 +36,9 @@ export interface RichTextFieldHostProps {
  * without the markdown bounce that drops their `documentId`.
  */
 export function RichTextFieldHost(props: RichTextFieldHostProps) {
-  const documents = useDocuments();
-  const taskBoards = useTaskBoards();
+  const projectId = useOptionalProject()?.projectId;
+  const documents = useDocuments(projectId === undefined ? undefined : { projectId });
+  const taskBoards = useTaskBoards(projectId === undefined ? undefined : { projectId });
   const documentItems = useMemo<RichComposerDocument[]>(() => {
     const value = documents.value;
     if (value === null) {

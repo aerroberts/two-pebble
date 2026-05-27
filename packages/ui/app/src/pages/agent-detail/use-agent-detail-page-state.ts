@@ -18,6 +18,7 @@ import {
 } from '@two-pebble/realtime';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { projectPath, useOptionalProject } from '../../project-context';
 import { threadSnapshotPath } from '../../shared/routing/thread-pointer';
 import { parseAgentDetailViewMode } from './agent-detail.types';
 import { readAgentPriceLineItems } from './agent-detail-price-data';
@@ -27,8 +28,9 @@ import type { WaterfallScope } from './agent-detail-waterfall-view';
 export function useAgentDetailPageState() {
   const params = useParams();
   const agentId = params.agentId ?? '';
-  const agents = useAgents();
   const workspaces = useWorkspaces();
+  const projectId = useOptionalProject()?.projectId;
+  const agents = useAgents(projectId === undefined ? undefined : { projectId });
   const modelCalls = useAgentCalls({ agentId });
   const agent = agents.getItem(agentId)?.value ?? null;
   const workspacePath = agent === null ? null : (workspaces.getItem(agent.workspaceId)?.value?.path ?? null);
@@ -153,11 +155,15 @@ export function useAgentDetailPageState() {
   };
 
   const openModelCall = (modelCallId: string) => {
-    navigate(`/agents/${agentId}/model-calls/${modelCallId}`);
+    navigate(
+      projectId === undefined
+        ? `/agents/${agentId}/model-calls/${modelCallId}`
+        : projectPath(projectId, `/agents/${agentId}/model-calls/${modelCallId}`),
+    );
   };
 
   const openAgent = (targetAgentId: string) => {
-    navigate(`/agents/${targetAgentId}`);
+    navigate(projectId === undefined ? `/agents/${targetAgentId}` : projectPath(projectId, `/agents/${targetAgentId}`));
   };
 
   const openThreadSnapshot = (threadCursor: string) => {
@@ -174,11 +180,15 @@ export function useAgentDetailPageState() {
   };
 
   const openTask = (boardId: string, taskId: string) => {
-    navigate(`/tasks/${boardId}?selectedTask=${taskId}`);
+    navigate(
+      projectId === undefined
+        ? `/tasks/${boardId}?selectedTask=${taskId}`
+        : projectPath(projectId, `/tasks/${boardId}?selectedTask=${taskId}`),
+    );
   };
 
   const openDocument = (documentId: string) => {
-    navigate(`/documents/${documentId}`);
+    navigate(projectId === undefined ? `/documents/${documentId}` : projectPath(projectId, `/documents/${documentId}`));
   };
 
   const sendChatMessage = async (input: { markdown: string; cells: CellContent[] }) => {

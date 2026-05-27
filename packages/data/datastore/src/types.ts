@@ -2,6 +2,7 @@ import type { Client } from '@libsql/client';
 import type {
   AgentRegistryKind,
   AppSettings,
+  ProjectRecord as DatatypeProjectRecord,
   InferenceProfile,
   Integration,
   KnownIde,
@@ -30,6 +31,7 @@ import type {
   integrationsTable,
   knownIdesTable,
   metricsTable,
+  projectsTable,
   repositoriesTable,
   taskBoardsTable,
   taskDeliverableSubmissionsTable,
@@ -81,6 +83,7 @@ export type AppSettingsRecord = AppSettings & {
   createdAt: number;
   updatedAt: number;
 };
+export type ProjectRecord = DatatypeProjectRecord;
 
 export interface DatastoreContext {
   database: DrizzleDatabase;
@@ -109,6 +112,7 @@ export interface DatastoreSchema extends Record<string, object> {
   integrationsTable: typeof integrationsTable;
   knownIdesTable: typeof knownIdesTable;
   metricsTable: typeof metricsTable;
+  projectsTable: typeof projectsTable;
   repositoriesTable: typeof repositoriesTable;
   taskBoardsTable: typeof taskBoardsTable;
   taskDependenciesTable: typeof taskDependenciesTable;
@@ -219,6 +223,7 @@ export interface DocumentRecord {
   id: string;
   createdAt: number;
   updatedAt: number;
+  projectId: string;
   name: string;
   content: string;
   references: string;
@@ -247,6 +252,7 @@ export interface AgentRegistryRecord {
   id: string;
   createdAt: number;
   updatedAt: number;
+  projectId: string;
   name: string;
   /**
    * Derived (not persisted): 'framework' when `thirdPartyAgentInstallId` is
@@ -283,6 +289,7 @@ export interface TaskBoardRecord {
   id: string;
   createdAt: number;
   updatedAt: number;
+  projectId: string;
   name: string;
 }
 

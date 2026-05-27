@@ -4,6 +4,7 @@ import type { TipTapDocument } from '@two-pebble/datatypes';
 import { useDocument, useDocumentMutations } from '@two-pebble/realtime';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { projectPath, useProjectId } from '../../project-context';
 
 const EMPTY_DOCUMENT: TipTapDocument = { type: 'doc', content: [] };
 
@@ -11,6 +12,7 @@ export function useDocumentEditorPageState() {
   const params = useParams();
   const documentId = params.documentId ?? '';
   const navigate = useNavigate();
+  const projectId = useProjectId();
   const documentLoadable = useDocument({ id: documentId });
   const document = documentLoadable?.value ?? null;
   const mutations = useDocumentMutations();
@@ -78,7 +80,7 @@ export function useDocumentEditorPageState() {
     }
     try {
       await mutations.deleteDocument({ id: document.id });
-      navigate('/documents');
+      navigate(projectPath(projectId, '/documents'));
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : 'Could not delete document.');
     }

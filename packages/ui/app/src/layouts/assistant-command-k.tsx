@@ -6,11 +6,13 @@ import {
   useAppSettings,
   useInferenceProfiles,
   useLaunchAgent,
+  useProjects,
   useSendAssistantMessage,
   useThirdPartyAgentInstalls,
 } from '@two-pebble/realtime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { projectPath, readLastViewedProjectId } from '../project-context';
 import { AgentInput, type RichComposerSubmitPayload } from '../shared/agent-input/agent-input';
 import { agentRegistryIcon } from '../shared/agents/agent-registry-icon';
 
@@ -27,9 +29,14 @@ import { agentRegistryIcon } from '../shared/agents/agent-registry-icon';
  */
 export function AssistantCommandK() {
   const appSettings = useAppSettings();
+  const projects = useProjects();
+  const location = useLocation();
   const sendAssistantMessage = useSendAssistantMessage();
   const launchAgent = useLaunchAgent();
-  const agentRegistries = useAgentRegistries();
+  const fallbackProjectId = readLastViewedProjectId();
+  const projectId = readProjectIdFromPath(location.pathname) ?? fallbackProjectId;
+  const project = projectId === null ? null : (projects.getItem(projectId)?.value ?? null);
+  const agentRegistries = useAgentRegistries(projectId === null ? undefined : { projectId });
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const navigate = useNavigate();
@@ -41,7 +48,7 @@ export function AssistantCommandK() {
   const settings = appSettings.value;
   const enabled = settings?.assistantCommandKEnabled ?? false;
   const startInVoiceMode = settings?.assistantCommandKVoiceModeEnabled ?? false;
-  const assistantRegistryId = settings?.assistantAgentRegistryId ?? null;
+  const assistantRegistryId = project?.assistantAgentRegistryId ?? null;
 
   const agentRegistryOptions = useMemo<SelectOption[]>(() => {
     const sorted = agentRegistries.values().sort((left, right) => left.name.localeCompare(right.name));
@@ -90,7 +97,7 @@ export function AssistantCommandK() {
     return undefined;
   }, [open]);
 
-  if (!enabled || !open) {
+  if (!enabled || !open || projectId === null) {
     return null;
   }
 
@@ -106,7 +113,7 @@ export function AssistantCommandK() {
     }
     try {
       if (activeAgentId === assistantRegistryId) {
-        const result = await sendAssistantMessage({ message: trimmed, cells: payload.cells });
+        const result = await sendAssistantMessage({ message: trimmed, cells: payload.cells, projectId });
         toast(result.launched ? 'Started Assistant and sent message.' : 'Sent to Assistant.', 'success');
         return;
       }
@@ -114,9 +121,10 @@ export function AssistantCommandK() {
         agentRegistryId: activeAgentId,
         message: trimmed,
         cells: payload.cells,
+        projectId,
       });
       toast('Launched agent.', 'success');
-      navigate(`/agents/${launched.id}`);
+      navigate(projectPath(projectId, `/agents/${launched.id}`));
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : 'Failed to send.';
       toast(message, 'error');
@@ -162,4 +170,9 @@ export function AssistantCommandK() {
       </div>
     </>
   );
+}
+
+function readProjectIdFromPath(pathname: string): string | null {
+  const match = /^\/project\/([^/]+)/.exec(pathname);
+  return match?.[1] ?? null;
 }

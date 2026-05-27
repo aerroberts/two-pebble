@@ -79,6 +79,10 @@ import { metricsListNamesOperation } from './operations/metrics.list-names';
 import { metricsListVariantsOperation } from './operations/metrics.list-variants';
 import { metricsQueryAggregatedOperation } from './operations/metrics.query-aggregated';
 import { metricsWriteOperation } from './operations/metrics.write';
+import { projectsCreateOperation } from './operations/projects.create';
+import { projectsDeleteOperation } from './operations/projects.delete';
+import { projectsListOperation } from './operations/projects.list';
+import { projectsUpdateOperation } from './operations/projects.update';
 import { repositoriesCreateOperation } from './operations/repositories.create';
 import { repositoriesDeleteOperation } from './operations/repositories.delete';
 import { repositoriesListOperation } from './operations/repositories.list';
@@ -322,6 +326,16 @@ export class Datastore {
       read: bind(automationsReadOperation, 'automations.read'),
       recordRun: bind(automationsRecordRunOperation, 'automations.record-run'),
       update: bind(automationsUpdateOperation, 'automations.update'),
+    };
+  }
+
+  public get projects() {
+    const bind = this.operationBinder();
+    return {
+      create: bind(projectsCreateOperation, 'projects.create'),
+      delete: bind(projectsDeleteOperation, 'projects.delete'),
+      list: bind(projectsListOperation, 'projects.list'),
+      update: bind(projectsUpdateOperation, 'projects.update'),
     };
   }
 

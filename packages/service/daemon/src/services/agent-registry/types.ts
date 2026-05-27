@@ -34,6 +34,7 @@ export interface ExtraCapabilitySpec {
 export interface LaunchAgentInput {
   agentRegistryId: string;
   message: string;
+  projectId?: string;
   /**
    * Structured cells from the rich composer. When present, takes precedence
    * over `message` for delivering the first turn to the agent.

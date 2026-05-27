@@ -86,6 +86,10 @@ import type { KnownIdeUpdatedEvent } from './protocol/known-ides.updated';
 import type { MetricsListNamesOperation } from './protocol/metrics.list-names';
 import type { MetricsListVariantsOperation } from './protocol/metrics.list-variants';
 import type { MetricsQueryAggregatedOperation } from './protocol/metrics.query-aggregated';
+import type { ProjectsCreateOperation } from './protocol/projects.create';
+import type { ProjectsDeleteOperation } from './protocol/projects.delete';
+import type { ProjectsListOperation } from './protocol/projects.list';
+import type { ProjectsUpdateOperation } from './protocol/projects.update';
 import type { RepositoriesCreateOperation } from './protocol/repositories.create';
 import type { RepositoriesDeleteOperation } from './protocol/repositories.delete';
 import type { RepositoriesDeletedEvent } from './protocol/repositories.deleted';
@@ -188,6 +192,10 @@ export type DaemonOperations = [
   DatabaseOpenOperation,
   DatabaseMigrateOperation,
   DatabaseRunQueryOperation,
+  ProjectsListOperation,
+  ProjectsCreateOperation,
+  ProjectsUpdateOperation,
+  ProjectsDeleteOperation,
   InferenceProfilesListOperation,
   InferenceProfilesCreateOperation,
   InferenceProfilesUpdateOperation,

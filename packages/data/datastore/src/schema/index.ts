@@ -14,6 +14,7 @@ export { inferenceProfilesTable } from './inference-profiles.table';
 export { integrationsTable } from './integrations.table';
 export { knownIdesTable } from './known-ides.table';
 export { metricsTable } from './metrics.table';
+export { projectsTable } from './projects.table';
 export { repositoriesTable } from './repositories.table';
 export { taskBoardsTable } from './task-boards.table';
 export { taskDeliverableSubmissionsTable } from './task-deliverable-submissions.table';

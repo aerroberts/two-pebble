@@ -10,6 +10,7 @@ import {
 } from '@two-pebble/components';
 import { type AutomationRecord, useAutomations } from '@two-pebble/realtime';
 import { useNavigate } from 'react-router-dom';
+import { projectPath, useProjectId } from '../../project-context';
 import { formatCadenceLabel, formatTimestamp, nextDueAt } from './automation-format';
 
 interface AutomationIndicatorCellProps {
@@ -52,7 +53,8 @@ const columns: TableColumn<AutomationRecord>[] = [
 ];
 
 export function AutomationsPage() {
-  const automations = useAutomations();
+  const projectId = useProjectId();
+  const automations = useAutomations({ projectId });
   const navigate = useNavigate();
   const rows = automations.values().sort((left, right) => left.name.localeCompare(right.name));
 
@@ -67,7 +69,7 @@ export function AutomationsPage() {
             columns={columns}
             emptyMessage="No automations configured."
             getRowKey={(row) => row.id}
-            onRowClick={(row) => navigate(`/automations/${row.id}`)}
+            onRowClick={(row) => navigate(projectPath(projectId, `/automations/${row.id}`))}
             rows={rows}
           />
         ) : null}

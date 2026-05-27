@@ -13,6 +13,7 @@ import {
 import { type AutomationIntervalUnit, useAgentRegistries, useCreateAutomation } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { projectPath, useProjectId } from '../../project-context';
 
 interface ScheduleOption {
   value: string;
@@ -38,8 +39,9 @@ function toScheduleValue(intervalUnit: AutomationIntervalUnit, intervalValue: nu
 
 export function AutomationsNewPage() {
   const navigate = useNavigate();
+  const projectId = useProjectId();
   const createAutomation = useCreateAutomation();
-  const agentRegistries = useAgentRegistries();
+  const agentRegistries = useAgentRegistries({ projectId });
   const registryOptions = agentRegistries.values().map((registry) => ({ label: registry.name, value: registry.id }));
   const [name, setName] = useState('');
   const [agentRegistryId, setAgentRegistryId] = useState('');
@@ -72,7 +74,7 @@ export function AutomationsNewPage() {
         message,
         name: name.trim(),
       });
-      navigate(`/automations/${result.id}`);
+      navigate(projectPath(projectId, `/automations/${result.id}`));
     } finally {
       setSaving(false);
     }

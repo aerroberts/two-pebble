@@ -36,6 +36,13 @@
       "when": 1779920290415,
       "tag": "0004_public_loa",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1779907200000,
+      "tag": "0005_projects",
+      "breakpoints": true
     }
   ]
 }

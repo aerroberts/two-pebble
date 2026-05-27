@@ -14,6 +14,7 @@ import {
 import { useDocuments, useTaskBoards } from '@two-pebble/realtime';
 import { useCallback, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useProjectId } from '../../project-context';
 import { DocumentAgentPills } from './document-agent-pills';
 import { DocumentInsertPopover, type DocumentInsertSelection } from './document-insert-popover';
 import { useDocumentEditorPageState } from './use-document-editor-page-state';
@@ -30,11 +31,12 @@ interface ActiveCell {
 
 export function DocumentEditorPage() {
   const state = useDocumentEditorPageState();
+  const projectId = useProjectId();
   const [editor, setEditor] = useState<Editor | null>(null);
   const [slashTrigger, setSlashTrigger] = useState<SlashTrigger | null>(null);
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
-  const documents = useDocuments();
-  const boards = useTaskBoards();
+  const documents = useDocuments({ projectId });
+  const boards = useTaskBoards({ projectId });
 
   const documentItems = useMemo<ReferenceItem[]>(() => {
     const value = documents.value;

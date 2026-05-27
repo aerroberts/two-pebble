@@ -1,4 +1,4 @@
-import { text } from 'drizzle-orm/sqlite-core';
+import { index, text } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
@@ -7,7 +7,13 @@ import { customTable } from '../table/custom-table';
  * Each board has a user-facing name and is referenced from every pool, task,
  * and dependency record so the daemon can rebuild the in-memory engine on boot.
  */
-export const taskBoardsTable = customTable('task_boards', {
-  // The user-facing label for this board.
-  name: text('name').notNull(),
-});
+export const taskBoardsTable = customTable(
+  'task_boards',
+  {
+    projectId: text('project_id').notNull(),
+
+    // The user-facing label for this board.
+    name: text('name').notNull(),
+  },
+  (table) => [index('task_boards_project_id_idx').on(table.projectId)],
+);

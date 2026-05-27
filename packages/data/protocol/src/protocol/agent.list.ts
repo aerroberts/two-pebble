@@ -7,6 +7,7 @@ export interface AgentListOperation {
   request: {
     limit: number;
     offset: number;
+    projectId?: string;
   };
   response: {
     items: {
@@ -16,6 +17,7 @@ export interface AgentListOperation {
       id: string;
       metadata: string;
       name: string;
+      projectId: string;
       startedAt: number;
       status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
       workspaceId: string;

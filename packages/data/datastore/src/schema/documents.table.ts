@@ -1,4 +1,4 @@
-import { integer, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, text } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
@@ -15,9 +15,14 @@ import { customTable } from '../table/custom-table';
  * restored. The "Delete document" UX archives via this column instead of a
  * hard DELETE.
  */
-export const documentsTable = customTable('documents', {
-  name: text('name').notNull().default('Untitled'),
-  content: text('content').notNull().default('{"type":"doc","content":[]}'),
-  references: text('references').notNull().default('[]'),
-  archivedAt: integer('archived_at'),
-});
+export const documentsTable = customTable(
+  'documents',
+  {
+    projectId: text('project_id').notNull(),
+    name: text('name').notNull().default('Untitled'),
+    content: text('content').notNull().default('{"type":"doc","content":[]}'),
+    references: text('references').notNull().default('[]'),
+    archivedAt: integer('archived_at'),
+  },
+  (table) => [index('documents_project_id_idx').on(table.projectId)],
+);

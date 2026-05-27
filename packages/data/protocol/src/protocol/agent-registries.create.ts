@@ -10,6 +10,7 @@ export interface AgentRegistriesCreateOperation {
     capabilities?: string;
     inferenceProfileId?: string | null;
     name: string;
+    projectId?: string;
     systemPrompt: TipTapDocument;
     thirdPartyAgentInstallId?: string | null;
     workspaceConfig?: string;

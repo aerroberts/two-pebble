@@ -1,8 +1,8 @@
-import { asc } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import type { DatastoreContext, TaskBoardRecord } from '../types';
 
 type OperationHandlerInput = {
-  empty?: never;
+  projectId?: string;
 };
 
 /**
@@ -10,12 +10,14 @@ type OperationHandlerInput = {
  */
 export function taskBoardsListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
-    void input;
-    const rows = await ctx.database
+    const query = ctx.database
       .select()
       .from(ctx.schema.taskBoardsTable)
-      .orderBy(asc(ctx.schema.taskBoardsTable.createdAt))
-      .all();
+      .orderBy(asc(ctx.schema.taskBoardsTable.createdAt));
+    const rows =
+      input.projectId === undefined
+        ? await query.all()
+        : await query.where(eq(ctx.schema.taskBoardsTable.projectId, input.projectId)).all();
     return { items: rows as TaskBoardRecord[] };
   };
 }

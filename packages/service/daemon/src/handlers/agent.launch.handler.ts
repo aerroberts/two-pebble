@@ -24,6 +24,7 @@ export function handler(ctx: DaemonHandlerContext) {
     return ctx.agentRegistry.launch({
       agentRegistryId: payload.agentRegistryId,
       message: payload.message,
+      projectId: payload.projectId,
       ...(cells === undefined ? {} : { cells }),
       ...(extraCapabilities === undefined ? {} : { extraCapabilities }),
       ...(payload.workspaceOverride === undefined ? {} : { workspaceOverride: payload.workspaceOverride }),

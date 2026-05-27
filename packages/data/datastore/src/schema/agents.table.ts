@@ -1,4 +1,4 @@
-import { integer, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, text } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
@@ -6,34 +6,40 @@ import { customTable } from '../table/custom-table';
  * Agents are the core entities in our system.
  * They are responsible for executing tasks and making decisions.
  */
-export const agentsTable = customTable('agents', {
-  // The name of the agent
-  name: text('name').notNull(),
-  description: text('description').notNull(),
+export const agentsTable = customTable(
+  'agents',
+  {
+    projectId: text('project_id').notNull(),
 
-  // The workspace the agent operates within. Required.
-  workspaceId: text('workspace_id').notNull(),
+    // The name of the agent
+    name: text('name').notNull(),
+    description: text('description').notNull(),
 
-  // Optional parent agent that spawned this run.
-  parentAgentId: text('parent_agent_id'),
+    // The workspace the agent operates within. Required.
+    workspaceId: text('workspace_id').notNull(),
 
-  // Optional awaited-signal id on the parent that this agent's next
-  // settlement should resolve back to. Only used for framework children:
-  // Pebble children resolve via their parent-link capability state slots.
-  parentResponseSignalId: text('parent_response_signal_id'),
+    // Optional parent agent that spawned this run.
+    parentAgentId: text('parent_agent_id'),
 
-  // The agent registry this agent was launched from.
-  // Null for legacy agents created before resumability shipped; those agents are read-only.
-  agentRegistryId: text('agent_registry_id'),
+    // Optional awaited-signal id on the parent that this agent's next
+    // settlement should resolve back to. Only used for framework children:
+    // Pebble children resolve via their parent-link capability state slots.
+    parentResponseSignalId: text('parent_response_signal_id'),
 
-  // Opaque framework-specific resume metadata serialized as JSON.
-  // The daemon does not introspect this; the framework adapter writes and reads it.
-  metadata: text('metadata').notNull().default('{}'),
+    // The agent registry this agent was launched from.
+    // Null for legacy agents created before resumability shipped; those agents are read-only.
+    agentRegistryId: text('agent_registry_id'),
 
-  // The status of the agent
-  status: text('status', { enum: ['idle', 'running', 'waiting', 'interrupted', 'offline', 'failed'] }).notNull(),
+    // Opaque framework-specific resume metadata serialized as JSON.
+    // The daemon does not introspect this; the framework adapter writes and reads it.
+    metadata: text('metadata').notNull().default('{}'),
 
-  // The agent lifecycle information itself
-  startedAt: integer('started_at', { mode: 'number' }).notNull(),
-  completedAt: integer('completed_at', { mode: 'number' }).notNull(),
-});
+    // The status of the agent
+    status: text('status', { enum: ['idle', 'running', 'waiting', 'interrupted', 'offline', 'failed'] }).notNull(),
+
+    // The agent lifecycle information itself
+    startedAt: integer('started_at', { mode: 'number' }).notNull(),
+    completedAt: integer('completed_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [index('agents_project_id_idx').on(table.projectId)],
+);

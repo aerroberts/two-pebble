@@ -9,6 +9,7 @@ export interface TaskBoardUpdatedEvent {
     createdAt: number;
     updatedAt: number;
     name: string;
+    projectId: string;
   };
 }
 

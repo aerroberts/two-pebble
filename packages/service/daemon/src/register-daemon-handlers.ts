@@ -65,6 +65,10 @@ import { handler as openWorkspaceInIdeHandler } from './handlers/known-ides.open
 import { handler as listMetricNamesHandler } from './handlers/metrics.list-names.handler';
 import { handler as listMetricVariantsHandler } from './handlers/metrics.list-variants.handler';
 import { handler as queryMetricsAggregatedHandler } from './handlers/metrics.query-aggregated.handler';
+import { handler as createProjectHandler } from './handlers/projects.create.handler';
+import { handler as deleteProjectHandler } from './handlers/projects.delete.handler';
+import { handler as listProjectsHandler } from './handlers/projects.list.handler';
+import { handler as updateProjectHandler } from './handlers/projects.update.handler';
 import { handler as createRepositoryHandler } from './handlers/repositories.create.handler';
 import { handler as deleteRepositoryHandler } from './handlers/repositories.delete.handler';
 import { handler as listRepositoriesHandler } from './handlers/repositories.list.handler';
@@ -158,6 +162,10 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('migrateDatabase', migrateDatabaseHandler(context));
   register('openDatabase', openDatabaseHandler(context));
   register('runDatabaseQuery', runDatabaseQueryHandler(context));
+  register('listProjects', listProjectsHandler(context));
+  register('createProject', createProjectHandler(context));
+  register('updateProject', updateProjectHandler(context));
+  register('deleteProject', deleteProjectHandler(context));
   register('createInferenceProfile', createInferenceProfileHandler(context));
   register('deleteInferenceProfile', deleteInferenceProfileHandler(context));
   register('listInferenceProfiles', listInferenceProfilesHandler(context));

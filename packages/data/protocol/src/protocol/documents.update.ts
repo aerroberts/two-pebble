@@ -21,6 +21,7 @@ export interface DocumentRecord {
   createdAt: number;
   updatedAt: number;
   name: string;
+  projectId?: string;
   content: string;
   references: string;
 }

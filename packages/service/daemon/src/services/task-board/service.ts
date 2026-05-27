@@ -48,7 +48,10 @@ export class TaskBoardService extends DaemonService {
    * its dependency edges are added back. Called once during daemon startup.
    */
   public override async initialize(): Promise<void> {
-    const { items: boards } = await this.datastore.taskBoards.list({});
+    const projects = await this.datastore.projects.list({});
+    const boards = (
+      await Promise.all(projects.items.map((project) => this.datastore.taskBoards.list({ projectId: project.id })))
+    ).flatMap((page) => page.items);
     for (const board of boards) {
       await this.hydrateBoard(board.id);
     }
@@ -60,7 +63,7 @@ export class TaskBoardService extends DaemonService {
    * Persists the board row and registers an empty in-memory engine for it.
    */
   public async createBoard(input: CreateBoardInput) {
-    const record = await this.datastore.taskBoards.create({ name: input.name });
+    const record = await this.datastore.taskBoards.create({ name: input.name, projectId: input.projectId });
     this.engines.set(record.id, new TaskBoard(record.id));
     return record;
   }
