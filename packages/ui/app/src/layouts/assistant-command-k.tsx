@@ -156,6 +156,7 @@ export function AssistantCommandK() {
             options={agentRegistryOptions}
             placeholder={agentRegistries.status === 'loading' ? 'Loading agents' : 'Assistant'}
             value={activeAgentId ?? undefined}
+            variant="pill"
           />
         </div>
       </div>
