@@ -37,4 +37,8 @@ export const appSettingsTable = customTable('app_settings', {
   chatConversationFoldingEnabled: integer('chat_conversation_folding_enabled', { mode: 'boolean' })
     .notNull()
     .default(false),
+
+  // Agent registry id used by the document "Send to Agent" affordance. `null` hides
+  // the button on the document view.
+  documentRunnerAgentRegistryId: text('document_runner_agent_registry_id'),
 });

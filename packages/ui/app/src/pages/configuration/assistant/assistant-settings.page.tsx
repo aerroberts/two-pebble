@@ -34,6 +34,7 @@ export function AssistantSettingsPage() {
   const assistantCommandKEnabled = settings?.assistantCommandKEnabled ?? false;
   const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
   const chatConversationFoldingEnabled = settings?.chatConversationFoldingEnabled ?? false;
+  const documentRunnerAgentRegistryId = settings?.documentRunnerAgentRegistryId ?? NONE_VALUE;
 
   const onAssistantAgentChange = (value: string) => {
     if (project === null) {
@@ -61,6 +62,7 @@ export function AssistantSettingsPage() {
       assistantCommandKEnabled: next,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
       chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
+      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
     });
   };
 
@@ -77,6 +79,7 @@ export function AssistantSettingsPage() {
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: next,
       chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
+      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
     });
   };
 
@@ -93,6 +96,24 @@ export function AssistantSettingsPage() {
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
       chatConversationFoldingEnabled: next,
+      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
+    });
+  };
+
+  const onDocumentRunnerChange = (value: string) => {
+    if (settings === null) {
+      return;
+    }
+    void updateAppSettings({
+      defaultKnownIdeId: settings.defaultKnownIdeId,
+      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
+      defaultSpeechProfileId: settings.defaultSpeechProfileId,
+      assistantAgentRegistryId: settings.assistantAgentRegistryId,
+      assistantAgentId: settings.assistantAgentId,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
+      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
+      documentRunnerAgentRegistryId: value === NONE_VALUE ? null : value,
     });
   };
 
@@ -141,6 +162,23 @@ export function AssistantSettingsPage() {
             checked={chatConversationFoldingEnabled}
             label="Fold tool and model traffic by default"
             onChange={(event) => onChatConversationFoldingChange(event.target.checked)}
+          />
+        </Surface>
+      </Section>
+      <Section
+        subtitle="Agent launched by the 'Send to Agent' button on documents. The agent receives a single message containing the document as a reference pill."
+        title="Document runner"
+      >
+        <Surface>
+          <Select
+            fullWidth
+            label="Document runner agent"
+            onChange={onDocumentRunnerChange}
+            options={assistantAgentOptions}
+            placeholder={
+              assistantAgentOptions.length <= 1 ? 'Create an agent in the agent registry first' : 'Select agent'
+            }
+            value={documentRunnerAgentRegistryId}
           />
         </Surface>
       </Section>

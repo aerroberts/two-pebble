@@ -28,6 +28,7 @@ export function VoiceSettingsPage() {
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
       chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
+      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
     });
   };
 
@@ -44,6 +45,7 @@ export function VoiceSettingsPage() {
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
       chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
+      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
     });
   };
 
