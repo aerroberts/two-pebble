@@ -121,6 +121,11 @@ import { thirdPartyAgentInstallsListOperation } from './operations/third-party-a
 import { thirdPartyAgentInstallsReadOperation } from './operations/third-party-agent-installs.read';
 import { thirdPartyAgentInstallsUpdateOperation } from './operations/third-party-agent-installs.update';
 import { threadsListOperation } from './operations/threads.list';
+import { trackedPrsListOperation } from './operations/tracked-prs.list';
+import { trackedPrsListOpenOperation } from './operations/tracked-prs.list-open';
+import { trackedPrsReadOperation } from './operations/tracked-prs.read';
+import { trackedPrsUpdateOperation } from './operations/tracked-prs.update';
+import { trackedPrsUpsertOperation } from './operations/tracked-prs.upsert';
 import { workspacesCreateOperation } from './operations/workspaces.create';
 import { workspacesListOperation } from './operations/workspaces.list';
 import { workspacesReadOperation } from './operations/workspaces.read';
@@ -465,6 +470,17 @@ export class Datastore {
         list: bind(taskEventsListOperation, 'task-events.list'),
         record: bind(taskEventsRecordOperation, 'task-events.record'),
       },
+    };
+  }
+
+  public get trackedPrs() {
+    const bind = this.operationBinder();
+    return {
+      list: bind(trackedPrsListOperation, 'tracked-prs.list'),
+      listOpen: bind(trackedPrsListOpenOperation, 'tracked-prs.list-open'),
+      read: bind(trackedPrsReadOperation, 'tracked-prs.read'),
+      update: bind(trackedPrsUpdateOperation, 'tracked-prs.update'),
+      upsert: bind(trackedPrsUpsertOperation, 'tracked-prs.upsert'),
     };
   }
 

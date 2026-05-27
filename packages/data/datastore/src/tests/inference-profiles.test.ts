@@ -75,6 +75,6 @@ describe('feature: operation inference-profiles.update', () => {
     const updateInput = { ...openAiInferenceProfileUpdateInput, id: profile.id, integrationId: ollamaIntegration.id };
     const updated = await datastore.inferenceProfiles.update(updateInput);
     await datastore.close();
-    expect(updated.provider).toBe(ollamaIntegration.provider);
+    expect(updated.provider).toBe('ollama');
   });
 });

@@ -107,6 +107,7 @@ import { handler as listThirdPartyAgentInstallsHandler } from './handlers/third-
 import { handler as updateThirdPartyAgentInstallHandler } from './handlers/third-party-agent-installs.update.handler';
 import { handler as readThreadSnapshotHandler } from './handlers/thread.snapshot.read.handler';
 import { handler as listThreadsHandler } from './handlers/threads.list.handler';
+import { handler as listTrackedPrsHandler } from './handlers/tracked-prs.list.handler';
 import { handler as transcribeAudioHandler } from './handlers/transcribe-audio.handler';
 import { handler as listWorkspacesHandler } from './handlers/workspaces.list.handler';
 import { handler as createWorktreeHandler } from './handlers/worktrees.create.handler';
@@ -239,6 +240,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('createTaskDeliverable', createTaskDeliverableHandler(context));
   register('listTaskDeliverableSubmissions', listTaskDeliverableSubmissionsHandler(context));
   register('submitTaskDeliverable', submitTaskDeliverableHandler(context));
+  register('listTrackedPrs', listTrackedPrsHandler(context));
   register('listMetricNames', listMetricNamesHandler(context));
   register('listMetricVariants', listMetricVariantsHandler(context));
   register('queryMetricsAggregated', queryMetricsAggregatedHandler(context));

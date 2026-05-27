@@ -8,6 +8,7 @@ import { useEffect, useRef } from 'react';
 import { BoardMentionNode } from '../input/rich-message-composer/board-mention-node';
 import { DocumentMentionNode } from '../input/rich-message-composer/document-mention-node';
 import { CodeBlockLanguageNode } from './code-block-language-node';
+import { CommentExtension, CommentSectionNode } from './comment-extension';
 import { readActiveSlashTrigger, type SlashTrigger } from './slash/slash-trigger';
 import { TodoItemNode } from './todo-item-node';
 
@@ -31,6 +32,7 @@ export interface TipTapEditorProps {
    * across React rerenders.
    */
   onSlashTrigger?: (trigger: SlashTrigger | null) => void;
+  onCellClick?: (cellId: string, anchor: HTMLElement) => void;
   /**
    * Invoked from the editor's own `handleKeyDown` extension point —
    * fires before ProseMirror's defaults so a `true` return cleanly
@@ -53,6 +55,8 @@ export function TipTapEditor(props: TipTapEditorProps) {
       Image,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing...' }),
       TodoItemNode,
+      CommentSectionNode,
+      CommentExtension,
       BoardMentionNode,
       DocumentMentionNode,
     ],
@@ -66,6 +70,22 @@ export function TipTapEditor(props: TipTapEditorProps) {
           return false;
         }
         return handler(current, event);
+      },
+      handleClick: (_view, _pos, event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+          return false;
+        }
+        const cell = target.closest('[data-cell-id]');
+        if (!(cell instanceof HTMLElement)) {
+          return false;
+        }
+        const cellId = cell.dataset.cellId ?? '';
+        if (cellId.length === 0) {
+          return false;
+        }
+        propsRef.current.onCellClick?.(cellId, cell);
+        return false;
       },
     },
     onBlur: ({ editor: currentEditor }) => propsRef.current.onBlur?.(currentEditor.getJSON()),
@@ -96,7 +116,7 @@ export function TipTapEditor(props: TipTapEditorProps) {
   return (
     <EditorContent
       editor={editor}
-      className="min-h-[360px] text-sm leading-6 text-content [&_.ProseMirror-focused]:outline-none [&_.ProseMirror]:min-h-[360px] [&_.ProseMirror_a]:text-accent [&_.ProseMirror_blockquote]:border-l-2 [&_.ProseMirror_blockquote]:border-border-strong [&_.ProseMirror_blockquote]:pl-3 [&_.ProseMirror_code]:rounded [&_.ProseMirror_code]:bg-surface-alt [&_.ProseMirror_code]:px-1 [&_.ProseMirror_h1]:text-xl [&_.ProseMirror_h1]:font-semibold [&_.ProseMirror_h2]:text-lg [&_.ProseMirror_h2]:font-semibold [&_.ProseMirror_h3]:text-base [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-content-muted [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p]:my-2 [&_.ProseMirror_pre]:overflow-auto [&_.ProseMirror_pre]:rounded-md [&_.ProseMirror_pre]:bg-background [&_.ProseMirror_pre]:p-3 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5"
+      className="min-h-[360px] text-sm leading-6 text-content [&_.ProseMirror-focused]:outline-none [&_.ProseMirror]:min-h-[360px] [&_.ProseMirror_a]:text-accent [&_.ProseMirror_blockquote]:border-l-2 [&_.ProseMirror_blockquote]:border-border-strong [&_.ProseMirror_blockquote]:pl-3 [&_.ProseMirror_code]:rounded [&_.ProseMirror_code]:bg-surface-alt [&_.ProseMirror_code]:px-1 [&_.ProseMirror_h1]:text-xl [&_.ProseMirror_h1]:font-semibold [&_.ProseMirror_h2]:text-lg [&_.ProseMirror_h2]:font-semibold [&_.ProseMirror_h3]:text-base [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-content-muted [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p]:my-2 [&_.ProseMirror_pre]:overflow-auto [&_.ProseMirror_pre]:rounded-md [&_.ProseMirror_pre]:bg-background [&_.ProseMirror_pre]:p-3 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.comment-thread-widget]:mr-1 [&_.comment-thread-widget]:inline-flex [&_.comment-thread-widget]:h-4 [&_.comment-thread-widget]:min-w-4 [&_.comment-thread-widget]:items-center [&_.comment-thread-widget]:justify-center [&_.comment-thread-widget]:rounded-full [&_.comment-thread-widget]:border [&_.comment-thread-widget]:border-accent [&_.comment-thread-widget]:bg-surface-raised [&_.comment-thread-widget]:px-1 [&_.comment-thread-widget]:text-[10px] [&_.comment-thread-widget]:font-semibold [&_.comment-thread-widget]:leading-4 [&_.comment-thread-widget]:text-accent [&_.has-comment-thread]:rounded-sm [&_.has-comment-thread]:bg-surface-hover/60"
     />
   );
 }

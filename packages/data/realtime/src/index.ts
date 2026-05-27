@@ -195,6 +195,7 @@ export {
   useTaskDeliverables,
   useTemplateDeliverables,
 } from './states/tasks/hooks/use-task-templates.hook';
+export { useMyOpenPrs, useTrackedPrsForTask, useTrackedPrsForTasks } from './states/tasks/hooks/use-tracked-prs.hook';
 export type {
   CreateTaskBoardInput,
   CreateTaskDependencyInput,
@@ -221,6 +222,7 @@ export type {
   TasksState,
   TaskTemplateDeliverableRecord,
   TaskTemplateRecord,
+  TrackedPrRecord,
   UndelegateTaskInput,
   UpdateTaskBoardInput,
   UpdateTaskDescriptionInput,

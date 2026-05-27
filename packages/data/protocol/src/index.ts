@@ -27,6 +27,8 @@ export type {
 export type { TaskDependencyRecord } from './protocol/task-dependencies.list';
 export type { TaskPoolRecord } from './protocol/task-pools.list';
 export type { ProtocolTaskRecord } from './protocol/tasks.list';
+export type { TrackedPrsListOperation } from './protocol/tracked-prs.list';
+export type { TrackedPrCheckRun, TrackedPrRecord, TrackedPrState } from './protocol/tracked-prs.recorded';
 export type {
   TaskDelegatedEvent,
   TaskEventRecord,

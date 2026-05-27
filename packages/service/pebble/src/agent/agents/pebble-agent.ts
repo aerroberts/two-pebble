@@ -377,7 +377,7 @@ export class PebbleAgent extends Agent {
 
     for (const signal of signals.received) {
       this.emit('trace', { type: 'signal-received', data: this.signalTraceData(signal) });
-      this.capabilities.find((capability) => capability.id === signal.capabilityId)?.hookOnSignal(signal);
+      await this.capabilities.find((capability) => capability.id === signal.capabilityId)?.hookOnSignal(signal);
       await this.bridge.signals.markResolved({ id: signal.id });
       this.emit('trace', {
         type: 'signal-resolved',
@@ -645,7 +645,7 @@ export class PebbleAgent extends Agent {
     let blockingExit = false;
 
     for (const capability of this.capabilities) {
-      const exitHook = capability.hookOnAgentExit();
+      const exitHook = await capability.hookOnAgentExit();
       if (!exitHook.permitExit) {
         this.thread.pushUser(
           'Capability Exit Blocked',

@@ -71,6 +71,13 @@ export function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
       readTodos: async () => [],
       update: async () => ({ id: '', name: '' }),
     },
+    github: {
+      applySignal: async () => undefined,
+      hasOpenPrs: async () => false,
+      submitPr: async () => {
+        throw new Error('not used');
+      },
+    },
     signals,
     subAgents: {
       kill: async () => undefined,

@@ -141,6 +141,8 @@ import type { ThirdPartyAgentInstallsUpdateOperation } from './protocol/third-pa
 import type { ThirdPartyAgentInstallsUpdatedEvent } from './protocol/third-party-agent-installs.updated';
 import type { ThreadSnapshotReadOperation } from './protocol/thread.snapshot.read';
 import type { ThreadsListOperation } from './protocol/threads.list';
+import type { TrackedPrsListOperation } from './protocol/tracked-prs.list';
+import type { TrackedPrRecordedEvent } from './protocol/tracked-prs.recorded';
 import type { TranscribeAudioOperation } from './protocol/transcribe-audio';
 import type { WorkspacesListOperation } from './protocol/workspaces.list';
 import type { WorkspacesUpdatedEvent } from './protocol/workspaces.updated';
@@ -267,6 +269,7 @@ export type DaemonOperations = [
   TaskDeliverablesCreateOperation,
   TaskDeliverableSubmissionsListOperation,
   TaskDeliverableSubmissionsSubmitOperation,
+  TrackedPrsListOperation,
   MetricsListNamesOperation,
   MetricsListVariantsOperation,
   MetricsQueryAggregatedOperation,
@@ -315,6 +318,7 @@ export type DaemonEvents = [
   TaskTemplateDeliverableDeletedEvent,
   TaskDeliverableUpdatedEvent,
   TaskDeliverableSubmissionRecordedEvent,
+  TrackedPrRecordedEvent,
   AutomationUpdatedEvent,
   AutomationDeletedEvent,
   HeartbeatRecordedEvent,

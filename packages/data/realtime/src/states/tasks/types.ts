@@ -10,6 +10,7 @@ export type TaskTemplateRecord = RealtimeEmitResponse<'listTaskTemplates'>['item
 export type TaskTemplateDeliverableRecord = RealtimeEmitResponse<'listTaskTemplateDeliverables'>['items'][number];
 export type TaskDeliverableRecord = RealtimeEmitResponse<'listTaskDeliverables'>['items'][number];
 export type TaskDeliverableSubmissionRecord = RealtimeEmitResponse<'listTaskDeliverableSubmissions'>['items'][number];
+export type TrackedPrRecord = RealtimeEmitResponse<'listTrackedPrs'>['items'][number];
 
 export type CreateTaskBoardInput = RealtimeEmitPayload<'createTaskBoard'>;
 export type UpdateTaskBoardInput = RealtimeEmitPayload<'updateTaskBoard'>;
@@ -43,4 +44,5 @@ export interface TasksState {
   taskTemplateDeliverables: LoadableRegistry<TaskTemplateDeliverableRecord>;
   taskDeliverables: LoadableRegistry<TaskDeliverableRecord>;
   taskDeliverableSubmissions: LoadableRegistry<TaskDeliverableSubmissionRecord>;
+  trackedPrs: LoadableRegistry<TrackedPrRecord>;
 }

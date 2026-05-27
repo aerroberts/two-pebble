@@ -10,6 +10,7 @@ import type {
   TasksState,
   TaskTemplateDeliverableRecord,
   TaskTemplateRecord,
+  TrackedPrRecord,
 } from './types';
 
 export function createTasksState(): TasksState {
@@ -23,5 +24,6 @@ export function createTasksState(): TasksState {
     taskTemplateDeliverables: new LoadableRegistry<TaskTemplateDeliverableRecord>(),
     taskDeliverables: new LoadableRegistry<TaskDeliverableRecord>(),
     taskDeliverableSubmissions: new LoadableRegistry<TaskDeliverableSubmissionRecord>(),
+    trackedPrs: new LoadableRegistry<TrackedPrRecord>(),
   };
 }

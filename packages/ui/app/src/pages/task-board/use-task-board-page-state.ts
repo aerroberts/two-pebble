@@ -1,5 +1,6 @@
 import {
   type ProtocolTaskRecord,
+  type TrackedPrRecord,
   useAgentRegistries,
   useAgents,
   useBoardTaskTemplates,
@@ -12,6 +13,7 @@ import {
   useTaskEvents,
   useTaskTemplateMutations,
   useThirdPartyAgentInstalls,
+  useTrackedPrsForTasks,
 } from '@two-pebble/realtime';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -67,6 +69,7 @@ export function useTaskBoardPageState() {
   const taskEventsState = useTaskEvents({ taskId: selectedTask?.id ?? '' });
   const selectedTaskDeliverablesState = useTaskDeliverables({ taskId: selectedTask?.id ?? '' });
   const selectedTaskDeliverableSubmissionsState = useTaskDeliverableSubmissions({ taskId: selectedTask?.id ?? '' });
+  const trackedPrs = useTrackedPrsForTasks(contents.tasks.map((task) => task.id));
   useEffect(() => {
     if (board !== null) {
       setBoardNameDraft(board.name);
@@ -124,6 +127,7 @@ export function useTaskBoardPageState() {
     selectedTask,
     selectedTaskId,
     taskReferences,
+    trackedPrs,
     setBoardNameDraft,
     setSelectedTaskId,
     setTaskNameDraft,
@@ -258,6 +262,7 @@ export function useTaskBoardPageState() {
       }
       return agents.values().find((entry) => entry.id === ownerId) ?? null;
     },
+    trackedPrsForTask: (taskId: string): TrackedPrRecord[] => trackedPrs.filter((row) => row.taskId === taskId),
     deletePool: (poolId: string) =>
       handle(async () => {
         await mutations.deletePool({ id: poolId });
