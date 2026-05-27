@@ -64,4 +64,27 @@ describe('feature: document content markdown conversion', () => {
     expect(rendered).toContain('### Orphaned');
     expect(rendered).toContain('> (deleted)');
   });
+
+  test('happy: converts gfm pipe tables to TipTap table nodes', () => {
+    const markdown = ['| Name | Status |', '| --- | --- |', '| Alpha | ok |', '| Beta | pending |'].join('\n');
+    const doc = markdownToTipTap(markdown);
+    expect(doc.content?.length).toBe(2);
+    const table = doc.content?.[0];
+    expect(table?.type).toBe('table');
+    const rows = table?.content;
+    expect(rows?.length).toBe(3);
+    expect(rows?.[0].content?.map((cell) => cell.type)).toEqual(['tableHeader', 'tableHeader']);
+    expect(rows?.[1].content?.map((cell) => cell.type)).toEqual(['tableCell', 'tableCell']);
+    const firstHeaderText = rows?.[0].content?.[0].content?.[0].content?.[0].text;
+    expect(firstHeaderText).toBe('Name');
+    const firstBodyText = rows?.[1].content?.[0].content?.[0].content?.[0].text;
+    expect(firstBodyText).toBe('Alpha');
+  });
+
+  test('happy: keeps surrounding markdown around a table block', () => {
+    const markdown = ['Before', '', '| A | B |', '| - | - |', '| 1 | 2 |', '', 'After'].join('\n');
+    const doc = markdownToTipTap(markdown);
+    const types = doc.content?.map((node) => node.type);
+    expect(types).toEqual(['paragraph', 'table', 'paragraph', 'commentSection']);
+  });
 });
