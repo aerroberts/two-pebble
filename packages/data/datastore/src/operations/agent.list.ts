@@ -33,6 +33,7 @@ export function agentListOperation(ctx: DatastoreContext) {
         parentResponseSignalId: row.parentResponseSignalId,
         startedAt: row.startedAt,
         status: row.status as AgentStatus,
+        workspaceId: row.workspaceId,
       })),
       page: {
         limit: input.limit,

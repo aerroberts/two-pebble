@@ -73,6 +73,13 @@ import type { IntegrationsDeletedEvent } from './protocol/integrations.deleted';
 import type { IntegrationsListOperation } from './protocol/integrations.list';
 import type { IntegrationsUpdateOperation } from './protocol/integrations.update';
 import type { IntegrationsUpdatedEvent } from './protocol/integrations.updated';
+import type { CreateKnownIdeOperation } from './protocol/known-ides.create';
+import type { DeleteKnownIdeOperation } from './protocol/known-ides.delete';
+import type { KnownIdeDeletedEvent } from './protocol/known-ides.deleted';
+import type { DetectIdesOperation } from './protocol/known-ides.detect';
+import type { ListKnownIdesOperation } from './protocol/known-ides.list';
+import type { OpenWorkspaceInIdeOperation } from './protocol/known-ides.open-workspace';
+import type { KnownIdeUpdatedEvent } from './protocol/known-ides.updated';
 import type { MetricsListNamesOperation } from './protocol/metrics.list-names';
 import type { MetricsListVariantsOperation } from './protocol/metrics.list-variants';
 import type { MetricsQueryAggregatedOperation } from './protocol/metrics.query-aggregated';
@@ -182,6 +189,11 @@ export type DaemonOperations = [
   IntegrationsCreateOperation,
   IntegrationsUpdateOperation,
   IntegrationsDeleteOperation,
+  DetectIdesOperation,
+  ListKnownIdesOperation,
+  CreateKnownIdeOperation,
+  DeleteKnownIdeOperation,
+  OpenWorkspaceInIdeOperation,
   ThirdPartyAgentInstallsListOperation,
   ThirdPartyAgentInstallsCreateOperation,
   ThirdPartyAgentInstallsUpdateOperation,
@@ -275,6 +287,8 @@ export type DaemonEvents = [
   InferenceProfilesDeletedEvent,
   IntegrationsUpdatedEvent,
   IntegrationsDeletedEvent,
+  KnownIdeUpdatedEvent,
+  KnownIdeDeletedEvent,
   ThirdPartyAgentInstallsUpdatedEvent,
   ThirdPartyAgentInstallsDeletedEvent,
   RepositoriesUpdatedEvent,

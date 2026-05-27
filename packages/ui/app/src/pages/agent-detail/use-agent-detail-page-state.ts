@@ -12,6 +12,7 @@ import {
   useRealtimeDatastore,
   useSendAgentMessage,
   useStopAgent,
+  useWorkspaces,
 } from '@two-pebble/realtime';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -25,8 +26,10 @@ export function useAgentDetailPageState() {
   const params = useParams();
   const agentId = params.agentId ?? '';
   const agents = useAgents();
+  const workspaces = useWorkspaces();
   const modelCalls = useAgentCalls({ agentId });
   const agent = agents.getItem(agentId)?.value ?? null;
+  const workspacePath = agent === null ? null : (workspaces.getItem(agent.workspaceId)?.value?.path ?? null);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const viewMode = parseAgentDetailViewMode(searchParams.get('view') ?? '');
@@ -242,6 +245,7 @@ export function useAgentDetailPageState() {
     waterfallScope,
     waterfallItems,
     waitingReasons,
+    workspacePath,
   };
 }
 

@@ -4,6 +4,7 @@ import type {
   AppSettings,
   InferenceProfile,
   Integration,
+  KnownIde,
   ThirdPartyAgentFrameworkId,
   ThirdPartyAgentInstall,
   TipTapDocument,
@@ -26,6 +27,7 @@ import type {
   heartbeatsTable,
   inferenceProfilesTable,
   integrationsTable,
+  knownIdesTable,
   metricsTable,
   repositoriesTable,
   taskBoardsTable,
@@ -48,6 +50,11 @@ export type IntegrationRecord = Integration & {
   createdAt: number;
   id: string;
   name: string;
+  updatedAt: number;
+};
+export type KnownIdeRecord = KnownIde & {
+  createdAt: number;
+  id: string;
   updatedAt: number;
 };
 export type ThirdPartyAgentInstallFrameworkId = ThirdPartyAgentFrameworkId;
@@ -97,6 +104,7 @@ export interface DatastoreSchema extends Record<string, object> {
   heartbeatsTable: typeof heartbeatsTable;
   inferenceProfilesTable: typeof inferenceProfilesTable;
   integrationsTable: typeof integrationsTable;
+  knownIdesTable: typeof knownIdesTable;
   metricsTable: typeof metricsTable;
   repositoriesTable: typeof repositoriesTable;
   taskBoardsTable: typeof taskBoardsTable;

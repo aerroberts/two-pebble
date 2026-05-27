@@ -14,5 +14,6 @@ export interface AgentRecordedEvent {
     parentAgentId?: string | null;
     startedAt: number;
     status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
+    workspaceId: string;
   };
 }

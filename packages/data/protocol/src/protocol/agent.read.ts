@@ -16,5 +16,6 @@ export interface AgentReadOperation {
     name: string;
     startedAt: number;
     status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
+    workspaceId: string;
   };
 }

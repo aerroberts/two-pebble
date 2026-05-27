@@ -66,6 +66,7 @@ export function AgentDetailPage() {
               agentId={state.agentId}
               chatSending={state.chatSending}
               onChatSubmit={(payload) => void state.sendChatMessage(payload)}
+              workspacePath={state.workspacePath}
             />
             <ConfirmDialog controller={confirm} />
           </>

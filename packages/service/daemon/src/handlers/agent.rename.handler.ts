@@ -18,6 +18,7 @@ export function handler(ctx: DaemonHandlerContext) {
       parentAgentId: record.parentAgentId ?? null,
       startedAt: record.startedAt,
       status: record.status,
+      workspaceId: record.workspaceId,
     });
     return { id: record.id };
   };

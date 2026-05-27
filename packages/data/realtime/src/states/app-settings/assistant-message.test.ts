@@ -18,6 +18,7 @@ describe('feature: realtime assistant messages', () => {
       });
       await ctx.setAgentStatus({ id: original.id, status: 'offline' });
       await ctx.daemon.do('updateAppSettings', {
+        defaultKnownIdeId: null,
         defaultTranscriptionProfileId: null,
         defaultSpeechProfileId: null,
         assistantAgentRegistryId: registry.id,
@@ -45,6 +46,7 @@ describe('feature: realtime assistant messages', () => {
       const sendAssistantMessage = await ctx.realtime.renderHook(useSendAssistantMessage);
       const registry = await setupOpenAiAgentRegistry(ctx.daemon);
       await ctx.daemon.do('updateAppSettings', {
+        defaultKnownIdeId: null,
         defaultTranscriptionProfileId: null,
         defaultSpeechProfileId: null,
         assistantAgentRegistryId: registry.id,

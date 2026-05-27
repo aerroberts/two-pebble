@@ -22,6 +22,8 @@ import { createInferenceProfilesState } from './states/inference-profiles/state'
 import type { InferenceProfilesState } from './states/inference-profiles/types';
 import { createIntegrationsState } from './states/integrations/state';
 import type { IntegrationsState } from './states/integrations/types';
+import { createKnownIdesState } from './states/known-ides/state';
+import type { KnownIdesState } from './states/known-ides/types';
 import { createRepositoriesState } from './states/repositories/state';
 import type { RepositoriesState } from './states/repositories/types';
 import { createTasksState } from './states/tasks/state';
@@ -45,6 +47,7 @@ export interface RealtimeState
     DocumentsState,
     InferenceProfilesState,
     IntegrationsState,
+    KnownIdesState,
     RepositoriesState,
     TasksState,
     ThirdPartyAgentInstallsState,
@@ -66,6 +69,7 @@ export function createRealtimeState(): RealtimeState {
     ...createDocumentsState(),
     ...createInferenceProfilesState(),
     ...createIntegrationsState(),
+    ...createKnownIdesState(),
     ...createRepositoriesState(),
     ...createTasksState(),
     ...createThirdPartyAgentInstallsState(),

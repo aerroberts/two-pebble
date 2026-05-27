@@ -159,6 +159,20 @@ export type {
   IntegrationRecord,
   IntegrationsState,
 } from './states/integrations/types';
+export { useCreateKnownIde } from './states/known-ides/hooks/use-create-known-ide.hook';
+export { useDeleteKnownIde } from './states/known-ides/hooks/use-delete-known-ide.hook';
+export { useDetectIdes } from './states/known-ides/hooks/use-detect-ides.hook';
+export { useKnownIdes } from './states/known-ides/hooks/use-known-ides.hook';
+export { useOpenWorkspaceInIde } from './states/known-ides/hooks/use-open-workspace-in-ide.hook';
+export type {
+  CreateKnownIdeInput,
+  DeleteKnownIdeInput,
+  KnownIdeCandidate,
+  KnownIdeKind,
+  KnownIdeRecord,
+  KnownIdesState,
+  OpenWorkspaceInIdeInput,
+} from './states/known-ides/types';
 export { useCreateRepository } from './states/repositories/hooks/use-create-repository.hook';
 export { useDeleteRepository } from './states/repositories/hooks/use-delete-repository.hook';
 export { useRepositories } from './states/repositories/hooks/use-repositories.hook';

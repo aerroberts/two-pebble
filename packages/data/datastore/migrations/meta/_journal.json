@@ -15,6 +15,13 @@
       "when": 1789430400000,
       "tag": "0001_rich_task_descriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789430400001,
+      "tag": "0002_known_ides",
+      "breakpoints": true
     }
   ]
 }

@@ -37,6 +37,7 @@ export function agentSetMetadataOperation(ctx: DatastoreContext) {
       parentResponseSignalId: row.parentResponseSignalId,
       startedAt: row.startedAt,
       status: row.status as AgentStatus,
+      workspaceId: row.workspaceId,
     };
   };
 }

@@ -18,6 +18,7 @@ import { AutomationsNewPage } from './pages/automations/automations-new.page';
 import { AgentRegistriesPage } from './pages/configuration/agent-registries/agent-registries.page';
 import { AgentRegistrySettingsPage } from './pages/configuration/agent-registries/agent-registry-settings.page';
 import { AssistantSettingsPage } from './pages/configuration/assistant/assistant-settings.page';
+import { IdeSettingsPage } from './pages/configuration/ide/ide-settings.page';
 import { InferenceProfileSettingsPage } from './pages/configuration/inference-profiles/inference-profile-settings.page';
 import { InferenceProfilesPage } from './pages/configuration/inference-profiles/inference-profiles.page';
 import { IntegrationSettingsPage } from './pages/configuration/integrations/integration-settings.page';
@@ -275,6 +276,14 @@ export function App() {
         element={
           <ConfigurationAppShell>
             <VoiceSettingsPage />
+          </ConfigurationAppShell>
+        }
+      />
+      <Route
+        path="/configuration/ide"
+        element={
+          <ConfigurationAppShell>
+            <IdeSettingsPage />
           </ConfigurationAppShell>
         }
       />

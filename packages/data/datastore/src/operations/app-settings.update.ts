@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import type { AppSettingsRecord, DatastoreContext } from '../types';
 
 type OperationHandlerInput = {
+  defaultKnownIdeId: string | null;
   defaultTranscriptionProfileId: string | null;
   defaultSpeechProfileId: string | null;
   assistantAgentRegistryId: string | null;
@@ -26,6 +27,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         .insert(ctx.schema.appSettingsTable)
         .values({
           id: 'singleton',
+          defaultKnownIdeId: input.defaultKnownIdeId,
           defaultTranscriptionProfileId: input.defaultTranscriptionProfileId,
           defaultSpeechProfileId: input.defaultSpeechProfileId,
           assistantAgentRegistryId: input.assistantAgentRegistryId,
@@ -41,6 +43,7 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
     const updated = await ctx.database
       .update(ctx.schema.appSettingsTable)
       .set({
+        defaultKnownIdeId: input.defaultKnownIdeId,
         defaultTranscriptionProfileId: input.defaultTranscriptionProfileId,
         defaultSpeechProfileId: input.defaultSpeechProfileId,
         assistantAgentRegistryId: input.assistantAgentRegistryId,

@@ -49,6 +49,12 @@ export function ConfigurationSidebar() {
           onClick={() => navigate('/configuration/voice')}
         />
         <SidebarOption
+          active={location.pathname.startsWith('/configuration/ide')}
+          icon="code"
+          label="IDE"
+          onClick={() => navigate('/configuration/ide')}
+        />
+        <SidebarOption
           active={location.pathname.startsWith('/configuration/assistant')}
           icon="messages-square"
           label="Assistant"
