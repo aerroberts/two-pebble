@@ -23,6 +23,11 @@ export const documentsTable = customTable(
     content: text('content').notNull().default('{"type":"doc","content":[]}'),
     references: text('references').notNull().default('[]'),
     archivedAt: integer('archived_at'),
+    // Free-form section / folder label used to group documents in the sidebar.
+    // `null` means the document lives in the default "Documents" bucket. The
+    // value is the section's display label — no separate sections table — so
+    // creating a new section is just typing a new string.
+    section: text('section'),
   },
   (table) => [index('documents_project_id_idx').on(table.projectId)],
 );

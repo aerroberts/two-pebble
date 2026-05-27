@@ -7,6 +7,7 @@ type OperationHandlerInput = {
   id: string;
   name?: string;
   references?: string;
+  section?: string | null;
 };
 
 /**
@@ -33,6 +34,8 @@ export function documentsUpdateOperation(ctx: DatastoreContext) {
         content: input.content ?? existing.content,
         name: input.name ?? existing.name,
         references: input.references ?? existing.references,
+        // `undefined` keeps the existing value; `null` clears it explicitly.
+        section: input.section === undefined ? existing.section : input.section,
       })
       .where(eq(ctx.schema.documentsTable.id, input.id))
       .returning()

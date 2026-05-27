@@ -54,7 +54,9 @@ function sampleDocument(input: { name: string }): DocumentRecord {
     createdAt: 1,
     updatedAt: 2,
     name: input.name,
+    projectId: 'proj_default',
     content: '{"type":"doc","content":[]}',
     references: '[]',
+    section: null,
   };
 }

@@ -8,6 +8,7 @@ type OperationHandlerInput = {
   name?: string;
   projectId?: string;
   references?: string;
+  section?: string | null;
 };
 
 /**
@@ -25,6 +26,7 @@ export function documentsCreateOperation(ctx: DatastoreContext) {
         name: input.name ?? 'Untitled',
         projectId: input.projectId ?? 'proj_default',
         ...(input.references === undefined ? {} : { references: input.references }),
+        ...(input.section === undefined ? {} : { section: input.section }),
       })
       .returning()
       .get();

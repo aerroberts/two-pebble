@@ -86,6 +86,21 @@ export function useDocumentEditorPageState() {
     }
   };
 
+  const setSection = async (section: string | null) => {
+    setError('');
+    if (document === null) {
+      return;
+    }
+    if (section === document.section) {
+      return;
+    }
+    try {
+      await mutations.setDocumentSection({ id: document.id, section });
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : 'Could not update section.');
+    }
+  };
+
   return {
     addComment,
     closeComment,
@@ -98,6 +113,7 @@ export function useDocumentEditorPageState() {
     saveContent,
     saveName,
     setNameDraft,
+    setSection,
   };
 }
 
