@@ -1,3 +1,4 @@
+import { validateDocumentContent } from '@two-pebble/datatypes';
 import { eq } from 'drizzle-orm';
 import type { DatastoreContext, DocumentRecord } from '../types';
 
@@ -21,6 +22,9 @@ export function documentsUpdateOperation(ctx: DatastoreContext) {
 
     if (existing === undefined) {
       throw new Error(`Document not found: ${input.id}`);
+    }
+    if (input.content !== undefined) {
+      validateDocumentContent(input.content);
     }
 
     const row = await ctx.database

@@ -1,6 +1,7 @@
+import { createEmptyTipTapDocument, validateDocumentContent } from '@two-pebble/datatypes';
 import type { DatastoreContext, DocumentRecord } from '../types';
 
-const EMPTY_DOCUMENT_CONTENT = '{"type":"doc","content":[]}';
+const EMPTY_DOCUMENT_CONTENT = JSON.stringify(createEmptyTipTapDocument());
 
 type OperationHandlerInput = {
   content?: string;
@@ -13,6 +14,9 @@ type OperationHandlerInput = {
  */
 export function documentsCreateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
+    if (input.content !== undefined) {
+      validateDocumentContent(input.content);
+    }
     const row = await ctx.database
       .insert(ctx.schema.documentsTable)
       .values({

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { createEmptyTipTapDocument } from '@two-pebble/datatypes';
 import { useDatastoreForTesting } from '../testing/datastore-test-env';
 
 describe('feature: operation documents.create', () => {
@@ -7,7 +8,7 @@ describe('feature: operation documents.create', () => {
     const document = await datastore.documents.create({});
     await datastore.close();
     expect(document.name).toBe('Untitled');
-    expect(document.content).toBe('{"type":"doc","content":[]}');
+    expect(document.content).toBe(JSON.stringify(createEmptyTipTapDocument()));
   });
 });
 
@@ -42,11 +43,35 @@ describe('feature: operation documents.list', () => {
 describe('feature: operation documents.update', () => {
   test('happy: updates only the supplied fields', async () => {
     const datastore = await useDatastoreForTesting();
-    const document = await datastore.documents.create({ content: '{"type":"doc","content":[]}', name: 'Runbook' });
+    const document = await datastore.documents.create({
+      content: JSON.stringify(createEmptyTipTapDocument()),
+      name: 'Runbook',
+    });
     const updated = await datastore.documents.update({ id: document.id, name: 'Renamed' });
     await datastore.close();
     expect(updated.name).toBe('Renamed');
     expect(updated.content).toBe(document.content);
+  });
+
+  test('sad: rejects malformed comment content', async () => {
+    const datastore = await useDatastoreForTesting();
+    const document = await datastore.documents.create({ name: 'Runbook' });
+    await expect(
+      datastore.documents.update({
+        id: document.id,
+        content: JSON.stringify({
+          type: 'doc',
+          content: [
+            { type: 'paragraph', attrs: { cellId: 'cell-1' }, content: [{ type: 'text', text: 'Hello' }] },
+            {
+              type: 'commentSection',
+              attrs: { threads: [{ cellId: 'cell-1', status: 'closed', comments: [] }] },
+            },
+          ],
+        }),
+      }),
+    ).rejects.toThrow(/closedReason/);
+    await datastore.close();
   });
 });
 

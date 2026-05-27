@@ -1,5 +1,6 @@
 import type { Editor } from '@tiptap/core';
 import {
+  CommentPopover,
   deleteTriggerRange,
   EditableHeading,
   Header,
@@ -22,10 +23,16 @@ interface ReferenceItem {
   name: string;
 }
 
+interface ActiveCell {
+  cellId: string;
+  anchor: HTMLElement;
+}
+
 export function DocumentEditorPage() {
   const state = useDocumentEditorPageState();
   const [editor, setEditor] = useState<Editor | null>(null);
   const [slashTrigger, setSlashTrigger] = useState<SlashTrigger | null>(null);
+  const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
   const documents = useDocuments();
   const boards = useTaskBoards();
 
@@ -149,8 +156,28 @@ export function DocumentEditorPage() {
             initialContent={state.editorContent}
             placeholder="Start writing... Type / to insert a block."
             onBlur={(content) => void state.saveContent(content)}
+            onCellClick={(cellId, anchor) => setActiveCell({ cellId, anchor })}
             onEditorReady={setEditor}
             onSlashTrigger={setSlashTrigger}
+          />
+          <CommentPopover
+            anchorElement={activeCell?.anchor ?? null}
+            cellId={activeCell?.cellId ?? ''}
+            doc={state.editorContent}
+            onAddComment={(body) => {
+              if (editor === null || activeCell === null) {
+                return;
+              }
+              void state.addComment(editor, activeCell.cellId, body);
+            }}
+            onCancel={() => setActiveCell(null)}
+            onCloseThread={(closedReason) => {
+              if (editor === null || activeCell === null) {
+                return;
+              }
+              void state.closeComment(editor, activeCell.cellId, closedReason);
+            }}
+            open={activeCell !== null}
           />
           <DocumentInsertPopover
             anchorLeft={slashTrigger?.anchorLeft ?? 0}

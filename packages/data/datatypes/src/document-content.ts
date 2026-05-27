@@ -1,5 +1,11 @@
 import { defaultMarkdownParser, defaultMarkdownSerializer, schema as markdownSchema } from 'prosemirror-markdown';
 import { Node as ProseMirrorNode } from 'prosemirror-model';
+import {
+  normalizeDocumentComments,
+  renderCommentsMarkdown,
+  stripCommentSection,
+  validateDocumentComments,
+} from './document-comments';
 
 /**
  * TipTap-compatible JSON node used for document content persistence.
@@ -78,7 +84,7 @@ const TIPTAP_TO_PROSEMIRROR_MARK_NAMES = Object.fromEntries(
  * an absent body when appending nodes.
  */
 export function createEmptyTipTapDocument(): TipTapDocument {
-  return { type: 'doc', content: [] };
+  return normalizeDocumentComments({ type: 'doc', content: [] });
 }
 
 /**
@@ -88,7 +94,7 @@ export function createEmptyTipTapDocument(): TipTapDocument {
  */
 export function markdownToTipTap(markdown: string): TipTapDocument {
   const doc = defaultMarkdownParser.parse(markdown);
-  return prosemirrorJsonToTipTap(doc.toJSON()) as TipTapDocument;
+  return normalizeDocumentComments(prosemirrorJsonToTipTap(doc.toJSON()) as TipTapDocument);
 }
 
 /**
@@ -97,9 +103,27 @@ export function markdownToTipTap(markdown: string): TipTapDocument {
  * default markdown serializer can render it consistently.
  */
 export function tipTapToMarkdown(doc: TipTapDocument): string {
-  const prosemirrorJson = tipTapJsonToProsemirror(doc);
+  const bodyDoc = stripCommentSection(doc);
+  const prosemirrorJson = tipTapJsonToProsemirror(bodyDoc);
   const node = ProseMirrorNode.fromJSON(markdownSchema, prosemirrorJson);
-  return defaultMarkdownSerializer.serialize(node);
+  const body = defaultMarkdownSerializer.serialize(node);
+  const comments = renderCommentsMarkdown(doc);
+  return [body, comments].filter((section) => section.trim().length > 0).join('\n\n');
+}
+
+export function validateDocumentContent(content: string): TipTapDocument {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    throw new Error('Document content must be valid JSON.');
+  }
+  if (!isTipTapNode(parsed) || parsed.type !== 'doc') {
+    throw new Error('Document content must be a TipTap doc.');
+  }
+  const doc = parsed as TipTapDocument;
+  validateDocumentComments(doc);
+  return doc;
 }
 
 function prosemirrorJsonToTipTap(node: TipTapNode): TipTapNode {
@@ -162,4 +186,12 @@ function convertAttrsToProsemirror(type: string, attrs: TipTapAttrs | undefined)
     return { ...rest, order: attrs.start };
   }
   return attrs;
+}
+
+function isTipTapNode(value: unknown): value is TipTapNode {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+  const record = value as Record<string, unknown>;
+  return typeof record.type === 'string' && (record.content === undefined || Array.isArray(record.content));
 }

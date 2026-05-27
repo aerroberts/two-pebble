@@ -1,9 +1,11 @@
+import type { Editor } from '@tiptap/core';
 import type { JSONContent } from '@two-pebble/components';
+import type { TipTapDocument } from '@two-pebble/datatypes';
 import { useDocument, useDocumentMutations } from '@two-pebble/realtime';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const EMPTY_DOCUMENT: JSONContent = { type: 'doc', content: [] };
+const EMPTY_DOCUMENT: TipTapDocument = { type: 'doc', content: [] };
 
 export function useDocumentEditorPageState() {
   const params = useParams();
@@ -59,6 +61,16 @@ export function useDocumentEditorPageState() {
     }
   };
 
+  const addComment = async (editor: Editor, cellId: string, body: string) => {
+    editor.chain().focus().addComment({ cellId, body, authorId: 'human' }).run();
+    await saveContent(editor.getJSON());
+  };
+
+  const closeComment = async (editor: Editor, cellId: string, closedReason: string) => {
+    editor.chain().focus().closeCommentThread({ cellId, closedReason, authorId: 'human' }).run();
+    await saveContent(editor.getJSON());
+  };
+
   const deleteDocument = async () => {
     setError('');
     if (document === null) {
@@ -73,6 +85,8 @@ export function useDocumentEditorPageState() {
   };
 
   return {
+    addComment,
+    closeComment,
     deleteDocument,
     document,
     documentId,
@@ -85,12 +99,12 @@ export function useDocumentEditorPageState() {
   };
 }
 
-function parseDocumentContent(content: string | undefined): JSONContent {
+function parseDocumentContent(content: string | undefined): TipTapDocument {
   if (content === undefined) {
     return EMPTY_DOCUMENT;
   }
   try {
-    const parsed = JSON.parse(content) as JSONContent;
+    const parsed = JSON.parse(content) as TipTapDocument;
     if (parsed.type === 'doc') {
       return parsed;
     }
