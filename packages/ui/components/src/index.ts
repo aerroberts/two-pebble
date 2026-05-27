@@ -132,6 +132,16 @@ export {
 export { RelativeTime, type RelativeTimeProps } from './components/data/relative-time/relative-time';
 export { Table, type TableColumn, type TableProps } from './components/data/table/table';
 export {
+  type AddCommentCommandInput,
+  type CloseCommentThreadCommandInput,
+  CommentExtension,
+  CommentSectionNode,
+} from './components/editor/comment-extension';
+export {
+  CommentPopover,
+  type CommentPopoverProps,
+} from './components/editor/comment-popover';
+export {
   deleteTriggerRange,
   type SlashCommand,
   SlashCommandPopover,
