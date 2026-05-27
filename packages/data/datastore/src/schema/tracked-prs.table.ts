@@ -1,0 +1,38 @@
+import { index, integer, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+
+import { customTable } from '../table/custom-table';
+
+type TrackedPrState = 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+
+type TrackedPrCheckRun = {
+  name: string;
+  status: 'queued' | 'in_progress' | 'completed';
+  conclusion: 'success' | 'failure' | 'cancelled' | null;
+  url: string;
+};
+
+export const trackedPrsTable = customTable(
+  'tracked_prs',
+  {
+    taskId: text('task_id').notNull(),
+    deliverableId: text('deliverable_id').notNull(),
+    agentId: text('agent_id').notNull(),
+    integrationId: text('integration_id').notNull(),
+    repo: text('repo').notNull(),
+    number: integer('number').notNull(),
+    url: text('url').notNull(),
+    state: text('state', { enum: ['mergeable', 'unmergeable', 'merged', 'closed'] })
+      .notNull()
+      .$type<TrackedPrState>(),
+    checks: text('checks', { mode: 'json' }).notNull().default('[]').$type<TrackedPrCheckRun[]>(),
+    lastCheckedAt: integer('last_checked_at', { mode: 'number' }).notNull(),
+    lastEventAt: integer('last_event_at', { mode: 'number' }),
+    etag: text('etag'),
+  },
+  (table) => [
+    uniqueIndex('tracked_prs_repo_number_idx').on(table.repo, table.number),
+    uniqueIndex('tracked_prs_task_deliverable_idx').on(table.taskId, table.deliverableId),
+    index('tracked_prs_state_idx').on(table.state),
+    index('tracked_prs_agent_idx').on(table.agentId),
+  ],
+);

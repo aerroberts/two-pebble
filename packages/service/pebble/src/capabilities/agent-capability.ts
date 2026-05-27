@@ -1,7 +1,7 @@
 import type { PebbleAgent } from '../agent/agents/pebble-agent';
 import { AgentExitHook } from '../agent/hooks/agent-exit-hook';
 import { EarlyExit } from '../agent/hooks/early-exit';
-import type { AgentStatus } from '../agent/types';
+import type { AgentExitHookResult, AgentStatus } from '../agent/types';
 import type { AgentBridge, AgentSignal, RegisterSignalInput } from '../bridge';
 import type { PebbleJsonValue } from '../types';
 import type { CapabilityState, RegisterHookResult } from './agent-capability.types';
@@ -90,13 +90,13 @@ export abstract class AgentCapability<TConfig = PebbleJsonValue> {
    * Override when a capability participates in parent/child or external
    * signal flows.
    */
-  public hookOnSignal(_signal: AgentSignal): void {}
+  public hookOnSignal(_signal: AgentSignal): void | Promise<void> {}
 
   /**
    * Decides whether the agent may exit. Returning a denial forces another
    * agentic step with the supplied reason.
    */
-  public hookOnAgentExit() {
+  public hookOnAgentExit(): AgentExitHookResult | Promise<AgentExitHookResult> {
     return AgentExitHook.permitExit();
   }
 

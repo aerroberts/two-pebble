@@ -35,9 +35,13 @@ export function HeartbeatsPage() {
           value: report.outcome,
           trailingAccessory:
             Object.keys(report.detail).length > 0 ? (
-              <pre className="max-w-[18rem] overflow-x-auto rounded-md bg-surface-hover p-2 text-[10px] leading-4 text-content-muted">
-                {JSON.stringify(report.detail, null, 2)}
-              </pre>
+              report.kind === 'github' ? (
+                <GithubHeartbeatDetail detail={report.detail} />
+              ) : (
+                <pre className="max-w-[18rem] overflow-x-auto rounded-md bg-surface-hover p-2 text-[10px] leading-4 text-content-muted">
+                  {JSON.stringify(report.detail, null, 2)}
+                </pre>
+              )
             ) : null,
         }))}
       />
@@ -64,4 +68,42 @@ export function HeartbeatsPage() {
       </PageLayout>
     </DataPanelLayout>
   );
+}
+
+function GithubHeartbeatDetail(props: { detail: Record<string, unknown> }) {
+  const updates = Array.isArray(props.detail.prUpdates) ? props.detail.prUpdates : [];
+  const errors = Array.isArray(props.detail.errors) ? props.detail.errors : [];
+  return (
+    <div className="flex max-w-[22rem] flex-col gap-1 rounded-md bg-surface-hover p-2 text-[10px] leading-4 text-content-muted">
+      <div>
+        Polled {String(props.detail.polled ?? 0)}, transitioned {String(props.detail.transitioned ?? 0)}
+      </div>
+      {updates.map((item) => (
+        <div key={`u:${formatGithubUpdate(item)}`} className="text-content">
+          {formatGithubUpdate(item)}
+        </div>
+      ))}
+      {errors.map((item) => (
+        <div key={`e:${formatGithubError(item)}`} className="text-danger">
+          {formatGithubError(item)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function formatGithubUpdate(value: unknown): string {
+  if (value === null || typeof value !== 'object') {
+    return 'PR updated';
+  }
+  const record = value as Record<string, unknown>;
+  return `${String(record.prId ?? 'PR')}: ${String(record.from ?? '?')} -> ${String(record.to ?? '?')}`;
+}
+
+function formatGithubError(value: unknown): string {
+  if (value === null || typeof value !== 'object') {
+    return 'GitHub polling error';
+  }
+  const record = value as Record<string, unknown>;
+  return `${String(record.prId ?? 'PR')}: ${String(record.status ?? 0)} ${String(record.message ?? '')}`;
 }

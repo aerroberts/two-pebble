@@ -5,6 +5,7 @@ export {
 } from './capability-builder';
 export type { CapabilityFactory } from './capability-registry-types';
 export { DocumentWriterCapability } from './document-writer/capability';
+export { GithubCapability } from './github/capability';
 export { ParentLinkedTaskCapability } from './parent-linked-task/capability';
 export type { ParentLinkedTaskCapabilityConfig } from './parent-linked-task/utils/parent-linked-task-types';
 export { ParentLinkedTeammateCapability } from './parent-linked-teammate/capability';

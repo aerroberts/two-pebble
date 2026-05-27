@@ -13,6 +13,7 @@ const SUPPORTED_KINDS_BY_PROVIDER: Record<IntegrationProvider, InferenceProfileK
   ollama: ['intelligence'],
   openai: ['intelligence', 'transcription', 'speech'],
   openrouter: ['intelligence', 'transcription', 'speech'],
+  github: [],
 };
 
 export function providerSupportsKind(provider: IntegrationProvider, kind: InferenceProfileKind): boolean {
@@ -94,6 +95,8 @@ function getDefaultIntelligenceInput(
     case 'openai':
     case 'openrouter':
       return { data: { model: 'gpt-5.4-mini' }, integrationId, kind: 'intelligence', name, provider };
+    case 'github':
+      return undefined;
   }
 }
 
@@ -108,6 +111,7 @@ function getDefaultTranscriptionInput(
     case 'openrouter':
       return { data: { model: 'openai/gpt-4o-transcribe' }, integrationId, kind: 'transcription', name, provider };
     case 'anthropic':
+    case 'github':
     case 'ollama':
       return undefined;
   }
@@ -136,6 +140,7 @@ function getDefaultSpeechInput(
         provider,
       };
     case 'anthropic':
+    case 'github':
     case 'ollama':
       return undefined;
   }
@@ -151,6 +156,8 @@ function getDefaultIntelligenceName(provider: IntegrationProvider): string {
       return 'GPT Mini';
     case 'openrouter':
       return 'OpenRouter GPT Mini';
+    case 'github':
+      return 'GitHub';
   }
 }
 
@@ -161,6 +168,7 @@ function getDefaultTranscriptionName(provider: IntegrationProvider): string {
     case 'openrouter':
       return 'OpenRouter Transcribe';
     case 'anthropic':
+    case 'github':
     case 'ollama':
       return '';
   }
@@ -173,6 +181,7 @@ function getDefaultSpeechName(provider: IntegrationProvider): string {
     case 'openrouter':
       return 'OpenRouter TTS';
     case 'anthropic':
+    case 'github':
     case 'ollama':
       return '';
   }

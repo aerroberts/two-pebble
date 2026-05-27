@@ -8,6 +8,7 @@ import { registerDaemonHandlers } from './register-daemon-handlers';
 import { AgentRegistryService } from './services/agent-registry/service';
 import { AutomationService } from './services/automation';
 import { DaemonServiceHost } from './services/daemon-service';
+import { GithubService } from './services/github';
 import { HeartbeatService } from './services/heartbeat';
 import { LivenessService } from './services/liveness/service';
 import { TaskBoardService } from './services/task-board/service';
@@ -81,6 +82,7 @@ export class TwoPebbleDaemon {
     const taskBoards = serviceHost.register(new TaskBoardService(serviceHost));
     const agentRegistry = serviceHost.register(new AgentRegistryService(serviceHost));
     const automations = serviceHost.register(new AutomationService(serviceHost));
+    const github = serviceHost.register(new GithubService(serviceHost));
     const heartbeat = serviceHost.register(new HeartbeatService(serviceHost));
     const liveness = serviceHost.register(new LivenessService(serviceHost, { daemonBootId: this.daemonBootId }));
     await agentRegistry.initialize();
@@ -93,6 +95,7 @@ export class TwoPebbleDaemon {
       databaseFilePath,
       datastore: this.datastore,
       events,
+      github,
       heartbeat,
       logsDirectoryPath: path.dirname(this.input.logFilePath),
       port: this.server.port,
