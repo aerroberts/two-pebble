@@ -89,26 +89,63 @@ export function createEmptyTipTapDocument(): TipTapDocument {
 
 /**
  * Converts markdown into the TipTap JSON naming conventions used by the UI.
- * ProseMirror's default markdown parser owns parsing, then node and mark
- * names are normalized to TipTap-style identifiers.
+ * ProseMirror's default markdown parser owns parsing of common nodes; GFM
+ * pipe tables are pre-extracted and converted directly to TipTap table JSON
+ * (`table` / `tableRow` / `tableHeader` / `tableCell`) since the default
+ * parser drops them to plain text.
  */
 export function markdownToTipTap(markdown: string): TipTapDocument {
-  const doc = defaultMarkdownParser.parse(markdown);
-  return normalizeDocumentComments(prosemirrorJsonToTipTap(doc.toJSON()) as TipTapDocument);
+  const segments = splitTableSegments(markdown);
+  const content: TipTapNode[] = [];
+  for (const segment of segments) {
+    if (segment.type === 'table') {
+      content.push(tableSegmentToTipTap(segment.value));
+      continue;
+    }
+    if (segment.value.length === 0) {
+      continue;
+    }
+    const parsed = defaultMarkdownParser.parse(segment.value);
+    const json = prosemirrorJsonToTipTap(parsed.toJSON()) as TipTapDocument;
+    if (json.content !== undefined) {
+      content.push(...json.content);
+    }
+  }
+  return normalizeDocumentComments({ type: 'doc', content });
 }
 
 /**
  * Converts a TipTap JSON document back to markdown.
- * The document is first normalized to ProseMirror node and mark names so the
- * default markdown serializer can render it consistently.
+ * Table nodes are serialized inline as GFM pipe tables (the default markdown
+ * schema has no table support); the rest of the document is handed to the
+ * default markdown serializer.
  */
 export function tipTapToMarkdown(doc: TipTapDocument): string {
-  const bodyDoc = stripCommentSection(doc);
-  const prosemirrorJson = tipTapJsonToProsemirror(bodyDoc);
-  const node = ProseMirrorNode.fromJSON(markdownSchema, prosemirrorJson);
-  const body = defaultMarkdownSerializer.serialize(node);
+  const content = stripCommentSection(doc).content ?? [];
+  const chunks: string[] = [];
+  let pending: TipTapNode[] = [];
+
+  const flushPending = () => {
+    if (pending.length === 0) {
+      return;
+    }
+    const pmDoc = tipTapJsonToProsemirror({ type: 'doc', content: pending });
+    const node = ProseMirrorNode.fromJSON(markdownSchema, pmDoc);
+    chunks.push(defaultMarkdownSerializer.serialize(node));
+    pending = [];
+  };
+
+  for (const node of content) {
+    if (node.type === 'table') {
+      flushPending();
+      chunks.push(tableNodeToMarkdown(node));
+      continue;
+    }
+    pending.push(node);
+  }
+  flushPending();
   const comments = renderCommentsMarkdown(doc);
-  return [body, comments].filter((section) => section.trim().length > 0).join('\n\n');
+  return [chunks.join('\n\n'), comments].filter((section) => section.trim().length > 0).join('\n\n');
 }
 
 export function validateDocumentContent(content: string): TipTapDocument {
@@ -194,4 +231,138 @@ function isTipTapNode(value: unknown): value is TipTapNode {
   }
   const record = value as Record<string, unknown>;
   return typeof record.type === 'string' && (record.content === undefined || Array.isArray(record.content));
+}
+
+interface TableSegment {
+  header: string[];
+  rows: string[][];
+}
+
+type MarkdownSegment = { type: 'text'; value: string } | { type: 'table'; value: TableSegment };
+
+// `|---|:--|--:|` (with or without outer pipes). At least one column required.
+const TABLE_SEPARATOR_RE = /^\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$/;
+// A row-like line starts and/or ends with a pipe and contains at least one
+// internal pipe.
+const TABLE_ROW_RE = /^\s*\|.*\|\s*$/;
+
+/**
+ * Splits raw markdown into ordered text segments and GFM pipe-table blocks.
+ * Each table block has its header row, its body rows, and consumes the
+ * separator line between them. Anything else stays as-is and is parsed by the
+ * default ProseMirror markdown parser.
+ */
+function splitTableSegments(markdown: string): MarkdownSegment[] {
+  const lines = markdown.split('\n');
+  const segments: MarkdownSegment[] = [];
+  let textBuffer: string[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const headerLine = lines[i] ?? '';
+    const separatorLine = lines[i + 1] ?? '';
+    if (
+      i + 1 < lines.length &&
+      TABLE_ROW_RE.test(headerLine) &&
+      TABLE_SEPARATOR_RE.test(separatorLine) &&
+      splitRowCells(headerLine).length === splitRowCells(separatorLine).length
+    ) {
+      if (textBuffer.length > 0) {
+        segments.push({ type: 'text', value: textBuffer.join('\n') });
+        textBuffer = [];
+      }
+      const header = splitRowCells(headerLine);
+      const rows: string[][] = [];
+      let j = i + 2;
+      while (j < lines.length) {
+        const rowLine = lines[j] ?? '';
+        if (!TABLE_ROW_RE.test(rowLine)) {
+          break;
+        }
+        const cells = splitRowCells(rowLine);
+        // Pad / truncate to the header width so the table stays rectangular.
+        const padded: string[] = [];
+        for (let c = 0; c < header.length; c += 1) {
+          padded.push(cells[c] ?? '');
+        }
+        rows.push(padded);
+        j += 1;
+      }
+      segments.push({ type: 'table', value: { header, rows } });
+      i = j;
+      continue;
+    }
+    textBuffer.push(headerLine);
+    i += 1;
+  }
+  if (textBuffer.length > 0) {
+    segments.push({ type: 'text', value: textBuffer.join('\n') });
+  }
+  return segments;
+}
+
+function splitRowCells(line: string): string[] {
+  const trimmed = line.trim().replace(/^\|/, '').replace(/\|$/, '');
+  return trimmed.split('|').map((cell) => cell.trim());
+}
+
+function tableSegmentToTipTap(segment: TableSegment): TipTapNode {
+  const headerCells: TipTapNode[] = segment.header.map((text) => ({
+    type: 'tableHeader',
+    content: [cellParagraph(text)],
+  }));
+  const headerRow: TipTapNode = { type: 'tableRow', content: headerCells };
+
+  const bodyRows: TipTapNode[] = segment.rows.map((row) => ({
+    type: 'tableRow',
+    content: row.map((text) => ({
+      type: 'tableCell',
+      content: [cellParagraph(text)],
+    })),
+  }));
+
+  return { type: 'table', content: [headerRow, ...bodyRows] };
+}
+
+function tableNodeToMarkdown(table: TipTapNode): string {
+  const rows = table.content ?? [];
+  const firstRow = rows[0];
+  if (firstRow === undefined) {
+    return '';
+  }
+  const headerCells = (firstRow.content ?? []).map((cell) => cellNodeToText(cell));
+  const headerLine = `| ${headerCells.join(' | ')} |`;
+  const separatorLine = `| ${headerCells.map(() => '---').join(' | ')} |`;
+  const bodyLines = rows.slice(1).map((row) => {
+    const cells = (row.content ?? []).map((cell) => cellNodeToText(cell));
+    while (cells.length < headerCells.length) {
+      cells.push('');
+    }
+    return `| ${cells.join(' | ')} |`;
+  });
+  return [headerLine, separatorLine, ...bodyLines].join('\n');
+}
+
+function cellNodeToText(cell: TipTapNode): string {
+  const paragraph = cell.content?.[0];
+  const inline = paragraph?.content ?? [];
+  return inline
+    .map((node) => (typeof node.text === 'string' ? node.text : ''))
+    .join('')
+    .replace(/\|/g, '\\|');
+}
+
+function cellParagraph(text: string): TipTapNode {
+  // Cells can carry inline markdown (bold, italics, code, links). Defer to the
+  // default parser for a single line, then unwrap its paragraph so the cell
+  // owns the inline content.
+  if (text.length === 0) {
+    return { type: 'paragraph' };
+  }
+  const parsed = defaultMarkdownParser.parse(text);
+  const json = prosemirrorJsonToTipTap(parsed.toJSON()) as TipTapDocument;
+  const firstBlock = json.content?.[0];
+  if (firstBlock?.type === 'paragraph') {
+    return firstBlock;
+  }
+  return { type: 'paragraph', content: [{ type: 'text', text }] };
 }
