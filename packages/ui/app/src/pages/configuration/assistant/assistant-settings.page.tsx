@@ -33,6 +33,7 @@ export function AssistantSettingsPage() {
   const assistantAgentRegistryId = project?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantCommandKEnabled = settings?.assistantCommandKEnabled ?? false;
   const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
+  const chatConversationFoldingEnabled = settings?.chatConversationFoldingEnabled ?? false;
 
   const onAssistantAgentChange = (value: string) => {
     if (project === null) {
@@ -59,6 +60,7 @@ export function AssistantSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: next,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
     });
   };
 
@@ -74,6 +76,23 @@ export function AssistantSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: next,
+      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
+    });
+  };
+
+  const onChatConversationFoldingChange = (next: boolean) => {
+    if (settings === null) {
+      return;
+    }
+    void updateAppSettings({
+      defaultKnownIdeId: settings.defaultKnownIdeId,
+      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
+      defaultSpeechProfileId: settings.defaultSpeechProfileId,
+      assistantAgentRegistryId: settings.assistantAgentRegistryId,
+      assistantAgentId: settings.assistantAgentId,
+      assistantCommandKEnabled: settings.assistantCommandKEnabled,
+      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      chatConversationFoldingEnabled: next,
     });
   };
 
@@ -111,6 +130,18 @@ export function AssistantSettingsPage() {
               onChange={(event) => onAssistantCommandKVoiceModeChange(event.target.checked)}
             />
           </div>
+        </Surface>
+      </Section>
+      <Section
+        subtitle="Default each user/assistant exchange in chat mode to a folded layout — tool calls and intermediate model traffic collapse behind a click-to-expand control."
+        title="Chat view"
+      >
+        <Surface>
+          <Checkbox
+            checked={chatConversationFoldingEnabled}
+            label="Fold tool and model traffic by default"
+            onChange={(event) => onChatConversationFoldingChange(event.target.checked)}
+          />
         </Surface>
       </Section>
     </PageLayout>

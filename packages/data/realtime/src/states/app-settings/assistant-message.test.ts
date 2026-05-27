@@ -25,6 +25,7 @@ describe('feature: realtime assistant messages', () => {
         assistantAgentId: original.id,
         assistantCommandKEnabled: true,
         assistantCommandKVoiceModeEnabled: false,
+        chatConversationFoldingEnabled: false,
       });
 
       const result = await sendAssistantMessage.current()({ message: 'relaunch me' });
@@ -53,6 +54,7 @@ describe('feature: realtime assistant messages', () => {
         assistantAgentId: null,
         assistantCommandKEnabled: true,
         assistantCommandKVoiceModeEnabled: false,
+        chatConversationFoldingEnabled: false,
       });
 
       const result = await sendAssistantMessage.current()({

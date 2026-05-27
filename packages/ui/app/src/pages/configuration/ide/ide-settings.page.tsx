@@ -112,6 +112,7 @@ export function IdeSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
+      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
     }).catch((failure) => {
       toast(errorMessage(failure, 'Could not update the default IDE.'), 'error');
     });

@@ -33,6 +33,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       assistantAgentId: null,
       assistantCommandKEnabled: false,
       assistantCommandKVoiceModeEnabled: false,
+      chatConversationFoldingEnabled: false,
     };
     return fallback;
   };

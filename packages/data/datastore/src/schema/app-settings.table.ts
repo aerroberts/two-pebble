@@ -30,4 +30,11 @@ export const appSettingsTable = customTable('app_settings', {
   assistantCommandKVoiceModeEnabled: integer('assistant_command_k_voice_mode_enabled', { mode: 'boolean' })
     .notNull()
     .default(false),
+
+  // When true, the chat view defaults each user → assistant exchange to a folded
+  // layout, hiding intermediate tool / model traces behind a click-to-expand
+  // control. Purely a rendering preference — no traces are dropped.
+  chatConversationFoldingEnabled: integer('chat_conversation_folding_enabled', { mode: 'boolean' })
+    .notNull()
+    .default(false),
 });
