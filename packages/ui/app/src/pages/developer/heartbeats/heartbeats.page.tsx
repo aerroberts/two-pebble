@@ -50,7 +50,7 @@ export function HeartbeatsPage() {
 
   return (
     <DataPanelLayout open={selected !== null} panel={panel} closeable onClose={() => setSelectedId(null)}>
-      <PageLayout width="full">
+      <PageLayout>
         <Header subtitle="Recent daemon heartbeat audit rows and per-listener outcomes.">Heartbeats</Header>
         <Section>
           {heartbeats.status === 'loading' ? <Surface>Loading heartbeats.</Surface> : null}
