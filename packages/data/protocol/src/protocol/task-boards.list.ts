@@ -8,6 +8,12 @@ export interface TaskBoardRecord {
   updatedAt: number;
   name: string;
   projectId: string;
+  /**
+   * Task template applied to new tasks on this board when the caller does
+   * not pass a templateId. `null` means no default — task creation works
+   * unchanged.
+   */
+  defaultTemplateId: string | null;
 }
 
 /**

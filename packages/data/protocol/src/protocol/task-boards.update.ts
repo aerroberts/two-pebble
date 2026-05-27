@@ -7,6 +7,7 @@ export interface TaskBoardsUpdateOperation {
   request: {
     id: string;
     name: string;
+    defaultTemplateId?: string | null;
   };
   response: {
     id: string;

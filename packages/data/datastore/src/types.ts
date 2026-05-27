@@ -291,6 +291,7 @@ export interface TaskBoardRecord {
   updatedAt: number;
   projectId: string;
   name: string;
+  defaultTemplateId: string | null;
 }
 
 export interface TaskPoolRecord {

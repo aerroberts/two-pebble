@@ -152,6 +152,13 @@ export function useTaskBoardPageState() {
         }
         await mutations.updateBoard({ id: board.id, name: trimmed });
       }),
+    setBoardDefaultTemplate: (templateId: string | null) =>
+      handle(async () => {
+        if (board === null) {
+          return;
+        }
+        await mutations.updateBoard({ id: board.id, name: board.name, defaultTemplateId: templateId });
+      }),
     saveTaskName: () =>
       handle(async () => {
         if (selectedTask === null) {

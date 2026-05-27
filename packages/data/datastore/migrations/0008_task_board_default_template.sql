@@ -1,0 +1,1 @@
+ALTER TABLE `task_boards` ADD `default_template_id` text;
