@@ -14,7 +14,7 @@ export function AuxiliarySidebarLayout(props: AuxiliarySidebarLayoutProps) {
 
   return (
     <div className={`grid h-dvh min-h-0 max-h-dvh grid-cols-1 overflow-hidden bg-surface ${sidebarColumnClassName}`}>
-      <div className="auxiliary-sidebar-slide-in hidden h-dvh min-h-0 overflow-hidden border-r border-border bg-surface-alt md:block">
+      <div className="hidden h-dvh min-h-0 overflow-hidden border-r border-border bg-surface-alt md:block">
         {props.sidebar}
       </div>
       <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
