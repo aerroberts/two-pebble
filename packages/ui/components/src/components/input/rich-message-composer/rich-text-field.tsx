@@ -39,6 +39,12 @@ export interface RichTextFieldProps {
   ariaLabel?: string;
   label?: string;
   minHeight?: number;
+  /**
+   * Vertical scroll cap. Once the editor reaches this height the editor area
+   * scrolls in place rather than pushing the surrounding form down the page.
+   * Mirrors the same prop on `RichMessageComposer`.
+   */
+  maxHeight?: number;
   disabled?: boolean;
 }
 
@@ -61,6 +67,10 @@ export function RichTextField(props: RichTextFieldProps) {
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
   const minHeight = props.minHeight ?? 96;
+  // Default to a sensible scroll cap so long content stays in place. Callers
+  // can pin a different cap, but unbounded growth pushed forms (e.g. agent
+  // registry system prompt editor) off-screen on long edits.
+  const maxHeight = props.maxHeight ?? 480;
 
   const editor = useEditor({
     extensions: [
@@ -142,7 +152,11 @@ export function RichTextField(props: RichTextFieldProps) {
         <span className="text-[11px] font-medium text-content-muted">{props.label}</span>
       ) : null}
       <div className="relative rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
-        <EditorContent editor={editor} className="composer-editor w-full" style={{ minHeight }} />
+        <EditorContent
+          editor={editor}
+          className="composer-editor w-full"
+          style={{ minHeight, maxHeight, overflowY: 'auto' }}
+        />
       </div>
       <SlashReferencePopover
         anchorLeft={slashTrigger?.anchorLeft ?? 0}
