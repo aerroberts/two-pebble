@@ -18,6 +18,7 @@ export interface AgentListOperation {
       name: string;
       startedAt: number;
       status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
+      workspaceId: string;
     }[];
     page: {
       limit: number;

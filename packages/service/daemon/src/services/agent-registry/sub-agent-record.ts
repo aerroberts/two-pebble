@@ -24,6 +24,7 @@ export interface SubAgentRecord {
   parentAgentId?: string | null;
   startedAt: number;
   status: 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
+  workspaceId: string;
 }
 
 export async function readSubAgent(datastore: Datastore, id: string) {

@@ -1,0 +1,15 @@
+import { eq } from 'drizzle-orm';
+
+import type { DatastoreContext } from '../types';
+
+type OperationHandlerInput = {
+  id: string;
+};
+
+export function knownIdesDeleteOperation(ctx: DatastoreContext) {
+  return async function handler(input: OperationHandlerInput) {
+    await ctx.database.delete(ctx.schema.knownIdesTable).where(eq(ctx.schema.knownIdesTable.id, input.id)).run();
+
+    return { id: input.id };
+  };
+}

@@ -11,6 +11,7 @@ export { documentsTable } from './documents.table';
 export { heartbeatsTable } from './heartbeats.table';
 export { inferenceProfilesTable } from './inference-profiles.table';
 export { integrationsTable } from './integrations.table';
+export { knownIdesTable } from './known-ides.table';
 export { metricsTable } from './metrics.table';
 export { repositoriesTable } from './repositories.table';
 export { taskBoardsTable } from './task-boards.table';

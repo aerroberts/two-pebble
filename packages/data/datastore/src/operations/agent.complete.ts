@@ -42,6 +42,7 @@ export function agentCompleteOperation(ctx: DatastoreContext) {
       parentResponseSignalId: row.parentResponseSignalId,
       startedAt: row.startedAt,
       status: 'offline' as const,
+      workspaceId: row.workspaceId,
     };
   };
 }

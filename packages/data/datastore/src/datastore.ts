@@ -65,6 +65,10 @@ import { integrationsDeleteOperation } from './operations/integrations.delete';
 import { integrationsListOperation } from './operations/integrations.list';
 import { integrationsReadOperation } from './operations/integrations.read';
 import { integrationsUpdateOperation } from './operations/integrations.update';
+import { knownIdesCreateOperation } from './operations/known-ides.create';
+import { knownIdesDeleteOperation } from './operations/known-ides.delete';
+import { knownIdesListOperation } from './operations/known-ides.list';
+import { knownIdesReadOperation } from './operations/known-ides.read';
 import { metricsListNamesOperation } from './operations/metrics.list-names';
 import { metricsListVariantsOperation } from './operations/metrics.list-variants';
 import { metricsQueryAggregatedOperation } from './operations/metrics.query-aggregated';
@@ -238,6 +242,16 @@ export class Datastore {
       list: bind(thirdPartyAgentInstallsListOperation, 'third-party-agent-installs.list'),
       read: bind(thirdPartyAgentInstallsReadOperation, 'third-party-agent-installs.read'),
       update: bind(thirdPartyAgentInstallsUpdateOperation, 'third-party-agent-installs.update'),
+    };
+  }
+
+  public get knownIdes() {
+    const bind = this.operationBinder();
+    return {
+      create: bind(knownIdesCreateOperation, 'known-ides.create'),
+      delete: bind(knownIdesDeleteOperation, 'known-ides.delete'),
+      list: bind(knownIdesListOperation, 'known-ides.list'),
+      read: bind(knownIdesReadOperation, 'known-ides.read'),
     };
   }
 

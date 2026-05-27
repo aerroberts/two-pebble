@@ -40,6 +40,7 @@ export function agentSetStatusOperation(ctx: DatastoreContext) {
       parentResponseSignalId: row.parentResponseSignalId,
       startedAt: row.startedAt,
       status: row.status as OperationHandlerInput['status'],
+      workspaceId: row.workspaceId,
     };
   };
 }

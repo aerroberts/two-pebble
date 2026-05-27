@@ -1,4 +1,6 @@
 export interface AppSettings {
+  /** Default IDE used by one-click workspace opening; null disables the button. */
+  defaultKnownIdeId: string | null;
   /** Default transcription inference profile id used by voice capture flows. */
   defaultTranscriptionProfileId: string | null;
   /** Default speech (TTS) inference profile id used by speech output flows. */

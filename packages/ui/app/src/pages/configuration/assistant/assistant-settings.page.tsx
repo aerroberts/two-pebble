@@ -34,6 +34,7 @@ export function AssistantSettingsPage() {
     const nextRegistryId = value === NONE_VALUE ? null : value;
     const registryChanged = nextRegistryId !== settings.assistantAgentRegistryId;
     void updateAppSettings({
+      defaultKnownIdeId: settings.defaultKnownIdeId,
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: nextRegistryId,
@@ -48,6 +49,7 @@ export function AssistantSettingsPage() {
       return;
     }
     void updateAppSettings({
+      defaultKnownIdeId: settings.defaultKnownIdeId,
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
@@ -62,6 +64,7 @@ export function AssistantSettingsPage() {
       return;
     }
     void updateAppSettings({
+      defaultKnownIdeId: settings.defaultKnownIdeId,
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,

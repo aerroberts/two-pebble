@@ -26,6 +26,7 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       id: 'singleton',
       createdAt: now,
       updatedAt: now,
+      defaultKnownIdeId: null,
       defaultTranscriptionProfileId: null,
       defaultSpeechProfileId: null,
       assistantAgentRegistryId: null,

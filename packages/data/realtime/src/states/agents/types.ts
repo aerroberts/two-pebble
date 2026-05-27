@@ -16,6 +16,7 @@ export interface AgentRecord {
   parentAgentId?: string | null;
   startedAt: number;
   status: AgentStatus;
+  workspaceId: string;
 }
 
 export interface CreateAgentInput {

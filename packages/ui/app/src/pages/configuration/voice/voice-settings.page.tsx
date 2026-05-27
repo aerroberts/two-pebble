@@ -20,6 +20,7 @@ export function VoiceSettingsPage() {
       return;
     }
     void updateAppSettings({
+      defaultKnownIdeId: settings.defaultKnownIdeId,
       defaultTranscriptionProfileId: value === NONE_VALUE ? null : value,
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
@@ -34,6 +35,7 @@ export function VoiceSettingsPage() {
       return;
     }
     void updateAppSettings({
+      defaultKnownIdeId: settings.defaultKnownIdeId,
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
       defaultSpeechProfileId: value === NONE_VALUE ? null : value,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,

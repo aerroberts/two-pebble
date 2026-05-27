@@ -43,6 +43,7 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
         ...(cells === undefined ? {} : { cells }),
       });
       await ctx.datastore.appSettings.update({
+        defaultKnownIdeId: settings.defaultKnownIdeId,
         defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
         defaultSpeechProfileId: settings.defaultSpeechProfileId,
         assistantAgentRegistryId: settings.assistantAgentRegistryId,

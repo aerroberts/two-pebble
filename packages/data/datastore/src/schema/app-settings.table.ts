@@ -7,6 +7,9 @@ import { customTable } from '../table/custom-table';
  * row keyed by `id = 'singleton'`; the row is created lazily on first update.
  */
 export const appSettingsTable = customTable('app_settings', {
+  // The default IDE used to open an agent workspace. Null means no default.
+  defaultKnownIdeId: text('default_known_ide_id'),
+
   // The default transcription inference profile id used by voice capture flows.
   defaultTranscriptionProfileId: text('default_transcription_profile_id'),
 

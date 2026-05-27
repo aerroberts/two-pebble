@@ -42,6 +42,7 @@ export function agentFailOperation(ctx: DatastoreContext) {
       parentResponseSignalId: row.parentResponseSignalId,
       startedAt: row.startedAt,
       status: 'failed' as const,
+      workspaceId: row.workspaceId,
     };
   };
 }

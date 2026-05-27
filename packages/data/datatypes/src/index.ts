@@ -7,5 +7,6 @@ export * from './document-references';
 export * from './document-todos';
 export * from './inference-profiles/types';
 export * from './integrations/types';
+export * from './known-ide';
 export * from './third-party-agent-installs/types';
 export * from './workspaces/protocol';

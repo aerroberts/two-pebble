@@ -54,7 +54,7 @@ export interface RealtimeOperationContext {
 }
 
 export interface RealtimeEmitOptions<TName extends RealtimeEmitName> {
-  after?: (payload: RealtimeEmitPayload<TName>, response: RealtimeEmitResponse<TName>) => void;
+  after?: (payload: RealtimeEmitPayload<TName>, response: Awaited<RealtimeEmitResponse<TName>>) => void;
   before?: (payload: RealtimeEmitPayload<TName>) => void;
   error?: (payload: RealtimeEmitPayload<TName>, error: Error) => void;
 }

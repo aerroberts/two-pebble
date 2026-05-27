@@ -8,6 +8,7 @@ import { useDatastoreForTesting } from './datastore-test-env';
 export async function writeFullAppSettings() {
   const datastore = await useDatastoreForTesting();
   const updated = await datastore.appSettings.update({
+    defaultKnownIdeId: 'known-ides:test',
     defaultTranscriptionProfileId: 'profile-1',
     defaultSpeechProfileId: 'profile-2',
     assistantAgentRegistryId: 'registry-1',
@@ -27,6 +28,7 @@ export async function writeFullAppSettings() {
 export async function clearAssistantAgentSetting() {
   const datastore = await useDatastoreForTesting();
   await datastore.appSettings.update({
+    defaultKnownIdeId: null,
     defaultTranscriptionProfileId: null,
     defaultSpeechProfileId: null,
     assistantAgentRegistryId: 'registry-1',
@@ -35,6 +37,7 @@ export async function clearAssistantAgentSetting() {
     assistantCommandKVoiceModeEnabled: false,
   });
   const cleared = await datastore.appSettings.update({
+    defaultKnownIdeId: null,
     defaultTranscriptionProfileId: null,
     defaultSpeechProfileId: null,
     assistantAgentRegistryId: 'registry-1',

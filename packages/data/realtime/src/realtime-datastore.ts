@@ -54,6 +54,11 @@ import { createIntegrationOperation } from './operations/integrations.create.ope
 import { deleteIntegrationOperation } from './operations/integrations.delete.operation';
 import { listIntegrationsOperation } from './operations/integrations.list.operation';
 import { updateIntegrationOperation } from './operations/integrations.update.operation';
+import { createKnownIdeOperation } from './operations/known-ides.create.operation';
+import { deleteKnownIdeOperation } from './operations/known-ides.delete.operation';
+import { detectIdesOperation } from './operations/known-ides.detect.operation';
+import { listKnownIdesOperation } from './operations/known-ides.list.operation';
+import { openWorkspaceInIdeOperation } from './operations/known-ides.open-workspace.operation';
 import { listMetricNamesOperation } from './operations/metrics.list-names.operation';
 import { listMetricVariantsOperation } from './operations/metrics.list-variants.operation';
 import { queryMetricsAggregatedOperation } from './operations/metrics.query-aggregated.operation';
@@ -120,6 +125,7 @@ import { listenToDebugLogs } from './states/debug-logs/listen';
 import { listenToDocuments } from './states/documents/listen';
 import { listenToInferenceProfiles } from './states/inference-profiles/listen';
 import { listenToIntegrations } from './states/integrations/listen';
+import { listenToKnownIdes } from './states/known-ides/listen';
 import { listenToRepositories } from './states/repositories/listen';
 import { listenToTasks } from './states/tasks/listen';
 import { listenToThirdPartyAgentInstalls } from './states/third-party-agent-installs/listen';
@@ -185,6 +191,16 @@ export class RealtimeDatastore {
       delete: deleteIntegrationOperation({ datastore: this }),
       list: listIntegrationsOperation({ datastore: this }),
       update: updateIntegrationOperation({ datastore: this }),
+    };
+  }
+
+  public get knownIdes() {
+    return {
+      create: createKnownIdeOperation({ datastore: this }),
+      delete: deleteKnownIdeOperation({ datastore: this }),
+      detect: detectIdesOperation({ datastore: this }),
+      list: listKnownIdesOperation({ datastore: this }),
+      open: openWorkspaceInIdeOperation({ datastore: this }),
     };
   }
 
@@ -661,6 +677,7 @@ export class RealtimeDatastore {
     listenToDocuments({ datastore: this });
     listenToInferenceProfiles({ datastore: this });
     listenToIntegrations({ datastore: this });
+    listenToKnownIdes({ datastore: this });
     listenToThirdPartyAgentInstalls({ datastore: this });
     listenToRepositories({ datastore: this });
     listenToWorktrees({ datastore: this });

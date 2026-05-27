@@ -55,6 +55,11 @@ import { handler as createIntegrationHandler } from './handlers/integrations.cre
 import { handler as deleteIntegrationHandler } from './handlers/integrations.delete.handler';
 import { handler as listIntegrationsHandler } from './handlers/integrations.list.handler';
 import { handler as updateIntegrationHandler } from './handlers/integrations.update.handler';
+import { handler as createKnownIdeHandler } from './handlers/known-ides.create.handler';
+import { handler as deleteKnownIdeHandler } from './handlers/known-ides.delete.handler';
+import { handler as detectIdesHandler } from './handlers/known-ides.detect.handler';
+import { handler as listKnownIdesHandler } from './handlers/known-ides.list.handler';
+import { handler as openWorkspaceInIdeHandler } from './handlers/known-ides.open-workspace.handler';
 import { handler as listMetricNamesHandler } from './handlers/metrics.list-names.handler';
 import { handler as listMetricVariantsHandler } from './handlers/metrics.list-variants.handler';
 import { handler as queryMetricsAggregatedHandler } from './handlers/metrics.query-aggregated.handler';
@@ -157,6 +162,11 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('deleteIntegration', deleteIntegrationHandler(context));
   register('listDebugLogs', listDebugLogsHandler(context));
   register('listIntegrations', listIntegrationsHandler(context));
+  register('detectIdes', detectIdesHandler(context));
+  register('listKnownIdes', listKnownIdesHandler(context));
+  register('createKnownIde', createKnownIdeHandler(context));
+  register('deleteKnownIde', deleteKnownIdeHandler(context));
+  register('openWorkspaceInIde', openWorkspaceInIdeHandler(context));
   register('openDebugLog', openDebugLogHandler(context));
   register('openDebugLogsDirectory', openDebugLogsDirectoryHandler(context));
   register('readDebugLog', readDebugLogHandler(context));

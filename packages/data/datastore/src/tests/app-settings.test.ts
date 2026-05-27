@@ -8,6 +8,7 @@ describe('feature: operation app-settings.read', () => {
     const settings = await datastore.appSettings.read({});
     await datastore.close();
     expect(settings).toMatchObject({
+      defaultKnownIdeId: null,
       defaultTranscriptionProfileId: null,
       defaultSpeechProfileId: null,
       assistantAgentRegistryId: null,
@@ -20,6 +21,7 @@ describe('feature: operation app-settings.update', () => {
   test('happy: upserts all settings including assistant agent fields', async () => {
     const updated = await writeFullAppSettings();
     expect(updated).toMatchObject({
+      defaultKnownIdeId: 'known-ides:test',
       defaultTranscriptionProfileId: 'profile-1',
       defaultSpeechProfileId: 'profile-2',
       assistantAgentRegistryId: 'registry-1',

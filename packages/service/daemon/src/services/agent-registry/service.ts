@@ -523,6 +523,7 @@ export class AgentRegistryService extends DaemonService {
             parentAgentId: record.parentAgentId ?? null,
             startedAt: record.startedAt,
             status: record.status,
+            workspaceId: record.workspaceId,
           });
         },
       },
