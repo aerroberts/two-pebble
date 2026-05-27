@@ -73,8 +73,8 @@ export class TaskBoardService extends DaemonService {
    * The in-memory engine is unaffected since names are not part of its model;
    * callers receive the updated record so they can echo it on the wire.
    */
-  public async updateBoard(id: string, name: string) {
-    return this.datastore.taskBoards.update({ id, name });
+  public async updateBoard(id: string, input: { name?: string; defaultTemplateId?: string | null }) {
+    return this.datastore.taskBoards.update({ id, ...input });
   }
 
   /**
@@ -192,21 +192,29 @@ export class TaskBoardService extends DaemonService {
         throw new Error(`task pool "${poolId}" not found on board "${input.boardId}"`);
       }
     }
+    // Resolve the template: explicit `templateId` wins; otherwise fall back to
+    // the board's `defaultTemplateId` so per-board configuration applies
+    // without callers needing to thread it through every code path.
+    let effectiveTemplateId: string | null = null;
+    if (input.templateId !== undefined && input.templateId !== null) {
+      effectiveTemplateId = input.templateId;
+    } else {
+      const board = await this.datastore.taskBoards.read({ id: input.boardId });
+      effectiveTemplateId = board?.defaultTemplateId ?? null;
+    }
     const template =
-      input.templateId === undefined || input.templateId === null
-        ? null
-        : await this.datastore.taskBoards.templates.read({ id: input.templateId });
+      effectiveTemplateId === null ? null : await this.datastore.taskBoards.templates.read({ id: effectiveTemplateId });
     const templateDeliverables =
-      input.templateId === undefined || input.templateId === null
+      effectiveTemplateId === null
         ? []
-        : (await this.datastore.taskBoards.templates.deliverables.list({ templateId: input.templateId })).items;
+        : (await this.datastore.taskBoards.templates.deliverables.list({ templateId: effectiveTemplateId })).items;
     const record = await this.datastore.taskBoards.tasks.create({
       boardId: input.boardId,
       poolId,
       name: input.name,
       description: input.description,
       descriptionContent: input.descriptionContent,
-      templateId: input.templateId ?? null,
+      templateId: effectiveTemplateId,
       status: 'pending',
     });
     const { events } = await this.runMutation(
@@ -233,7 +241,7 @@ export class TaskBoardService extends DaemonService {
       }
       persisted = await this.datastore.taskBoards.tasks.update({
         id: record.id,
-        templateId: input.templateId,
+        templateId: effectiveTemplateId,
         additionalContext: template.prompt,
       });
     }

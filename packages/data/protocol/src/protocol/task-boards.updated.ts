@@ -10,6 +10,7 @@ export interface TaskBoardUpdatedEvent {
     updatedAt: number;
     name: string;
     projectId: string;
+    defaultTemplateId: string | null;
   };
 }
 

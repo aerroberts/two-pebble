@@ -7,7 +7,10 @@ type Payload = UpdateTaskBoardOperation['request'];
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
-    const record = await ctx.taskBoards.updateBoard(payload.id, payload.name);
+    const record = await ctx.taskBoards.updateBoard(payload.id, {
+      name: payload.name,
+      defaultTemplateId: payload.defaultTemplateId,
+    });
     ctx.events.emit('taskBoardUpdated', record);
     return { id: record.id };
   };

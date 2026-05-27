@@ -14,6 +14,12 @@ export const taskBoardsTable = customTable(
 
     // The user-facing label for this board.
     name: text('name').notNull(),
+
+    // Optional id of a task_templates row applied to new tasks created on this
+    // board when the caller does not provide a templateId. `null` means no
+    // default — tasks are still creatable, just without template-derived
+    // deliverables.
+    defaultTemplateId: text('default_template_id'),
   },
   (table) => [index('task_boards_project_id_idx').on(table.projectId)],
 );
