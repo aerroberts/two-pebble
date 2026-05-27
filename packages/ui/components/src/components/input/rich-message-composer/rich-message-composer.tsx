@@ -7,6 +7,9 @@ import StarterKit from '@tiptap/starter-kit';
 import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '../icon-button/icon-button';
 import { BoardMentionNode } from './board-mention-node';
+// `mode` tracks whether the user is currently in voice flow so the auto-flip
+// back to text after a transcript is processed still works; both modes share
+// the same visible editor surface so we never tear down the input.
 import {
   clearComposerDraft,
   emptyComposerDoc,
@@ -33,6 +36,12 @@ export interface RichMessageComposerVoiceHandlers {
   onTranscript: (text: string) => void;
   onSubmitTranscript: (text: string) => void;
   onStatusChange: (status: 'idle' | 'recording' | 'transcribing' | 'error') => void;
+  /**
+   * True when the consumer's caller asked the composer to open straight into
+   * voice mode (`initialMode='voice'`). The voice slot can wire this through
+   * to whatever auto-start affordance it provides.
+   */
+  autoStart: boolean;
 }
 
 export interface RichMessageComposerProps {
@@ -233,61 +242,38 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
   const outerStyle: CSSProperties = { minHeight: minHeight + 16, maxHeight: maxHeight + 16 };
   const editorStyle: CSSProperties = { minHeight, maxHeight, overflowY: 'auto' };
 
+  // Render the voice slot inline where the mic affordance lives. The slot's
+  // component is responsible for swapping its own visual between an idle mic
+  // button and an active recording waveform pill — so the editor stays
+  // visible the entire time and only the corner control changes shape.
+  const voiceSlot =
+    voiceSlotEnabled && props.renderVoiceCapture !== undefined
+      ? props.renderVoiceCapture({
+          autoStart: initialMode === 'voice',
+          onStatusChange: handleVoiceStatus,
+          onSubmitTranscript: handleSubmitTranscript,
+          onTranscript: handleTranscript,
+        })
+      : null;
+
   return (
     <div className="relative w-full min-w-0" style={outerStyle}>
-      <div
-        aria-hidden={showVoice}
-        className={`absolute inset-0 transition-[opacity,transform] duration-200 ease-out ${
-          showVoice ? 'pointer-events-none translate-y-0.5 opacity-0' : 'translate-y-0 opacity-100'
-        }`}
-      >
-        <div className="relative flex h-full min-w-0 rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
-          <EditorContent editor={editor} className="composer-editor h-full w-full min-w-0" style={editorStyle} />
-          {voiceSlotEnabled ? (
-            <div className="absolute right-1.5 top-1.5">
-              <IconButton
-                aria-label="Switch to voice"
-                disabled={props.disabled}
-                icon="mic"
-                onClick={() => setMode('voice')}
-                size="sm"
-                variant="secondary"
-              />
-            </div>
-          ) : null}
-          {submitDisabled ? null : (
-            <div className="absolute right-1.5 bottom-1.5">
-              <IconButton
-                aria-label="Send message"
-                disabled={props.disabled}
-                icon="send"
-                onClick={submitFromEditor}
-                size="sm"
-                variant="primary"
-              />
-            </div>
-          )}
-        </div>
+      <div className="relative flex h-full min-w-0 rounded-md border border-border bg-surface transition-[border-color] duration-200 focus-within:border-accent">
+        <EditorContent editor={editor} className="composer-editor h-full w-full min-w-0" style={editorStyle} />
+        {voiceSlot !== null ? <div className="absolute right-1.5 top-1.5 flex items-center">{voiceSlot}</div> : null}
+        {submitDisabled ? null : (
+          <div className="absolute right-1.5 bottom-1.5">
+            <IconButton
+              aria-label="Send message"
+              disabled={props.disabled}
+              icon="send"
+              onClick={submitFromEditor}
+              size="sm"
+              variant="primary"
+            />
+          </div>
+        )}
       </div>
-
-      {voiceSlotEnabled ? (
-        <div
-          aria-hidden={!showVoice}
-          className={`absolute inset-0 flex items-center justify-center transition-[opacity,transform] duration-200 ease-out ${
-            showVoice
-              ? 'translate-y-0 scale-100 opacity-100'
-              : 'pointer-events-none -translate-y-0.5 scale-95 opacity-0'
-          }`}
-        >
-          {showVoice && props.renderVoiceCapture !== undefined
-            ? props.renderVoiceCapture({
-                onStatusChange: handleVoiceStatus,
-                onSubmitTranscript: handleSubmitTranscript,
-                onTranscript: handleTranscript,
-              })
-            : null}
-        </div>
-      ) : null}
 
       <SlashReferencePopover
         anchorLeft={slashTrigger?.anchorLeft ?? 0}

@@ -72,9 +72,9 @@ export function AgentInput(props: AgentInputProps) {
       ? undefined
       : (handlers: RichMessageComposerVoiceHandlers) => (
           <VoiceCaptureButton
-            autoStart
-            buttonSize="md"
-            buttonVariant="primary"
+            autoStart={handlers.autoStart}
+            buttonSize="sm"
+            buttonVariant="secondary"
             onStatusChange={handlers.onStatusChange}
             onSubmitTranscript={handlers.onSubmitTranscript}
             onTranscript={handlers.onTranscript}
