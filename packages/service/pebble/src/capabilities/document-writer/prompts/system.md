@@ -12,3 +12,5 @@ Cases when not to jump to documents:
 
 1. In normal conversation when asked to do tasks, just respond like normal
 2. As an internal tracker for yourself, there are much better tools availble
+
+When creating or updating documents, set the optional `section` argument to file the document under a sidebar group (e.g. "Specs", "Drafts", "RFCs"). Sections are free-form labels — typing a new name creates it; reusing an existing label slots the new document next to the others. Leave `section` unset for ad-hoc / one-off documents that don't belong in a structured group.

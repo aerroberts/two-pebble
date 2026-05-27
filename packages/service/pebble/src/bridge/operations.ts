@@ -8,12 +8,24 @@ export interface SetAgentNameInput {
 export interface DocumentCreateInput {
   name: string;
   markdown: string;
+  /**
+   * Optional sidebar grouping label (e.g. "Specs", "Drafts"). Omit to keep
+   * the document in the unsectioned default bucket. Agents typically set
+   * this when generating documents into a named project area.
+   */
+  section?: string | null;
 }
 
 export interface DocumentUpdateInput {
   id: string;
   markdown: string;
   name?: string;
+  /**
+   * Optional section reassignment. `undefined` leaves the existing section
+   * alone; `null` moves the document back into the unsectioned bucket; any
+   * string moves it into that named section.
+   */
+  section?: string | null;
 }
 
 export interface DocumentReadInput {
