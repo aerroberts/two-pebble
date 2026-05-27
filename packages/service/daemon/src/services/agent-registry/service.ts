@@ -1,4 +1,4 @@
-import type { AgentSignalRecord } from '@two-pebble/datastore';
+import type { AgentSignalRecord, AgentStatus } from '@two-pebble/datastore';
 import {
   appendAgentReference,
   applyTodoStatus,
@@ -55,6 +55,7 @@ export class AgentRegistryService extends DaemonService {
   private readonly parentSubAgentResultBindings = new Map<string, { agent: Agent; key: string }>();
   private readonly subAgentCreatePromises: SubAgentCreatePromiseMap = new Map();
   private readonly pendingRehydrations = new Map<string, Promise<Agent>>();
+  private readonly statusPersistedSubscribers = new Set<(agentId: string, status: AgentStatus) => void>();
 
   private get datastore() {
     return this.daemon.datastore;
@@ -171,6 +172,7 @@ export class AgentRegistryService extends DaemonService {
     this.deactivate(agentId);
     const updated = await this.datastore.agent.setStatus({ id: agentId, status: 'idle' });
     this.daemon.events.emit('agentRecorded', updated);
+    this.notifyStatusPersisted(agentId, 'idle');
     try {
       const sync = await this.taskBoards.syncOwnedTasksFromAgentStatus({
         agentId,
@@ -272,7 +274,7 @@ export class AgentRegistryService extends DaemonService {
       datastore: this.datastore,
       pending: this.subAgentCreatePromises,
       taskBoards: this.taskBoards,
-      onStatusPersisted: () => undefined,
+      onStatusPersisted: (agentId, status) => this.notifyStatusPersisted(agentId, status),
     });
     installAgentPersistenceListeners({ context, input, nextOrderId });
     installSubAgentListeners({ context, input, nextOrderId });
@@ -302,6 +304,19 @@ export class AgentRegistryService extends DaemonService {
    */
   public listActiveAgentIds(): string[] {
     return Array.from(this.activeAgents.keys());
+  }
+
+  public onStatusPersisted(handler: (agentId: string, status: AgentStatus) => void): () => void {
+    this.statusPersistedSubscribers.add(handler);
+    return () => {
+      this.statusPersistedSubscribers.delete(handler);
+    };
+  }
+
+  private notifyStatusPersisted(agentId: string, status: AgentStatus): void {
+    for (const subscriber of this.statusPersistedSubscribers) {
+      subscriber(agentId, status);
+    }
   }
 
   /**

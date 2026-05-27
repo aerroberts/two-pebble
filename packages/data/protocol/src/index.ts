@@ -1,6 +1,7 @@
 export * from './daemon-protocol';
 export type { AgentLaunchWorkspaceOverride } from './protocol/agent.launch';
 export type { AgentLivenessEvent } from './protocol/agent.liveness';
+export type { AgentQueuedMessageWireRecord } from './protocol/agent.queued-messages.list';
 export type { AgentSignalWireRecord } from './protocol/agent.signals.list';
 export type { AutomationIntervalUnit, AutomationRecord } from './protocol/automations.list';
 export type { DocumentRecord } from './protocol/documents.list';

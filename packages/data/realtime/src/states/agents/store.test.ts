@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { useAgents } from '../../index';
+import { useAgentQueuedMessages, useAgents } from '../../index';
 import { buildRealtimeContext } from '../../testing/realtime-context.builder';
 import { installProviderFetchForTesting } from '../../testing/support/provider-fetch';
 import { agentCreateInput, setupOpenAiAgentRegistry } from '../../testing/support/test-inputs';
@@ -32,6 +32,21 @@ describe('feature: realtime agents', () => {
     const state = await agents.waitForItemCount(1);
     await ctx.close();
     expect(state.getItem(created.id)?.value?.name).toBe('Realtime Agent');
+  });
+
+  test('happy: realtime, queued message hook loads and listens to queue changes', async () => {
+    const ctx = await buildRealtimeContext({});
+    const agent = await ctx.daemon.backfill('createAgent', agentCreateInput());
+    await ctx.setAgentStatus({ id: agent.id, status: 'running' });
+    await ctx.daemon.backfill('enqueueAgentMessage', { agentId: agent.id, message: 'queued before render' });
+    const queuedMessages = await ctx.realtime.renderHook(() => useAgentQueuedMessages({ agentId: agent.id }));
+    await queuedMessages.waitForItemCount(1);
+
+    await ctx.daemon.do('enqueueAgentMessage', { agentId: agent.id, message: 'queued after render' });
+    const state = await queuedMessages.waitForItemCount(2);
+    await ctx.close();
+
+    expect(state.values().map((message) => message.status)).toEqual(['queued', 'queued']);
   });
 
   test('happy: realtime, launch agent updates lifecycle state', async () => {

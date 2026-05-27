@@ -16,6 +16,12 @@ import { agentFailOperation } from './operations/agent.fail';
 import { agentListOperation } from './operations/agent.list';
 import { agentPriceLineItemsListOperation } from './operations/agent.price-line-items.list';
 import { agentPriceLineItemsRecordOperation } from './operations/agent.price-line-items.record';
+import { agentQueuedMessagesEnqueueOperation } from './operations/agent.queued-messages.enqueue';
+import { agentQueuedMessagesListForAgentOperation } from './operations/agent.queued-messages.list-for-agent';
+import { agentQueuedMessagesListIdleAgentsWithWorkOperation } from './operations/agent.queued-messages.list-idle-agents-with-work';
+import { agentQueuedMessagesMarkFailedOperation } from './operations/agent.queued-messages.mark-failed';
+import { agentQueuedMessagesMarkSentOperation } from './operations/agent.queued-messages.mark-sent';
+import { agentQueuedMessagesPeekNextOperation } from './operations/agent.queued-messages.peek-next';
 import { agentReadOperation } from './operations/agent.read';
 import { agentRenameOperation } from './operations/agent.rename';
 import { agentSetMetadataOperation } from './operations/agent.set-metadata';
@@ -202,6 +208,17 @@ export class Datastore {
       priceLineItems: {
         list: bind(agentPriceLineItemsListOperation, 'agent.price-line-items.list'),
         record: bind(agentPriceLineItemsRecordOperation, 'agent.price-line-items.record'),
+      },
+      queuedMessages: {
+        enqueue: bind(agentQueuedMessagesEnqueueOperation, 'agent.queued-messages.enqueue'),
+        listForAgent: bind(agentQueuedMessagesListForAgentOperation, 'agent.queued-messages.list-for-agent'),
+        listIdleAgentsWithWork: bind(
+          agentQueuedMessagesListIdleAgentsWithWorkOperation,
+          'agent.queued-messages.list-idle-agents-with-work',
+        ),
+        markFailed: bind(agentQueuedMessagesMarkFailedOperation, 'agent.queued-messages.mark-failed'),
+        markSent: bind(agentQueuedMessagesMarkSentOperation, 'agent.queued-messages.mark-sent'),
+        peekNext: bind(agentQueuedMessagesPeekNextOperation, 'agent.queued-messages.peek-next'),
       },
       read: bind(agentReadOperation, 'agent.read'),
       rename: bind(agentRenameOperation, 'agent.rename'),

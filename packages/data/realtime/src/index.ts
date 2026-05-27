@@ -63,9 +63,11 @@ export type {
   ListAgentTracesInput,
   RecordAgentTraceInput,
 } from './states/agent-traces/types';
+export { useAgentQueuedMessages } from './states/agents/hooks/use-agent-queued-messages.hook';
 export { useAgents } from './states/agents/hooks/use-agents.hook';
 export { useCompleteAgent } from './states/agents/hooks/use-complete-agent.hook';
 export { useCreateAgent } from './states/agents/hooks/use-create-agent.hook';
+export { useEnqueueAgentMessage } from './states/agents/hooks/use-enqueue-agent-message.hook';
 export { useFailAgent } from './states/agents/hooks/use-fail-agent.hook';
 export { useFreshStartAgent } from './states/agents/hooks/use-fresh-start-agent.hook';
 export { useLaunchAgent } from './states/agents/hooks/use-launch-agent.hook';
@@ -75,13 +77,16 @@ export { useResumeAgent } from './states/agents/hooks/use-resume-agent.hook';
 export { useSendAgentMessage } from './states/agents/hooks/use-send-agent-message.hook';
 export { useStopAgent } from './states/agents/hooks/use-stop-agent.hook';
 export type {
+  AgentQueuedMessageRecord,
   AgentRecord,
   AgentStatus,
   AgentsState,
   CompleteAgentInput,
   CreateAgentInput,
+  EnqueueAgentMessageInput,
   FailAgentInput,
   LaunchAgentInput,
+  ListAgentQueuedMessagesInput,
   ReadAgentInput,
   ResumeAgentInput,
   SendAgentMessageInput,

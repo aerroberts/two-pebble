@@ -85,6 +85,7 @@ export function AgentDetailPage() {
           onTaskClick={state.openTask}
           onThreadSnapshotClick={state.openThreadSnapshot}
           onWorktreeOpenClick={state.openWorktree}
+          queuedMessages={state.queuedMessages}
           stopping={state.stopping}
           traces={state.traces}
           waitingReasons={state.waitingReasons}

@@ -11,6 +11,7 @@ import { DaemonServiceHost } from './services/daemon-service';
 import { GithubService } from './services/github';
 import { HeartbeatService } from './services/heartbeat';
 import { LivenessService } from './services/liveness/service';
+import { QueuedMessagesDispatcherService } from './services/queued-messages/service';
 import { TaskBoardService } from './services/task-board/service';
 import type {
   DaemonBridge,
@@ -81,12 +82,14 @@ export class TwoPebbleDaemon {
     this.serviceHost = serviceHost;
     const taskBoards = serviceHost.register(new TaskBoardService(serviceHost));
     const agentRegistry = serviceHost.register(new AgentRegistryService(serviceHost));
+    const queuedMessages = serviceHost.register(new QueuedMessagesDispatcherService(serviceHost));
     const automations = serviceHost.register(new AutomationService(serviceHost));
     const github = serviceHost.register(new GithubService(serviceHost));
     const heartbeat = serviceHost.register(new HeartbeatService(serviceHost));
     const liveness = serviceHost.register(new LivenessService(serviceHost, { daemonBootId: this.daemonBootId }));
     await agentRegistry.initialize();
     await taskBoards.initialize();
+    await queuedMessages.initialize();
     await automations.initialize();
     heartbeat.initialize();
     this.context = {
@@ -99,6 +102,7 @@ export class TwoPebbleDaemon {
       heartbeat,
       logsDirectoryPath: path.dirname(this.input.logFilePath),
       port: this.server.port,
+      queuedMessages,
       taskBoards,
       liveness,
     };

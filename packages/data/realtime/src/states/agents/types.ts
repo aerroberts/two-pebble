@@ -1,9 +1,10 @@
 import type { CellContent } from '@two-pebble/pebble';
-import type { AgentLaunchWorkspaceOverride } from '@two-pebble/protocol';
+import type { AgentLaunchWorkspaceOverride, AgentQueuedMessageWireRecord } from '@two-pebble/protocol';
 import type { LoadableRegistry } from '../../loadable';
 
 export interface AgentsState {
   agents: LoadableRegistry<AgentRecord>;
+  agentQueuedMessages: LoadableRegistry<AgentQueuedMessageRecord>;
 }
 
 export interface AgentRecord {
@@ -62,8 +63,19 @@ export interface SendAgentMessageInput {
   sourceDocumentId?: string;
 }
 
+export interface EnqueueAgentMessageInput {
+  agentId: string;
+  message?: string;
+  cells?: CellContent[];
+}
+
+export interface ListAgentQueuedMessagesInput {
+  agentId: string;
+}
+
 export interface ReadAgentInput {
   id: string;
 }
 
 export type AgentStatus = 'idle' | 'running' | 'waiting' | 'interrupted' | 'offline' | 'failed';
+export type AgentQueuedMessageRecord = AgentQueuedMessageWireRecord;
