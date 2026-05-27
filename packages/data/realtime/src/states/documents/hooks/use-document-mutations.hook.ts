@@ -11,5 +11,6 @@ export function useDocumentMutations() {
     deleteDocument: (input: DeleteDocumentInput) => datastore.documents.delete(input),
     renameDocument: (input: Pick<UpdateDocumentInput, 'id' | 'name'>) => datastore.documents.update(input),
     updateDocumentContent: (input: Pick<UpdateDocumentInput, 'content' | 'id'>) => datastore.documents.update(input),
+    setDocumentSection: (input: Pick<UpdateDocumentInput, 'id' | 'section'>) => datastore.documents.update(input),
   };
 }

@@ -10,6 +10,12 @@ export interface DocumentRecord {
   projectId?: string;
   content: string;
   references: string;
+  /**
+   * Sidebar grouping label. `null` keeps the document in the default
+   * top-level bucket; any other string puts it in a named section that the
+   * sidebar collapses other documents under.
+   */
+  section: string | null;
 }
 
 /**

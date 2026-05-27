@@ -8,6 +8,8 @@ export interface UpdateDocumentOperation {
     content?: string;
     id: string;
     name?: string;
+    /** Pass `undefined` to leave the section alone; `null` clears it; any string moves the doc into that section. */
+    section?: string | null;
   };
   response: DocumentRecord;
 }
@@ -24,4 +26,10 @@ export interface DocumentRecord {
   projectId?: string;
   content: string;
   references: string;
+  /**
+   * Sidebar grouping label. `null` keeps the document in the default
+   * top-level bucket; any other string puts it in a named section that the
+   * sidebar collapses other documents under.
+   */
+  section: string | null;
 }

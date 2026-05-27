@@ -6,6 +6,8 @@ import {
   Header,
   IconButton,
   PageLayout,
+  Select,
+  type SelectOption,
   type SlashTrigger,
   Surface,
   TipTapEditor,
@@ -20,6 +22,9 @@ import { useProjectId } from '../../project-context';
 import { DocumentAgentPills } from './document-agent-pills';
 import { DocumentInsertPopover, type DocumentInsertSelection } from './document-insert-popover';
 import { useDocumentEditorPageState } from './use-document-editor-page-state';
+
+const NONE_VALUE = '__none__';
+const NEW_VALUE = '__new__';
 
 interface ReferenceItem {
   id: string;
@@ -59,6 +64,44 @@ export function DocumentEditorPage() {
     rows.sort((left, right) => left.name.localeCompare(right.name));
     return rows;
   }, [documents.value, state.documentId]);
+
+  const sectionOptions = useMemo<SelectOption[]>(() => {
+    const seen = new Set<string>();
+    const options: SelectOption[] = [{ label: 'No section', value: NONE_VALUE }];
+    const value = documents.value;
+    if (value !== null) {
+      const labels: string[] = [];
+      for (const entry of value.values()) {
+        const section = entry.value?.section;
+        if (typeof section === 'string' && section.length > 0 && !seen.has(section)) {
+          seen.add(section);
+          labels.push(section);
+        }
+      }
+      labels.sort((left, right) => left.localeCompare(right));
+      for (const label of labels) {
+        options.push({ label, value: label });
+      }
+    }
+    options.push({ label: '+ New section…', value: NEW_VALUE });
+    return options;
+  }, [documents.value]);
+
+  const handleSectionChange = useCallback(
+    (next: string) => {
+      if (next === NEW_VALUE) {
+        const created = typeof window === 'undefined' ? null : window.prompt('New section name');
+        const trimmed = created?.trim() ?? '';
+        if (trimmed.length === 0) {
+          return;
+        }
+        void state.setSection(trimmed);
+        return;
+      }
+      void state.setSection(next === NONE_VALUE ? null : next);
+    },
+    [state],
+  );
 
   const boardItems = useMemo<ReferenceItem[]>(() => {
     const value = boards.value;
@@ -193,7 +236,16 @@ export function DocumentEditorPage() {
           value={state.nameDraft}
         />
       </Header>
-      <div className="mt-1 pb-6">
+      <div className="mt-1 flex flex-wrap items-center gap-2 pb-6">
+        {state.document === null ? null : (
+          <Select
+            onChange={handleSectionChange}
+            options={sectionOptions}
+            placeholder="No section"
+            value={state.document.section ?? NONE_VALUE}
+            variant="borderless"
+          />
+        )}
         {state.document === null ? null : <DocumentAgentPills references={state.document.references} />}
       </div>
       {state.error.length > 0 ? <Surface>{state.error}</Surface> : null}
