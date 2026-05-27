@@ -204,8 +204,14 @@ function CodeBlockNodeView(props: NodeViewProps) {
           onChange={(next) => props.updateAttributes({ language: normalizeLanguage(next) })}
         />
       </div>
-      <pre className="m-0 overflow-auto bg-transparent px-3 py-2 text-xs leading-relaxed">
-        <NodeViewContent as="code" className={`language-${language} font-mono`} />
+      <pre className="m-0 overflow-auto bg-transparent px-3 py-2 text-xs leading-relaxed" spellCheck={false}>
+        <NodeViewContent
+          as="code"
+          className={`language-${language} font-mono`}
+          spellCheck="false"
+          autoCorrect="off"
+          autoCapitalize="off"
+        />
       </pre>
     </NodeViewWrapper>
   );
