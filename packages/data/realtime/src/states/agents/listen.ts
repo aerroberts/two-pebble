@@ -11,4 +11,10 @@ export function listenToAgents(ctx: RealtimeOperationContext) {
       agents: ctx.datastore.state.agents.withItem(agent.id, agent, 'ready'),
     });
   });
+
+  client.listen('agentQueuedMessageChanged', (message) => {
+    ctx.datastore.patch({
+      agentQueuedMessages: ctx.datastore.state.agentQueuedMessages.withItem(message.id, message, 'ready'),
+    });
+  });
 }

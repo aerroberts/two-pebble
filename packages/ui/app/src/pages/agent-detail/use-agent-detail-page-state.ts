@@ -1,16 +1,18 @@
 import type { CellContent } from '@two-pebble/pebble';
 import type { AgentSignalWireRecord } from '@two-pebble/protocol';
 import {
+  type AgentQueuedMessageRecord,
   type AgentRecord,
   useAgentCalls,
   useAgentLiveness,
   useAgentPriceLineItems,
+  useAgentQueuedMessages,
   useAgents,
   useAgentTraces,
+  useEnqueueAgentMessage,
   useFreshStartAgent,
   useOpenWorktree,
   useRealtimeDatastore,
-  useSendAgentMessage,
   useStopAgent,
   useWorkspaces,
 } from '@two-pebble/realtime';
@@ -36,7 +38,7 @@ export function useAgentDetailPageState() {
   const [waterfallScope, setWaterfallScope] = useState<WaterfallScope>('this-agent');
   const [chatError, setChatError] = useState('');
   const [chatSending, setChatSending] = useState(false);
-  const sendAgentMessage = useSendAgentMessage();
+  const enqueueAgentMessage = useEnqueueAgentMessage();
   const stopAgent = useStopAgent();
   const freshStartAgent = useFreshStartAgent();
   const liveness = useAgentLiveness(agentId);
@@ -82,6 +84,15 @@ export function useAgentDetailPageState() {
     [agentId, viewMode, waterfallAgentIds],
   );
   const traces = useAgentTraces({ agentId, agentIds: traceAgentIds });
+  const queuedMessageState = useAgentQueuedMessages({ agentId });
+  const queuedMessages = useMemo(
+    () =>
+      queuedMessageState
+        .values()
+        .filter((message) => message.agentId === agentId)
+        .sort((left, right) => left.createdAt - right.createdAt || left.id.localeCompare(right.id)),
+    [agentId, queuedMessageState],
+  );
   const agentTraces = useMemo(
     () =>
       traces
@@ -178,7 +189,7 @@ export function useAgentDetailPageState() {
     setChatSending(true);
     setChatError('');
     try {
-      await sendAgentMessage({ agentId, message: trimmed, cells: input.cells });
+      await enqueueAgentMessage({ agentId, message: trimmed, cells: input.cells });
     } catch (failure) {
       setChatError(failure instanceof Error ? failure.message : String(failure));
     } finally {
@@ -230,6 +241,7 @@ export function useAgentDetailPageState() {
     openThreadSnapshot,
     openWorktree,
     priceLineItems,
+    queuedMessages,
     traceTimeRange,
     redirectToAgents: agentId.length === 0,
     sendChatMessage,
@@ -248,6 +260,8 @@ export function useAgentDetailPageState() {
     workspacePath,
   };
 }
+
+export type { AgentQueuedMessageRecord };
 
 function readDescendantAgentIds(agentId: string, agents: AgentRecord[]) {
   const childrenByParentId = new Map<string, string[]>();

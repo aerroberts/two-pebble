@@ -13,6 +13,7 @@ import type { AutomationService } from './services/automation';
 import type { GithubService } from './services/github';
 import type { HeartbeatService } from './services/heartbeat';
 import type { LivenessService } from './services/liveness/service';
+import type { QueuedMessagesDispatcherService } from './services/queued-messages/service';
 import type { TaskBoardService } from './services/task-board/service';
 
 export type DaemonBridge = Bridge<DaemonProtocol>;
@@ -68,6 +69,7 @@ export interface DaemonRuntimeContext {
   port: number;
   taskBoards: TaskBoardService;
   liveness: LivenessService;
+  queuedMessages: QueuedMessagesDispatcherService;
 }
 
 /**

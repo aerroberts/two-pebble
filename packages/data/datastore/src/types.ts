@@ -10,13 +10,14 @@ import type {
   TipTapDocument,
   WorkspaceConfig,
 } from '@two-pebble/datatypes';
-import type { PebbleJsonValue } from '@two-pebble/pebble';
+import type { DataCells, PebbleJsonValue } from '@two-pebble/pebble';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import type { Datastore } from './datastore';
 import type {
   agentCallsTable,
   agentConversationCellsTable,
   agentPriceLineItemsTable,
+  agentQueuedMessagesTable,
   agentRegistriesTable,
   agentSignalsTable,
   agentsTable,
@@ -94,6 +95,7 @@ export type LibsqlClient = Client;
 export interface DatastoreSchema extends Record<string, object> {
   agentConversationCellsTable: typeof agentConversationCellsTable;
   agentPriceLineItemsTable: typeof agentPriceLineItemsTable;
+  agentQueuedMessagesTable: typeof agentQueuedMessagesTable;
   agentSignalsTable: typeof agentSignalsTable;
   agentCallsTable: typeof agentCallsTable;
   agentRegistriesTable: typeof agentRegistriesTable;
@@ -173,6 +175,18 @@ export type AgentCallStatus = 'in_progress' | 'completed' | 'failed';
 
 export type AgentSignalKind = 'awaited' | 'push';
 export type AgentSignalStatus = 'open' | 'received' | 'resolved';
+export type AgentQueuedMessageStatus = 'queued' | 'sent' | 'failed';
+
+export interface AgentQueuedMessageRecord {
+  id: string;
+  agentId: string;
+  cells: DataCells;
+  status: AgentQueuedMessageStatus;
+  lastError: string | null;
+  sentAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}
 
 export interface AgentSignalRecord {
   id: string;

@@ -29,6 +29,13 @@
       "when": 1789430400002,
       "tag": "0003_known_ides",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1779920290415,
+      "tag": "0004_public_loa",
+      "breakpoints": true
     }
   ]
 }

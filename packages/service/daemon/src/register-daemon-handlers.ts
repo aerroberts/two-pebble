@@ -3,6 +3,7 @@ import { handler as readAgentCallHandler } from './handlers/agent.calls.read.han
 import { handler as recordAgentCallHandler } from './handlers/agent.calls.record.handler';
 import { handler as completeAgentHandler } from './handlers/agent.complete.handler';
 import { handler as createAgentHandler } from './handlers/agent.create.handler';
+import { handler as enqueueAgentMessageHandler } from './handlers/agent.enqueue-message.handler';
 import { handler as failAgentHandler } from './handlers/agent.fail.handler';
 import { handler as freshStartAgentHandler } from './handlers/agent.fresh-start.handler';
 import { handler as launchAgentHandler } from './handlers/agent.launch.handler';
@@ -10,6 +11,7 @@ import { handler as listAgentsHandler } from './handlers/agent.list.handler';
 import { handler as sendAgentMessageHandler } from './handlers/agent.message.handler';
 import { handler as listAgentPriceLineItemsHandler } from './handlers/agent.price-line-items.list.handler';
 import { handler as recordAgentPriceLineItemHandler } from './handlers/agent.price-line-items.record.handler';
+import { handler as listAgentQueuedMessagesHandler } from './handlers/agent.queued-messages.list.handler';
 import { handler as readAgentHandler } from './handlers/agent.read.handler';
 import { handler as renameAgentHandler } from './handlers/agent.rename.handler';
 import { handler as resumeAgentHandler } from './handlers/agent.resume.handler';
@@ -133,6 +135,8 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('failAgent', failAgentHandler(context));
   register('launchAgent', launchAgentHandler(context));
   register('sendAgentMessage', sendAgentMessageHandler(context));
+  register('enqueueAgentMessage', enqueueAgentMessageHandler(context));
+  register('listAgentQueuedMessages', listAgentQueuedMessagesHandler(context));
   register('sendAgentSignal', sendAgentSignalHandler(context));
   register('resolveAgentSignal', resolveAgentSignalHandler(context));
   register('listAgentSignals', listAgentSignalsHandler(context));
