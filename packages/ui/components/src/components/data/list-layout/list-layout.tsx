@@ -8,20 +8,32 @@ export type { ListLayoutItem };
 export interface ListLayoutProps {
   items: ListLayoutItem[];
   emptyState?: ReactNode;
+  /**
+   * When true, wraps the list in a card outline (border + rounded corners) and
+   * renders dividers between rows. Use for top-level lists like the boards on
+   * /tasks where the items would otherwise float on the page background.
+   */
+  bordered?: boolean;
 }
 
 export function ListLayout(props: ListLayoutProps) {
+  const wrapperClassName = props.bordered
+    ? 'w-full overflow-hidden rounded-md border border-border bg-surface'
+    : 'w-full overflow-hidden rounded-md bg-surface';
+
   if (props.items.length === 0) {
     return (
-      <div className="w-full overflow-hidden rounded-md bg-surface">
+      <div className={wrapperClassName}>
         <div className="px-3 py-4 text-sm text-content-muted">{props.emptyState ?? 'No items available.'}</div>
       </div>
     );
   }
 
+  const rowsClassName = props.bordered ? 'divide-y divide-border' : '';
+
   return (
-    <div className="w-full overflow-hidden rounded-md bg-surface">
-      <div>
+    <div className={wrapperClassName}>
+      <div className={rowsClassName}>
         {props.items.map((item, index) => {
           const key = item.key ?? `${typeof item.title === 'string' ? item.title : 'item'}-${index}`;
           return (

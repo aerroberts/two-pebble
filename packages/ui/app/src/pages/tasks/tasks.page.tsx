@@ -19,6 +19,7 @@ export function TasksPage() {
       </Header>
       {state.error.length > 0 ? <Surface>{state.error}</Surface> : null}
       <ListLayout
+        bordered
         emptyState="No boards yet. Click Create board to start one."
         items={boards.map((board) => ({
           key: board.id,
