@@ -190,7 +190,7 @@ function CodeBlockNodeView(props: NodeViewProps) {
   return (
     <NodeViewWrapper
       as="div"
-      className="my-2 overflow-hidden rounded-md border border-border bg-surface-alt"
+      className="my-2 overflow-hidden rounded-md border border-border bg-surface"
       data-language={language}
     >
       <div
