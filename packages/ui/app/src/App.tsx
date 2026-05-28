@@ -5,6 +5,7 @@ import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { DeveloperRoutes } from './developer-routes';
 import { AssistantCommandK } from './layouts/assistant-command-k';
 import { ConfigurationAppShell } from './layouts/configuration-app-shell';
+import { ExamplesAppShell } from './layouts/examples-app-shell';
 import { MetricsAppShell } from './layouts/metrics-app-shell';
 import { AgentRegistriesPage } from './pages/configuration/agent-registries/agent-registries.page';
 import { AgentRegistrySettingsPage } from './pages/configuration/agent-registries/agent-registry-settings.page';
@@ -20,6 +21,7 @@ import { ThemeSettingsPage } from './pages/configuration/theme/theme-settings.pa
 import { ThirdPartyAgentSettingsPage } from './pages/configuration/third-party-agents/third-party-agent-settings.page';
 import { ThirdPartyAgentsPage } from './pages/configuration/third-party-agents/third-party-agents.page';
 import { VoiceSettingsPage } from './pages/configuration/voice/voice-settings.page';
+import { ExamplesPage } from './pages/examples/examples.page';
 import { MetricDetailPage } from './pages/metrics/metric-detail.page';
 import { MetricsExplorerPage } from './pages/metrics/metrics-explorer.page';
 import { PricingExplorerPage } from './pages/metrics/pricing-explorer.page';
@@ -192,6 +194,14 @@ export function App() {
             <ConfigurationAppShell>
               <ThemeSettingsPage />
             </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/examples"
+          element={
+            <ExamplesAppShell>
+              <ExamplesPage />
+            </ExamplesAppShell>
           }
         />
         <Route path="/developer/*" element={<DeveloperRoutes />} />
