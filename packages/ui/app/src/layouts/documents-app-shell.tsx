@@ -17,7 +17,7 @@ export function DocumentsAppShell(props: AppShellProps) {
   const [creating, setCreating] = useState(false);
   const documentList = useMemo(
     () => documents.values().sort((left, right) => right.updatedAt - left.updatedAt),
-    [documents.values],
+    [documents],
   );
   const sections = useMemo(() => groupBySection(documentList), [documentList]);
 
