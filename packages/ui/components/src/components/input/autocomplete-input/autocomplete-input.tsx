@@ -1,3 +1,5 @@
+// biome-ignore-all lint/a11y/useSemanticElements: This file implements a custom combobox with ARIA listbox semantics.
+
 'use client';
 
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from 'react';
@@ -62,6 +64,12 @@ export function AutocompleteInput(props: AutocompleteInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
+
+  useEffect(() => {
+    if (autoFocus && !disabled) {
+      inputRef.current?.focus();
+    }
+  }, [autoFocus, disabled]);
 
   const trimmedQuery = value.trim().toLowerCase();
   const filtered = (
@@ -191,7 +199,6 @@ export function AutocompleteInput(props: AutocompleteInputProps) {
         ref={inputRef}
         type="text"
         autoComplete="off"
-        autoFocus={autoFocus}
         spellCheck={false}
         role="combobox"
         aria-autocomplete="list"
