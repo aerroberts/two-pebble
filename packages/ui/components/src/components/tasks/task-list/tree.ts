@@ -7,6 +7,7 @@ export interface TaskListTaskNode {
   id: string;
   kind: 'task';
   name: string;
+  description?: string;
   status: TaskStatusIconStatus;
 }
 
@@ -62,6 +63,7 @@ function buildLevel(
       id: task.id,
       kind: 'task',
       name: task.name,
+      description: task.description,
       status: task.status,
     });
   }

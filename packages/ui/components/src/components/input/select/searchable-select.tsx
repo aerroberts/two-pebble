@@ -9,7 +9,9 @@ import { SearchableDropdown } from './searchable-dropdown';
 import type { SelectProps } from './select';
 
 const triggerBase =
-  'inline-flex h-7 w-full min-w-[12rem] items-center justify-between gap-1.5 px-2 text-left text-[12px] font-medium leading-4 text-content transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-55';
+  'inline-flex h-7 w-full items-center justify-between gap-1.5 px-2 text-left text-[12px] font-medium leading-4 text-content transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-55';
+
+const triggerWidth = (fullWidth: boolean | undefined) => (fullWidth ? '' : 'min-w-[12rem]');
 
 const triggerVariants = {
   default: 'rounded-md border border-border bg-surface focus:border-accent',
@@ -126,7 +128,7 @@ export function SearchableSelect(props: SelectProps) {
         ref={triggerRef}
         type="button"
         disabled={props.disabled}
-        className={`${triggerBase} ${variantClass}`}
+        className={`${triggerBase} ${triggerWidth(props.fullWidth)} ${variantClass}`}
         onClick={openDropdown}
       >
         <span className="shrink-0 text-content-muted">

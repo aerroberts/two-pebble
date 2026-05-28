@@ -7,7 +7,12 @@ import type { SelectProps } from './select';
 import { SelectContent } from './select-content';
 
 const triggerBase =
-  'inline-flex h-7 w-full min-w-[12rem] items-center justify-between gap-1.5 px-2 text-left text-[12px] font-medium leading-4 text-content transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-55';
+  'inline-flex h-7 w-full items-center justify-between gap-1.5 px-2 text-left text-[12px] font-medium leading-4 text-content transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-55';
+
+// Compact callers (e.g. sidebars) pass `fullWidth` and want the trigger to
+// fill the container exactly; non-`fullWidth` callers used to rely on a
+// generous min-width so the dropdown stays readable inside flex toolbars.
+const triggerWidth = (fullWidth: boolean | undefined) => (fullWidth ? '' : 'min-w-[12rem]');
 
 const triggerVariants = {
   default: 'rounded-md border border-border bg-surface focus:border-accent',
@@ -29,7 +34,9 @@ export function PlainSelect(props: SelectProps) {
         onValueChange={props.onChange}
         disabled={props.disabled}
       >
-        <RadixSelect.Trigger className={`${triggerBase} ${triggerVariants[props.variant ?? 'default']}`}>
+        <RadixSelect.Trigger
+          className={`${triggerBase} ${triggerWidth(props.fullWidth)} ${triggerVariants[props.variant ?? 'default']}`}
+        >
           {selectedOption?.icon ? <span className="shrink-0">{selectedOption.icon}</span> : null}
           <span className="min-w-0 flex-1 truncate">
             <RadixSelect.Value placeholder={props.placeholder ?? 'Select...'} />

@@ -179,16 +179,24 @@ export function useAgentDetailPageState() {
     void openWorktreeOnDisk({ id: worktreeId });
   };
 
+  const taskBoardHref = (boardId: string) => {
+    return projectId === undefined ? `/tasks/${boardId}` : projectPath(projectId, `/tasks/${boardId}`);
+  };
+
+  const taskHref = (boardId: string, taskId: string) => {
+    return `${taskBoardHref(boardId)}?selectedTask=${encodeURIComponent(taskId)}`;
+  };
+
+  const documentHref = (documentId: string) => {
+    return projectId === undefined ? `/documents/${documentId}` : projectPath(projectId, `/documents/${documentId}`);
+  };
+
   const openTask = (boardId: string, taskId: string) => {
-    navigate(
-      projectId === undefined
-        ? `/tasks/${boardId}?selectedTask=${taskId}`
-        : projectPath(projectId, `/tasks/${boardId}?selectedTask=${taskId}`),
-    );
+    navigate(taskHref(boardId, taskId));
   };
 
   const openDocument = (documentId: string) => {
-    navigate(projectId === undefined ? `/documents/${documentId}` : projectPath(projectId, `/documents/${documentId}`));
+    navigate(documentHref(documentId));
   };
 
   const sendChatMessage = async (input: { markdown: string; cells: CellContent[] }) => {
@@ -243,6 +251,7 @@ export function useAgentDetailPageState() {
     agentTraces,
     chatError,
     chatSending,
+    documentHref,
     loadingPriceLineItems,
     openAgent,
     openDocument,
@@ -262,6 +271,7 @@ export function useAgentDetailPageState() {
     liveness,
     setViewModeFromValue,
     setWaterfallScope,
+    taskBoardHref,
     traces,
     viewMode,
     waterfallScope,

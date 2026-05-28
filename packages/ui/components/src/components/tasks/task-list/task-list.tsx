@@ -12,6 +12,7 @@ import { buildTaskListTree, type TaskListNode } from './tree';
 export interface TaskListTask {
   id: string;
   name: string;
+  description?: string;
   poolId: string | null;
   status: TaskStatusIconStatus;
 }
@@ -338,6 +339,7 @@ function TaskListCellRow(props: TaskListCellRowProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isSelected = props.selectedTaskId === node.id;
   const textClass = isSelected ? 'text-accent' : 'text-content-muted focus-within:text-content hover:text-content';
+  const description = node.description?.trim() ?? '';
 
   useEffect(() => {
     if (document.activeElement !== inputRef.current) {
@@ -388,10 +390,10 @@ function TaskListCellRow(props: TaskListCellRowProps) {
   return (
     <li>
       <div
-        className={`flex w-full items-center gap-2 rounded-lg py-1.5 text-[12px] leading-4 transition-colors ${textClass}`}
+        className={`flex w-full items-start gap-2 rounded-lg py-1.5 text-[12px] leading-4 transition-colors ${textClass}`}
         style={{ paddingLeft: indentPaddingPx(props.depth), paddingRight: 12 }}
       >
-        <span className="inline-block w-3.5 shrink-0" />
+        <span className="inline-block w-3.5 shrink-0 pt-0.5" />
         {props.onChangeStatus ? (
           <TaskStatusIconSelect
             status={node.status}
@@ -401,18 +403,23 @@ function TaskListCellRow(props: TaskListCellRowProps) {
         ) : (
           <TaskStatusIcon status={node.status} size="sm" />
         )}
-        <input
-          ref={setRef}
-          aria-label="Task name"
-          className="min-w-0 flex-1 truncate bg-transparent font-heading font-normal tracking-[0.08em] text-current outline-none"
-          onBlur={commitRename}
-          onChange={(event) => setDraft(event.target.value)}
-          onFocus={() => props.onSelectTask?.(node.id)}
-          onKeyDown={handleKeyDown}
-          placeholder="Untitled"
-          value={draft}
-        />
-        {accessory ? <div className="flex shrink-0 items-center gap-1.5">{accessory}</div> : null}
+        <div className="min-w-0 flex-1">
+          <input
+            ref={setRef}
+            aria-label="Task name"
+            className="w-full min-w-0 truncate bg-transparent font-heading font-normal tracking-[0.08em] text-current outline-none"
+            onBlur={commitRename}
+            onChange={(event) => setDraft(event.target.value)}
+            onFocus={() => props.onSelectTask?.(node.id)}
+            onKeyDown={handleKeyDown}
+            placeholder="Untitled"
+            value={draft}
+          />
+          {description.length > 0 ? (
+            <div className="mt-0.5 truncate text-[11px] text-content-muted">{description}</div>
+          ) : null}
+        </div>
+        {accessory ? <div className="flex shrink-0 items-center gap-1.5 pt-0.5">{accessory}</div> : null}
       </div>
     </li>
   );
