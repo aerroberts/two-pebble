@@ -6,27 +6,32 @@ import type { NodeViewProps } from '@tiptap/react';
 import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import { Prism } from 'prism-react-renderer';
 import { useMemo } from 'react';
+import { MermaidDiagram } from '../code/mermaid/mermaid-diagram';
 import { Select, type SelectOption } from '../input/select/select';
 
-export type CodeBlockLanguage = 'json' | 'typescript' | 'markdown';
+export type CodeBlockLanguage = 'json' | 'typescript' | 'markdown' | 'mermaid';
 
 const LANGUAGE_OPTIONS: SelectOption[] = [
   { value: 'typescript', label: 'TypeScript' },
   { value: 'json', label: 'JSON' },
   { value: 'markdown', label: 'Markdown' },
+  { value: 'mermaid', label: 'Mermaid' },
 ];
 
-const VALID_LANGUAGES = new Set<CodeBlockLanguage>(['json', 'typescript', 'markdown']);
+const VALID_LANGUAGES = new Set<CodeBlockLanguage>(['json', 'typescript', 'markdown', 'mermaid']);
 
 /**
  * Map the user-facing language to a Prism grammar. `prism-react-renderer`
  * ships json + markdown + javascript by default but not typescript, so we
- * use the javascript grammar as a close-enough fallback for TS.
+ * use the javascript grammar as a close-enough fallback for TS. Mermaid
+ * has no Prism grammar of its own, so we fall back to markdown which keeps
+ * the source readable without misleading colours.
  */
 const PRISM_GRAMMAR_NAME: Record<CodeBlockLanguage, string> = {
   json: 'json',
   typescript: 'javascript',
   markdown: 'markdown',
+  mermaid: 'markdown',
 };
 
 function normalizeLanguage(value: unknown): CodeBlockLanguage {
@@ -186,6 +191,7 @@ function prismHighlightPlugin() {
 
 function CodeBlockNodeView(props: NodeViewProps) {
   const language = useMemo(() => normalizeLanguage(props.node.attrs.language), [props.node.attrs.language]);
+  const mermaidSource = language === 'mermaid' ? props.node.textContent : '';
 
   return (
     <NodeViewWrapper
@@ -213,6 +219,11 @@ function CodeBlockNodeView(props: NodeViewProps) {
           autoCapitalize="off"
         />
       </pre>
+      {language === 'mermaid' ? (
+        <div className="border-t border-border" contentEditable={false}>
+          <MermaidDiagram code={mermaidSource} />
+        </div>
+      ) : null}
     </NodeViewWrapper>
   );
 }

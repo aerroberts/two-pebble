@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import { HighlightedCode } from '../code-block/highlighted-code';
+import { MermaidDiagram } from '../mermaid/mermaid-diagram';
 
 export interface MarkdownViewProps {
   content: string;
@@ -87,6 +88,9 @@ const COMPONENTS: Components = {
     const language = child ? resolveLanguage(child.props.className) : null;
     if (child !== null && language !== null) {
       const code = nodeToCodeString(child.props.children).replace(/\n$/, '');
+      if (language === 'mermaid') {
+        return <MermaidDiagram code={code} />;
+      }
       return (
         <div className="my-2 overflow-hidden rounded-md border border-border bg-surface">
           <HighlightedCode code={code} language={language} />
