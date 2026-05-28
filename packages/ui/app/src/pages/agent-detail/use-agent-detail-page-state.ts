@@ -91,7 +91,7 @@ export function useAgentDetailPageState() {
     () =>
       queuedMessageState
         .values()
-        .filter((message) => message.agentId === agentId)
+        .filter((message) => message.agentId === agentId && message.status !== 'sent')
         .sort((left, right) => left.createdAt - right.createdAt || left.id.localeCompare(right.id)),
     [agentId, queuedMessageState],
   );
