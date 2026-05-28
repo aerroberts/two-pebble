@@ -22,3 +22,15 @@ export const RichContent: Story = {
     </SyntaxExample>
   ),
 };
+
+export const WithMermaid: Story = {
+  render: () => (
+    <SyntaxExample>
+      <MarkdownView
+        content={
+          '# Pipeline\n\nHere is the flow:\n\n```mermaid\nflowchart LR\n  A[Input] --> B{Valid?}\n  B -- Yes --> C[Process]\n  B -- No --> D[Reject]\n```\n\nThat is the full picture.'
+        }
+      />
+    </SyntaxExample>
+  ),
+};
