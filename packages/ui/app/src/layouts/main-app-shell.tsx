@@ -30,7 +30,7 @@ export function MainAppShell(props: AppShellProps) {
   const projects = useProjects();
   const agents = useAgents(projectId === undefined ? undefined : { projectId });
   const documents = useDocuments(projectId === undefined ? undefined : { projectId });
-  const activeAgentCount = agents.values().filter((agent) => agent.status === 'running').length;
+  const activeAgentCount = agents.values().filter((agent) => !agent.parentAgentId && agent.status === 'running').length;
   const documentCount = documents.values().length;
   const pathname = projectId === undefined ? location.pathname : stripProjectPrefix(location.pathname, projectId);
   const mode = getSidebarMode(pathname);
