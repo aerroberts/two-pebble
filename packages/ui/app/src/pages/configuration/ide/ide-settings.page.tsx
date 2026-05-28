@@ -3,11 +3,8 @@ import {
   Header,
   Icon,
   IconButton,
-  Input,
   PageLayout,
   Section,
-  Select,
-  type SelectOption,
   Surface,
   Tooltip,
   useToast,
@@ -26,13 +23,6 @@ import {
 import { type ReactNode, useState } from 'react';
 import { iconForKind } from './icon-for-kind';
 
-const KIND_OPTIONS: SelectOption[] = [
-  { label: 'VS Code', value: 'vscode' },
-  { label: 'Zed', value: 'zed' },
-  { label: 'Cursor', value: 'cursor' },
-  { label: 'Other', value: 'other' },
-];
-
 export function IdeSettingsPage() {
   const appSettings = useAppSettings();
   const knownIdes = useKnownIdes();
@@ -45,9 +35,6 @@ export function IdeSettingsPage() {
   const [detecting, setDetecting] = useState(false);
   const [creatingKey, setCreatingKey] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [customKind, setCustomKind] = useState<KnownIdeKind>('other');
-  const [customDisplayName, setCustomDisplayName] = useState('');
-  const [customExecutablePath, setCustomExecutablePath] = useState('');
 
   const settings = appSettings.value;
   const savedIdes = knownIdes.values().sort((left, right) => left.displayName.localeCompare(right.displayName));
@@ -74,27 +61,6 @@ export function IdeSettingsPage() {
       toast(`Added ${candidate.displayName}.`, 'success');
     } catch (failure) {
       toast(errorMessage(failure, `Could not add ${candidate.displayName}.`), 'error');
-    } finally {
-      setCreatingKey(null);
-    }
-  };
-
-  const addCustom = async () => {
-    const displayName = customDisplayName.trim();
-    const executablePath = customExecutablePath.trim();
-    if (displayName.length === 0 || executablePath.length === 0) {
-      toast('Enter both a display name and executable path.', 'error');
-      return;
-    }
-
-    setCreatingKey('custom');
-    try {
-      await createKnownIde({ kind: customKind, displayName, executablePath });
-      setCustomDisplayName('');
-      setCustomExecutablePath('');
-      toast(`Added ${displayName}.`, 'success');
-    } catch (failure) {
-      toast(errorMessage(failure, `Could not add ${displayName}.`), 'error');
     } finally {
       setCreatingKey(null);
     }
@@ -184,42 +150,6 @@ export function IdeSettingsPage() {
                 kind={candidate.kind}
               />
             ))}
-          </div>
-        </Surface>
-      </Section>
-
-      <Section
-        subtitle="Add an editor whose executable is not on PATH or in a standard bundle path."
-        title="Add custom"
-      >
-        <Surface>
-          <div className="flex flex-col gap-2">
-            <Select
-              label="Kind"
-              onChange={(value) => setCustomKind(value as KnownIdeKind)}
-              options={KIND_OPTIONS}
-              value={customKind}
-            />
-            <Input
-              label="Display name"
-              onChange={(event) => setCustomDisplayName(event.target.value)}
-              value={customDisplayName}
-            />
-            <Input
-              label="Executable path"
-              onChange={(event) => setCustomExecutablePath(event.target.value)}
-              value={customExecutablePath}
-            />
-            <div className="flex justify-end">
-              <Button
-                disabled={creatingKey === 'custom'}
-                leftIcon="plus"
-                onClick={() => void addCustom()}
-                type="button"
-              >
-                Add IDE
-              </Button>
-            </div>
           </div>
         </Surface>
       </Section>
