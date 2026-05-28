@@ -1,6 +1,5 @@
 import type { Editor } from '@tiptap/core';
 import {
-  AutocompleteInput,
   type AutocompleteSuggestion,
   CommentPopover,
   deleteTriggerRange,
@@ -16,11 +15,12 @@ import {
 } from '@two-pebble/components';
 import { Cell } from '@two-pebble/pebble';
 import { useAppSettings, useDocuments, useLaunchAgent, useTaskBoards } from '@two-pebble/realtime';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useProjectId } from '../../project-context';
 import { DocumentAgentPills } from './document-agent-pills';
 import { DocumentInsertPopover, type DocumentInsertSelection } from './document-insert-popover';
+import { DocumentSectionPicker } from './document-section-picker';
 import { useDocumentEditorPageState } from './use-document-editor-page-state';
 
 interface ReferenceItem {
@@ -80,29 +80,18 @@ export function DocumentEditorPage() {
   }, [documents.value]);
 
   const currentSection = state.document?.section ?? '';
-  const [sectionDraft, setSectionDraft] = useState(currentSection);
-
-  useEffect(() => {
-    setSectionDraft(currentSection);
-  }, [currentSection]);
 
   const commitSection = useCallback(
     (next: string) => {
       const trimmed = next.trim();
       if (trimmed.length === 0) {
-        setSectionDraft('');
         void state.setSection(null);
         return;
       }
-      setSectionDraft(trimmed);
       void state.setSection(trimmed);
     },
     [state],
   );
-
-  const handleSectionBlur = useCallback(() => {
-    commitSection(sectionDraft);
-  }, [commitSection, sectionDraft]);
 
   const boardItems = useMemo<ReferenceItem[]>(() => {
     const value = boards.value;
@@ -192,6 +181,13 @@ export function DocumentEditorPage() {
         compact
         actionItems={
           <>
+            {state.document === null ? null : (
+              <DocumentSectionPicker
+                currentSection={currentSection}
+                onCommit={commitSection}
+                suggestions={sectionSuggestions}
+              />
+            )}
             {documentRunnerRegistryId === null ? null : (
               <Tooltip content="Send to agent">
                 <IconButton
@@ -237,22 +233,11 @@ export function DocumentEditorPage() {
           value={state.nameDraft}
         />
       </Header>
-      <div className="mt-1 flex flex-wrap items-center gap-2 pb-6">
-        {state.document === null ? null : (
-          <AutocompleteInput
-            ariaLabel="Document section"
-            leadingIcon="folder"
-            onBlur={handleSectionBlur}
-            onChange={setSectionDraft}
-            onCommit={commitSection}
-            placeholder="No section"
-            suggestions={sectionSuggestions}
-            value={sectionDraft}
-            variant="borderless"
-          />
-        )}
-        {state.document === null ? null : <DocumentAgentPills references={state.document.references} />}
-      </div>
+      {state.document === null ? null : (
+        <div className="mt-1 flex flex-wrap items-center gap-2 pb-6">
+          <DocumentAgentPills references={state.document.references} />
+        </div>
+      )}
       {state.error.length > 0 ? <Surface>{state.error}</Surface> : null}
       {state.document === null ? (
         <Surface>Loading document.</Surface>
