@@ -83,9 +83,11 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
         <Surface>{props.traces.status === 'loading' ? 'Loading events.' : 'No events.'}</Surface>
       ) : null}
       {chatTraces.length > 0
-        ? sections.map((section) => {
+        ? sections.map((section, sectionIndex) => {
             const sectionMiddleLength = sectionMiddleSize(section);
-            const folded = isFolded({ section, foldingEnabled, openOverrides, sectionMiddleLength });
+            const isLastSection = sectionIndex === sections.length - 1;
+            const foldable = isSectionFoldable(section, isLastSection);
+            const folded = foldable && isFolded({ section, foldingEnabled, openOverrides, sectionMiddleLength });
             if (!folded || sectionMiddleLength === 0) {
               return <AgentTrace key={section.key} traces={section.traces} {...traceOptions} />;
             }
@@ -216,6 +218,22 @@ function finalizeSection(traces: AgentTraceRecord[], index: number): ChatSection
   }
   const key = traces[0]?.id ?? `chat-section-${index}`;
   return { key, traces, finalAssistantIndex };
+}
+
+/**
+ * A section's assistant turn is foldable only when it sits between two user
+ * messages: the section must start with a user message AND another section
+ * (which always starts with a user message) must follow it. The most recent
+ * turn — the last section in the list — is never foldable because its turn
+ * is still "open" and no user message has come after it yet. Sections that
+ * lack a leading user message (such as a preamble before the first user
+ * message) are likewise not foldable.
+ */
+function isSectionFoldable(section: ChatSection, isLastSection: boolean): boolean {
+  if (isLastSection) {
+    return false;
+  }
+  return section.traces[0]?.type === 'user-message';
 }
 
 /**
