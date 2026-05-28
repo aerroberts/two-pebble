@@ -20,6 +20,8 @@ import { MetricsSidebar } from './metrics-sidebar';
 type SidebarMode = 'main' | 'configuration' | 'metrics' | 'developer' | 'examples';
 type SidebarNavigate = (path: string) => void;
 
+const NEW_PROJECT_OPTION_VALUE = '__new__';
+
 export function MainAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -146,8 +148,17 @@ function renderSidebarContent(input: {
               <TwoPebbleLogo />
               <Select
                 fullWidth
-                onChange={(nextProjectId) => globalNavigate(projectPath(nextProjectId, pathname))}
-                options={projects.values().map((project) => ({ label: project.name, value: project.id }))}
+                onChange={(nextProjectId) => {
+                  if (nextProjectId === NEW_PROJECT_OPTION_VALUE) {
+                    globalNavigate('/projects');
+                    return;
+                  }
+                  globalNavigate(projectPath(nextProjectId, pathname));
+                }}
+                options={[
+                  ...projects.values().map((project) => ({ label: project.name, value: project.id })),
+                  { label: 'New Project', value: NEW_PROJECT_OPTION_VALUE },
+                ]}
                 value={projectId}
               />
             </div>
