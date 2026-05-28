@@ -35,6 +35,7 @@ export function agentSetMetadataOperation(ctx: DatastoreContext) {
       name: row.name,
       parentAgentId: row.parentAgentId,
       parentResponseSignalId: row.parentResponseSignalId,
+      projectId: row.projectId,
       startedAt: row.startedAt,
       status: row.status as AgentStatus,
       workspaceId: row.workspaceId,

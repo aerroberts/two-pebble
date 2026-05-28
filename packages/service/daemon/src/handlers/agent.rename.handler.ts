@@ -16,6 +16,7 @@ export function handler(ctx: DaemonHandlerContext) {
       metadata: record.metadata,
       name: record.name,
       parentAgentId: record.parentAgentId ?? null,
+      projectId: record.projectId,
       startedAt: record.startedAt,
       status: record.status,
       workspaceId: record.workspaceId,
