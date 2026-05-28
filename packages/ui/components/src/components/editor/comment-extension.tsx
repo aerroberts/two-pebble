@@ -2,7 +2,6 @@ import { Extension, mergeAttributes, Node } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
-import { NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import {
   applyCommentAdd,
   applyCommentClose,
@@ -12,7 +11,6 @@ import {
   normalizeDocumentComments,
   type TipTapDocument,
 } from '@two-pebble/datatypes';
-import { Icon } from '../content/icon/icon';
 
 export interface AddCommentCommandInput {
   cellId: string;
@@ -63,10 +61,6 @@ export const CommentSectionNode = Node.create({
         class: 'two-pebble-comment-section',
       }),
     ];
-  },
-
-  addNodeView() {
-    return ReactNodeViewRenderer(CommentSectionNodeView);
   },
 });
 
@@ -181,19 +175,6 @@ function createCommentThreadWidget() {
   element.append(svg);
 
   return element;
-}
-
-function CommentSectionNodeView() {
-  return (
-    <NodeViewWrapper
-      contentEditable={false}
-      className="mt-6 flex items-center gap-1.5 border-t border-border pt-3 text-[11px] font-medium text-content-muted"
-      data-comment-section="true"
-      aria-label="Document comments"
-    >
-      <Icon name="messages-square" color="text-content-muted" className="h-3.5 w-3.5" />
-    </NodeViewWrapper>
-  );
 }
 
 function normalizeEditorDocument(
