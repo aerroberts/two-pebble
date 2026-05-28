@@ -60,6 +60,31 @@ describe('feature: operation agent.queued-messages.mark-failed', () => {
   });
 });
 
+describe('feature: operation agent.queued-messages.cancel', () => {
+  test('happy: deletes a queued message', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { agent, message } = await seedQueuedAgentMessage(datastore);
+    const canceled = await datastore.agent.queuedMessages.cancel({ id: message.id });
+    const list = await datastore.agent.queuedMessages.listForAgent({ agentId: agent.id });
+    await datastore.close();
+
+    expect(canceled).toEqual({ deleted: true, id: message.id });
+    expect(list.items).toEqual([]);
+  });
+
+  test('happy: sent messages are not canceled', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { agent, message } = await seedQueuedAgentMessage(datastore);
+    await datastore.agent.queuedMessages.markSent({ id: message.id });
+    const canceled = await datastore.agent.queuedMessages.cancel({ id: message.id });
+    const list = await datastore.agent.queuedMessages.listForAgent({ agentId: agent.id });
+    await datastore.close();
+
+    expect(canceled).toEqual({ deleted: false, id: message.id });
+    expect(list.items.map((item) => item.id)).toEqual([message.id]);
+  });
+});
+
 describe('feature: operation agent.queued-messages.list-for-agent', () => {
   test('happy: lists queued messages for one agent', async () => {
     const datastore = await useDatastoreForTesting();

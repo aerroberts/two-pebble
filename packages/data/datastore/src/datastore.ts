@@ -16,6 +16,7 @@ import { agentFailOperation } from './operations/agent.fail';
 import { agentListOperation } from './operations/agent.list';
 import { agentPriceLineItemsListOperation } from './operations/agent.price-line-items.list';
 import { agentPriceLineItemsRecordOperation } from './operations/agent.price-line-items.record';
+import { agentQueuedMessagesCancelOperation } from './operations/agent.queued-messages.cancel';
 import { agentQueuedMessagesEnqueueOperation } from './operations/agent.queued-messages.enqueue';
 import { agentQueuedMessagesListForAgentOperation } from './operations/agent.queued-messages.list-for-agent';
 import { agentQueuedMessagesListIdleAgentsWithWorkOperation } from './operations/agent.queued-messages.list-idle-agents-with-work';
@@ -214,6 +215,7 @@ export class Datastore {
         record: bind(agentPriceLineItemsRecordOperation, 'agent.price-line-items.record'),
       },
       queuedMessages: {
+        cancel: bind(agentQueuedMessagesCancelOperation, 'agent.queued-messages.cancel'),
         enqueue: bind(agentQueuedMessagesEnqueueOperation, 'agent.queued-messages.enqueue'),
         listForAgent: bind(agentQueuedMessagesListForAgentOperation, 'agent.queued-messages.list-for-agent'),
         listIdleAgentsWithWork: bind(

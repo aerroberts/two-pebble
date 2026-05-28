@@ -65,6 +65,7 @@ export type {
 } from './states/agent-traces/types';
 export { useAgentQueuedMessages } from './states/agents/hooks/use-agent-queued-messages.hook';
 export { useAgents } from './states/agents/hooks/use-agents.hook';
+export { useCancelAgentQueuedMessage } from './states/agents/hooks/use-cancel-agent-queued-message.hook';
 export { useCompleteAgent } from './states/agents/hooks/use-complete-agent.hook';
 export { useCreateAgent } from './states/agents/hooks/use-create-agent.hook';
 export { useEnqueueAgentMessage } from './states/agents/hooks/use-enqueue-agent-message.hook';

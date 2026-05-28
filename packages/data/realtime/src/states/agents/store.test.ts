@@ -49,6 +49,24 @@ describe('feature: realtime agents', () => {
     expect(state.values().map((message) => message.status)).toEqual(['queued', 'queued']);
   });
 
+  test('happy: realtime, queued message cancel removes the message', async () => {
+    const ctx = await buildRealtimeContext({});
+    const agent = await ctx.daemon.backfill('createAgent', agentCreateInput());
+    await ctx.setAgentStatus({ id: agent.id, status: 'running' });
+    const queued = await ctx.daemon.backfill('enqueueAgentMessage', {
+      agentId: agent.id,
+      message: 'cancel me',
+    });
+    const queuedMessages = await ctx.realtime.renderHook(() => useAgentQueuedMessages({ agentId: agent.id }));
+    await queuedMessages.waitForItemCount(1);
+
+    await ctx.daemon.do('cancelAgentQueuedMessage', { id: queued.id });
+    const state = await queuedMessages.waitForItemCount(0);
+    await ctx.close();
+
+    expect(state.values()).toEqual([]);
+  });
+
   test('happy: realtime, launch agent updates lifecycle state', async () => {
     const restoreFetch = installProviderFetchForTesting();
     const ctx = await buildRealtimeContext({});
