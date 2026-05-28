@@ -15,6 +15,8 @@ import { InferenceProfileSettingsPage } from './pages/configuration/inference-pr
 import { InferenceProfilesPage } from './pages/configuration/inference-profiles/inference-profiles.page';
 import { IntegrationSettingsPage } from './pages/configuration/integrations/integration-settings.page';
 import { IntegrationsPage } from './pages/configuration/integrations/integrations.page';
+import { ProjectSettingsPage } from './pages/configuration/projects/project-settings.page';
+import { ProjectsPage } from './pages/configuration/projects/projects.page';
 import { RepositoriesPage } from './pages/configuration/repositories/repositories.page';
 import { RepositorySettingsPage } from './pages/configuration/repositories/repository-settings.page';
 import { ThemeSettingsPage } from './pages/configuration/theme/theme-settings.page';
@@ -144,6 +146,22 @@ export function App() {
           element={
             <ConfigurationAppShell>
               <AgentRegistrySettingsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/projects"
+          element={
+            <ConfigurationAppShell>
+              <ProjectsPage />
+            </ConfigurationAppShell>
+          }
+        />
+        <Route
+          path="/configuration/projects/:projectId"
+          element={
+            <ConfigurationAppShell>
+              <ProjectSettingsPage />
             </ConfigurationAppShell>
           }
         />
