@@ -156,6 +156,11 @@ export {
   TodoItemNode,
   type TodoItemStatus,
 } from './components/editor/todo-item-node';
+export {
+  AutocompleteInput,
+  type AutocompleteInputProps,
+  type AutocompleteSuggestion,
+} from './components/input/autocomplete-input/autocomplete-input';
 export { Button, type ButtonProps, type ButtonVariant } from './components/input/button/button';
 export {
   ButtonGroup,
