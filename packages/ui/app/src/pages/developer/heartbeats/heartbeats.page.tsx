@@ -44,10 +44,7 @@ const VIEW_OPTIONS = [
 export function HeartbeatsPage() {
   const heartbeats = useHeartbeats();
   const [view, setView] = useState<View>('logs');
-  const rows = useMemo(
-    () => heartbeats.values().sort((left, right) => right.tickAt - left.tickAt),
-    [heartbeats],
-  );
+  const rows = useMemo(() => heartbeats.values().sort((left, right) => right.tickAt - left.tickAt), [heartbeats]);
   const events = useMemo<HeartbeatEventRow[]>(() => {
     const collected: HeartbeatEventRow[] = [];
     for (const heartbeat of rows) {
