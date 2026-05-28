@@ -142,12 +142,15 @@ function renderSidebarContent(input: {
           projectId === undefined ? (
             <TwoPebbleLogo withText text={getPageName(pathname)} />
           ) : (
-            <Select
-              fullWidth
-              onChange={(nextProjectId) => globalNavigate(projectPath(nextProjectId, pathname))}
-              options={projects.values().map((project) => ({ label: project.name, value: project.id }))}
-              value={projectId}
-            />
+            <div className="flex w-full items-center gap-2">
+              <TwoPebbleLogo />
+              <Select
+                fullWidth
+                onChange={(nextProjectId) => globalNavigate(projectPath(nextProjectId, pathname))}
+                options={projects.values().map((project) => ({ label: project.name, value: project.id }))}
+                value={projectId}
+              />
+            </div>
           )
         }
       />
