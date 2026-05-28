@@ -40,6 +40,7 @@ export function agentFailOperation(ctx: DatastoreContext) {
       name: row.name,
       parentAgentId: row.parentAgentId,
       parentResponseSignalId: row.parentResponseSignalId,
+      projectId: row.projectId,
       startedAt: row.startedAt,
       status: 'failed' as const,
       workspaceId: row.workspaceId,
