@@ -51,7 +51,7 @@ function queuedMessageStatusToStatusState(status: AgentQueuedMessageRecord['stat
   if (status === 'failed') {
     return 'failed';
   }
-  return 'in-progress';
+  return 'not-started';
 }
 
 function renderQueuedMessageText(message: AgentQueuedMessageRecord) {
