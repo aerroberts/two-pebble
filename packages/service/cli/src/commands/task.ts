@@ -1,4 +1,4 @@
-import type { ClientProtocol } from '@two-pebble/protocol';
+import type { ClientProtocol, TaskDeliverableType } from '@two-pebble/protocol';
 import { WsBridgeClient } from '@two-pebble/ws-bridge';
 import type { Command } from 'commander';
 import { DAEMON_URL } from '../consts';
@@ -35,9 +35,22 @@ interface EventsOptions {
   task: string;
 }
 
+interface RequirementAddOptions {
+  task: string;
+  name: string;
+  description?: string;
+  type?: string;
+  orderIndex?: string;
+}
+
+interface RequirementListOptions {
+  task: string;
+}
+
 type SettableStatus = 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 
 const SETTABLE_STATUSES: SettableStatus[] = ['working', 'waiting', 'success', 'failure', 'canceled'];
+const REQUIREMENT_TYPES: TaskDeliverableType[] = ['text', 'pr_url'];
 
 /**
  * Registers task board, pool, task, and dependency commands.
@@ -125,6 +138,40 @@ export function registerTaskCommand(program: Command) {
     .action(async (options: EventsOptions) =>
       runAction(async (client) => {
         const result = await client.do('listTaskEvents', { taskId: options.task });
+        writeJson(result);
+      }),
+    );
+
+  task
+    .command('requirement-add')
+    .description('Add a requirement to a task')
+    .requiredOption('--task <taskId>', 'task id')
+    .requiredOption('--name <name>', 'requirement name')
+    .option('--description <text>', 'requirement description')
+    .option('--type <type>', 'requirement type: text or pr_url (default: text)')
+    .option('--order-index <index>', 'explicit requirement order index')
+    .action(async (options: RequirementAddOptions) =>
+      runAction(async (client) => {
+        const existing = await client.do('listTaskDeliverables', { taskId: options.task });
+        const result = await client.do('createTaskDeliverable', {
+          taskId: options.task,
+          name: options.name,
+          ...(options.description === undefined ? {} : { description: options.description }),
+          type: parseRequirementType(options.type ?? 'text'),
+          orderIndex:
+            options.orderIndex === undefined ? existing.items.length : parseRequirementOrderIndex(options.orderIndex),
+        });
+        writeJson(result);
+      }),
+    );
+
+  task
+    .command('requirement-list')
+    .description('List requirements for a task')
+    .requiredOption('--task <taskId>', 'task id')
+    .action(async (options: RequirementListOptions) =>
+      runAction(async (client) => {
+        const result = await client.do('listTaskDeliverables', { taskId: options.task });
         writeJson(result);
       }),
     );
@@ -269,6 +316,22 @@ function parseStatus(raw: string): SettableStatus {
     throw new Error(`peb task: invalid status "${raw}"; expected one of ${SETTABLE_STATUSES.join(', ')}`);
   }
   return found;
+}
+
+function parseRequirementType(raw: string): TaskDeliverableType {
+  const found = REQUIREMENT_TYPES.find((type) => type === raw);
+  if (found === undefined) {
+    throw new Error(`peb task: invalid requirement type "${raw}"; expected one of ${REQUIREMENT_TYPES.join(', ')}`);
+  }
+  return found;
+}
+
+function parseRequirementOrderIndex(raw: string): number {
+  const orderIndex = Number(raw);
+  if (!Number.isSafeInteger(orderIndex) || orderIndex < 0) {
+    throw new Error(`peb task: invalid requirement order index "${raw}"; expected a non-negative integer`);
+  }
+  return orderIndex;
 }
 
 function writeJson(value: unknown): void {
