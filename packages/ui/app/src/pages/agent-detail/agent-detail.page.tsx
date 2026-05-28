@@ -66,6 +66,7 @@ export function AgentDetailPage() {
               agentId={state.agentId}
               chatSending={state.chatSending}
               onChatSubmit={(payload) => void state.sendChatMessage(payload)}
+              queuedMessages={state.queuedMessages}
               workspacePath={state.workspacePath}
             />
             <ConfirmDialog controller={confirm} />
@@ -85,7 +86,6 @@ export function AgentDetailPage() {
           onTaskClick={state.openTask}
           onThreadSnapshotClick={state.openThreadSnapshot}
           onWorktreeOpenClick={state.openWorktree}
-          queuedMessages={state.queuedMessages}
           stopping={state.stopping}
           traces={state.traces}
           waitingReasons={state.waitingReasons}
