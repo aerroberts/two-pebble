@@ -11,7 +11,6 @@ import { AutomationsPage } from './pages/automations/automations.page';
 import { AutomationsNewPage } from './pages/automations/automations-new.page';
 import { DocumentEditorPage } from './pages/documents/document-editor.page';
 import { DocumentsPage } from './pages/documents/documents.page';
-import { ExamplesPage } from './pages/examples/examples.page';
 import { ModelCallDetailPage } from './pages/model-call-detail/model-call-detail.page';
 import { OverviewPage } from './pages/overview/overview.page';
 import { TaskBoardPage } from './pages/task-board/task-board.page';
@@ -123,14 +122,7 @@ export function ProjectRoutes() {
             </AutomationsAppShell>
           }
         />
-        <Route
-          path="examples"
-          element={
-            <MainAppShell>
-              <ExamplesPage />
-            </MainAppShell>
-          }
-        />
+        <Route path="examples" element={<Navigate to="/examples" replace />} />
         <Route path="*" element={<Navigate to="." replace />} />
       </Routes>
     </ProjectProvider>

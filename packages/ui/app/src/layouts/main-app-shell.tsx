@@ -69,8 +69,8 @@ export function MainAppShell(props: AppShellProps) {
               <IconButton
                 aria-label="Open examples"
                 icon="square-dashed-mouse-pointer"
-                onClick={() => scopedNavigate('/examples')}
-                variant={pathname.startsWith('/examples') ? 'primary' : 'secondary'}
+                onClick={() => navigate('/examples')}
+                variant={location.pathname.startsWith('/examples') ? 'primary' : 'secondary'}
               />
             </ModalActions>
           }
