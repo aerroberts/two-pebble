@@ -1,4 +1,4 @@
-import { Button, Header, Input, PageLayout, Section, Surface, TwoPebbleLogo } from '@two-pebble/components';
+import { IconButton, PageLayout, Section, Surface, TwoPebbleLogo } from '@two-pebble/components';
 import { useProjectMutations, useProjects } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,18 +8,14 @@ export function ProjectPickerPage() {
   const projects = useProjects();
   const mutations = useProjectMutations();
   const navigate = useNavigate();
-  const [name, setName] = useState('New project');
   const [creating, setCreating] = useState(false);
   const projectList = projects.values().sort((left, right) => left.name.localeCompare(right.name));
 
   const createProject = async () => {
-    const trimmed = name.trim();
-    if (trimmed.length === 0) {
-      return;
-    }
+    const name = nextProjectName(projectList.map((project) => project.name));
     setCreating(true);
     try {
-      const project = await mutations.createProject({ name: trimmed });
+      const project = await mutations.createProject({ name });
       navigate(projectPath(project.id, '/'));
     } finally {
       setCreating(false);
@@ -37,23 +33,37 @@ export function ProjectPickerPage() {
             Two Pebble is your AI development companion. Manage agents, tasks, documents, and more.
           </p>
         </div>
-        <Header subtitle="Choose the project scope for agents, tasks, documents, and automations.">Projects</Header>
-        <Section title="Projects">
+        <Section
+          title="List your projects."
+          actionItems={
+            <IconButton
+              aria-label="Create project"
+              disabled={creating}
+              icon="plus"
+              onClick={() => void createProject()}
+              variant="primary"
+            />
+          }
+        >
           <div className="grid gap-2">
             {projectList.map((project) => (
-              <Surface key={project.id}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="truncate text-[13px] font-semibold text-content">{project.name}</div>
-                    <div className="text-[12px] text-content-muted">
-                      {project.id === lastViewedProjectId ? 'Last viewed' : project.id}
+              <button
+                key={project.id}
+                type="button"
+                className="w-full text-left"
+                onClick={() => navigate(projectPath(project.id, '/'))}
+              >
+                <Surface>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-[13px] font-semibold text-content">{project.name}</div>
+                      <div className="text-[12px] text-content-muted">
+                        {project.id === lastViewedProjectId ? 'Last viewed' : project.id}
+                      </div>
                     </div>
                   </div>
-                  <Button onClick={() => navigate(projectPath(project.id, '/'))} variant="primary">
-                    Open
-                  </Button>
-                </div>
-              </Surface>
+                </Surface>
+              </button>
             ))}
             {projectList.length === 0 ? (
               <Surface>
@@ -62,17 +72,21 @@ export function ProjectPickerPage() {
             ) : null}
           </div>
         </Section>
-        <Section title="Create Project">
-          <Surface>
-            <div className="flex items-end gap-2">
-              <Input label="Name" onChange={(event) => setName(event.target.value)} value={name} />
-              <Button className="mb-1.5" disabled={creating} onClick={() => void createProject()} variant="primary">
-                Create
-              </Button>
-            </div>
-          </Surface>
-        </Section>
       </PageLayout>
     </div>
   );
+}
+
+function nextProjectName(names: string[]) {
+  const baseName = 'New project';
+  if (!names.includes(baseName)) {
+    return baseName;
+  }
+
+  for (let index = 2; ; index += 1) {
+    const candidate = `${baseName} ${index}`;
+    if (!names.includes(candidate)) {
+      return candidate;
+    }
+  }
 }
