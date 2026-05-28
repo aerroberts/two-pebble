@@ -98,15 +98,19 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
                 <AgentTrace traces={[userMsg]} {...traceOptions} />
                 <button
                   type="button"
-                  className="self-start inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-alt px-2 py-1 text-xs text-content-muted transition-colors hover:bg-surface-hover hover:text-content"
+                  className="group flex w-full items-center gap-3 px-6 py-2 text-xs text-content-muted transition-colors hover:text-content"
                   onClick={() => setOpenOverrides((prev) => ({ ...prev, [section.key]: true }))}
                   aria-expanded={false}
                   aria-label={`Show ${sectionMiddleLength} hidden steps`}
                 >
-                  <Icon name="chevrons-down" color="text-current" />
-                  <span>
-                    Show {sectionMiddleLength} hidden {sectionMiddleLength === 1 ? 'step' : 'steps'}
+                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                    <Icon name="chevrons-down" color="text-current" />
+                    <span>
+                      Show {sectionMiddleLength} hidden {sectionMiddleLength === 1 ? 'step' : 'steps'}
+                    </span>
                   </span>
+                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
                 </button>
                 {finalAssistant !== undefined ? <AgentTrace traces={[finalAssistant]} {...traceOptions} /> : null}
                 {visibleTraces.length < section.traces.length && finalAssistant !== undefined ? (
