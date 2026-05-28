@@ -124,18 +124,17 @@ export const CommentExtension = Extension.create({
         key: new PluginKey('document-comment-decorations'),
         props: {
           decorations: (state) => {
-            const threadsByCellId = new Map<string, number>();
+            const threadedCellIds = new Set<string>();
             for (const thread of extractComments(state.doc.toJSON() as TipTapDocument)) {
-              threadsByCellId.set(thread.cellId, thread.comments.length);
+              threadedCellIds.add(thread.cellId);
             }
-            if (threadsByCellId.size === 0) {
+            if (threadedCellIds.size === 0) {
               return null;
             }
             const decorations: Decoration[] = [];
             state.doc.descendants((node, pos) => {
               const cellId = typeof node.attrs.cellId === 'string' ? node.attrs.cellId : '';
-              const count = threadsByCellId.get(cellId);
-              if (count === undefined) {
+              if (!threadedCellIds.has(cellId)) {
                 return true;
               }
               decorations.push(
@@ -147,11 +146,7 @@ export const CommentExtension = Extension.create({
                 Decoration.widget(
                   pos + node.nodeSize - 1,
                   () => {
-                    const element = document.createElement('span');
-                    element.className = 'comment-thread-widget';
-                    element.textContent = String(count);
-                    element.setAttribute('aria-label', `${count} comments`);
-                    return element;
+                    return createCommentThreadWidget();
                   },
                   { key: `comment-${cellId}`, side: 1 },
                 ),
@@ -165,6 +160,28 @@ export const CommentExtension = Extension.create({
     ];
   },
 });
+
+function createCommentThreadWidget() {
+  const element = document.createElement('span');
+  element.className = 'comment-thread-widget';
+  element.setAttribute('aria-label', 'Comments');
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z');
+  svg.append(path);
+  element.append(svg);
+
+  return element;
+}
 
 function CommentSectionNodeView() {
   return (
