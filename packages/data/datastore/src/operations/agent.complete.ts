@@ -40,6 +40,7 @@ export function agentCompleteOperation(ctx: DatastoreContext) {
       name: row.name,
       parentAgentId: row.parentAgentId,
       parentResponseSignalId: row.parentResponseSignalId,
+      projectId: row.projectId,
       startedAt: row.startedAt,
       status: 'offline' as const,
       workspaceId: row.workspaceId,
