@@ -2,7 +2,6 @@ import { Extension, mergeAttributes, Node } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
-import type { NodeViewProps } from '@tiptap/react';
 import { NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import {
   applyCommentAdd,
@@ -125,18 +124,17 @@ export const CommentExtension = Extension.create({
         key: new PluginKey('document-comment-decorations'),
         props: {
           decorations: (state) => {
-            const threadsByCellId = new Map<string, number>();
+            const threadedCellIds = new Set<string>();
             for (const thread of extractComments(state.doc.toJSON() as TipTapDocument)) {
-              threadsByCellId.set(thread.cellId, thread.comments.length);
+              threadedCellIds.add(thread.cellId);
             }
-            if (threadsByCellId.size === 0) {
+            if (threadedCellIds.size === 0) {
               return null;
             }
             const decorations: Decoration[] = [];
             state.doc.descendants((node, pos) => {
               const cellId = typeof node.attrs.cellId === 'string' ? node.attrs.cellId : '';
-              const count = threadsByCellId.get(cellId);
-              if (count === undefined) {
+              if (!threadedCellIds.has(cellId)) {
                 return true;
               }
               decorations.push(
@@ -148,11 +146,7 @@ export const CommentExtension = Extension.create({
                 Decoration.widget(
                   pos + node.nodeSize - 1,
                   () => {
-                    const element = document.createElement('span');
-                    element.className = 'comment-thread-widget';
-                    element.textContent = String(count);
-                    element.setAttribute('aria-label', `${count} comments`);
-                    return element;
+                    return createCommentThreadWidget();
                   },
                   { key: `comment-${cellId}`, side: 1 },
                 ),
@@ -167,19 +161,37 @@ export const CommentExtension = Extension.create({
   },
 });
 
-function CommentSectionNodeView(props: NodeViewProps) {
-  const count = extractComments({
-    type: 'doc',
-    content: [{ type: COMMENT_SECTION_NODE_TYPE, attrs: props.node.attrs }],
-  }).length;
+function createCommentThreadWidget() {
+  const element = document.createElement('span');
+  element.className = 'comment-thread-widget';
+  element.setAttribute('aria-label', 'Comments');
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z');
+  svg.append(path);
+  element.append(svg);
+
+  return element;
+}
+
+function CommentSectionNodeView() {
   return (
     <NodeViewWrapper
       contentEditable={false}
       className="mt-6 flex items-center gap-1.5 border-t border-border pt-3 text-[11px] font-medium text-content-muted"
       data-comment-section="true"
+      aria-label="Document comments"
     >
       <Icon name="messages-square" color="text-content-muted" className="h-3.5 w-3.5" />
-      <span>{count === 0 ? 'No comment threads' : `${count} comment thread${count === 1 ? '' : 's'}`}</span>
     </NodeViewWrapper>
   );
 }

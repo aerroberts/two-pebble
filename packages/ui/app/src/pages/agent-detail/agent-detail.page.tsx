@@ -79,6 +79,8 @@ export function AgentDetailPage() {
           agentTraces={state.agentTraces}
           chatError={state.chatError}
           liveness={state.liveness}
+          getBoardHref={state.taskBoardHref}
+          getDocumentHref={state.documentHref}
           onAgentClick={state.openAgent}
           onDocumentClick={state.openDocument}
           onModelCallClick={state.openModelCall}
@@ -101,6 +103,8 @@ export function AgentDetailPage() {
         <AgentDetailTraceView
           agentLoaded={state.agent !== null}
           agentTraces={state.agentTraces}
+          getBoardHref={state.taskBoardHref}
+          getDocumentHref={state.documentHref}
           onAgentClick={state.openAgent}
           onDocumentClick={state.openDocument}
           onModelCallClick={state.openModelCall}

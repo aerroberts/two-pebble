@@ -33,6 +33,8 @@ interface AgentDetailChatViewBodyProps {
   onTaskClick: (boardId: string, taskId: string) => void;
   onThreadSnapshotClick: (threadCursor: string) => void;
   onWorktreeOpenClick: (worktreeId: string) => void;
+  getBoardHref?: (boardId: string) => string;
+  getDocumentHref?: (documentId: string) => string;
   waitingReasons?: string[];
 }
 
@@ -71,6 +73,8 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
     onTaskClick: props.onTaskClick,
     onThreadSnapshotClick: props.onThreadSnapshotClick,
     onWorktreeOpenClick: props.onWorktreeOpenClick,
+    getBoardHref: props.getBoardHref,
+    getDocumentHref: props.getDocumentHref,
     speakController: speech.available ? speech : undefined,
   };
 

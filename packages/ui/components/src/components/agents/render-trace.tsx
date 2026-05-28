@@ -98,7 +98,14 @@ export function renderAgentTrace(trace: AgentTraceRecord, options: AgentTraceRen
     case 'turn-start':
       return <TurnStartTrace trace={trace} />;
     case 'user-message':
-      return <UserMessageTrace trace={trace} speakController={options.speakController} />;
+      return (
+        <UserMessageTrace
+          trace={trace}
+          speakController={options.speakController}
+          getBoardHref={options.getBoardHref}
+          getDocumentHref={options.getDocumentHref}
+        />
+      );
     case 'worktree-initialized':
       return <WorktreeInitializedTrace trace={trace} onWorktreeOpenClick={options.onWorktreeOpenClick} />;
   }

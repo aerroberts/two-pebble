@@ -25,6 +25,8 @@ export interface AutocompleteInputProps {
   label?: ReactNode;
   ariaLabel?: string;
   maxSuggestions?: number;
+  /** Focus the input on mount. Used when the field is the primary control inside a popover. */
+  autoFocus?: boolean;
 }
 
 const wrapperBase =
@@ -50,6 +52,7 @@ export function AutocompleteInput(props: AutocompleteInputProps) {
     label,
     ariaLabel,
     maxSuggestions = 10,
+    autoFocus,
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -188,6 +191,7 @@ export function AutocompleteInput(props: AutocompleteInputProps) {
         ref={inputRef}
         type="text"
         autoComplete="off"
+        autoFocus={autoFocus}
         spellCheck={false}
         role="combobox"
         aria-autocomplete="list"
