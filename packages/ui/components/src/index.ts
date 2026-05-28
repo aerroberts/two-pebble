@@ -104,6 +104,7 @@ export {
 } from './components/charts/workflow-flow-chart/workflow-flow-chart';
 export { CodeBlock, type CodeBlockProps } from './components/code/code-block/code-block';
 export { MarkdownView, type MarkdownViewProps } from './components/code/markdown/markdown';
+export { MermaidDiagram, type MermaidDiagramProps } from './components/code/mermaid/mermaid-diagram';
 export {
   EditableHeading,
   type EditableHeadingProps,
