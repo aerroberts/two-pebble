@@ -2,7 +2,6 @@ import { Extension, mergeAttributes, Node } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
-import type { NodeViewProps } from '@tiptap/react';
 import { NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import {
   applyCommentAdd,
@@ -167,19 +166,15 @@ export const CommentExtension = Extension.create({
   },
 });
 
-function CommentSectionNodeView(props: NodeViewProps) {
-  const count = extractComments({
-    type: 'doc',
-    content: [{ type: COMMENT_SECTION_NODE_TYPE, attrs: props.node.attrs }],
-  }).length;
+function CommentSectionNodeView() {
   return (
     <NodeViewWrapper
       contentEditable={false}
       className="mt-6 flex items-center gap-1.5 border-t border-border pt-3 text-[11px] font-medium text-content-muted"
       data-comment-section="true"
+      aria-label="Document comments"
     >
       <Icon name="messages-square" color="text-content-muted" className="h-3.5 w-3.5" />
-      <span>{count === 0 ? 'No comment threads' : `${count} comment thread${count === 1 ? '' : 's'}`}</span>
     </NodeViewWrapper>
   );
 }
