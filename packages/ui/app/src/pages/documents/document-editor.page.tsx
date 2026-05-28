@@ -1,13 +1,13 @@
 import type { Editor } from '@tiptap/core';
 import {
+  AutocompleteInput,
+  type AutocompleteSuggestion,
   CommentPopover,
   deleteTriggerRange,
   EditableHeading,
   Header,
   IconButton,
   PageLayout,
-  Select,
-  type SelectOption,
   type SlashTrigger,
   Surface,
   TipTapEditor,
@@ -16,15 +16,12 @@ import {
 } from '@two-pebble/components';
 import { Cell } from '@two-pebble/pebble';
 import { useAppSettings, useDocuments, useLaunchAgent, useTaskBoards } from '@two-pebble/realtime';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useProjectId } from '../../project-context';
 import { DocumentAgentPills } from './document-agent-pills';
 import { DocumentInsertPopover, type DocumentInsertSelection } from './document-insert-popover';
 import { useDocumentEditorPageState } from './use-document-editor-page-state';
-
-const NONE_VALUE = '__none__';
-const NEW_VALUE = '__new__';
 
 interface ReferenceItem {
   id: string;
@@ -65,12 +62,11 @@ export function DocumentEditorPage() {
     return rows;
   }, [documents.value, state.documentId]);
 
-  const sectionOptions = useMemo<SelectOption[]>(() => {
+  const sectionSuggestions = useMemo<AutocompleteSuggestion[]>(() => {
     const seen = new Set<string>();
-    const options: SelectOption[] = [{ label: 'No section', value: NONE_VALUE }];
+    const labels: string[] = [];
     const value = documents.value;
     if (value !== null) {
-      const labels: string[] = [];
       for (const entry of value.values()) {
         const section = entry.value?.section;
         if (typeof section === 'string' && section.length > 0 && !seen.has(section)) {
@@ -79,29 +75,34 @@ export function DocumentEditorPage() {
         }
       }
       labels.sort((left, right) => left.localeCompare(right));
-      for (const label of labels) {
-        options.push({ label, value: label });
-      }
     }
-    options.push({ label: '+ New section…', value: NEW_VALUE });
-    return options;
+    return labels.map((label) => ({ label, value: label }));
   }, [documents.value]);
 
-  const handleSectionChange = useCallback(
+  const currentSection = state.document?.section ?? '';
+  const [sectionDraft, setSectionDraft] = useState(currentSection);
+
+  useEffect(() => {
+    setSectionDraft(currentSection);
+  }, [currentSection]);
+
+  const commitSection = useCallback(
     (next: string) => {
-      if (next === NEW_VALUE) {
-        const created = typeof window === 'undefined' ? null : window.prompt('New section name');
-        const trimmed = created?.trim() ?? '';
-        if (trimmed.length === 0) {
-          return;
-        }
-        void state.setSection(trimmed);
+      const trimmed = next.trim();
+      if (trimmed.length === 0) {
+        setSectionDraft('');
+        void state.setSection(null);
         return;
       }
-      void state.setSection(next === NONE_VALUE ? null : next);
+      setSectionDraft(trimmed);
+      void state.setSection(trimmed);
     },
     [state],
   );
+
+  const handleSectionBlur = useCallback(() => {
+    commitSection(sectionDraft);
+  }, [commitSection, sectionDraft]);
 
   const boardItems = useMemo<ReferenceItem[]>(() => {
     const value = boards.value;
@@ -238,11 +239,15 @@ export function DocumentEditorPage() {
       </Header>
       <div className="mt-1 flex flex-wrap items-center gap-2 pb-6">
         {state.document === null ? null : (
-          <Select
-            onChange={handleSectionChange}
-            options={sectionOptions}
+          <AutocompleteInput
+            ariaLabel="Document section"
+            leadingIcon="folder"
+            onBlur={handleSectionBlur}
+            onChange={setSectionDraft}
+            onCommit={commitSection}
             placeholder="No section"
-            value={state.document.section ?? NONE_VALUE}
+            suggestions={sectionSuggestions}
+            value={sectionDraft}
             variant="borderless"
           />
         )}
