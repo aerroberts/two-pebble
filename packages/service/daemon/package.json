@@ -11,8 +11,8 @@
     "start": "bun scripts/daemon.ts",
     "guard": "guardrails",
     "lint": "biome check --write .",
-    "test": "echo 'No daemon tests configured'",
-    "test:coverage": "echo 'No daemon tests configured'",
+    "test": "bun test src",
+    "test:coverage": "bun test --coverage src",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
