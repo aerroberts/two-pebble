@@ -146,7 +146,7 @@ export const CommentExtension = Extension.create({
               );
               decorations.push(
                 Decoration.widget(
-                  pos,
+                  pos + node.nodeSize - 1,
                   () => {
                     const element = document.createElement('span');
                     element.className = 'comment-thread-widget';
@@ -154,7 +154,7 @@ export const CommentExtension = Extension.create({
                     element.setAttribute('aria-label', `${count} comments`);
                     return element;
                   },
-                  { key: `comment-${cellId}`, side: -1 },
+                  { key: `comment-${cellId}`, side: 1 },
                 ),
               );
               return true;
