@@ -12,6 +12,8 @@ interface AgentDetailTraceViewProps {
   onTaskClick: (boardId: string, taskId: string) => void;
   onThreadSnapshotClick: (threadCursor: string) => void;
   onWorktreeOpenClick: (worktreeId: string) => void;
+  getBoardHref?: (boardId: string) => string;
+  getDocumentHref?: (documentId: string) => string;
 }
 
 export function AgentDetailTraceView(props: AgentDetailTraceViewProps) {
@@ -30,6 +32,8 @@ export function AgentDetailTraceView(props: AgentDetailTraceViewProps) {
           onTaskClick={props.onTaskClick}
           onThreadSnapshotClick={props.onThreadSnapshotClick}
           onWorktreeOpenClick={props.onWorktreeOpenClick}
+          getBoardHref={props.getBoardHref}
+          getDocumentHref={props.getDocumentHref}
           traces={props.agentTraces}
           exhaustive
         />

@@ -32,7 +32,14 @@ export function UserMessageTrace(props: TraceComponentProps<'user-message'>) {
                 <p key={group.key} className="text-sm leading-relaxed text-content whitespace-pre-wrap break-words">
                   {group.cells.map((cell, cellIndex) => {
                     const key = `${group.key}-cell-${cellIndex}-${cellKey(cell)}`;
-                    return <InlineUserMessageCell cell={cell} key={key} />;
+                    return (
+                      <InlineUserMessageCell
+                        cell={cell}
+                        getBoardHref={props.getBoardHref}
+                        getDocumentHref={props.getDocumentHref}
+                        key={key}
+                      />
+                    );
                   })}
                 </p>
               );
@@ -100,7 +107,11 @@ function isInlineCell(cell: CellContent): boolean {
   }
 }
 
-function InlineUserMessageCell(props: { cell: CellContent }) {
+function InlineUserMessageCell(props: {
+  cell: CellContent;
+  getBoardHref?: (boardId: string) => string;
+  getDocumentHref?: (documentId: string) => string;
+}) {
   const { cell } = props;
   switch (cell.type) {
     case 'text':
@@ -110,9 +121,21 @@ function InlineUserMessageCell(props: { cell: CellContent }) {
     case 'header2':
       return <InlineText text={cell.content.text} />;
     case 'boardReference':
-      return <BoardPill boardId={cell.content.boardId} name={cell.content.name} />;
+      return (
+        <BoardPill
+          boardId={cell.content.boardId}
+          href={props.getBoardHref?.(cell.content.boardId)}
+          name={cell.content.name}
+        />
+      );
     case 'documentReference':
-      return <DocumentPill name={cell.content.name} documentId={cell.content.documentId} />;
+      return (
+        <DocumentPill
+          name={cell.content.name}
+          documentId={cell.content.documentId}
+          href={props.getDocumentHref?.(cell.content.documentId)}
+        />
+      );
     case 'audio':
       return (
         <InlineText
@@ -162,12 +185,12 @@ function InlineText(props: { text: string }) {
   return <span>{trimmed}</span>;
 }
 
-function DocumentPill(props: { documentId: string; name: string }) {
+function DocumentPill(props: { documentId: string; href?: string; name: string }) {
   return (
     <a
       className="mx-0.5 inline-flex items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0 align-baseline text-[11px] font-medium leading-4 text-content no-underline transition-colors hover:border-accent hover:text-accent"
       data-document-id={props.documentId}
-      href={`/documents/${props.documentId}`}
+      href={props.href ?? `/documents/${props.documentId}`}
     >
       <span aria-hidden="true" className="text-content-muted">
         doc:
@@ -177,12 +200,12 @@ function DocumentPill(props: { documentId: string; name: string }) {
   );
 }
 
-function BoardPill(props: { boardId: string; name: string }) {
+function BoardPill(props: { boardId: string; href?: string; name: string }) {
   return (
     <a
       className="mx-0.5 inline-flex items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0 align-baseline text-[11px] font-medium leading-4 text-content no-underline transition-colors hover:border-accent hover:text-accent"
       data-board-id={props.boardId}
-      href={`/tasks/${props.boardId}`}
+      href={props.href ?? `/tasks/${props.boardId}`}
     >
       <span aria-hidden="true" className="text-content-muted">
         board:
