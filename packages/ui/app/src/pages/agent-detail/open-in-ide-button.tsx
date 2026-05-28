@@ -1,7 +1,7 @@
-import { IconButton, Tooltip, useToast } from '@two-pebble/components';
+import { Tooltip, useToast } from '@two-pebble/components';
 import { useAppSettings, useKnownIdes, useOpenWorkspaceInIde } from '@two-pebble/realtime';
 import { useState } from 'react';
-import { iconForKind } from '../configuration/ide/icon-for-kind';
+import { IdeLogoButton } from '../configuration/ide/ide-logo';
 
 export function OpenInIdeButton(props: { workspacePath: string | null }) {
   const appSettings = useAppSettings();
@@ -31,13 +31,11 @@ export function OpenInIdeButton(props: { workspacePath: string | null }) {
 
   return (
     <Tooltip content={`Open in ${ide.displayName}`}>
-      <IconButton
+      <IdeLogoButton
         aria-label={`Open in ${ide.displayName}`}
         disabled={pending}
-        icon={iconForKind(ide.kind)}
+        kind={ide.kind}
         onClick={() => void open()}
-        type="button"
-        variant="secondary"
       />
     </Tooltip>
   );

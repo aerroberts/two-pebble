@@ -1,14 +1,4 @@
-import {
-  Button,
-  Header,
-  Icon,
-  IconButton,
-  PageLayout,
-  Section,
-  Surface,
-  Tooltip,
-  useToast,
-} from '@two-pebble/components';
+import { Button, Header, IconButton, PageLayout, Section, Surface, Tooltip, useToast } from '@two-pebble/components';
 import {
   type KnownIdeCandidate,
   type KnownIdeKind,
@@ -21,7 +11,7 @@ import {
   useUpdateAppSettings,
 } from '@two-pebble/realtime';
 import { type ReactNode, useState } from 'react';
-import { iconForKind } from './icon-for-kind';
+import { IdeLogo } from './ide-logo';
 
 export function IdeSettingsPage() {
   const appSettings = useAppSettings();
@@ -217,8 +207,8 @@ function IdeRow(props: { action: ReactNode; displayName: string; executablePath:
   return (
     <div className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
       <div className="flex min-w-0 items-center gap-2">
-        <span className="text-content-muted">
-          <IconForKind kind={props.kind} />
+        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-content-muted">
+          <IdeLogo kind={props.kind} className="h-4 w-4" />
         </span>
         <div className="min-w-0">
           <div className="truncate text-[13px] font-medium leading-5 text-content">{props.displayName}</div>
@@ -228,10 +218,6 @@ function IdeRow(props: { action: ReactNode; displayName: string; executablePath:
       {props.action}
     </div>
   );
-}
-
-function IconForKind(props: { kind: KnownIdeKind }) {
-  return <Icon name={iconForKind(props.kind)} color="text-current" />;
 }
 
 function errorMessage(failure: unknown, fallback: string) {
