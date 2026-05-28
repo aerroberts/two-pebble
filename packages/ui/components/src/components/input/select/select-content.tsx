@@ -28,8 +28,8 @@ export function SelectContent(props: SelectContentProps) {
 
   const useDrawer = props.mobilePresentation === 'drawer' && isMobile;
   const contentClassName = useDrawer
-    ? 'fixed inset-x-0 bottom-0 z-[1100] max-h-[70vh] overflow-hidden rounded-t-lg border border-border bg-surface pb-2 shadow-modal transition-[opacity,transform] duration-200 data-[state=open]:translate-y-0 data-[state=closed]:translate-y-4 data-[state=closed]:opacity-0'
-    : 'z-[1100] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-border bg-surface pb-1 shadow-lg';
+    ? 'fixed inset-x-0 bottom-0 z-[1100] max-h-[70vh] overflow-hidden rounded-t-lg border border-border bg-surface shadow-modal transition-[opacity,transform] duration-200 data-[state=open]:translate-y-0 data-[state=closed]:translate-y-4 data-[state=closed]:opacity-0'
+    : 'z-[1100] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-border bg-surface shadow-lg';
   const viewportClassName = useDrawer ? 'min-h-0 p-2' : 'min-h-0 p-1';
   const itemClassName = useDrawer ? drawerItemClass : popoverItemClass;
 
