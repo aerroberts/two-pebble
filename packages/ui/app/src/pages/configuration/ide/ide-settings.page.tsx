@@ -1,4 +1,15 @@
-import { Button, Header, IconButton, PageLayout, Section, Surface, Tooltip, useToast } from '@two-pebble/components';
+import {
+  Button,
+  Header,
+  IconButton,
+  PageLayout,
+  Section,
+  Select,
+  type SelectOption,
+  Surface,
+  Tooltip,
+  useToast,
+} from '@two-pebble/components';
 import {
   type KnownIdeCandidate,
   type KnownIdeKind,
@@ -12,6 +23,8 @@ import {
 } from '@two-pebble/realtime';
 import { type ReactNode, useState } from 'react';
 import { IdeLogo } from './ide-logo';
+
+const NO_DEFAULT_IDE_VALUE = 'none';
 
 export function IdeSettingsPage() {
   const appSettings = useAppSettings();
@@ -29,6 +42,14 @@ export function IdeSettingsPage() {
   const settings = appSettings.value;
   const savedIdes = knownIdes.values().sort((left, right) => left.displayName.localeCompare(right.displayName));
   const defaultKnownIdeId = settings?.defaultKnownIdeId ?? null;
+  const defaultIdeOptions: SelectOption[] = [
+    { label: 'None', value: NO_DEFAULT_IDE_VALUE },
+    ...savedIdes.map((ide) => ({
+      icon: <IdeLogo kind={ide.kind} className="h-3.5 w-3.5" />,
+      label: ide.displayName,
+      value: ide.id,
+    })),
+  ];
 
   const runDetection = async () => {
     setDetecting(true);
@@ -147,15 +168,14 @@ export function IdeSettingsPage() {
       <Section subtitle="Saved editors and the default used by the chat button." title="Saved IDEs">
         <Surface>
           <div className="flex flex-col gap-3">
-            <label className="flex items-center gap-2 text-[12px] font-medium text-content">
-              <input
-                checked={defaultKnownIdeId === null}
-                name="default-ide"
-                onChange={() => setDefault(null)}
-                type="radio"
-              />
-              None
-            </label>
+            <Select
+              disabled={settings === null}
+              fullWidth
+              label="Default IDE"
+              onChange={(value) => setDefault(value === NO_DEFAULT_IDE_VALUE ? null : value)}
+              options={defaultIdeOptions}
+              value={defaultKnownIdeId ?? NO_DEFAULT_IDE_VALUE}
+            />
             <IdeListEmpty
               visible={savedIdes.length === 0}
               text={knownIdes.status === 'loading' ? 'Loading saved IDEs.' : 'No saved IDEs.'}
@@ -164,25 +184,16 @@ export function IdeSettingsPage() {
               <IdeRow
                 key={ide.id}
                 action={
-                  <div className="flex items-center gap-2">
-                    <input
-                      aria-label={`Use ${ide.displayName} by default`}
-                      checked={defaultKnownIdeId === ide.id}
-                      name="default-ide"
-                      onChange={() => setDefault(ide.id)}
-                      type="radio"
+                  <Tooltip content={`Delete ${ide.displayName}`}>
+                    <IconButton
+                      aria-label={`Delete ${ide.displayName}`}
+                      disabled={deletingId === ide.id}
+                      icon="trash-2"
+                      onClick={() => void removeIde(ide)}
+                      type="button"
+                      variant="secondary"
                     />
-                    <Tooltip content={`Delete ${ide.displayName}`}>
-                      <IconButton
-                        aria-label={`Delete ${ide.displayName}`}
-                        disabled={deletingId === ide.id}
-                        icon="trash-2"
-                        onClick={() => void removeIde(ide)}
-                        type="button"
-                        variant="secondary"
-                      />
-                    </Tooltip>
-                  </div>
+                  </Tooltip>
                 }
                 displayName={ide.displayName}
                 executablePath={ide.executablePath}
