@@ -40,6 +40,8 @@ export interface AgentTraceRenderOptions {
   onThreadSnapshotClick?: (threadCursor: string) => void;
   onWorktreeOpenClick?: (worktreeId: string) => void;
   onDocumentClick?: (documentId: string) => void;
+  getBoardHref?: (boardId: string) => string;
+  getDocumentHref?: (documentId: string) => string;
 }
 
 export interface TraceComponentProps<TType extends AgentRuntimeTrace['type']> {
@@ -50,5 +52,7 @@ export interface TraceComponentProps<TType extends AgentRuntimeTrace['type']> {
   onThreadSnapshotClick?: (threadCursor: string) => void;
   onWorktreeOpenClick?: (worktreeId: string) => void;
   onDocumentClick?: (documentId: string) => void;
+  getBoardHref?: (boardId: string) => string;
+  getDocumentHref?: (documentId: string) => string;
   trace: AgentTraceByType<TType>;
 }

@@ -13,6 +13,8 @@ export interface AgentTraceProps {
   onThreadSnapshotClick?: (threadCursor: string) => void;
   onWorktreeOpenClick?: (worktreeId: string) => void;
   onDocumentClick?: (documentId: string) => void;
+  getBoardHref?: (boardId: string) => string;
+  getDocumentHref?: (documentId: string) => string;
   traces: AgentTraceRecord[];
   /**
    * When true, render every available trace type — only sub-agent
@@ -71,6 +73,8 @@ export function AgentTrace(props: AgentTraceProps) {
               onThreadSnapshotClick: props.onThreadSnapshotClick,
               onWorktreeOpenClick: props.onWorktreeOpenClick,
               onDocumentClick: props.onDocumentClick,
+              getBoardHref: props.getBoardHref,
+              getDocumentHref: props.getDocumentHref,
             })
           )}
         </div>
