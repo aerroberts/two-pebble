@@ -1,4 +1,4 @@
-import { Status } from '@two-pebble/components';
+import { IconButton, Status } from '@two-pebble/components';
 import { AgentInput, type RichComposerSubmitPayload } from '../../shared/agent-input/agent-input';
 import { OpenInIdeButton } from './open-in-ide-button';
 import type { AgentQueuedMessageRecord } from './use-agent-detail-page-state';
@@ -6,6 +6,7 @@ import type { AgentQueuedMessageRecord } from './use-agent-detail-page-state';
 interface AgentDetailChatViewFooterProps {
   agentId: string;
   chatSending: boolean;
+  onCancelQueuedMessage: (messageId: string) => void;
   onChatSubmit: (payload: RichComposerSubmitPayload) => void;
   queuedMessages?: AgentQueuedMessageRecord[];
   workspacePath: string | null;
@@ -35,7 +36,22 @@ export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps)
               <div className="min-w-0 flex-1 truncate text-xs text-content-muted">
                 {renderQueuedMessageText(message)}
               </div>
-              <Status state={queuedMessageStatusToStatusState(message.status)} variant="pill" label={message.status} />
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Status
+                  state={queuedMessageStatusToStatusState(message.status)}
+                  variant="pill"
+                  label={message.status}
+                />
+                {message.status === 'queued' ? (
+                  <IconButton
+                    aria-label="Cancel queued message"
+                    icon="x"
+                    onClick={() => props.onCancelQueuedMessage(message.id)}
+                    size={22}
+                    variant="secondary"
+                  />
+                ) : null}
+              </div>
             </div>
           ))}
         </div>

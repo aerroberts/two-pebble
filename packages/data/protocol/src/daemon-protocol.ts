@@ -14,7 +14,9 @@ import type { AgentMessageOperation } from './protocol/agent.message';
 import type { AgentPriceLineItemsListOperation } from './protocol/agent.price-line-items.list';
 import type { AgentPriceLineItemsRecordOperation } from './protocol/agent.price-line-items.record';
 import type { AgentPriceLineItemRecordedEvent } from './protocol/agent.price-line-items.recorded';
+import type { AgentQueuedMessageCancelOperation } from './protocol/agent.queued-message.cancel';
 import type { AgentQueuedMessageChangedEvent } from './protocol/agent.queued-message.changed';
+import type { AgentQueuedMessageDeletedEvent } from './protocol/agent.queued-message.deleted';
 import type { AgentQueuedMessageEnqueueOperation } from './protocol/agent.queued-message.enqueue';
 import type { AgentQueuedMessagesListOperation } from './protocol/agent.queued-messages.list';
 import type { AgentReadOperation } from './protocol/agent.read';
@@ -176,6 +178,7 @@ export type DaemonOperations = [
   AgentLaunchOperation,
   AgentMessageOperation,
   AgentQueuedMessageEnqueueOperation,
+  AgentQueuedMessageCancelOperation,
   AgentQueuedMessagesListOperation,
   AgentSignalsListOperation,
   AgentSignalsResolveOperation,
@@ -296,6 +299,7 @@ export type DaemonEvents = [
   AgentLivenessEvent,
   AgentRecordedEvent,
   AgentQueuedMessageChangedEvent,
+  AgentQueuedMessageDeletedEvent,
   AgentCallRecordedEvent,
   AgentPriceLineItemRecordedEvent,
   AgentTraceRecordedEvent,

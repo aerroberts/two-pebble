@@ -65,6 +65,7 @@ export function AgentDetailPage() {
             <AgentDetailChatViewFooter
               agentId={state.agentId}
               chatSending={state.chatSending}
+              onCancelQueuedMessage={(messageId) => void state.cancelQueuedMessage(messageId)}
               onChatSubmit={(payload) => void state.sendChatMessage(payload)}
               queuedMessages={state.queuedMessages}
               workspacePath={state.workspacePath}

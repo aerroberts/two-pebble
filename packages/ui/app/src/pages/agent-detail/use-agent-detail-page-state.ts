@@ -9,6 +9,7 @@ import {
   useAgentQueuedMessages,
   useAgents,
   useAgentTraces,
+  useCancelAgentQueuedMessage,
   useEnqueueAgentMessage,
   useFreshStartAgent,
   useOpenWorktree,
@@ -41,6 +42,7 @@ export function useAgentDetailPageState() {
   const [chatError, setChatError] = useState('');
   const [chatSending, setChatSending] = useState(false);
   const enqueueAgentMessage = useEnqueueAgentMessage();
+  const cancelAgentQueuedMessage = useCancelAgentQueuedMessage();
   const stopAgent = useStopAgent();
   const freshStartAgent = useFreshStartAgent();
   const liveness = useAgentLiveness(agentId);
@@ -215,6 +217,15 @@ export function useAgentDetailPageState() {
     }
   };
 
+  const cancelQueuedMessage = async (messageId: string) => {
+    setChatError('');
+    try {
+      await cancelAgentQueuedMessage({ id: messageId });
+    } catch (failure) {
+      setChatError(failure instanceof Error ? failure.message : String(failure));
+    }
+  };
+
   const stopAgentRun = async () => {
     if (agentId.length === 0) {
       return;
@@ -249,6 +260,7 @@ export function useAgentDetailPageState() {
     agent,
     agentId,
     agentTraces,
+    cancelQueuedMessage,
     chatError,
     chatSending,
     documentHref,

@@ -1,6 +1,7 @@
 import type { CellContent } from '@two-pebble/pebble';
 import type { AgentLaunchWorkspaceOverride, AgentQueuedMessageWireRecord } from '@two-pebble/protocol';
 import type { LoadableRegistry } from '../../loadable';
+import type { RealtimeEmitPayload } from '../../types';
 
 export interface AgentsState {
   agents: LoadableRegistry<AgentRecord>;
@@ -71,6 +72,8 @@ export interface EnqueueAgentMessageInput {
   message?: string;
   cells?: CellContent[];
 }
+
+export type CancelAgentQueuedMessageInput = RealtimeEmitPayload<'cancelAgentQueuedMessage'>;
 
 export interface ListAgentQueuedMessagesInput {
   agentId: string;
