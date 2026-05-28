@@ -197,7 +197,7 @@ export function App() {
           }
         />
         <Route
-          path="/examples"
+          path="/examples/:pageId?"
           element={
             <ExamplesAppShell>
               <ExamplesPage />
