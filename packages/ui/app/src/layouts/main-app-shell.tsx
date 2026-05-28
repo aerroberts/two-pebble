@@ -55,6 +55,12 @@ export function MainAppShell(props: AppShellProps) {
                 variant={location.pathname.startsWith('/configuration') ? 'primary' : 'secondary'}
               />
               <IconButton
+                aria-label="Open examples"
+                icon="circle-question-mark"
+                onClick={() => navigate('/examples')}
+                variant={location.pathname.startsWith('/examples') ? 'primary' : 'secondary'}
+              />
+              <IconButton
                 aria-label="Open metrics"
                 icon="chart-no-axes-combined"
                 onClick={() => navigate('/metrics')}
@@ -65,12 +71,6 @@ export function MainAppShell(props: AppShellProps) {
                 icon="bug"
                 onClick={() => navigate('/developer')}
                 variant={location.pathname.startsWith('/developer') ? 'primary' : 'secondary'}
-              />
-              <IconButton
-                aria-label="Open examples"
-                icon="square-dashed-mouse-pointer"
-                onClick={() => navigate('/examples')}
-                variant={location.pathname.startsWith('/examples') ? 'primary' : 'secondary'}
               />
             </ModalActions>
           }
