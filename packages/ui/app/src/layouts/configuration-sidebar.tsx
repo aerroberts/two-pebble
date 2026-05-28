@@ -33,7 +33,13 @@ export function ConfigurationSidebar() {
           onClick={() => navigate('/configuration/integrations')}
         />
       </SidebarSection>
-      <SidebarSection title="Workspace">
+      <SidebarSection title="Workspaces">
+        <SidebarOption
+          active={location.pathname.startsWith('/configuration/projects')}
+          icon="folder"
+          label="Projects"
+          onClick={() => navigate('/configuration/projects')}
+        />
         <SidebarOption
           active={location.pathname.startsWith('/configuration/repositories')}
           icon="folder-open"
