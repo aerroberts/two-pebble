@@ -90,7 +90,6 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
             // Folded: render user message + button + the final assistant reply.
             const userMsg = section.traces[0];
             const finalAssistant = section.traces[section.finalAssistantIndex];
-            const visibleTraces = finalAssistant !== undefined ? [userMsg, finalAssistant] : [userMsg];
             return (
               <div key={section.key} className="flex flex-col gap-2">
                 <AgentTrace traces={[userMsg]} {...traceOptions} />
@@ -107,15 +106,6 @@ export function AgentDetailChatViewBody(props: AgentDetailChatViewBodyProps) {
                   </span>
                 </button>
                 {finalAssistant !== undefined ? <AgentTrace traces={[finalAssistant]} {...traceOptions} /> : null}
-                {visibleTraces.length < section.traces.length && finalAssistant !== undefined ? (
-                  <button
-                    type="button"
-                    className="self-start text-[11px] text-content-subtle underline-offset-2 hover:text-content-muted hover:underline"
-                    onClick={() => setOpenOverrides((prev) => ({ ...prev, [section.key]: true }))}
-                  >
-                    expand section
-                  </button>
-                ) : null}
               </div>
             );
           })
