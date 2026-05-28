@@ -120,7 +120,15 @@ export function IdeSettingsPage() {
         IDE
       </Header>
 
-      <Section subtitle="Detected editors that are not saved yet." title="Detected">
+      <Section
+        actionItems={
+          <Button disabled={detecting} leftIcon="search" onClick={() => void runDetection()} type="button">
+            {detecting ? 'Detecting' : 'Detect'}
+          </Button>
+        }
+        subtitle="Detected editors that are not saved yet."
+        title="Detected"
+      >
         <Surface>
           <IdeListEmpty visible={candidates.length === 0} text={detecting ? 'Detecting IDEs.' : 'No IDEs detected.'} />
           <div className="flex flex-col gap-2">
