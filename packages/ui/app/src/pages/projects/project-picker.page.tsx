@@ -1,4 +1,4 @@
-import { Button, Header, Input, PageLayout, Section, Surface } from '@two-pebble/components';
+import { Button, Header, Input, ListLayout, PageLayout, Section, Surface } from '@two-pebble/components';
 import { useProjectMutations, useProjects } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -32,28 +32,16 @@ export function ProjectPickerPage() {
     <PageLayout width="fixed">
       <Header subtitle="Choose the project scope for agents, tasks, documents, and automations.">Projects</Header>
       <Section title="Projects">
-        <div className="grid gap-2">
-          {projectList.map((project) => (
-            <Surface key={project.id}>
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="truncate text-[13px] font-semibold text-content">{project.name}</div>
-                  <div className="text-[12px] text-content-muted">
-                    {project.id === lastViewedProjectId ? 'Last viewed' : project.id}
-                  </div>
-                </div>
-                <Button onClick={() => navigate(projectPath(project.id, '/'))} variant="primary">
-                  Open
-                </Button>
-              </div>
-            </Surface>
-          ))}
-          {projectList.length === 0 ? (
-            <Surface>
-              <div className="text-[13px] text-content-muted">Create your first project.</div>
-            </Surface>
-          ) : null}
-        </div>
+        <ListLayout
+          bordered
+          emptyState="Create your first project."
+          items={projectList.map((project) => ({
+            key: project.id,
+            title: project.name,
+            subtitle: project.id === lastViewedProjectId ? 'Last viewed' : project.id,
+            onClick: () => navigate(projectPath(project.id, '/')),
+          }))}
+        />
       </Section>
       <Section title="Create Project">
         <Surface>
