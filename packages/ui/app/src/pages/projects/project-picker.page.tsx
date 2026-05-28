@@ -29,48 +29,50 @@ export function ProjectPickerPage() {
   const lastViewedProjectId = readLastViewedProjectId();
 
   return (
-    <PageLayout width="fixed">
-      <div className="flex flex-col items-center gap-3 pb-6 text-center">
-        <TwoPebbleLogo size="large" withText text="Two Pebble" />
-        <p className="max-w-md text-sm text-content-muted">
-          Two Pebble is your AI development companion. Manage agents, tasks, documents, and more.
-        </p>
-      </div>
-      <Header subtitle="Choose the project scope for agents, tasks, documents, and automations.">Projects</Header>
-      <Section title="Projects">
-        <div className="grid gap-2">
-          {projectList.map((project) => (
-            <Surface key={project.id}>
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="truncate text-[13px] font-semibold text-content">{project.name}</div>
-                  <div className="text-[12px] text-content-muted">
-                    {project.id === lastViewedProjectId ? 'Last viewed' : project.id}
-                  </div>
-                </div>
-                <Button onClick={() => navigate(projectPath(project.id, '/'))} variant="primary">
-                  Open
-                </Button>
-              </div>
-            </Surface>
-          ))}
-          {projectList.length === 0 ? (
-            <Surface>
-              <div className="text-[13px] text-content-muted">Create your first project.</div>
-            </Surface>
-          ) : null}
+    <div className="flex h-dvh min-h-0 max-h-dvh flex-col overflow-hidden bg-surface">
+      <PageLayout width="fixed">
+        <div className="flex flex-col items-center gap-3 pb-6 text-center">
+          <TwoPebbleLogo size="large" withText text="Two Pebble" />
+          <p className="max-w-md text-sm text-content-muted">
+            Two Pebble is your AI development companion. Manage agents, tasks, documents, and more.
+          </p>
         </div>
-      </Section>
-      <Section title="Create Project">
-        <Surface>
-          <div className="flex items-end gap-2">
-            <Input label="Name" onChange={(event) => setName(event.target.value)} value={name} />
-            <Button className="mb-1.5" disabled={creating} onClick={() => void createProject()} variant="primary">
-              Create
-            </Button>
+        <Header subtitle="Choose the project scope for agents, tasks, documents, and automations.">Projects</Header>
+        <Section title="Projects">
+          <div className="grid gap-2">
+            {projectList.map((project) => (
+              <Surface key={project.id}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-[13px] font-semibold text-content">{project.name}</div>
+                    <div className="text-[12px] text-content-muted">
+                      {project.id === lastViewedProjectId ? 'Last viewed' : project.id}
+                    </div>
+                  </div>
+                  <Button onClick={() => navigate(projectPath(project.id, '/'))} variant="primary">
+                    Open
+                  </Button>
+                </div>
+              </Surface>
+            ))}
+            {projectList.length === 0 ? (
+              <Surface>
+                <div className="text-[13px] text-content-muted">Create your first project.</div>
+              </Surface>
+            ) : null}
           </div>
-        </Surface>
-      </Section>
-    </PageLayout>
+        </Section>
+        <Section title="Create Project">
+          <Surface>
+            <div className="flex items-end gap-2">
+              <Input label="Name" onChange={(event) => setName(event.target.value)} value={name} />
+              <Button className="mb-1.5" disabled={creating} onClick={() => void createProject()} variant="primary">
+                Create
+              </Button>
+            </div>
+          </Surface>
+        </Section>
+      </PageLayout>
+    </div>
   );
 }
