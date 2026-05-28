@@ -139,32 +139,30 @@ function renderSidebarContent(input: {
   }
   return (
     <>
-      <SidebarSection
-        title={
-          projectId === undefined ? (
-            <TwoPebbleLogo withText text={getPageName(pathname)} />
-          ) : (
-            <div className="flex w-full items-center gap-2">
-              <TwoPebbleLogo />
-              <Select
-                fullWidth
-                onChange={(nextProjectId) => {
-                  if (nextProjectId === NEW_PROJECT_OPTION_VALUE) {
-                    globalNavigate('/projects');
-                    return;
-                  }
-                  globalNavigate(projectPath(nextProjectId, pathname));
-                }}
-                options={[
-                  ...projects.values().map((project) => ({ label: project.name, value: project.id })),
-                  { label: 'New Project', value: NEW_PROJECT_OPTION_VALUE },
-                ]}
-                value={projectId}
-              />
-            </div>
-          )
-        }
-      />
+      {projectId === undefined ? (
+        <SidebarSection title={<TwoPebbleLogo withText text={getPageName(pathname)} />} />
+      ) : (
+        <div className="flex w-full items-center gap-2 px-2 pt-1 pb-3">
+          <TwoPebbleLogo />
+          <div className="min-w-0 flex-1">
+            <Select
+              fullWidth
+              onChange={(nextProjectId) => {
+                if (nextProjectId === NEW_PROJECT_OPTION_VALUE) {
+                  globalNavigate('/projects');
+                  return;
+                }
+                globalNavigate(projectPath(nextProjectId, pathname));
+              }}
+              options={[
+                ...projects.values().map((project) => ({ label: project.name, value: project.id })),
+                { label: 'New Project', value: NEW_PROJECT_OPTION_VALUE },
+              ]}
+              value={projectId}
+            />
+          </div>
+        </div>
+      )}
       <SidebarSection title="Home">
         <SidebarOption
           active={pathname === '/'}

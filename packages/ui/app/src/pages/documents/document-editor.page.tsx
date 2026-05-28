@@ -16,7 +16,8 @@ import {
 } from '@two-pebble/components';
 import { Cell } from '@two-pebble/pebble';
 import { useAppSettings, useDocuments, useLaunchAgent, useTaskBoards } from '@two-pebble/realtime';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useProjectId } from '../../project-context';
 import { DocumentAgentPills } from './document-agent-pills';
@@ -81,6 +82,9 @@ export function DocumentEditorPage() {
 
   const currentSection = state.document?.section ?? '';
   const [sectionDraft, setSectionDraft] = useState(currentSection);
+  const [sectionOpen, setSectionOpen] = useState(false);
+  const [sectionAnchor, setSectionAnchor] = useState<DOMRect | null>(null);
+  const sectionButtonRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setSectionDraft(currentSection);
@@ -92,10 +96,11 @@ export function DocumentEditorPage() {
       if (trimmed.length === 0) {
         setSectionDraft('');
         void state.setSection(null);
-        return;
+      } else {
+        setSectionDraft(trimmed);
+        void state.setSection(trimmed);
       }
-      setSectionDraft(trimmed);
-      void state.setSection(trimmed);
+      setSectionOpen(false);
     },
     [state],
   );
@@ -103,6 +108,37 @@ export function DocumentEditorPage() {
   const handleSectionBlur = useCallback(() => {
     commitSection(sectionDraft);
   }, [commitSection, sectionDraft]);
+
+  const openSectionPopover = useCallback(() => {
+    if (sectionOpen) {
+      setSectionOpen(false);
+      return;
+    }
+    const el = sectionButtonRef.current;
+    if (el === null) {
+      return;
+    }
+    setSectionAnchor(el.getBoundingClientRect());
+    setSectionOpen(true);
+  }, [sectionOpen]);
+
+  useEffect(() => {
+    if (!sectionOpen) {
+      return undefined;
+    }
+    const onScrollOrResize = () => {
+      const el = sectionButtonRef.current;
+      if (el !== null) {
+        setSectionAnchor(el.getBoundingClientRect());
+      }
+    };
+    window.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onScrollOrResize);
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, [sectionOpen]);
 
   const boardItems = useMemo<ReferenceItem[]>(() => {
     const value = boards.value;
@@ -192,6 +228,19 @@ export function DocumentEditorPage() {
         compact
         actionItems={
           <>
+            {state.document === null ? null : (
+              <span ref={sectionButtonRef} className="inline-flex">
+                <Tooltip content={currentSection.length > 0 ? `Section: ${currentSection}` : 'Set section'}>
+                  <IconButton
+                    aria-label="Set document section"
+                    icon="folder"
+                    onClick={openSectionPopover}
+                    type="button"
+                    variant={currentSection.length > 0 ? 'primary' : 'secondary'}
+                  />
+                </Tooltip>
+              </span>
+            )}
             {documentRunnerRegistryId === null ? null : (
               <Tooltip content="Send to agent">
                 <IconButton
@@ -237,22 +286,35 @@ export function DocumentEditorPage() {
           value={state.nameDraft}
         />
       </Header>
-      <div className="mt-1 flex flex-wrap items-center gap-2 pb-6">
-        {state.document === null ? null : (
-          <AutocompleteInput
-            ariaLabel="Document section"
-            leadingIcon="folder"
-            onBlur={handleSectionBlur}
-            onChange={setSectionDraft}
-            onCommit={commitSection}
-            placeholder="No section"
-            suggestions={sectionSuggestions}
-            value={sectionDraft}
-            variant="borderless"
-          />
-        )}
-        {state.document === null ? null : <DocumentAgentPills references={state.document.references} />}
-      </div>
+      {state.document !== null && state.document.references.length > 0 ? (
+        <div className="mt-1 flex flex-wrap items-center gap-2 pb-6">
+          <DocumentAgentPills references={state.document.references} />
+        </div>
+      ) : null}
+      {sectionOpen && sectionAnchor !== null
+        ? createPortal(
+            <div
+              className="fixed z-[1100] w-[240px] rounded-md border border-border bg-surface-raised p-2 shadow-modal"
+              style={{
+                top: sectionAnchor.bottom + 6,
+                left: Math.max(8, Math.min(sectionAnchor.right - 240, window.innerWidth - 248)),
+              }}
+            >
+              <AutocompleteInput
+                ariaLabel="Document section"
+                autoFocus
+                leadingIcon="folder"
+                onBlur={handleSectionBlur}
+                onChange={setSectionDraft}
+                onCommit={commitSection}
+                placeholder="No section"
+                suggestions={sectionSuggestions}
+                value={sectionDraft}
+              />
+            </div>,
+            document.body,
+          )
+        : null}
       {state.error.length > 0 ? <Surface>{state.error}</Surface> : null}
       {state.document === null ? (
         <Surface>Loading document.</Surface>
