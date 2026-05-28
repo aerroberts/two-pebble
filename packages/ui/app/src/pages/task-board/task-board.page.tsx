@@ -263,7 +263,13 @@ function sortTasksForList(tasks: ProtocolTaskRecord[]): ProtocolTaskRecord[] {
 }
 
 function toListTask(task: ProtocolTaskRecord) {
-  return { id: task.id, name: task.name, poolId: task.poolId, status: task.effectiveStatus };
+  return {
+    id: task.id,
+    name: task.name,
+    description: task.description,
+    poolId: task.poolId,
+    status: task.effectiveStatus,
+  };
 }
 
 function toListPool(pool: TaskPoolRecord) {
