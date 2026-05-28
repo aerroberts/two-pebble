@@ -1,4 +1,13 @@
-import { Button, Header, Input, ListLayout, PageLayout, Section, Surface } from '@two-pebble/components';
+import {
+  Button,
+  Header,
+  Input,
+  ListLayout,
+  PageLayout,
+  Section,
+  Surface,
+  TwoPebbleLogo,
+} from '@two-pebble/components';
 import { useProjectMutations, useProjects } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +39,12 @@ export function ProjectPickerPage() {
 
   return (
     <PageLayout width="fixed">
+      <div className="flex flex-col items-center gap-3 pb-6 text-center">
+        <TwoPebbleLogo size="large" withText text="Two Pebble" />
+        <p className="max-w-md text-sm text-content-muted">
+          Two Pebble is your AI development companion. Manage agents, tasks, documents, and more.
+        </p>
+      </div>
       <Header subtitle="Choose the project scope for agents, tasks, documents, and automations.">Projects</Header>
       <Section title="Projects">
         <ListLayout
@@ -47,7 +62,7 @@ export function ProjectPickerPage() {
         <Surface>
           <div className="flex items-end gap-2">
             <Input label="Name" onChange={(event) => setName(event.target.value)} value={name} />
-            <Button disabled={creating} onClick={() => void createProject()} variant="primary">
+            <Button className="mb-1.5" disabled={creating} onClick={() => void createProject()} variant="primary">
               Create
             </Button>
           </div>
