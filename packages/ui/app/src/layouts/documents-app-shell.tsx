@@ -73,26 +73,33 @@ interface DocumentSection {
 }
 
 /**
- * Splits the flat document list into named sections plus the default
- * unsectioned bucket. The unsectioned bucket always renders first so
- * top-level documents stay accessible; named sections follow in alphabetical
- * order for a stable visual layout.
+ * Splits the flat document list into named sections keyed by each
+ * document's literal `section` value. Documents without a section fall
+ * into a default "Documents" bucket that renders first so top-level
+ * documents stay accessible; documents whose section value coincidentally
+ * equals the default label still count as named sections and render in
+ * alphabetical order with the rest, so the heading is always the real
+ * section the document belongs to.
  */
 function groupBySection(documents: DocumentRecord[]): DocumentSection[] {
-  const buckets = new Map<string, DocumentRecord[]>();
+  const unsectioned: DocumentRecord[] = [];
+  const namedBuckets = new Map<string, DocumentRecord[]>();
   for (const document of documents) {
-    const label = document.section === null ? UNSECTIONED_LABEL : document.section;
-    const existing = buckets.get(label) ?? [];
+    if (document.section === null) {
+      unsectioned.push(document);
+      continue;
+    }
+    const existing = namedBuckets.get(document.section) ?? [];
     existing.push(document);
-    buckets.set(label, existing);
+    namedBuckets.set(document.section, existing);
   }
   const result: DocumentSection[] = [];
-  const unsectioned = buckets.get(UNSECTIONED_LABEL);
-  if (unsectioned !== undefined) {
+  if (unsectioned.length > 0) {
     result.push({ label: UNSECTIONED_LABEL, documents: unsectioned });
-    buckets.delete(UNSECTIONED_LABEL);
   }
-  const named = Array.from(buckets.entries()).sort(([leftLabel], [rightLabel]) => leftLabel.localeCompare(rightLabel));
+  const named = Array.from(namedBuckets.entries()).sort(([leftLabel], [rightLabel]) =>
+    leftLabel.localeCompare(rightLabel),
+  );
   for (const [label, docs] of named) {
     result.push({ label, documents: docs });
   }
