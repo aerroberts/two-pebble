@@ -108,7 +108,7 @@ function renderSidebarContent(input: {
   if (mode === 'configuration') {
     return (
       <>
-        <SidebarSection title={<TwoPebbleLogo withText text="Settings" />} />
+        <SidebarSection title={<LogoHomeButton onClick={() => globalNavigate('/')} text="Settings" />} />
         <ConfigurationSidebar />
       </>
     );
@@ -116,7 +116,7 @@ function renderSidebarContent(input: {
   if (mode === 'metrics') {
     return (
       <>
-        <SidebarSection title={<TwoPebbleLogo withText text="Metrics" />} />
+        <SidebarSection title={<LogoHomeButton onClick={() => globalNavigate('/')} text="Metrics" />} />
         <MetricsSidebar />
       </>
     );
@@ -124,7 +124,7 @@ function renderSidebarContent(input: {
   if (mode === 'developer') {
     return (
       <>
-        <SidebarSection title={<TwoPebbleLogo withText text="Developer" />} />
+        <SidebarSection title={<LogoHomeButton onClick={() => globalNavigate('/')} text="Developer" />} />
         <DeveloperSidebar />
       </>
     );
@@ -132,7 +132,7 @@ function renderSidebarContent(input: {
   if (mode === 'examples') {
     return (
       <>
-        <SidebarSection title={<TwoPebbleLogo withText text="Examples" />} />
+        <SidebarSection title={<LogoHomeButton onClick={() => globalNavigate('/')} text="Examples" />} />
         <ExamplesSidebar />
       </>
     );
@@ -140,10 +140,10 @@ function renderSidebarContent(input: {
   return (
     <>
       {projectId === undefined ? (
-        <SidebarSection title={<TwoPebbleLogo withText text={getPageName(pathname)} />} />
+        <SidebarSection title={<LogoHomeButton onClick={() => navigate('/')} text={getPageName(pathname)} />} />
       ) : (
         <div className="flex w-full items-center gap-2 px-2 pt-1 pb-3">
-          <TwoPebbleLogo />
+          <LogoHomeButton onClick={() => navigate('/')} />
           <div className="min-w-0 flex-1">
             <Select
               fullWidth
@@ -218,6 +218,19 @@ function renderSidebarContent(input: {
         />
       </SidebarSection>
     </>
+  );
+}
+
+function LogoHomeButton(props: { onClick: () => void; text?: string }) {
+  return (
+    <button
+      aria-label="Go home"
+      className="inline-flex shrink-0 items-center rounded-sm text-content transition-colors hover:text-content-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      onClick={props.onClick}
+      type="button"
+    >
+      <TwoPebbleLogo text={props.text} withText={props.text !== undefined} />
+    </button>
   );
 }
 
