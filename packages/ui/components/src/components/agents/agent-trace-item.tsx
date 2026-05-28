@@ -44,13 +44,13 @@ export function AgentTraceItem(props: AgentTraceItemProps) {
         <Tooltip content={formatAbsoluteTime(new Date(props.timestamp))}>
           <span className="truncate text-sm font-medium text-content capitalize">{props.title}</span>
         </Tooltip>
-        {props.titleAction ? <span className="shrink-0">{props.titleAction}</span> : null}
       </div>
       <div className="flex items-center gap-2">
         {props.duration !== undefined && (
           <Duration compact hideInfoIcon start={props.timestamp} end={props.timestamp + props.duration} />
         )}
         {props.status !== 'atomic' && <Status state={statusIconState} variant="icon" />}
+        {props.titleAction ? <span className="shrink-0">{props.titleAction}</span> : null}
       </div>
     </div>
   );
