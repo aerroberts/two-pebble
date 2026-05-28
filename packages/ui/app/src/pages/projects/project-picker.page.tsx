@@ -59,7 +59,7 @@ export function ProjectPickerPage() {
         <Surface>
           <div className="flex items-end gap-2">
             <Input label="Name" onChange={(event) => setName(event.target.value)} value={name} />
-            <Button disabled={creating} onClick={() => void createProject()} variant="primary">
+            <Button className="mb-1.5" disabled={creating} onClick={() => void createProject()} variant="primary">
               Create
             </Button>
           </div>
