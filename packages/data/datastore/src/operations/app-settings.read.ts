@@ -31,7 +31,6 @@ export function appSettingsReadOperation(ctx: DatastoreContext) {
       defaultSpeechProfileId: null,
       assistantAgentRegistryId: null,
       assistantAgentId: null,
-      assistantCommandKEnabled: false,
       assistantCommandKVoiceModeEnabled: false,
       chatConversationFoldingEnabled: false,
       documentRunnerAgentRegistryId: null,
