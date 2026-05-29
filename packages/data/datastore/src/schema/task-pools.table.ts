@@ -14,4 +14,6 @@ export const taskPoolsTable = customTable('task_pools', {
   parentPoolId: text('parent_pool_id'),
   // Human-readable label.
   name: text('name').notNull(),
+  // Template assigned to this group, or null to fall back to the board template.
+  defaultTemplateId: text('default_template_id'),
 });

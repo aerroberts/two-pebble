@@ -30,10 +30,8 @@ export function AssistantSettingsPage() {
   const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries, inferenceProfiles, installs);
   const settings = appSettings.value;
   const assistantAgentRegistryId = project?.assistantAgentRegistryId ?? NONE_VALUE;
-  const assistantCommandKEnabled = settings?.assistantCommandKEnabled ?? false;
   const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
   const chatConversationFoldingEnabled = settings?.chatConversationFoldingEnabled ?? false;
-  const documentRunnerAgentRegistryId = settings?.documentRunnerAgentRegistryId ?? NONE_VALUE;
 
   const onAssistantAgentChange = (value: string) => {
     if (project === null) {
@@ -48,23 +46,6 @@ export function AssistantSettingsPage() {
     });
   };
 
-  const onAssistantCommandKChange = (next: boolean) => {
-    if (settings === null) {
-      return;
-    }
-    void updateAppSettings({
-      defaultKnownIdeId: settings.defaultKnownIdeId,
-      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
-      defaultSpeechProfileId: settings.defaultSpeechProfileId,
-      assistantAgentRegistryId: settings.assistantAgentRegistryId,
-      assistantAgentId: settings.assistantAgentId,
-      assistantCommandKEnabled: next,
-      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
-      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
-      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
-    });
-  };
-
   const onAssistantCommandKVoiceModeChange = (next: boolean) => {
     if (settings === null) {
       return;
@@ -75,7 +56,6 @@ export function AssistantSettingsPage() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
-      assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: next,
       chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
       documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
@@ -92,27 +72,9 @@ export function AssistantSettingsPage() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
-      assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
       chatConversationFoldingEnabled: next,
       documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
-    });
-  };
-
-  const onDocumentRunnerChange = (value: string) => {
-    if (settings === null) {
-      return;
-    }
-    void updateAppSettings({
-      defaultKnownIdeId: settings.defaultKnownIdeId,
-      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
-      defaultSpeechProfileId: settings.defaultSpeechProfileId,
-      assistantAgentRegistryId: settings.assistantAgentRegistryId,
-      assistantAgentId: settings.assistantAgentId,
-      assistantCommandKEnabled: settings.assistantCommandKEnabled,
-      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
-      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
-      documentRunnerAgentRegistryId: value === NONE_VALUE ? null : value,
     });
   };
 
@@ -135,21 +97,16 @@ export function AssistantSettingsPage() {
           />
         </Surface>
       </Section>
-      <Section subtitle="Open the Assistant overlay with Cmd+K (or Ctrl+K) from anywhere." title="Keyboard shortcut">
+      <Section
+        subtitle="The Assistant overlay always opens with Cmd+K (or Ctrl+K) from anywhere."
+        title="Keyboard shortcut"
+      >
         <Surface>
-          <div className="flex flex-col gap-2">
-            <Checkbox
-              checked={assistantCommandKEnabled}
-              label="Enable Cmd+K assistant shortcut"
-              onChange={(event) => onAssistantCommandKChange(event.target.checked)}
-            />
-            <Checkbox
-              checked={assistantCommandKVoiceModeEnabled}
-              disabled={!assistantCommandKEnabled}
-              label="Start in voice mode (auto-records when opened)"
-              onChange={(event) => onAssistantCommandKVoiceModeChange(event.target.checked)}
-            />
-          </div>
+          <Checkbox
+            checked={assistantCommandKVoiceModeEnabled}
+            label="Start in voice mode (auto-records when opened)"
+            onChange={(event) => onAssistantCommandKVoiceModeChange(event.target.checked)}
+          />
         </Surface>
       </Section>
       <Section
@@ -161,23 +118,6 @@ export function AssistantSettingsPage() {
             checked={chatConversationFoldingEnabled}
             label="Fold tool and model traffic by default"
             onChange={(event) => onChatConversationFoldingChange(event.target.checked)}
-          />
-        </Surface>
-      </Section>
-      <Section
-        subtitle="Agent launched by the 'Send to Agent' button on documents. The agent receives a single message containing the document as a reference pill."
-        title="Document runner"
-      >
-        <Surface>
-          <Select
-            fullWidth
-            label="Document runner agent"
-            onChange={onDocumentRunnerChange}
-            options={assistantAgentOptions}
-            placeholder={
-              assistantAgentOptions.length <= 1 ? 'Create an agent in the agent registry first' : 'Select agent'
-            }
-            value={documentRunnerAgentRegistryId}
           />
         </Surface>
       </Section>

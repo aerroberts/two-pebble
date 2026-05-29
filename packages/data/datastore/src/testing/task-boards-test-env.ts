@@ -4,7 +4,7 @@ import type { Datastore } from '../datastore';
  * Exposes this datastore module contract for package-local callers.
  */
 export async function seedBoardWithOneTask(datastore: Datastore) {
-  const board = await datastore.taskBoards.create({ name: 'A' });
+  const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
   const task = await datastore.taskBoards.tasks.create({
     boardId: board.id,
     poolId: null,
@@ -32,7 +32,7 @@ export async function seedTwoTasks(datastore: Datastore) {
  * Exposes this datastore module contract for package-local callers.
  */
 export async function seedBoardWithTwoPools(datastore: Datastore) {
-  const board = await datastore.taskBoards.create({ name: 'A' });
+  const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
   const parent = await datastore.taskBoards.pools.create({ boardId: board.id, parentPoolId: null, name: 'Parent' });
   const child = await datastore.taskBoards.pools.create({ boardId: board.id, parentPoolId: null, name: 'Child' });
   return { boardId: board.id, parentPoolId: parent.id, childPoolId: child.id };
@@ -42,7 +42,7 @@ export async function seedBoardWithTwoPools(datastore: Datastore) {
  * Exposes this datastore module contract for package-local callers.
  */
 export async function seedBoardWithPoolAndTask(datastore: Datastore) {
-  const board = await datastore.taskBoards.create({ name: 'A' });
+  const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
   const pool = await datastore.taskBoards.pools.create({ boardId: board.id, parentPoolId: null, name: 'P' });
   const task = await datastore.taskBoards.tasks.create({
     boardId: board.id,
@@ -67,7 +67,7 @@ export async function recordTwoTaskEvents(datastore: Datastore) {
  * Exposes this datastore module contract for package-local callers.
  */
 export async function createPendingTask(datastore: Datastore) {
-  const board = await datastore.taskBoards.create({ name: 'A' });
+  const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
   return datastore.taskBoards.tasks.create({
     boardId: board.id,
     poolId: null,

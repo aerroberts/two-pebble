@@ -173,6 +173,9 @@ export class DataSyncService {
         return created.id;
       }
       case 'agentRegistry': {
+        if (projectId === undefined) {
+          throw new Error('project id required');
+        }
         const all = await this.datastore.agentRegistries.list({ limit: LIST_LIMIT, offset: 0, projectId });
         const existing = all.items.find((row) => row.name === record.name);
         const values = {
@@ -191,6 +194,9 @@ export class DataSyncService {
         return created.id;
       }
       case 'document': {
+        if (projectId === undefined) {
+          throw new Error('project id required');
+        }
         const all = await this.datastore.documents.list({ limit: LIST_LIMIT, offset: 0, projectId });
         const existing = all.items.find((row) => row.name === record.name);
         const values = {
@@ -207,6 +213,9 @@ export class DataSyncService {
         return created.id;
       }
       case 'board': {
+        if (projectId === undefined) {
+          throw new Error('project id required');
+        }
         const all = await this.datastore.taskBoards.list({ projectId });
         const existing = all.items.find((row) => row.name === record.name);
         const boardId = existing?.id ?? (await this.datastore.taskBoards.create({ name: record.name, projectId })).id;

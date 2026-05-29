@@ -152,12 +152,16 @@ export function useTaskBoardPageState() {
         }
         await mutations.updateBoard({ id: board.id, name: trimmed });
       }),
-    setBoardDefaultTemplate: (templateId: string | null) =>
+    setBoardTemplate: (templateId: string | null) =>
       handle(async () => {
         if (board === null) {
           return;
         }
         await mutations.updateBoard({ id: board.id, name: board.name, defaultTemplateId: templateId });
+      }),
+    setPoolTemplate: (poolId: string, templateId: string | null) =>
+      handle(async () => {
+        await mutations.setPoolTemplate({ id: poolId, defaultTemplateId: templateId });
       }),
     saveTaskName: () =>
       handle(async () => {
@@ -248,6 +252,14 @@ export function useTaskBoardPageState() {
       handle(async () => {
         await mutations.deleteTask({ id });
       }),
+    addTaskComment: (taskId: string, body: string) =>
+      handle(async () => {
+        const trimmed = body.trim();
+        if (trimmed.length === 0) {
+          return;
+        }
+        await mutations.addTaskComment({ taskId, body: trimmed });
+      }),
     delegateTaskById: (taskId: string, agentRegistryId: string) =>
       handle(async () => {
         setDelegating(true);
@@ -329,6 +341,20 @@ export function useTaskBoardPageState() {
     }) =>
       handle(async () => {
         await mutations.createTaskDeliverable(input);
+      }),
+    updateTaskDeliverable: (input: {
+      id: string;
+      name?: string;
+      description?: string;
+      type?: 'text' | 'pr_url';
+      orderIndex?: number;
+    }) =>
+      handle(async () => {
+        await mutations.updateTaskDeliverable(input);
+      }),
+    deleteTaskDeliverable: (id: string) =>
+      handle(async () => {
+        await mutations.deleteTaskDeliverable({ id });
       }),
   };
 }

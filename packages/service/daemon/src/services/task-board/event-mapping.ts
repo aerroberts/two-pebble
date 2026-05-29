@@ -37,6 +37,9 @@ export function rowToProtocolEvent(row: DatastoreEventRow): ProtocolTaskEventRec
     const data = readUndelegationData(row.data);
     return { ...base, kind: 'undelegated', ...data };
   }
+  if (row.kind === 'comment') {
+    return { ...base, kind: 'comment' };
+  }
   return { ...base, kind: 'status', status: row.status as TaskStatusEvent['status'] };
 }
 

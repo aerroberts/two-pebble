@@ -1,6 +1,8 @@
 import { AppBox, Button, Icon, IconButton, Input, Select } from '@two-pebble/components';
+import { markdownToTipTap } from '@two-pebble/datatypes';
 import { useTemplateDeliverables } from '@two-pebble/realtime';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { RichTextFieldHost } from '../../shared/agent-input/rich-text-field-host';
 
 export interface TaskTemplateEditorTemplate {
   id: string;
@@ -42,13 +44,12 @@ const DELIVERABLE_TYPE_OPTIONS = [
  */
 export function TaskTemplateEditorSidebar(props: TaskTemplateEditorSidebarProps) {
   const [name, setName] = useState(props.template.name);
-  const [prompt, setPrompt] = useState(props.template.prompt);
   const { deliverables } = useTemplateDeliverables({ templateId: props.template.id });
+  const promptDoc = useMemo(() => markdownToTipTap(props.template.prompt), [props.template.prompt]);
 
   useEffect(() => {
     setName(props.template.name);
-    setPrompt(props.template.prompt);
-  }, [props.template.name, props.template.prompt]);
+  }, [props.template.name]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -59,13 +60,14 @@ export function TaskTemplateEditorSidebar(props: TaskTemplateEditorSidebarProps)
         onChange={(event) => setName(event.target.value)}
         onBlur={() => props.onUpdateTemplate({ id: props.template.id, name: name.trim() || props.template.name })}
       />
-      <textarea
-        aria-label="Template prompt"
-        className="block min-h-24 w-full resize-y rounded-md border border-border bg-surface-neutral px-3 py-2 text-sm leading-5 text-content outline-none placeholder:text-content-subtle focus:border-strong"
-        value={prompt}
-        onChange={(event) => setPrompt(event.target.value)}
-        onBlur={() => props.onUpdateTemplate({ id: props.template.id, prompt })}
-        placeholder="Additional system prompt"
+      <RichTextFieldHost
+        key={props.template.id}
+        ariaLabel="Template prompt"
+        label="Additional system prompt"
+        minHeight={120}
+        onCommit={(payload) => props.onUpdateTemplate({ id: props.template.id, prompt: payload.markdown })}
+        placeholder="Additional system prompt — / to reference a document"
+        value={promptDoc}
       />
       <div className="flex items-center justify-between">
         <AppBox variant="muted-xs">Deliverables</AppBox>

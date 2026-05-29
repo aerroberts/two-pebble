@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ef6804d4-52b5-438b-b509-1f0c85cb88db",
+  "id": "ba9698e8-603f-40de-8a89-771ddf4eee73",
   "prevId": "92ca3c99-cd8e-4870-a42a-8450357c521a",
   "tables": {
     "agent_calls": {
@@ -95,9 +95,7 @@
       "indexes": {
         "agent_calls_updated_at_idx": {
           "name": "agent_calls_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -178,17 +176,12 @@
       "indexes": {
         "agent_conversation_cells_updated_at_idx": {
           "name": "agent_conversation_cells_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "agent_conversation_cells_thread_order_idx": {
           "name": "agent_conversation_cells_thread_order_idx",
-          "columns": [
-            "thread_id",
-            "order_id"
-          ],
+          "columns": ["thread_id", "order_id"],
           "isUnique": false
         }
       },
@@ -309,9 +302,7 @@
       "indexes": {
         "agent_price_line_items_updated_at_idx": {
           "name": "agent_price_line_items_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -384,18 +375,12 @@
       "indexes": {
         "agent_queued_messages_updated_at_idx": {
           "name": "agent_queued_messages_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "aqm_agent_status_created_idx": {
           "name": "aqm_agent_status_created_idx",
-          "columns": [
-            "agent_id",
-            "status",
-            "created_at"
-          ],
+          "columns": ["agent_id", "status", "created_at"],
           "isUnique": false
         }
       },
@@ -484,16 +469,12 @@
       "indexes": {
         "agent_registries_updated_at_idx": {
           "name": "agent_registries_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "agent_registries_project_id_idx": {
           "name": "agent_registries_project_id_idx",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         }
       },
@@ -601,26 +582,17 @@
       "indexes": {
         "agent_signals_updated_at_idx": {
           "name": "agent_signals_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "agent_signals_agent_capability_signal_idx": {
           "name": "agent_signals_agent_capability_signal_idx",
-          "columns": [
-            "agent_id",
-            "capability_id",
-            "signal_id"
-          ],
+          "columns": ["agent_id", "capability_id", "signal_id"],
           "isUnique": true
         },
         "agent_signals_agent_status_idx": {
           "name": "agent_signals_agent_status_idx",
-          "columns": [
-            "agent_id",
-            "status"
-          ],
+          "columns": ["agent_id", "status"],
           "isUnique": false
         }
       },
@@ -685,9 +657,7 @@
       "indexes": {
         "agent_traces_updated_at_idx": {
           "name": "agent_traces_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -802,16 +772,12 @@
       "indexes": {
         "agents_updated_at_idx": {
           "name": "agents_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "agents_project_id_idx": {
           "name": "agents_project_id_idx",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         }
       },
@@ -879,14 +845,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "assistant_command_k_enabled": {
-          "name": "assistant_command_k_enabled",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
         "assistant_command_k_voice_mode_enabled": {
           "name": "assistant_command_k_voice_mode_enabled",
           "type": "integer",
@@ -909,21 +867,12 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "sync_directory": {
-          "name": "sync_directory",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
         "app_settings_updated_at_idx": {
           "name": "app_settings_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1012,9 +961,7 @@
       "indexes": {
         "automations_updated_at_idx": {
           "name": "automations_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1096,16 +1043,12 @@
       "indexes": {
         "documents_updated_at_idx": {
           "name": "documents_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "documents_project_id_idx": {
           "name": "documents_project_id_idx",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         }
       },
@@ -1170,16 +1113,12 @@
       "indexes": {
         "heartbeats_updated_at_idx": {
           "name": "heartbeats_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "heartbeats_tick_at_idx": {
           "name": "heartbeats_tick_at_idx",
-          "columns": [
-            "tick_at"
-          ],
+          "columns": ["tick_at"],
           "isUnique": false
         }
       },
@@ -1245,9 +1184,7 @@
       "indexes": {
         "inference_profiles_updated_at_idx": {
           "name": "inference_profiles_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1305,9 +1242,7 @@
       "indexes": {
         "third_party_integrations_updated_at_idx": {
           "name": "third_party_integrations_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1365,9 +1300,7 @@
       "indexes": {
         "known_ides_updated_at_idx": {
           "name": "known_ides_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1425,17 +1358,12 @@
       "indexes": {
         "metrics_updated_at_idx": {
           "name": "metrics_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "metrics_name_created_at_idx": {
           "name": "metrics_name_created_at_idx",
-          "columns": [
-            "name",
-            "created_at"
-          ],
+          "columns": ["name", "created_at"],
           "isUnique": false
         }
       },
@@ -1493,9 +1421,7 @@
       "indexes": {
         "projects_updated_at_idx": {
           "name": "projects_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1553,9 +1479,7 @@
       "indexes": {
         "repositories_updated_at_idx": {
           "name": "repositories_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1613,16 +1537,12 @@
       "indexes": {
         "task_boards_updated_at_idx": {
           "name": "task_boards_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "task_boards_project_id_idx": {
           "name": "task_boards_project_id_idx",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         }
       },
@@ -1687,17 +1607,12 @@
       "indexes": {
         "task_deliverable_submissions_updated_at_idx": {
           "name": "task_deliverable_submissions_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "task_deliverable_submissions_task_deliverable_idx": {
           "name": "task_deliverable_submissions_task_deliverable_idx",
-          "columns": [
-            "task_id",
-            "deliverable_id"
-          ],
+          "columns": ["task_id", "deliverable_id"],
           "isUnique": true
         }
       },
@@ -1771,17 +1686,12 @@
       "indexes": {
         "task_deliverables_updated_at_idx": {
           "name": "task_deliverables_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "task_deliverables_task_order_idx": {
           "name": "task_deliverables_task_order_idx",
-          "columns": [
-            "task_id",
-            "order_index"
-          ],
+          "columns": ["task_id", "order_index"],
           "isUnique": true
         }
       },
@@ -1839,9 +1749,7 @@
       "indexes": {
         "task_dependencies_updated_at_idx": {
           "name": "task_dependencies_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1915,9 +1823,7 @@
       "indexes": {
         "task_events_updated_at_idx": {
           "name": "task_events_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -1975,9 +1881,7 @@
       "indexes": {
         "task_pools_updated_at_idx": {
           "name": "task_pools_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -2051,9 +1955,7 @@
       "indexes": {
         "task_template_deliverables_updated_at_idx": {
           "name": "task_template_deliverables_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -2112,9 +2014,7 @@
       "indexes": {
         "task_templates_updated_at_idx": {
           "name": "task_templates_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -2216,9 +2116,7 @@
       "indexes": {
         "tasks_updated_at_idx": {
           "name": "tasks_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -2276,9 +2174,7 @@
       "indexes": {
         "third_party_agent_installs_updated_at_idx": {
           "name": "third_party_agent_installs_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -2400,39 +2296,27 @@
       "indexes": {
         "tracked_prs_updated_at_idx": {
           "name": "tracked_prs_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "tracked_prs_repo_number_idx": {
           "name": "tracked_prs_repo_number_idx",
-          "columns": [
-            "repo",
-            "number"
-          ],
+          "columns": ["repo", "number"],
           "isUnique": true
         },
         "tracked_prs_task_deliverable_idx": {
           "name": "tracked_prs_task_deliverable_idx",
-          "columns": [
-            "task_id",
-            "deliverable_id"
-          ],
+          "columns": ["task_id", "deliverable_id"],
           "isUnique": true
         },
         "tracked_prs_state_idx": {
           "name": "tracked_prs_state_idx",
-          "columns": [
-            "state"
-          ],
+          "columns": ["state"],
           "isUnique": false
         },
         "tracked_prs_agent_idx": {
           "name": "tracked_prs_agent_idx",
-          "columns": [
-            "agent_id"
-          ],
+          "columns": ["agent_id"],
           "isUnique": false
         }
       },
@@ -2483,9 +2367,7 @@
       "indexes": {
         "workspaces_updated_at_idx": {
           "name": "workspaces_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -2550,9 +2432,7 @@
       "indexes": {
         "worktrees_updated_at_idx": {
           "name": "worktrees_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },

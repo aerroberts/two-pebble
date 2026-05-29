@@ -75,8 +75,22 @@
     {
       "idx": 10,
       "version": "6",
-      "when": 1780026327819,
-      "tag": "0010_data_sync_directory",
+      "when": 1780019137270,
+      "tag": "0010_drop_assistant_command_k_enabled",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1780020667746,
+      "tag": "0011_task_pool_template",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1780033714172,
+      "tag": "0012_data_sync_directory",
       "breakpoints": true
     }
   ]

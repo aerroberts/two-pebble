@@ -8,7 +8,7 @@ export interface AgentCreateOperation {
     description: string;
     name: string;
     parentAgentId?: string | null;
-    projectId?: string;
+    projectId: string;
   };
   response: {
     id: string;
