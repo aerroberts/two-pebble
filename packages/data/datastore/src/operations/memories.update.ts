@@ -4,11 +4,11 @@ import type { DatastoreContext, MemoryRecord } from '../types';
 type OperationHandlerInput = {
   id: string;
   name?: string;
+  path?: string;
 };
 
 /**
- * Updates the mutable fields of a memory collection row. Only `name` is
- * mutable; `path` and `projectId` are fixed at creation.
+ * Updates the mutable fields of a memory collection row.
  */
 export function memoriesUpdateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
@@ -24,7 +24,10 @@ export function memoriesUpdateOperation(ctx: DatastoreContext) {
 
     const row = await ctx.database
       .update(ctx.schema.memoriesTable)
-      .set({ name: input.name ?? existing.name })
+      .set({
+        name: input.name ?? existing.name,
+        path: input.path ?? existing.path,
+      })
       .where(eq(ctx.schema.memoriesTable.id, input.id))
       .returning()
       .get();

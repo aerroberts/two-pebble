@@ -91,10 +91,12 @@ import type { CreateMemoryOperation } from './protocol/memories.create';
 import type { DeleteMemoryOperation } from './protocol/memories.delete';
 import type { MemoryDeletedEvent } from './protocol/memories.deleted';
 import type { MemoryFilesListOperation } from './protocol/memories.files.list';
+import type { MemoryFolderOpenOperation } from './protocol/memories.files.open-folder';
 import type { MemoryFilesReadOperation } from './protocol/memories.files.read';
 import type { MemoryFilesWriteOperation } from './protocol/memories.files.write';
 import type { MemoriesListOperation } from './protocol/memories.list';
 import type { ReadMemoryOperation } from './protocol/memories.read';
+import type { UpdateMemoryOperation } from './protocol/memories.update';
 import type { MemoryUpdatedEvent } from './protocol/memories.updated';
 import type { MetricsListNamesOperation } from './protocol/metrics.list-names';
 import type { MetricsListVariantsOperation } from './protocol/metrics.list-variants';
@@ -275,7 +277,9 @@ export type DaemonOperations = [
   MemoriesListOperation,
   CreateMemoryOperation,
   ReadMemoryOperation,
+  UpdateMemoryOperation,
   DeleteMemoryOperation,
+  MemoryFolderOpenOperation,
   MemoryFilesListOperation,
   MemoryFilesReadOperation,
   MemoryFilesWriteOperation,

@@ -8,5 +8,6 @@ export interface MemoriesState {
 export type CreateMemoryInput = RealtimeEmitPayload<'createMemory'>;
 export type CreateMemoryResponse = RealtimeEmitResponse<'createMemory'>;
 export type ReadMemoryInput = RealtimeEmitPayload<'readMemory'>;
+export type UpdateMemoryInput = RealtimeEmitPayload<'updateMemory'>;
 export type DeleteMemoryInput = RealtimeEmitPayload<'deleteMemory'>;
 export type MemoryRecord = RealtimeEmitResponse<'listMemories'>['items'][number];
