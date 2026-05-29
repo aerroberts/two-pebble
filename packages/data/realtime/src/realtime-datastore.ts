@@ -339,6 +339,9 @@ export class RealtimeDatastore {
       list: listSkillsOperation({ datastore: this }),
       read: readSkillOperation({ datastore: this }),
       update: updateSkillOperation({ datastore: this }),
+      listFiles: (payload: { skillId: string }) => this.emit('listSkillFiles', payload),
+      readFile: (payload: { file: string; skillId: string }) => this.emit('readSkillFile', payload),
+      openFolder: (payload: { skillId: string }) => this.emit('openSkillFolder', payload),
     };
   }
 

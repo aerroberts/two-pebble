@@ -112,6 +112,9 @@ import type { RepositoriesUpdatedEvent } from './protocol/repositories.updated';
 import type { CreateSkillOperation } from './protocol/skills.create';
 import type { DeleteSkillOperation } from './protocol/skills.delete';
 import type { SkillDeletedEvent } from './protocol/skills.deleted';
+import type { SkillFilesListOperation } from './protocol/skills.files.list';
+import type { SkillFolderOpenOperation } from './protocol/skills.files.open-folder';
+import type { SkillFilesReadOperation } from './protocol/skills.files.read';
 import type { SkillsListOperation } from './protocol/skills.list';
 import type { ReadSkillOperation } from './protocol/skills.read';
 import type { UpdateSkillOperation } from './protocol/skills.update';
@@ -281,6 +284,9 @@ export type DaemonOperations = [
   ReadSkillOperation,
   UpdateSkillOperation,
   DeleteSkillOperation,
+  SkillFilesListOperation,
+  SkillFilesReadOperation,
+  SkillFolderOpenOperation,
   WorktreesListOperation,
   WorktreesCreateOperation,
   WorktreesDeleteOperation,
