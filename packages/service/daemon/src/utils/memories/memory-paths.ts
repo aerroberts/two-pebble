@@ -11,6 +11,21 @@ export function buildMemoryPath(memoryId: string): string {
 }
 
 /**
+ * Normalizes a user-supplied memory folder path before it is stored. Memory
+ * folders may be created on demand, so this validates shape rather than
+ * requiring the target to exist already.
+ */
+export function normalizeMemoryPath(root: string): string {
+  if (!path.isAbsolute(root)) {
+    throw new Error(`Memory folder path must be absolute: ${root}`);
+  }
+  if (root.split(/[/\\]/).includes('..')) {
+    throw new Error(`Memory folder path must not contain '..' segments: ${root}`);
+  }
+  return path.normalize(root);
+}
+
+/**
  * Resolves a caller-supplied file path inside a memory folder and rejects
  * anything that escapes the folder via `..` or an absolute path. Returns
  * the absolute on-disk path. Throws a model-actionable error on violation.
