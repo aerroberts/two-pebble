@@ -1,10 +1,10 @@
 import {
   type ProtocolTaskRecord,
   type TrackedPrRecord,
-  useAgentRegistries,
   useAgents,
   useBoardTaskTemplates,
   useInferenceProfiles,
+  useProjectAgentRegistries,
   useTaskBoardContents,
   useTaskBoardMutations,
   useTaskBoards,
@@ -44,7 +44,7 @@ export function useTaskBoardPageState() {
   const taskTemplates = useBoardTaskTemplates({ boardId });
   const mutations = useTaskBoardMutations();
   const templateMutations = useTaskTemplateMutations();
-  const agentRegistries = useAgentRegistries({ projectId });
+  const agentRegistries = useProjectAgentRegistries(projectId);
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const agents = useAgents({ projectId });

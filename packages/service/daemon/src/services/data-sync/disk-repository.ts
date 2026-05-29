@@ -35,11 +35,14 @@ export class DiskRepository {
     if (record.entityType === 'repository') {
       return path.join(directory, REPOSITORIES_DIR, `${slugify(record.name)}.json`);
     }
-    const projectSlug = slugify(record.projectName ?? record.name);
-    const projectDir = path.join(directory, PROJECTS_DIR, projectSlug);
     if (record.entityType === 'project') {
-      return path.join(projectDir, 'project.json');
+      return path.join(directory, PROJECTS_DIR, slugify(record.name), 'project.json');
     }
+    // Global (non-project) entities live in a top-level folder by entity kind.
+    if (record.projectName === undefined) {
+      return path.join(directory, ENTITY_SUBDIR[record.entityType], `${slugify(record.name)}.json`);
+    }
+    const projectDir = path.join(directory, PROJECTS_DIR, slugify(record.projectName));
     return path.join(projectDir, ENTITY_SUBDIR[record.entityType], `${slugify(record.name)}.json`);
   }
 

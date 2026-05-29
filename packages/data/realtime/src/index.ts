@@ -46,6 +46,7 @@ export type {
 export { useAgentRegistries } from './states/agent-registries/hooks/use-agent-registries.hook';
 export { useCreateAgentRegistry } from './states/agent-registries/hooks/use-create-agent-registry.hook';
 export { useDeleteAgentRegistry } from './states/agent-registries/hooks/use-delete-agent-registry.hook';
+export { useProjectAgentRegistries } from './states/agent-registries/hooks/use-project-agent-registries.hook';
 export { useUpdateAgentRegistry } from './states/agent-registries/hooks/use-update-agent-registry.hook';
 export type {
   AgentRegistriesState,

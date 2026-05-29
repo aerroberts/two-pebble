@@ -53,7 +53,7 @@ export function handler(ctx: DaemonHandlerContext) {
       agentRegistryId: payload.agentRegistryId,
       message,
       cells,
-      projectId: registry.projectId,
+      projectId: task.projectId,
     });
     const taskAssignedTrace = await ctx.datastore.agent.traces.record({
       agentId: launched.id,
@@ -100,6 +100,7 @@ export function handler(ctx: DaemonHandlerContext) {
 interface MinimalTaskRow {
   id: string;
   boardId: string;
+  projectId: string;
   name: string;
   description: string | null;
   descriptionContent: string | null;
@@ -113,7 +114,7 @@ async function findTask(ctx: DaemonHandlerContext, taskId: string): Promise<Mini
     const tasks = await ctx.datastore.taskBoards.tasks.list({ boardId: board.id });
     const found = tasks.items.find((task) => task.id === taskId);
     if (found !== undefined) {
-      return found as MinimalTaskRow;
+      return { ...(found as Omit<MinimalTaskRow, 'projectId'>), projectId: board.projectId };
     }
   }
   throw new Error(`task "${taskId}" not found`);

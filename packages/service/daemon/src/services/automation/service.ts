@@ -83,11 +83,9 @@ export class AutomationService extends DaemonService {
     if (row === null) {
       throw new Error(`Automation not found: ${automationId}`);
     }
-    const registry = await this.datastore.agentRegistries.read({ id: row.agentRegistryId });
     const launched = await this.agentRegistry.launch({
       agentRegistryId: row.agentRegistryId,
       message: row.message,
-      projectId: registry.projectId,
     });
     const updated = await this.datastore.automations.recordRun({ id: automationId, ranAt: now });
     this.daemon.events.emit('automationUpdated', updated);

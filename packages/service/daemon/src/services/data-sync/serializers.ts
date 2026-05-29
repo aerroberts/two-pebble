@@ -22,7 +22,6 @@ export interface SerializeContext {
   projectNameById: Map<string, string>;
   repositoryNameById: Map<string, string>;
   agentRegistryNameById: Map<string, string>;
-  agentRegistryProjectIdById: Map<string, string>;
   inferenceProfileNameById: Map<string, string>;
   thirdPartyInstallNameById: Map<string, string>;
   taskTemplateNameById: Map<string, string>;
@@ -88,7 +87,6 @@ interface RepositoryRowLike {
 }
 interface AgentRegistryRowLike {
   name: string;
-  projectId: string;
   kind: string;
   systemPrompt: TipTapDocument;
   capabilities: string;
@@ -175,14 +173,9 @@ const repositorySerializer: SyncSerializer = {
 
 const agentRegistrySerializer: SyncSerializer = {
   entityType: 'agentRegistry',
-  projectScoped: true,
+  projectScoped: false,
   serialize(row, ctx) {
     const registry = row as AgentRegistryRowLike;
-    const projectName = ctx.projectNameById.get(registry.projectId);
-    if (projectName === undefined) {
-      ctx.warnings.push(`Agent "${registry.name}" has no project and was skipped.`);
-      return null;
-    }
     const { config } = rewriteWorkspaceConfigToNames(registry.workspaceConfig, ctx);
     const inferenceProfileName =
       registry.inferenceProfileId === null
@@ -195,7 +188,6 @@ const agentRegistrySerializer: SyncSerializer = {
     return {
       entityType: 'agentRegistry',
       name: registry.name,
-      projectName,
       fields: {
         kind: registry.kind,
         systemPrompt: registry.systemPrompt,
@@ -212,7 +204,6 @@ const agentRegistrySerializer: SyncSerializer = {
     const thirdPartyAgentInstallName = asString(record.fields.thirdPartyAgentInstallName);
     return {
       name: record.name,
-      projectName: record.projectName,
       input: {
         name: record.name,
         systemPrompt: record.fields.systemPrompt as TipTapDocument,
@@ -229,14 +220,6 @@ const agentRegistrySerializer: SyncSerializer = {
   },
   dependencies(record) {
     const refs: DependencyRef[] = [];
-    if (record.projectName !== undefined) {
-      refs.push({
-        key: reconcileKey('project', undefined, record.projectName),
-        entityType: 'project',
-        name: record.projectName,
-        syncable: true,
-      });
-    }
     const config = record.fields.workspaceConfig as Record<string, unknown> | undefined;
     const repositoryName = config === undefined ? null : asString(config.repositoryName);
     if (repositoryName !== null) {
@@ -358,20 +341,17 @@ const boardSerializer: SyncSerializer = {
 
 const automationSerializer: SyncSerializer = {
   entityType: 'automation',
-  projectScoped: true,
+  projectScoped: false,
   serialize(row, ctx) {
     const automation = row as AutomationRowLike;
     const agentRegistryName = ctx.agentRegistryNameById.get(automation.agentRegistryId);
-    const registryProjectId = ctx.agentRegistryProjectIdById.get(automation.agentRegistryId);
-    const projectName = registryProjectId === undefined ? undefined : ctx.projectNameById.get(registryProjectId);
-    if (agentRegistryName === undefined || projectName === undefined) {
+    if (agentRegistryName === undefined) {
       ctx.warnings.push(`Automation "${automation.name}" references a missing agent and was skipped.`);
       return null;
     }
     return {
       entityType: 'automation',
       name: automation.name,
-      projectName,
       fields: {
         message: automation.message,
         intervalUnit: automation.intervalUnit,
@@ -384,7 +364,6 @@ const automationSerializer: SyncSerializer = {
   deserialize(record) {
     return {
       name: record.name,
-      projectName: record.projectName,
       input: {
         name: record.name,
         message: asString(record.fields.message) ?? '',
@@ -397,12 +376,12 @@ const automationSerializer: SyncSerializer = {
   },
   dependencies(record) {
     const agentRegistryName = asString(record.fields.agentRegistryName);
-    if (record.projectName === undefined || agentRegistryName === null) {
+    if (agentRegistryName === null) {
       return [];
     }
     return [
       {
-        key: reconcileKey('agentRegistry', record.projectName, agentRegistryName),
+        key: reconcileKey('agentRegistry', undefined, agentRegistryName),
         entityType: 'agentRegistry',
         name: agentRegistryName,
         syncable: true,

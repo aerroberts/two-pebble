@@ -19,13 +19,6 @@ export interface AppSettings {
    */
   chatConversationFoldingEnabled: boolean;
   /**
-   * Agent registry id used by the document "Send to Agent" affordance. When
-   * a user clicks the button on a document, a fresh copy of this registry's
-   * agent launches with the document referenced as a single message. `null`
-   * hides the button.
-   */
-  documentRunnerAgentRegistryId: string | null;
-  /**
    * Local folder the data-sync feature reads from and writes to when exporting
    * or importing configuration and documents. `null` until the user picks one.
    * Optional on update so existing settings writers need not set it; the read

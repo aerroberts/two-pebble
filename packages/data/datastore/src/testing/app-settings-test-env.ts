@@ -15,7 +15,6 @@ export async function writeFullAppSettings() {
     assistantAgentId: 'agent-1',
     assistantCommandKVoiceModeEnabled: false,
     chatConversationFoldingEnabled: false,
-    documentRunnerAgentRegistryId: null,
   });
   await datastore.close();
   return updated;
@@ -36,7 +35,6 @@ export async function clearAssistantAgentSetting() {
     assistantAgentId: 'agent-1',
     assistantCommandKVoiceModeEnabled: false,
     chatConversationFoldingEnabled: false,
-    documentRunnerAgentRegistryId: null,
   });
   const cleared = await datastore.appSettings.update({
     defaultKnownIdeId: null,
@@ -46,7 +44,6 @@ export async function clearAssistantAgentSetting() {
     assistantAgentId: null,
     assistantCommandKVoiceModeEnabled: false,
     chatConversationFoldingEnabled: false,
-    documentRunnerAgentRegistryId: null,
   });
   await datastore.close();
   return cleared;

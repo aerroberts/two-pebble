@@ -5,6 +5,8 @@ export interface ProjectsUpdateOperation {
   request: {
     assistantAgentId?: string | null;
     assistantAgentRegistryId?: string | null;
+    documentRunnerAgentRegistryId?: string | null;
+    enabledAgentRegistryIds?: string[];
     id: string;
     name?: string;
   };

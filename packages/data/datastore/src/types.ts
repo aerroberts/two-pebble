@@ -278,7 +278,6 @@ export interface AgentRegistryRecord {
   id: string;
   createdAt: number;
   updatedAt: number;
-  projectId: string;
   name: string;
   /**
    * Derived (not persisted): 'framework' when `thirdPartyAgentInstallId` is

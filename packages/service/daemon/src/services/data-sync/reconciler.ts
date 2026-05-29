@@ -30,7 +30,11 @@ export interface ReconcileInput {
 
 /** Whether a record is in scope for an export. Global entities always are. */
 function inScope(record: DiskRecord, projectNames: string[]): boolean {
-  if (record.entityType === 'repository') {
+  if (
+    record.entityType === 'repository' ||
+    record.entityType === 'agentRegistry' ||
+    record.entityType === 'automation'
+  ) {
     return true;
   }
   if (record.entityType === 'project') {

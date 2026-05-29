@@ -5,7 +5,6 @@ import {
   useAgentRegistries,
   useDeleteAgentRegistry,
   useInferenceProfiles,
-  useProjects,
   useRepositories,
   useThirdPartyAgentInstalls,
   useUpdateAgentRegistry,
@@ -21,9 +20,7 @@ import { parseWorkspaceConfigString, serializeWorkspaceConfig } from './workspac
 const DEFAULT_WORKSPACE_CONFIG: WorkspaceConfig = { kind: 'absolute', path: '' };
 
 export function useAgentRegistrySettingsPageState() {
-  const projects = useProjects();
-  const projectId = projects.values()[0]?.id ?? '';
-  const agentRegistries = useAgentRegistries(projectId.length === 0 ? undefined : { projectId });
+  const agentRegistries = useAgentRegistries();
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const repositories = useRepositories();
