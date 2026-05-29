@@ -252,6 +252,14 @@ export function useTaskBoardPageState() {
       handle(async () => {
         await mutations.deleteTask({ id });
       }),
+    addTaskComment: (taskId: string, body: string) =>
+      handle(async () => {
+        const trimmed = body.trim();
+        if (trimmed.length === 0) {
+          return;
+        }
+        await mutations.addTaskComment({ taskId, body: trimmed });
+      }),
     delegateTaskById: (taskId: string, agentRegistryId: string) =>
       handle(async () => {
         setDelegating(true);

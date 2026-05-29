@@ -101,6 +101,7 @@ import { handler as deleteTaskTemplateHandler } from './handlers/task-templates.
 import { handler as listTaskTemplatesHandler } from './handlers/task-templates.list.handler';
 import { handler as readTaskTemplateHandler } from './handlers/task-templates.read.handler';
 import { handler as updateTaskTemplateHandler } from './handlers/task-templates.update.handler';
+import { handler as addTaskCommentHandler } from './handlers/tasks.add-comment.handler';
 import { handler as createTaskHandler } from './handlers/tasks.create.handler';
 import { handler as delegateTaskHandler } from './handlers/tasks.delegate.handler';
 import { handler as deleteTaskHandler } from './handlers/tasks.delete.handler';
@@ -237,6 +238,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('createTask', createTaskHandler(context));
   register('delegateTask', delegateTaskHandler(context));
   register('undelegateTask', undelegateTaskHandler(context));
+  register('addTaskComment', addTaskCommentHandler(context));
   register('renameTask', renameTaskHandler(context));
   register('setTaskStatus', setTaskStatusHandler(context));
   register('updateTaskDescription', updateTaskDescriptionHandler(context));

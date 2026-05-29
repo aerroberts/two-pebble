@@ -135,6 +135,7 @@ import type { TaskTemplatesListOperation } from './protocol/task-templates.list'
 import type { TaskTemplatesReadOperation } from './protocol/task-templates.read';
 import type { TaskTemplatesUpdateOperation } from './protocol/task-templates.update';
 import type { TaskTemplateUpdatedEvent } from './protocol/task-templates.updated';
+import type { TasksAddCommentOperation } from './protocol/tasks.add-comment';
 import type { TasksCreateOperation } from './protocol/tasks.create';
 import type { TasksDelegateOperation, TasksUndelegateOperation } from './protocol/tasks.delegate';
 import type { TasksDeleteOperation } from './protocol/tasks.delete';
@@ -271,6 +272,7 @@ export type DaemonOperations = [
   TasksUpdateStatusOperation,
   TasksDelegateOperation,
   TasksUndelegateOperation,
+  TasksAddCommentOperation,
   TasksDeleteOperation,
   TaskDependenciesListOperation,
   TaskDependenciesCreateOperation,

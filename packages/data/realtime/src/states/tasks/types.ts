@@ -20,6 +20,7 @@ export type DeleteTaskPoolInput = RealtimeEmitPayload<'deleteTaskPool'>;
 export type SetTaskPoolTemplateInput = RealtimeEmitPayload<'setTaskPoolTemplate'>;
 export type CreateTaskInput = RealtimeEmitPayload<'createTask'>;
 export type DelegateTaskInput = RealtimeEmitPayload<'delegateTask'>;
+export type AddTaskCommentInput = RealtimeEmitPayload<'addTaskComment'>;
 export type RenameTaskInput = RealtimeEmitPayload<'renameTask'>;
 export type SetTaskStatusInput = RealtimeEmitPayload<'setTaskStatus'>;
 export type UndelegateTaskInput = RealtimeEmitPayload<'undelegateTask'>;
