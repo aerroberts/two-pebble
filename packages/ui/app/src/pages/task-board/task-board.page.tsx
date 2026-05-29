@@ -207,18 +207,7 @@ export function TaskBoardPage() {
               if (task === undefined) {
                 return null;
               }
-              const owner = state.findOwnerAgent(task.ownerId);
-              return (
-                <TaskListAccessory
-                  task={task}
-                  ownerName={owner?.name ?? null}
-                  delegateOptions={delegateOptions}
-                  delegating={state.delegating}
-                  trackedPrs={state.trackedPrsForTask(taskId)}
-                  onDelegate={(agentRegistryId) => void state.delegateTaskById(taskId, agentRegistryId)}
-                  onUndelegate={() => void state.undelegateTaskById(taskId)}
-                />
-              );
+              return <TaskListAccessory trackedPrs={state.trackedPrsForTask(taskId)} />;
             }}
             onChangeStatus={(taskId, status) => void state.setTaskStatusById(taskId, status)}
           />
