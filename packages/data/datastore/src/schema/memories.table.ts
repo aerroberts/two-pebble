@@ -6,9 +6,8 @@ import { customTable } from '../table/custom-table';
  * A memory collection: a project-scoped pointer to a folder of markdown
  * files on disk. The datastore stores only the row (pointer + metadata) —
  * file contents live on disk and are owned by the daemon, mirroring the
- * repositories↔worktrees split. `path` is computed as `buildMemoryPath(id)`
- * and stored at creation so historical rows are insulated from derivation
- * changes and hot-path reads avoid recompute.
+ * repositories↔worktrees split. `path` is stored at creation so historical
+ * rows are insulated from default path derivation changes.
  */
 export const memoriesTable = customTable(
   'memories',

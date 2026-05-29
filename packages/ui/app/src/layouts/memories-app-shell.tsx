@@ -1,4 +1,15 @@
-import { AppBox, AuxiliarySidebarLayout, Sidebar, SidebarOption, SidebarSection } from '@two-pebble/components';
+import {
+  AppBox,
+  AuxiliarySidebarLayout,
+  Button,
+  Input,
+  Modal,
+  ModalActions,
+  ModalBody,
+  Sidebar,
+  SidebarOption,
+  SidebarSection,
+} from '@two-pebble/components';
 import { useMemories, useMemoryMutations } from '@two-pebble/realtime';
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -13,16 +24,22 @@ export function MemoriesAppShell(props: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const memoryList = useMemo(
     () => memories.values().sort((left, right) => right.updatedAt - left.updatedAt),
     [memories],
   );
 
-  const createMemory = async () => {
+  const createMemory = async (input: { name: string; path: string }) => {
     setCreating(true);
+    setCreateError(null);
     try {
-      const created = await mutations.createMemory({ name: 'Untitled', projectId });
+      const created = await mutations.createMemory({ name: input.name, path: input.path, projectId });
+      setCreateModalOpen(false);
       navigate(projectPath(projectId, `/memories/${created.id}`));
+    } catch (error) {
+      setCreateError(error instanceof Error ? error.message : 'Could not create memory collection.');
     } finally {
       setCreating(false);
     }
@@ -38,7 +55,7 @@ export function MemoriesAppShell(props: AppShellProps) {
                 disabled={creating}
                 icon="plus"
                 label="New collection"
-                onClick={() => void createMemory()}
+                onClick={() => setCreateModalOpen(true)}
               />
             }
           >
@@ -64,6 +81,69 @@ export function MemoriesAppShell(props: AppShellProps) {
       >
         {props.children}
       </AuxiliarySidebarLayout>
+      {createModalOpen ? (
+        <CreateMemoryModal
+          error={createError}
+          saving={creating}
+          onClose={() => {
+            setCreateError(null);
+            setCreateModalOpen(false);
+          }}
+          onCreate={(input) => void createMemory(input)}
+        />
+      ) : null}
     </MainAppShell>
+  );
+}
+
+function CreateMemoryModal(props: {
+  error: string | null;
+  onClose: () => void;
+  onCreate: (input: { name: string; path: string }) => void;
+  saving: boolean;
+}) {
+  const [name, setName] = useState('');
+  const [folderPath, setFolderPath] = useState('');
+
+  const trimmedName = name.trim();
+  const trimmedPath = folderPath.trim();
+  const saveDisabled = props.saving || trimmedName.length === 0 || trimmedPath.length === 0;
+
+  return (
+    <Modal
+      onClose={props.onClose}
+      open
+      subtitle="Choose the folder where this memory collection's markdown files should live."
+      title="New memory collection"
+    >
+      <ModalBody>
+        <Input
+          label="Name"
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Project notes"
+          value={name}
+        />
+        <Input
+          label="Folder path"
+          leadingIcon="folder"
+          onChange={(event) => setFolderPath(event.target.value)}
+          placeholder="/Users/you/memories/project-notes"
+          value={folderPath}
+        />
+        {props.error !== null ? <p className="text-[12px] leading-4 text-danger">{props.error}</p> : null}
+        <ModalActions>
+          <Button disabled={props.saving} onClick={props.onClose}>
+            Cancel
+          </Button>
+          <Button
+            disabled={saveDisabled}
+            onClick={() => props.onCreate({ name: trimmedName, path: trimmedPath })}
+            variant="primary"
+          >
+            {props.saving ? 'Creating' : 'Create collection'}
+          </Button>
+        </ModalActions>
+      </ModalBody>
+    </Modal>
   );
 }

@@ -9,21 +9,22 @@ export interface MemoryRecord {
   name: string;
   projectId: string;
   /**
-   * Absolute path to the on-disk folder backing this collection, computed
-   * as `buildMemoryPath(id)` and stored at creation.
+   * Absolute path to the on-disk folder backing this collection. Callers may
+   * supply it at creation; otherwise the daemon creates a default path.
    */
   path: string;
 }
 
 /**
  * Defines the CreateMemoryOperation protocol contract for daemon bridge messages.
- * The daemon pre-generates the id, computes the path, writes the row, then
- * creates the folder and seeds `index.md` — all in one round trip.
+ * The daemon pre-generates the id, resolves the folder path, writes the row,
+ * then creates the folder and seeds `index.md` if needed.
  */
 export interface CreateMemoryOperation {
   name: 'createMemory';
   request: {
     name: string;
+    path?: string;
     projectId?: string;
   };
   response: MemoryRecord;

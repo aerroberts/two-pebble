@@ -8,10 +8,9 @@ type OperationHandlerInput = {
 };
 
 /**
- * Inserts a memory collection row. The caller pre-generates `id` and the
- * stored `path` (a pure function of that id) so creation is a single write
- * — no create-then-update dance. Pure DB; the folder is created by the
- * daemon handler that orchestrates this call.
+ * Inserts a memory collection row. The caller supplies the stored `path` so
+ * creation is a single write. Pure DB; the folder is created by the daemon
+ * handler that orchestrates this call.
  */
 export function memoriesCreateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {

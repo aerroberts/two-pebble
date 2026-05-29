@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { listMemoryFiles, readMemoryFile, seedIndex, writeMemoryFile } from './memory-files';
-import { resolveMemoryFilePath } from './memory-paths';
+import { normalizeMemoryPath, resolveMemoryFilePath } from './memory-paths';
 
 async function makeRoot(): Promise<string> {
   const root = path.join(os.tmpdir(), `memories-test-${crypto.randomUUID()}`);
@@ -12,6 +12,18 @@ async function makeRoot(): Promise<string> {
 }
 
 describe('resolveMemoryFilePath', () => {
+  test('happy: normalizes an absolute memory folder path', () => {
+    expect(normalizeMemoryPath('/root/memories/project')).toBe('/root/memories/project');
+  });
+
+  test('sad: rejects relative memory folder paths', () => {
+    expect(() => normalizeMemoryPath('memories/project')).toThrow(/absolute/);
+  });
+
+  test('sad: rejects memory folder paths with traversal segments', () => {
+    expect(() => normalizeMemoryPath('/root/../memories/project')).toThrow(/\.\./);
+  });
+
   test('happy: resolves a relative path inside the folder', () => {
     expect(resolveMemoryFilePath('/root/mem', 'notes/a.md')).toBe('/root/mem/notes/a.md');
   });
