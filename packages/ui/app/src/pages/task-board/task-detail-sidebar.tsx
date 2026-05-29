@@ -118,15 +118,17 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         ) : null}
       </div>
       <AppBox variant="controls-row">
-        <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
-          Create template from task
-        </Button>
-      </AppBox>
-      <AppBox variant="controls-row">
         <Button leftIcon="trash" onClick={props.onDeleteTask} type="button" variant="secondary">
           Delete task
         </Button>
       </AppBox>
+      <div className="mt-auto pt-3">
+        <AppBox variant="controls-row">
+          <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
+            Create template from task
+          </Button>
+        </AppBox>
+      </div>
     </>
   );
 }
