@@ -31,11 +31,16 @@ export function MemoriesAppShell(props: AppShellProps) {
     [memories],
   );
 
-  const createMemory = async (input: { name: string; path: string }) => {
+  const createMemory = async (input: { description: string; name: string; path: string }) => {
     setCreating(true);
     setCreateError(null);
     try {
-      const created = await mutations.createMemory({ name: input.name, path: input.path, projectId });
+      const created = await mutations.createMemory({
+        description: input.description,
+        name: input.name,
+        path: input.path,
+        projectId,
+      });
       setCreateModalOpen(false);
       navigate(projectPath(projectId, `/memories/${created.id}`));
     } catch (error) {
@@ -99,13 +104,15 @@ export function MemoriesAppShell(props: AppShellProps) {
 function CreateMemoryModal(props: {
   error: string | null;
   onClose: () => void;
-  onCreate: (input: { name: string; path: string }) => void;
+  onCreate: (input: { description: string; name: string; path: string }) => void;
   saving: boolean;
 }) {
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [folderPath, setFolderPath] = useState('');
 
   const trimmedName = name.trim();
+  const trimmedDescription = description.trim();
   const trimmedPath = folderPath.trim();
   const saveDisabled = props.saving || trimmedName.length === 0 || trimmedPath.length === 0;
 
@@ -124,6 +131,12 @@ function CreateMemoryModal(props: {
           value={name}
         />
         <Input
+          label="Description"
+          onChange={(event) => setDescription(event.target.value)}
+          placeholder="What this collection stores"
+          value={description}
+        />
+        <Input
           label="Folder path"
           leadingIcon="folder"
           onChange={(event) => setFolderPath(event.target.value)}
@@ -137,7 +150,7 @@ function CreateMemoryModal(props: {
           </Button>
           <Button
             disabled={saveDisabled}
-            onClick={() => props.onCreate({ name: trimmedName, path: trimmedPath })}
+            onClick={() => props.onCreate({ description: trimmedDescription, name: trimmedName, path: trimmedPath })}
             variant="primary"
           >
             {props.saving ? 'Creating' : 'Create collection'}

@@ -1,0 +1,1 @@
+ALTER TABLE `memories` ADD `description` text DEFAULT '' NOT NULL;

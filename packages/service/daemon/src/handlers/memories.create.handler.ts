@@ -25,6 +25,7 @@ export function handler(ctx: DaemonHandlerContext) {
         ? buildMemoryPath(id)
         : normalizeMemoryPath(requestedPath);
     const memory = await ctx.datastore.memories.create({
+      description: payload.description?.trim() ?? '',
       id,
       name: payload.name,
       path: dir,

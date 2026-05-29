@@ -56,6 +56,7 @@ export function MemoryDetailPage() {
   const memory = useMemory({ id: memoryId ?? '' });
 
   const [draftName, setDraftName] = useState('');
+  const [draftDescription, setDraftDescription] = useState('');
   const [draftPath, setDraftPath] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +81,7 @@ export function MemoryDetailPage() {
       return;
     }
     setDraftName(record.name);
+    setDraftDescription(record.description);
     setDraftPath(record.path);
     setError(null);
   }, [record]);
@@ -143,18 +145,27 @@ export function MemoryDetailPage() {
 
   const saveMetadata = async () => {
     const nextName = draftName.trim();
+    const nextDescription = draftDescription.trim();
     const nextPath = draftPath.trim();
+    if (nextName.length === 0) {
+      setError('Name is required.');
+      return;
+    }
     if (nextPath.length === 0) {
       setError('Folder path is required.');
       return;
     }
-    if (nextName === loadedRecord.name && nextPath === loadedRecord.path) {
+    if (
+      nextName === loadedRecord.name &&
+      nextDescription === loadedRecord.description &&
+      nextPath === loadedRecord.path
+    ) {
       return;
     }
     setSaving(true);
     setError(null);
     try {
-      await mutations.updateMemory({ id, name: nextName, path: nextPath });
+      await mutations.updateMemory({ description: nextDescription, id, name: nextName, path: nextPath });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not update memory.');
     } finally {
@@ -194,6 +205,14 @@ export function MemoryDetailPage() {
               onBlur={() => void saveMetadata()}
               onChange={(event) => setDraftName(event.target.value)}
               value={draftName}
+            />
+            <Input
+              disabled={saving}
+              label="Description"
+              onBlur={() => void saveMetadata()}
+              onChange={(event) => setDraftDescription(event.target.value)}
+              placeholder="What this collection stores"
+              value={draftDescription}
             />
             <Input
               disabled={saving}
