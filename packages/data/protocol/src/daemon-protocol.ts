@@ -47,6 +47,8 @@ import type { AutomationsRunNowOperation } from './protocol/automations.run-now'
 import type { AutomationsUpdateOperation } from './protocol/automations.update';
 import type { AutomationDeletedEvent, AutomationUpdatedEvent } from './protocol/automations.updated';
 import type { DaemonStatusOperation } from './protocol/daemon.status';
+import type { DataSyncApplyOperation } from './protocol/data-sync.apply';
+import type { DataSyncBuildPlanOperation } from './protocol/data-sync.build-plan';
 import type { DatabaseDescribeOperation } from './protocol/database.describe';
 import type { DatabaseMigrateOperation } from './protocol/database.migrate';
 import type { DatabaseOpenOperation } from './protocol/database.open';
@@ -199,6 +201,8 @@ export type DaemonOperations = [
   DatabaseOpenOperation,
   DatabaseMigrateOperation,
   DatabaseRunQueryOperation,
+  DataSyncBuildPlanOperation,
+  DataSyncApplyOperation,
   ProjectsListOperation,
   ProjectsCreateOperation,
   ProjectsUpdateOperation,

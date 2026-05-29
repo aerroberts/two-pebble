@@ -85,6 +85,13 @@
       "when": 1780020667746,
       "tag": "0011_task_pool_template",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1780033714172,
+      "tag": "0012_data_sync_directory",
+      "breakpoints": true
     }
   ]
 }

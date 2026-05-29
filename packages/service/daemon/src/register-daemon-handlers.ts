@@ -35,6 +35,8 @@ import { handler as listAutomationsHandler } from './handlers/automations.list.h
 import { handler as runAutomationNowHandler } from './handlers/automations.run-now.handler';
 import { handler as updateAutomationHandler } from './handlers/automations.update.handler';
 import { handler as getDaemonStatusHandler } from './handlers/daemon.status.handler';
+import { handler as applyDataSyncPlanHandler } from './handlers/data-sync.apply.handler';
+import { handler as buildDataSyncPlanHandler } from './handlers/data-sync.build-plan.handler';
 import { handler as describeDatabaseHandler } from './handlers/database.describe.handler';
 import { handler as migrateDatabaseHandler } from './handlers/database.migrate.handler';
 import { handler as openDatabaseHandler } from './handlers/database.open.handler';
@@ -165,6 +167,8 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('recordAgentTrace', recordAgentTraceHandler(context));
   register('callAgentTool', callAgentToolHandler(context));
   register('describeDatabase', describeDatabaseHandler(context));
+  register('buildDataSyncPlan', buildDataSyncPlanHandler(context));
+  register('applyDataSyncPlan', applyDataSyncPlanHandler(context));
   register('migrateDatabase', migrateDatabaseHandler(context));
   register('openDatabase', openDatabaseHandler(context));
   register('runDatabaseQuery', runDatabaseQueryHandler(context));

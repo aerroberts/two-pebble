@@ -72,6 +72,12 @@ export function ConfigurationSidebar() {
           label="Documents"
           onClick={() => navigate('/configuration/documents')}
         />
+        <SidebarOption
+          active={location.pathname.startsWith('/configuration/data-sync')}
+          icon="refresh-cw"
+          label="Data Sync"
+          onClick={() => navigate('/configuration/data-sync')}
+        />
       </SidebarSection>
       <SidebarSection title="Appearance">
         <SidebarOption
