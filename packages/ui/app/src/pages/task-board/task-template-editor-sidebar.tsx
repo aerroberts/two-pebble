@@ -1,4 +1,4 @@
-import { AppBox, Button, Icon, IconButton, Input, Select } from '@two-pebble/components';
+import { AppBox, Button, Icon, IconButton, Input, InputArea, Select } from '@two-pebble/components';
 import { useTemplateDeliverables } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
 
@@ -59,9 +59,9 @@ export function TaskTemplateEditorSidebar(props: TaskTemplateEditorSidebarProps)
         onChange={(event) => setName(event.target.value)}
         onBlur={() => props.onUpdateTemplate({ id: props.template.id, name: name.trim() || props.template.name })}
       />
-      <textarea
+      <InputArea
         aria-label="Template prompt"
-        className="block min-h-24 w-full resize-y rounded-md border border-border bg-surface-neutral px-3 py-2 text-sm leading-5 text-content outline-none placeholder:text-content-subtle focus:border-strong"
+        label="Additional system prompt"
         value={prompt}
         onChange={(event) => setPrompt(event.target.value)}
         onBlur={() => props.onUpdateTemplate({ id: props.template.id, prompt })}
