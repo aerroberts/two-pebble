@@ -3,6 +3,7 @@ import { AgentsAppShell } from './layouts/agents-app-shell';
 import { AutomationsAppShell } from './layouts/automations-app-shell';
 import { DocumentsAppShell } from './layouts/documents-app-shell';
 import { MainAppShell } from './layouts/main-app-shell';
+import { MemoriesAppShell } from './layouts/memories-app-shell';
 import { AgentDetailPage } from './pages/agent-detail/agent-detail.page';
 import { AgentsPage } from './pages/agents/agents.page';
 import { AssistantPage } from './pages/assistant/assistant.page';
@@ -11,6 +12,8 @@ import { AutomationsPage } from './pages/automations/automations.page';
 import { AutomationsNewPage } from './pages/automations/automations-new.page';
 import { DocumentEditorPage } from './pages/documents/document-editor.page';
 import { DocumentsPage } from './pages/documents/documents.page';
+import { MemoriesPage } from './pages/memories/memories.page';
+import { MemoryDetailPage } from './pages/memories/memory-detail.page';
 import { ModelCallDetailPage } from './pages/model-call-detail/model-call-detail.page';
 import { OverviewPage } from './pages/overview/overview.page';
 import { TaskBoardPage } from './pages/task-board/task-board.page';
@@ -96,6 +99,22 @@ export function ProjectRoutes() {
             <DocumentsAppShell>
               <DocumentEditorPage />
             </DocumentsAppShell>
+          }
+        />
+        <Route
+          path="memories"
+          element={
+            <MemoriesAppShell>
+              <MemoriesPage />
+            </MemoriesAppShell>
+          }
+        />
+        <Route
+          path="memories/:memoryId"
+          element={
+            <MemoriesAppShell>
+              <MemoryDetailPage />
+            </MemoriesAppShell>
           }
         />
         <Route

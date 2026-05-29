@@ -8,7 +8,7 @@ import {
   SidebarSection,
   TwoPebbleLogo,
 } from '@two-pebble/components';
-import { useAgents, useDocuments, useProjects } from '@two-pebble/realtime';
+import { useAgents, useDocuments, useMemories, useProjects } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { projectPath, useOptionalProject } from '../project-context';
 import type { AppShellProps } from './app-shell-props';
@@ -28,8 +28,10 @@ export function MainAppShell(props: AppShellProps) {
   const projects = useProjects();
   const agents = useAgents(projectId === undefined ? undefined : { projectId });
   const documents = useDocuments(projectId === undefined ? undefined : { projectId });
+  const memories = useMemories(projectId === undefined ? undefined : { projectId });
   const activeAgentCount = agents.values().filter((agent) => !agent.parentAgentId && agent.status === 'running').length;
   const documentCount = documents.values().length;
+  const memoryCount = memories.values().length;
   const pathname = projectId === undefined ? location.pathname : stripProjectPrefix(location.pathname, projectId);
   const mode = getSidebarMode(pathname);
   const scopedNavigate = (path: string) => navigate(projectId === undefined ? path : projectPath(projectId, path));
@@ -77,6 +79,7 @@ export function MainAppShell(props: AppShellProps) {
           {renderSidebarContent({
             activeAgentCount,
             documentCount,
+            memoryCount,
             globalNavigate: navigate,
             mode,
             navigate: scopedNavigate,
@@ -95,6 +98,7 @@ export function MainAppShell(props: AppShellProps) {
 function renderSidebarContent(input: {
   activeAgentCount: number;
   documentCount: number;
+  memoryCount: number;
   globalNavigate: SidebarNavigate;
   mode: SidebarMode;
   navigate: SidebarNavigate;
@@ -102,7 +106,17 @@ function renderSidebarContent(input: {
   projectId?: string;
   projects: ReturnType<typeof useProjects>;
 }) {
-  const { activeAgentCount, documentCount, globalNavigate, mode, navigate, pathname, projectId, projects } = input;
+  const {
+    activeAgentCount,
+    documentCount,
+    memoryCount,
+    globalNavigate,
+    mode,
+    navigate,
+    pathname,
+    projectId,
+    projects,
+  } = input;
   if (mode === 'configuration') {
     return (
       <>
@@ -200,6 +214,17 @@ function renderSidebarContent(input: {
           onClick={() => navigate('/documents')}
         />
         <SidebarOption
+          active={pathname.startsWith('/memories')}
+          badge={
+            memoryCount > 0 ? (
+              <output aria-label={`${memoryCount} ${memoryCount === 1 ? 'memory' : 'memories'}`}>{memoryCount}</output>
+            ) : undefined
+          }
+          icon="brain"
+          label="Memories"
+          onClick={() => navigate('/memories')}
+        />
+        <SidebarOption
           active={pathname.startsWith('/automations')}
           icon="calendar-clock"
           label="Automations"
@@ -258,6 +283,7 @@ function isHomeActive(pathname: string): boolean {
     pathname.startsWith('/threads') ||
     pathname.startsWith('/tasks') ||
     pathname.startsWith('/documents') ||
+    pathname.startsWith('/memories') ||
     pathname.startsWith('/automations')
   );
 }

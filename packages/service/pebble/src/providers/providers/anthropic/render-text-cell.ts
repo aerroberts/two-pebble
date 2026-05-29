@@ -1,6 +1,7 @@
 import type { CellContent } from '../../../thread/cells/index';
 import { renderBoardReferenceText } from '../shared/render-board-reference';
 import { renderDocumentReferenceText } from '../shared/render-document-reference';
+import { renderMemoryReferenceText } from '../shared/render-memory-reference';
 
 export function renderTextCellAnthropic(cell: CellContent): string {
   switch (cell.type) {
@@ -12,6 +13,8 @@ export function renderTextCellAnthropic(cell: CellContent): string {
       return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
     case 'documentReference':
       return renderDocumentReferenceText(cell.content);
+    case 'memoryReference':
+      return renderMemoryReferenceText(cell.content);
     case 'header1':
       return `# ${cell.content.text}`;
     case 'header2':

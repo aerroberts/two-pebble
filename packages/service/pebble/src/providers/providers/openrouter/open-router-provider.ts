@@ -8,6 +8,7 @@ import type { ProviderOutputBlock, ProviderResult } from '../../types';
 import { isRetryableProviderStatus } from '../../utils/retry';
 import { renderBoardReferenceText } from '../shared/render-board-reference';
 import { renderDocumentReferenceText } from '../shared/render-document-reference';
+import { renderMemoryReferenceText } from '../shared/render-memory-reference';
 import { buildOpenRouterPriceLineItems } from './pricing';
 import type {
   OpenRouterChatCompletionResponse,
@@ -259,6 +260,8 @@ export class OpenRouterProvider extends ModelProvider {
         return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
       case 'documentReference':
         return renderDocumentReferenceText(cell.content);
+      case 'memoryReference':
+        return renderMemoryReferenceText(cell.content);
       case 'header1':
         return `# ${cell.content.text}`;
       case 'header2':

@@ -30,6 +30,7 @@ import type {
   inferenceProfilesTable,
   integrationsTable,
   knownIdesTable,
+  memoriesTable,
   metricsTable,
   projectsTable,
   repositoriesTable,
@@ -111,6 +112,7 @@ export interface DatastoreSchema extends Record<string, object> {
   inferenceProfilesTable: typeof inferenceProfilesTable;
   integrationsTable: typeof integrationsTable;
   knownIdesTable: typeof knownIdesTable;
+  memoriesTable: typeof memoriesTable;
   metricsTable: typeof metricsTable;
   projectsTable: typeof projectsTable;
   repositoriesTable: typeof repositoriesTable;
@@ -229,6 +231,15 @@ export interface DocumentRecord {
   references: string;
   archivedAt: number | null;
   section: string | null;
+}
+
+export interface MemoryRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  projectId: string;
+  name: string;
+  path: string;
 }
 
 export interface WorktreeRecord {

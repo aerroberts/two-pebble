@@ -22,6 +22,7 @@ import type {
   TaskStatus,
 } from '@two-pebble/pebble';
 import { Cell, PebbleAgent } from '@two-pebble/pebble';
+import { listMemoryFiles, readMemoryFile, writeMemoryFile } from '../../utils/memories/memory-files';
 import { DaemonService } from '../daemon-service';
 import type { GithubService } from '../github';
 import type { TaskBoardService } from '../task-board/service';
@@ -609,6 +610,22 @@ export class AgentRegistryService extends DaemonService {
           });
           this.daemon.events.emit('documentUpdated', record);
           return { id: record.id, name: record.name };
+        },
+      },
+      memories: {
+        listFiles: async (input) => {
+          const memory = await this.datastore.memories.read({ id: input.memoryId });
+          return listMemoryFiles(memory.path);
+        },
+        readFile: async (input) => {
+          const memory = await this.datastore.memories.read({ id: input.memoryId });
+          return readMemoryFile(memory.path, input.file);
+        },
+        writeFile: async (input) => {
+          const memory = await this.datastore.memories.read({ id: input.memoryId });
+          await writeMemoryFile(memory.path, input.file, input.body);
+          const touched = await this.datastore.memories.update({ id: memory.id });
+          this.daemon.events.emit('memoryUpdated', touched);
         },
       },
       github: {

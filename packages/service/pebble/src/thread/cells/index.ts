@@ -11,6 +11,8 @@ export { documentReference } from './cells/document-reference';
 export { header1 } from './cells/header1';
 export { header2 } from './cells/header2';
 export { image } from './cells/image';
+export type { MemoryReferenceCellInput } from './cells/memory-reference';
+export { memoryReference } from './cells/memory-reference';
 export { text } from './cells/text';
 export type { ToolRegistrationCellInput } from './cells/tool-registration';
 export { toolRegistration } from './cells/tool-registration';

@@ -13,6 +13,7 @@ export type { DetectIdesOperation } from './protocol/known-ides.detect';
 export type { ListKnownIdesOperation } from './protocol/known-ides.list';
 export type { OpenWorkspaceInIdeOperation } from './protocol/known-ides.open-workspace';
 export type { KnownIdeUpdatedEvent } from './protocol/known-ides.updated';
+export type { MemoryRecord } from './protocol/memories.create';
 export type { MetricNameSummary } from './protocol/metrics.list-names';
 export type { MetricVariant } from './protocol/metrics.list-variants';
 export type { MetricAggregateBucket } from './protocol/metrics.query-aggregated';

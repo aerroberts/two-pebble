@@ -62,6 +62,10 @@ import { deleteKnownIdeOperation } from './operations/known-ides.delete.operatio
 import { detectIdesOperation } from './operations/known-ides.detect.operation';
 import { listKnownIdesOperation } from './operations/known-ides.list.operation';
 import { openWorkspaceInIdeOperation } from './operations/known-ides.open-workspace.operation';
+import { createMemoryOperation } from './operations/memories.create.operation';
+import { deleteMemoryOperation } from './operations/memories.delete.operation';
+import { listMemoriesOperation } from './operations/memories.list.operation';
+import { readMemoryOperation } from './operations/memories.read.operation';
 import { listMetricNamesOperation } from './operations/metrics.list-names.operation';
 import { listMetricVariantsOperation } from './operations/metrics.list-variants.operation';
 import { queryMetricsAggregatedOperation } from './operations/metrics.query-aggregated.operation';
@@ -133,6 +137,7 @@ import { listenToDocuments } from './states/documents/listen';
 import { listenToInferenceProfiles } from './states/inference-profiles/listen';
 import { listenToIntegrations } from './states/integrations/listen';
 import { listenToKnownIdes } from './states/known-ides/listen';
+import { listenToMemories } from './states/memories/listen';
 import { listenToRepositories } from './states/repositories/listen';
 import { listenToTasks } from './states/tasks/listen';
 import { listenToThirdPartyAgentInstalls } from './states/third-party-agent-installs/listen';
@@ -291,6 +296,23 @@ export class RealtimeDatastore {
       list: listDocumentsOperation({ datastore: this }),
       read: readDocumentOperation({ datastore: this }),
       update: updateDocumentOperation({ datastore: this }),
+    };
+  }
+
+  /**
+   * Returns memory collection operations bound to this realtime datastore.
+   * The row is a pointer to an on-disk folder owned by the daemon.
+   */
+  public get memories() {
+    return {
+      create: createMemoryOperation({ datastore: this }),
+      delete: deleteMemoryOperation({ datastore: this }),
+      list: listMemoriesOperation({ datastore: this }),
+      read: readMemoryOperation({ datastore: this }),
+      // The collection folder is the source of truth, so the file viewer
+      // calls the daemon directly rather than caching file state.
+      listFiles: (payload: { memoryId: string }) => this.emit('listMemoryFiles', payload),
+      readFile: (payload: { memoryId: string; file: string }) => this.emit('readMemoryFile', payload),
     };
   }
 
@@ -699,6 +721,7 @@ export class RealtimeDatastore {
     listenToInferenceProfiles({ datastore: this });
     listenToIntegrations({ datastore: this });
     listenToKnownIdes({ datastore: this });
+    listenToMemories({ datastore: this });
     listenToThirdPartyAgentInstalls({ datastore: this });
     listenToRepositories({ datastore: this });
     listenToWorktrees({ datastore: this });

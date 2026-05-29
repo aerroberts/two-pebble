@@ -353,6 +353,11 @@ function buildTestBridge(input: { signals: SignalOperations; subAgents: SubAgent
         throw new Error('not used');
       },
     },
+    memories: {
+      listFiles: async () => [],
+      readFile: async () => '',
+      writeFile: async () => undefined,
+    },
     signals: input.signals,
     subAgents: input.subAgents,
     taskBoards: {

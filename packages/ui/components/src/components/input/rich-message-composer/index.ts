@@ -9,12 +9,14 @@ export {
 export type {
   RichComposerBoard,
   RichComposerDocument,
+  RichComposerMemory,
   RichComposerReference,
   RichComposerSlashTrigger,
   RichComposerSubmitPayload,
   RichComposerTask,
 } from './composer-types';
 export { DocumentMentionNode } from './document-mention-node';
+export { MemoryMentionNode } from './memory-mention-node';
 export {
   RichMessageComposer,
   type RichMessageComposerProps,

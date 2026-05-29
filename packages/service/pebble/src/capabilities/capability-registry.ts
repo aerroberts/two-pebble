@@ -3,6 +3,7 @@ import type { PebbleJsonValue } from '../types';
 import { AgentNamingCapability } from './agent-naming/capability';
 import { DocumentWriterCapability } from './document-writer/capability';
 import { GithubCapability } from './github/capability';
+import { MemoryAccessCapability } from './memory-access/capability';
 import { ParentLinkedTaskCapability } from './parent-linked-task/capability';
 import { ParentLinkedTeammateCapability } from './parent-linked-teammate/capability';
 import { ProgressiveTaskListCapability } from './progressive-task-list/capability';
@@ -39,6 +40,9 @@ export class CapabilityRegistry {
     }
     if (id === 'workspace-access') {
       return new WorkspaceAccessCapability();
+    }
+    if (id === 'memory-access') {
+      return new MemoryAccessCapability() as AgentCapability<PebbleJsonValue>;
     }
     if (id === 'counter') {
       return new TurnCounterCapability() as AgentCapability<PebbleJsonValue>;

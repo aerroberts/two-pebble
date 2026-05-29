@@ -63,6 +63,13 @@ import { handler as deleteKnownIdeHandler } from './handlers/known-ides.delete.h
 import { handler as detectIdesHandler } from './handlers/known-ides.detect.handler';
 import { handler as listKnownIdesHandler } from './handlers/known-ides.list.handler';
 import { handler as openWorkspaceInIdeHandler } from './handlers/known-ides.open-workspace.handler';
+import { handler as createMemoryHandler } from './handlers/memories.create.handler';
+import { handler as deleteMemoryHandler } from './handlers/memories.delete.handler';
+import { handler as listMemoryFilesHandler } from './handlers/memories.files.list.handler';
+import { handler as readMemoryFileHandler } from './handlers/memories.files.read.handler';
+import { handler as writeMemoryFileHandler } from './handlers/memories.files.write.handler';
+import { handler as listMemoriesHandler } from './handlers/memories.list.handler';
+import { handler as readMemoryHandler } from './handlers/memories.read.handler';
 import { handler as listMetricNamesHandler } from './handlers/metrics.list-names.handler';
 import { handler as listMetricVariantsHandler } from './handlers/metrics.list-variants.handler';
 import { handler as queryMetricsAggregatedHandler } from './handlers/metrics.query-aggregated.handler';
@@ -196,6 +203,13 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('readDocument', readDocumentHandler(context));
   register('updateDocument', updateDocumentHandler(context));
   register('deleteDocument', deleteDocumentHandler(context));
+  register('listMemories', listMemoriesHandler(context));
+  register('createMemory', createMemoryHandler(context));
+  register('readMemory', readMemoryHandler(context));
+  register('deleteMemory', deleteMemoryHandler(context));
+  register('listMemoryFiles', listMemoryFilesHandler(context));
+  register('readMemoryFile', readMemoryFileHandler(context));
+  register('writeMemoryFile', writeMemoryFileHandler(context));
   register('listWorktrees', listWorktreesHandler(context));
   register('createWorktree', createWorktreeHandler(context));
   register('deleteWorktree', deleteWorktreeHandler(context));

@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 const DEFAULT_PEBBLE_CAPABILITIES: { id: string; config: Record<string, never> }[] = [
   { id: 'workspace-access', config: {} },
   { id: 'document-writer', config: {} },
+  { id: 'memory-access', config: {} },
 ];
 
 export function useAgentRegistriesPageState() {

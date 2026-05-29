@@ -306,6 +306,27 @@ export interface DocumentOperations {
   update(input: DocumentUpdateInput): Promise<DocumentSummary>;
 }
 
+export interface MemoryFileListInput {
+  memoryId: string;
+}
+
+export interface MemoryFileReadInput {
+  memoryId: string;
+  file: string;
+}
+
+export interface MemoryFileWriteInput {
+  memoryId: string;
+  file: string;
+  body: string;
+}
+
+export interface MemoryOperations {
+  listFiles(input: MemoryFileListInput): Promise<string[]>;
+  readFile(input: MemoryFileReadInput): Promise<string>;
+  writeFile(input: MemoryFileWriteInput): Promise<void>;
+}
+
 export interface SignalOperations {
   markResolved(input: MarkSignalResolvedInput): Promise<void>;
   register(input: RegisterSignalInput): Promise<string>;

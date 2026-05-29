@@ -78,6 +78,11 @@ export function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
         throw new Error('not used');
       },
     },
+    memories: {
+      listFiles: async () => [],
+      readFile: async () => '',
+      writeFile: async () => undefined,
+    },
     signals,
     subAgents: {
       kill: async () => undefined,

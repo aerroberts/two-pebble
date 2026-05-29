@@ -16,6 +16,11 @@ export interface RichComposerTask {
   name: string;
 }
 
+export interface RichComposerMemory {
+  id: string;
+  name: string;
+}
+
 export type RichComposerReference =
   | {
       type: 'document';
@@ -28,6 +33,10 @@ export type RichComposerReference =
   | {
       type: 'task';
       item: RichComposerTask;
+    }
+  | {
+      type: 'memory';
+      item: RichComposerMemory;
     };
 
 export interface RichComposerSubmitPayload {

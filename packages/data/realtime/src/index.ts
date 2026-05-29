@@ -179,6 +179,17 @@ export type {
   KnownIdesState,
   OpenWorkspaceInIdeInput,
 } from './states/known-ides/types';
+export { useMemories } from './states/memories/hooks/use-memories.hook';
+export { useMemory } from './states/memories/hooks/use-memory.hook';
+export { useMemoryMutations } from './states/memories/hooks/use-memory-mutations.hook';
+export type {
+  CreateMemoryInput,
+  CreateMemoryResponse,
+  DeleteMemoryInput,
+  MemoriesState,
+  MemoryRecord,
+  ReadMemoryInput,
+} from './states/memories/types';
 export { useProjectMutations } from './states/projects/hooks/use-project-mutations.hook';
 export { useProjects } from './states/projects/hooks/use-projects.hook';
 export type {

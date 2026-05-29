@@ -98,6 +98,21 @@ export function tipTapDocToCells(doc: JSONContent): CellContent[] {
       );
       return;
     }
+    if (node.type === 'memoryMention') {
+      flushText();
+      const memoryId = typeof node.attrs?.memoryId === 'string' ? node.attrs.memoryId : '';
+      const name = typeof node.attrs?.name === 'string' ? node.attrs.name : '';
+      if (memoryId.length === 0) {
+        return;
+      }
+      cells.push(
+        Cell.memoryReference({
+          memoryId,
+          name,
+        }),
+      );
+      return;
+    }
     if (node.type === 'taskMention') {
       const taskId = typeof node.attrs?.taskId === 'string' ? node.attrs.taskId : '';
       const name = typeof node.attrs?.name === 'string' ? node.attrs.name : '';
