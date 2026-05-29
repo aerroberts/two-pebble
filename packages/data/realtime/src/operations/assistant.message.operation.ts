@@ -5,7 +5,7 @@ import type { ProjectRecord } from '../states/projects/types';
 import type { RealtimeOperationContext } from '../types';
 
 export interface SendAssistantMessageInput {
-  projectId?: string;
+  projectId: string;
   /** Markdown/text fallback for legacy logging and voice workflows. */
   message: string;
   /**
@@ -31,7 +31,7 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
       throw new Error('Assistant message cannot be empty.');
     }
 
-    const projectId = input.projectId ?? 'proj_default';
+    const projectId = input.projectId;
     const project = await readProject(ctx, projectId);
     const settings = await readSettings(ctx);
     const registryId = project.assistantAgentRegistryId ?? settings.assistantAgentRegistryId;

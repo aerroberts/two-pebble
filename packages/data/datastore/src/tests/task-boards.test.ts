@@ -13,7 +13,7 @@ import {
 describe('feature: operation task-boards.create', () => {
   test('happy: create returns the persisted board', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'Roadmap' });
+    const board = await datastore.taskBoards.create({ name: 'Roadmap', projectId: 'proj_default' });
     await datastore.close();
     expect(board.name).toBe('Roadmap');
   });
@@ -22,8 +22,8 @@ describe('feature: operation task-boards.create', () => {
 describe('feature: operation task-boards.list', () => {
   test('happy: list returns all boards', async () => {
     const datastore = await useDatastoreForTesting();
-    await datastore.taskBoards.create({ name: 'A' });
-    await datastore.taskBoards.create({ name: 'B' });
+    await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
+    await datastore.taskBoards.create({ name: 'B', projectId: 'proj_default' });
     const boards = await datastore.taskBoards.list({});
     await datastore.close();
     expect(boards.items.map((board) => board.name)).toEqual(['A', 'B']);
@@ -33,7 +33,7 @@ describe('feature: operation task-boards.list', () => {
 describe('feature: operation task-boards.read', () => {
   test('happy: read returns the matching board', async () => {
     const datastore = await useDatastoreForTesting();
-    const created = await datastore.taskBoards.create({ name: 'A' });
+    const created = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
     const read = await datastore.taskBoards.read({ id: created.id });
     await datastore.close();
     expect(read.id).toBe(created.id);
@@ -43,7 +43,7 @@ describe('feature: operation task-boards.read', () => {
 describe('feature: operation task-boards.update', () => {
   test('happy: update renames the board', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'Old' });
+    const board = await datastore.taskBoards.create({ name: 'Old', projectId: 'proj_default' });
     const updated = await datastore.taskBoards.update({ id: board.id, name: 'New' });
     await datastore.close();
     expect(updated.name).toBe('New');
@@ -53,7 +53,7 @@ describe('feature: operation task-boards.update', () => {
 describe('feature: operation task-boards.delete', () => {
   test('happy: delete removes the board and cascading rows', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'A' });
+    const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
     await datastore.taskBoards.delete({ id: board.id });
     const remaining = await datastore.taskBoards.list({});
     await datastore.close();
@@ -64,7 +64,7 @@ describe('feature: operation task-boards.delete', () => {
 describe('feature: operation task-pools.create', () => {
   test('happy: pool persists with parent and board', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'A' });
+    const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
     const pool = await datastore.taskBoards.pools.create({ boardId: board.id, parentPoolId: null, name: 'P' });
     await datastore.close();
     expect(pool.boardId).toBe(board.id);
@@ -74,7 +74,7 @@ describe('feature: operation task-pools.create', () => {
 describe('feature: operation task-pools.list', () => {
   test('happy: list returns pools for the board', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'A' });
+    const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
     await datastore.taskBoards.pools.create({ boardId: board.id, parentPoolId: null, name: 'P' });
     const pools = await datastore.taskBoards.pools.list({ boardId: board.id });
     await datastore.close();
@@ -85,7 +85,7 @@ describe('feature: operation task-pools.list', () => {
 describe('feature: operation task-pools.delete', () => {
   test('happy: delete removes the pool', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'A' });
+    const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
     const pool = await datastore.taskBoards.pools.create({ boardId: board.id, parentPoolId: null, name: 'P' });
     await datastore.taskBoards.pools.delete({ id: pool.id });
     const pools = await datastore.taskBoards.pools.list({ boardId: board.id });
@@ -116,7 +116,7 @@ describe('feature: operation tasks.create', () => {
 describe('feature: operation tasks.list', () => {
   test('happy: list returns tasks for the board', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'A' });
+    const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
     await datastore.taskBoards.tasks.create({ boardId: board.id, poolId: null, name: 'T', status: 'pending' });
     const tasks = await datastore.taskBoards.tasks.list({ boardId: board.id });
     await datastore.close();
@@ -150,7 +150,7 @@ describe('feature: operation tasks.update', () => {
 describe('feature: operation task-templates', () => {
   test('happy: template and deliverables persist for a board', async () => {
     const datastore = await useDatastoreForTesting();
-    const board = await datastore.taskBoards.create({ name: 'A' });
+    const board = await datastore.taskBoards.create({ name: 'A', projectId: 'proj_default' });
     const template = await datastore.taskBoards.templates.create({
       boardId: board.id,
       name: 'Bug fix',

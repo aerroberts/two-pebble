@@ -14,6 +14,7 @@ export function agentCreateInput(): AgentCreateTestInput {
   return {
     description: 'Realtime test agent',
     name: 'Realtime Agent',
+    projectId: 'proj_default',
   };
 }
 
@@ -77,7 +78,12 @@ export function openAiInferenceProfileInput(integrationId: string): CreateInfere
 }
 
 export function helloWorldAgentRegistryInput(inferenceProfileId: string) {
-  return { inferenceProfileId, name: 'Hello World Agent', systemPrompt: emptyAgentSystemPrompt() };
+  return {
+    inferenceProfileId,
+    name: 'Hello World Agent',
+    projectId: 'proj_default',
+    systemPrompt: emptyAgentSystemPrompt(),
+  };
 }
 
 /**

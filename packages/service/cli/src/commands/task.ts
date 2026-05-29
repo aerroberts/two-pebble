@@ -5,6 +5,7 @@ import { DAEMON_URL } from '../consts';
 
 interface BoardCreateOptions {
   name: string;
+  project: string;
 }
 
 interface PoolCreateOptions {
@@ -63,9 +64,10 @@ export function registerTaskCommand(program: Command) {
   task
     .command('board-create')
     .requiredOption('--name <name>', 'board name')
+    .requiredOption('--project <projectId>', 'project id')
     .action(async (options: BoardCreateOptions) =>
       runAction(async (client) => {
-        const result = await client.do('createTaskBoard', { name: options.name });
+        const result = await client.do('createTaskBoard', { name: options.name, projectId: options.project });
         writeJson(result);
       }),
     );

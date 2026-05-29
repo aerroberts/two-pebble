@@ -6,6 +6,7 @@ import { agentSystemPromptFromText } from '@two-pebble/datatypes';
 export const sampleAgentRegistryInput = {
   inferenceProfileId: 'profile-1',
   name: 'Sample Agent',
+  projectId: 'proj_default',
   systemPrompt: agentSystemPromptFromText('You are a helpful assistant.'),
 };
 
@@ -40,6 +41,7 @@ export const sampleWorkspaceInput = {
 export const firstAgentInput = {
   description: 'First generated id agent',
   name: 'First Agent',
+  projectId: 'proj_default',
   workspaceId: 'legacy',
 };
 /**
@@ -48,22 +50,34 @@ export const firstAgentInput = {
 export const secondAgentInput = {
   description: 'Second generated id agent',
   name: 'Second Agent',
+  projectId: 'proj_default',
   workspaceId: 'legacy',
 };
 /**
  * Exposes this datastore module contract for package-local callers.
  */
-export const callListAgentInput = { description: 'Call list agent', name: 'Call List Agent', workspaceId: 'legacy' };
+export const callListAgentInput = {
+  description: 'Call list agent',
+  name: 'Call List Agent',
+  projectId: 'proj_default',
+  workspaceId: 'legacy',
+};
 /**
  * Exposes this datastore module contract for package-local callers.
  */
-export const callReadAgentInput = { description: 'Call read agent', name: 'Call Read Agent', workspaceId: 'legacy' };
+export const callReadAgentInput = {
+  description: 'Call read agent',
+  name: 'Call Read Agent',
+  projectId: 'proj_default',
+  workspaceId: 'legacy',
+};
 /**
  * Exposes this datastore module contract for package-local callers.
  */
 export const callRecordAgentInput = {
   description: 'Call record agent',
   name: 'Call Record Agent',
+  projectId: 'proj_default',
   workspaceId: 'legacy',
 };
 
@@ -118,6 +132,7 @@ export const callRecordInput = {
 export const conversationCellAgentInput = {
   description: 'Conversation cell agent',
   name: 'Conversation Cell Agent',
+  projectId: 'proj_default',
   workspaceId: 'legacy',
 };
 /**
@@ -137,6 +152,7 @@ export const conversationCellRecordInput = {
 export const traceListAgentInput = {
   description: 'Trace list agent',
   name: 'Trace List Agent',
+  projectId: 'proj_default',
   workspaceId: 'legacy',
 };
 /**
@@ -145,6 +161,7 @@ export const traceListAgentInput = {
 export const traceRecordAgentInput = {
   description: 'Trace record agent',
   name: 'Trace Record Agent',
+  projectId: 'proj_default',
   workspaceId: 'legacy',
 };
 /**

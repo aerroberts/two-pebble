@@ -7,7 +7,7 @@ export interface CreateDocumentOperation {
   request: {
     content?: string;
     name?: string;
-    projectId?: string;
+    projectId: string;
     section?: string | null;
   };
   response: DocumentRecord;
