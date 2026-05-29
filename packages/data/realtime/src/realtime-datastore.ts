@@ -68,6 +68,7 @@ import { createMemoryOperation } from './operations/memories.create.operation';
 import { deleteMemoryOperation } from './operations/memories.delete.operation';
 import { listMemoriesOperation } from './operations/memories.list.operation';
 import { readMemoryOperation } from './operations/memories.read.operation';
+import { updateMemoryOperation } from './operations/memories.update.operation';
 import { listMetricNamesOperation } from './operations/metrics.list-names.operation';
 import { listMetricVariantsOperation } from './operations/metrics.list-variants.operation';
 import { queryMetricsAggregatedOperation } from './operations/metrics.query-aggregated.operation';
@@ -321,10 +322,12 @@ export class RealtimeDatastore {
       delete: deleteMemoryOperation({ datastore: this }),
       list: listMemoriesOperation({ datastore: this }),
       read: readMemoryOperation({ datastore: this }),
+      update: updateMemoryOperation({ datastore: this }),
       // The collection folder is the source of truth, so the file viewer
       // calls the daemon directly rather than caching file state.
       listFiles: (payload: { memoryId: string }) => this.emit('listMemoryFiles', payload),
       readFile: (payload: { memoryId: string; file: string }) => this.emit('readMemoryFile', payload),
+      openFolder: (payload: { memoryId: string }) => this.emit('openMemoryFolder', payload),
     };
   }
 
