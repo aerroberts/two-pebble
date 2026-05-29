@@ -188,6 +188,31 @@ export function DocumentEditorPage() {
     [editor, slashTrigger],
   );
 
+  const openCommentForSelection = useCallback(() => {
+    if (editor === null) {
+      return;
+    }
+    const { $from } = editor.state.selection;
+    let cellId = '';
+    for (let depth = $from.depth; depth >= 0; depth -= 1) {
+      const node = $from.node(depth);
+      const id = typeof node.attrs.cellId === 'string' ? node.attrs.cellId : '';
+      if (id.length > 0) {
+        cellId = id;
+        break;
+      }
+    }
+    if (cellId.length === 0) {
+      toast('Place your cursor in a block to comment.', 'error');
+      return;
+    }
+    const cellElement = editor.view.dom.querySelector(`[data-cell-id="${cellId}"]`);
+    if (!(cellElement instanceof HTMLElement)) {
+      return;
+    }
+    setActiveCell({ cellId, anchor: cellElement });
+  }, [editor, toast]);
+
   const handleSendToAgent = useCallback(async () => {
     if (documentRunnerRegistryId === null) {
       toast('Pick a document runner agent in settings first.', 'error');
@@ -252,6 +277,15 @@ export function DocumentEditorPage() {
                 />
               </Tooltip>
             )}
+            <Tooltip content="Comment">
+              <IconButton
+                aria-label="Comment on current block"
+                icon="messages-square"
+                onClick={openCommentForSelection}
+                type="button"
+                variant="secondary"
+              />
+            </Tooltip>
             <Tooltip content="Add task">
               <IconButton
                 aria-label="Add task"
@@ -325,7 +359,6 @@ export function DocumentEditorPage() {
             initialContent={state.editorContent}
             placeholder="Start writing... Type / to insert a block."
             onBlur={(content) => void state.saveContent(content)}
-            onCellClick={(cellId, anchor) => setActiveCell({ cellId, anchor })}
             onEditorReady={setEditor}
             onSlashTrigger={setSlashTrigger}
           />
