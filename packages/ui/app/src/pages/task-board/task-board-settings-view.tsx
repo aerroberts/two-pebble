@@ -11,12 +11,12 @@ interface TaskBoardSettingsViewProps {
   onCreateTemplate: (input: { name: string; prompt?: string }) => void;
   onSelectTemplate: (templateId: string) => void;
   selectedTemplateId: string | null;
-  defaultTemplateId: string | null;
-  onDefaultTemplateChange: (templateId: string | null) => void;
+  boardTemplateId: string | null;
+  onBoardTemplateChange: (templateId: string | null) => void;
 }
 
 export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
-  const defaultTemplateOptions = [
+  const boardTemplateOptions = [
     { label: 'None', value: NONE_VALUE },
     ...props.templates.map((template) => ({ label: template.name, value: template.id })),
   ];
@@ -45,17 +45,17 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
       </Section>
       <Section
         compact
-        title="Default template"
-        subtitle="Applied to new tasks on this board when no template is selected on creation."
+        title="Board template"
+        subtitle="The template assigned to this board. Applied to new tasks unless a task picks its own template."
       >
         <Surface>
           <Select
             fullWidth
-            label="Default template"
-            onChange={(value) => props.onDefaultTemplateChange(value === NONE_VALUE ? null : value)}
-            options={defaultTemplateOptions}
+            label="Board template"
+            onChange={(value) => props.onBoardTemplateChange(value === NONE_VALUE ? null : value)}
+            options={boardTemplateOptions}
             placeholder={props.templates.length === 0 ? 'Create a template first' : 'Select template'}
-            value={props.defaultTemplateId ?? NONE_VALUE}
+            value={props.boardTemplateId ?? NONE_VALUE}
           />
         </Surface>
       </Section>
