@@ -56,6 +56,7 @@ export interface TaskDetailSidebarProps {
   onChangeStatus: (status: TaskStatusIconSelectStatus) => void;
   onCreateTemplateFromTask: () => void;
   onAddDeliverable: () => void;
+  onDeleteTask: () => void;
 }
 
 /**
@@ -119,6 +120,11 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
       <AppBox variant="controls-row">
         <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
           Create template from task
+        </Button>
+      </AppBox>
+      <AppBox variant="controls-row">
+        <Button leftIcon="trash" onClick={props.onDeleteTask} type="button" variant="secondary">
+          Delete task
         </Button>
       </AppBox>
     </>
