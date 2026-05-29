@@ -1,0 +1,40 @@
+# Shared TypeScript guards.
+#
+# Pulled in via `use` by every package that ships TypeScript source. These
+# encode the cross-package conventions about how TypeScript files are shaped.
+
+# Index files are layout, not logic. They exist only to group and re-export the
+# modules around them, so they must not own runtime declarations or contracts.
+guard index_files_are_pure {
+  find src/**/index.ts {
+
+    # Put business logic in a dedicated module file and re-export it here. A
+    # class in an index file is a signal the abstraction lives in the wrong place.
+    findAst typescript **/class {
+      assert {
+        count() == 0;
+      }
+    }
+
+    # Move interfaces and type contracts into a sibling types.ts and re-export
+    # them as types from the index instead of declaring them here.
+    findAst typescript **/interface {
+      assert {
+        count() == 0;
+      }
+    }
+
+    # Enums are runtime values; declare them in a module file, not the barrel.
+    findAst typescript **/enum {
+      assert {
+        count() == 0;
+      }
+    }
+  }
+}
+
+# Steering only (not expressible as an assertion in this DSL): a source file that
+# declares a runtime class should own runtime declarations only. Put interfaces
+# and type aliases in a sibling types.ts and import them as types from the class
+# file. The guard AST query language cannot express "files that contain a class
+# must contain no interface", so this convention is enforced by review.

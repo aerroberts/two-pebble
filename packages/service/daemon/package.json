@@ -9,7 +9,7 @@
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
     "dev": "bun --watch scripts/daemon.ts",
     "start": "bun scripts/daemon.ts",
-    "guard": "guardrails",
+    "guard": "guard",
     "lint": "biome check --write .",
     "test": "bun test src",
     "test:coverage": "bun test --coverage src",
@@ -26,7 +26,5 @@
     "@two-pebble/tasks": "workspace:*",
     "@two-pebble/ws-bridge": "workspace:*"
   },
-  "devDependencies": {
-    "@two-pebble/guardrails": "workspace:*"
-  }
+  "devDependencies": {}
 }

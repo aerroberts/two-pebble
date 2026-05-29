@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json --noEmit",
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
-    "guard": "guardrails",
+    "guard": "guard",
     "lint": "biome check --write .",
     "test": "bun -e \"console.log('No protocol tests configured')\"",
     "test:coverage": "bun -e \"console.log('No protocol tests configured')\"",
@@ -25,7 +25,5 @@
     "@two-pebble/pebble": "workspace:*",
     "@two-pebble/ws-bridge": "workspace:*"
   },
-  "devDependencies": {
-    "@two-pebble/guardrails": "workspace:*"
-  }
+  "devDependencies": {}
 }

@@ -17,7 +17,7 @@
     "db:check": "drizzle-kit check",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "guard": "guardrails",
+    "guard": "guard",
     "lint": "biome check --write .",
     "test": "bun test ./src/tests/*.test.ts",
     "test:coverage": "bun test --coverage ./src/tests/*.test.ts",
@@ -33,7 +33,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "drizzle-kit": "0.31.8",
-    "@two-pebble/guardrails": "workspace:*"
+    "drizzle-kit": "0.31.8"
   }
 }

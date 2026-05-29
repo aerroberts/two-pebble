@@ -14,13 +14,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.json --noEmit",
     "ci": "bun lint && bun run guard && bun run build && bun run typecheck && bun run test",
-    "guard": "guardrails",
+    "guard": "guard",
     "lint": "biome check --write .",
     "test": "echo 'No names tests configured'",
     "test:coverage": "echo 'No names tests configured'",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-  "devDependencies": {
-    "@two-pebble/guardrails": "workspace:*"
-  }
+  "devDependencies": {}
 }

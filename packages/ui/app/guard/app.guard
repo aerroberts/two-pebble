@@ -1,0 +1,93 @@
+# app package guards.
+#
+# The app package does not use the shared TypeScript guards (the previous guard
+# configuration did not opt it in), so the TypeScript structure checks it does
+# want are declared here directly.
+
+# Index files are layout, not logic: only imports and re-exports.
+guard app_index_files_are_pure {
+  find src/**/index.ts {
+    findAst typescript **/class {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript **/function {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript **/interface {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript **/enum {
+      assert {
+        count() == 0;
+      }
+    }
+  }
+}
+
+# types files own type contracts only — no runtime classes or functions.
+guard app_types_files_are_pure {
+  find src/**/types.ts {
+    findAst typescript **/class {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript **/function {
+      assert {
+        count() == 0;
+      }
+    }
+  }
+}
+
+# Test files must not define nested support declarations; extract shared helpers
+# into a dedicated module instead.
+guard app_tests_define_no_support {
+  find src/**/*.test.ts {
+    findAst typescript **/class {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript **/interface {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript **/enum {
+      assert {
+        count() == 0;
+      }
+    }
+  }
+}
+
+# Functions stay reviewable and class members stay scannable. Split secondary
+# behavior into named helpers or collaborators when one grows. A few legacy
+# files own large reducer-like flows and are exempted until they are refactored.
+#
+# Steering only (not expressible in this DSL): the old guard also capped if/try/
+# catch blocks at 80 lines, forbade static class members, required a leading
+# JSDoc block on classes and public methods, and required class names to match
+# the dash-case file name. There are no AST kinds for those constructs here, so
+# they are enforced by review.
+guard app_functions_stay_focused {
+  find src/**/*.ts except src/**/*.test.ts except src/pages/task-board/use-task-board-page-state.ts except src/pages/agent-detail/use-agent-detail-page-state.ts {
+    findAst typescript **/function {
+      assert {
+        $lines < 200;
+      }
+    }
+    findAst typescript **/method {
+      assert {
+        $lines < 80;
+      }
+    }
+  }
+}

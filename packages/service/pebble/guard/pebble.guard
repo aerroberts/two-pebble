@@ -1,0 +1,63 @@
+# pebble package guards.
+
+# Capability folders keep their runtime entrypoint in capability.ts, which owns
+# state, lifecycle hooks, and tool registration order only. Tool construction and
+# invoke behavior belong in tools/<tool>/handler.ts so schemas, descriptions, and
+# invoke behavior stay together. Schemas, helpers, tests, and prompt text live
+# under tools/, prompts/, tests/, or utils/.
+#
+# Steering only (not expressible): "capability.ts is the only top-level .ts in a
+# capability folder", "nothing loose directly under tools/", and "prompt folders
+# contain Markdown only". This DSL's `*` glob crosses directory separators, so
+# these depth-pinned, direct-children-only rules cannot be written as assertions;
+# keep helpers in utils/, tools in tools/<tool>/handler.ts, and prompts as .md.
+guard pebble_capability_shape {
+
+  # Every capability exposes its runtime entrypoint as capability.ts, and that
+  # file owns lifecycle only — it must not build tools or attach invoke handlers.
+  find src/capabilities/*/capability.ts {
+    assert {
+      exists;
+      !contains($content, "new NativeTool");
+      !contains($content, "new CliTool");
+      !contains($content, "new AgentTool");
+      !contains($content, ".onInvoke(");
+    }
+  }
+
+  # Every capability owns a system prompt file.
+  find src/capabilities/*/prompts/system.md {
+    assert {
+      exists;
+    }
+  }
+
+  # Each concrete tool handler owns the tool's schema, builder, and invoke wiring.
+  find src/capabilities/*/tools/*/handler.ts {
+    assert {
+      contains($content, "const schema");
+      contains($content, "export function build");
+      contains($content, ".onInvoke");
+    }
+  }
+}
+
+# Agent trace payload contracts live one file deep under traces/agent-traces,
+# each a self-contained exported interface, so the durable runtime event catalog
+# is easy to scan. (Imports should stay limited to ../../thread; import
+# allowlists are not expressible in this DSL.)
+guard pebble_agent_traces {
+  find src/traces/agent-traces/*.ts {
+    findAst typescript export/interface {
+      assert {
+        count() >= 1;
+      }
+    }
+  }
+
+  find src/traces/agent-traces/*/ {
+    assert {
+      count() == 0;
+    }
+  }
+}

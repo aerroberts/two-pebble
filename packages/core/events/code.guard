@@ -1,4 +1,3 @@
-{
-  "inherit": ["guardrails-package", "guardrails-typescript"],
-  "structure": []
-}
+# events uses the shared package and TypeScript guards; no package-local rules.
+use "../../../guard/package.guard";
+use "../../../guard/typescript.guard";

@@ -1,0 +1,40 @@
+# realtime package guards.
+
+# Realtime bridge operations stay flat so command behavior is easy to scan.
+guard realtime_operations_flat {
+  find src/operations/*/ {
+    assert {
+      count() == 0;
+    }
+  }
+}
+
+# Each realtime Zustand state owns its shape in state.ts and the daemon event
+# listeners that update it in listen.ts. State hook folders stay flat (one hook
+# per module), and store behavior suites live beside each state, not in a shared
+# stores directory.
+guard realtime_state_layout {
+  find src/states/*/state.ts {
+    assert {
+      exists;
+    }
+  }
+
+  find src/states/*/listen.ts {
+    assert {
+      exists;
+    }
+  }
+
+  find src/states/*/hooks/*/ {
+    assert {
+      count() == 0;
+    }
+  }
+
+  find src/testing/stores/ {
+    assert {
+      count() == 0;
+    }
+  }
+}
