@@ -1,6 +1,7 @@
 import {
   AppBox,
   Button,
+  IconButton,
   type JSONContent,
   type RichComposerSubmitPayload,
   type RichComposerTask,
@@ -12,7 +13,7 @@ import {
   type TaskStatusIconStatus,
 } from '@two-pebble/components';
 import { markdownToTipTap } from '@two-pebble/datatypes';
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { RichTextFieldHost } from '../../shared/agent-input/rich-text-field-host';
 
 export interface TaskDetailSidebarTask {
@@ -72,6 +73,7 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
   const handleDescriptionCommit = (payload: RichComposerSubmitPayload) => {
     props.onDescriptionSave(payload.markdown, JSON.stringify(payload.doc));
   };
+  const [deliverablesOpen, setDeliverablesOpen] = useState(false);
 
   return (
     <>
@@ -95,11 +97,24 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         value={descriptionDoc}
       />
       <div className="flex flex-col gap-2 pt-3">
-        <AppBox variant="muted-xs">Deliverables</AppBox>
-        {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
-        <Button leftIcon="plus" onClick={props.onAddDeliverable} type="button" variant="secondary">
-          Add deliverable
-        </Button>
+        <div className="flex items-center justify-between">
+          <AppBox variant="muted-xs">Deliverables ({props.deliverables.length})</AppBox>
+          <IconButton
+            aria-label={deliverablesOpen ? 'Hide deliverables' : 'Show deliverables'}
+            icon={deliverablesOpen ? 'chevron-down' : 'chevron-right'}
+            onClick={() => setDeliverablesOpen((open) => !open)}
+            type="button"
+            variant="secondary"
+          />
+        </div>
+        {deliverablesOpen ? (
+          <>
+            {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
+            <Button leftIcon="plus" onClick={props.onAddDeliverable} type="button" variant="secondary">
+              Add deliverable
+            </Button>
+          </>
+        ) : null}
       </div>
       <AppBox variant="controls-row">
         <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
