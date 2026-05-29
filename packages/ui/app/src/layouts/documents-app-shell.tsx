@@ -35,8 +35,16 @@ export function DocumentsAppShell(props: AppShellProps) {
     <MainAppShell>
       <AuxiliarySidebarLayout
         sidebar={
-          <Sidebar>
-            <SidebarOption disabled={creating} icon="plus" label="New document" onClick={() => void createDocument()} />
+          <Sidebar
+            footer={
+              <SidebarOption
+                disabled={creating}
+                icon="plus"
+                label="New document"
+                onClick={() => void createDocument()}
+              />
+            }
+          >
             {documentList.length === 0 ? (
               <SidebarSection title={UNSECTIONED_LABEL}>
                 <AppBox variant="sidebar-empty">

@@ -77,13 +77,16 @@ export function AgentsAppShell(props: AppShellProps) {
     <MainAppShell>
       <AuxiliarySidebarLayout
         sidebar={
-          <Sidebar>
-            <SidebarOption
-              active={location.pathname === projectPath(projectId, '/agents/new')}
-              icon="plus"
-              label="New agent"
-              onClick={() => navigate(projectPath(projectId, '/agents/new'))}
-            />
+          <Sidebar
+            footer={
+              <SidebarOption
+                active={location.pathname === projectPath(projectId, '/agents/new')}
+                icon="plus"
+                label="New agent"
+                onClick={() => navigate(projectPath(projectId, '/agents/new'))}
+              />
+            }
+          >
             {activeAgents.length > 0 ? (
               <SidebarSection collapsible title="Active">
                 {activeAgents.map(renderAgentBranch)}

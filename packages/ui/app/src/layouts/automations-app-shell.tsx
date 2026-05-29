@@ -47,13 +47,16 @@ export function AutomationsAppShell(props: AppShellProps) {
     <MainAppShell>
       <AuxiliarySidebarLayout
         sidebar={
-          <Sidebar>
-            <SidebarOption
-              active={location.pathname === projectPath(projectId, '/automations/new')}
-              icon="plus"
-              label="New automation"
-              onClick={() => navigate(projectPath(projectId, '/automations/new'))}
-            />
+          <Sidebar
+            footer={
+              <SidebarOption
+                active={location.pathname === projectPath(projectId, '/automations/new')}
+                icon="plus"
+                label="New automation"
+                onClick={() => navigate(projectPath(projectId, '/automations/new'))}
+              />
+            }
+          >
             <SidebarSection title="Automations">
               {list.length === 0 ? (
                 <AppBox variant="sidebar-empty">No automations.</AppBox>
