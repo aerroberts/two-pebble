@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8e765ca0-1ded-42c8-8e0a-2afd57750f80",
+  "id": "ba9698e8-603f-40de-8a89-771ddf4eee73",
   "prevId": "92ca3c99-cd8e-4870-a42a-8450357c521a",
   "tables": {
     "agent_calls": {
@@ -845,14 +845,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "assistant_command_k_enabled": {
-          "name": "assistant_command_k_enabled",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
         "assistant_command_k_voice_mode_enabled": {
           "name": "assistant_command_k_voice_mode_enabled",
           "type": "integer",
@@ -1309,69 +1301,6 @@
         "known_ides_updated_at_idx": {
           "name": "known_ides_updated_at_idx",
           "columns": ["updated_at"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "memories": {
-      "name": "memories",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "path": {
-          "name": "path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "memories_updated_at_idx": {
-          "name": "memories_updated_at_idx",
-          "columns": ["updated_at"],
-          "isUnique": false
-        },
-        "memories_project_id_idx": {
-          "name": "memories_project_id_idx",
-          "columns": ["project_id"],
           "isUnique": false
         }
       },

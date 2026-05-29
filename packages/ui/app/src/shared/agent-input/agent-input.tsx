@@ -4,11 +4,12 @@ import {
   type RichComposerBoard,
   type RichComposerDocument,
   type RichComposerMemory,
+  type RichComposerSkill,
   type RichComposerSubmitPayload,
   RichMessageComposer,
   type RichMessageComposerVoiceHandlers,
 } from '@two-pebble/components';
-import { useDocuments, useMemories, useTaskBoards } from '@two-pebble/realtime';
+import { useDocuments, useMemories, useSkills, useTaskBoards } from '@two-pebble/realtime';
 import { useMemo } from 'react';
 import { useOptionalProject } from '../../project-context';
 import { VoiceCaptureButton } from '../voice/voice-capture-button';
@@ -42,6 +43,7 @@ export function AgentInput(props: AgentInputProps) {
   const documents = useDocuments(projectId === undefined ? undefined : { projectId });
   const taskBoards = useTaskBoards(projectId === undefined ? undefined : { projectId });
   const memories = useMemories(projectId === undefined ? undefined : { projectId });
+  const skills = useSkills(projectId === undefined ? undefined : { projectId });
   const documentItems = useMemo<RichComposerDocument[]>(() => {
     const value = documents.value;
     if (value === null) {
@@ -84,6 +86,20 @@ export function AgentInput(props: AgentInputProps) {
     rows.sort((a, b) => a.name.localeCompare(b.name));
     return rows;
   }, [memories.value]);
+  const skillItems = useMemo<RichComposerSkill[]>(() => {
+    const value = skills.value;
+    if (value === null) {
+      return [];
+    }
+    const rows: RichComposerSkill[] = [];
+    for (const entry of value.values()) {
+      if (entry.value !== null) {
+        rows.push({ id: entry.value.id, name: entry.value.name });
+      }
+    }
+    rows.sort((a, b) => a.name.localeCompare(b.name));
+    return rows;
+  }, [skills.value]);
 
   const renderVoiceCapture =
     props.enableVoice === false
@@ -113,6 +129,7 @@ export function AgentInput(props: AgentInputProps) {
       onSubmit={props.onSubmit}
       placeholder={props.placeholder}
       renderVoiceCapture={renderVoiceCapture}
+      skills={skillItems}
       submitDisabled={props.submitDisabled}
     />
   );

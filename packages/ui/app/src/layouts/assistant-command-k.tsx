@@ -20,8 +20,8 @@ import { agentRegistryIcon } from '../shared/agents/agent-registry-icon';
  * Global Command-K assistant overlay.
  *
  * Activated by pressing Cmd+K (or Ctrl+K on Windows/Linux) anywhere in the
- * app when `appSettings.assistantCommandKEnabled` is true. The overlay opens
- * centered with a soft backdrop blur and renders the rich composer.
+ * app — the shortcut is always available. The overlay opens centered with a
+ * soft backdrop blur and renders the rich composer.
  * When `assistantCommandKVoiceModeEnabled` is also on, the overlay opens
  * straight into voice mode and starts recording immediately. Submitting
  * dispatches the message to the persisted Assistant agent and dismisses
@@ -45,7 +45,6 @@ export function AssistantCommandK() {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const settings = appSettings.value;
-  const enabled = settings?.assistantCommandKEnabled ?? false;
   const startInVoiceMode = settings?.assistantCommandKVoiceModeEnabled ?? false;
   const assistantRegistryId = project?.assistantAgentRegistryId ?? null;
 
@@ -66,9 +65,6 @@ export function AssistantCommandK() {
   }, []);
 
   useEffect(() => {
-    if (!enabled) {
-      return;
-    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
@@ -84,7 +80,7 @@ export function AssistantCommandK() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [enabled, open, close]);
+  }, [open, close]);
 
   useEffect(() => {
     if (open) {
@@ -96,7 +92,7 @@ export function AssistantCommandK() {
     return undefined;
   }, [open]);
 
-  if (!enabled || !open || projectId === null) {
+  if (!open || projectId === null) {
     return null;
   }
 

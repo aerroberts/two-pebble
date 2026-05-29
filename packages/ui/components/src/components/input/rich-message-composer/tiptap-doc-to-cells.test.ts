@@ -7,8 +7,10 @@ import {
   MENTION_DOC,
   MISSING_ID_BOARD_MENTION_DOC,
   MISSING_ID_MENTION_DOC,
+  MISSING_ID_SKILL_MENTION_DOC,
   MIXED_MENTION_DOC,
   PLAIN_PARAGRAPH_DOC,
+  SKILL_MENTION_DOC,
   TASK_MENTION_DOC,
 } from './tiptap-doc-to-cells.test-fixtures';
 
@@ -40,6 +42,17 @@ describe('feature: tiptap doc to cells', () => {
   test('happy: preserves mixed document and board mention ordering', () => {
     const cells = tipTapDocToCells(MIXED_MENTION_DOC);
     expect(cells.map((cell) => cell.type)).toEqual(['text', 'documentReference', 'text', 'boardReference']);
+  });
+
+  test('happy: splits a skill mention into its own skillReference cell', () => {
+    const cells = tipTapDocToCells(SKILL_MENTION_DOC);
+    expect(cells.map((cell) => cell.type)).toEqual(['text', 'skillReference', 'text']);
+    const reference = cells[1];
+    expect(reference?.type === 'skillReference' ? reference.content.skillId : null).toBe('skills:1');
+  });
+
+  test('happy: drops skill mentions that lack a skillId', () => {
+    expect(tipTapDocToCells(MISSING_ID_SKILL_MENTION_DOC)).toEqual([]);
   });
 
   test('happy: emits a code block cell with the declared language', () => {

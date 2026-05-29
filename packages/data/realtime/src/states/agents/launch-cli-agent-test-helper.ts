@@ -21,6 +21,7 @@ export async function launchCliAgentAndReadName(): Promise<AgentNameResult> {
     const registry = await ctx.daemon.do('createAgentRegistry', {
       inferenceProfileId: profile.id,
       name: 'CLI Agent Test',
+      projectId: 'proj_default',
       systemPrompt: emptyAgentSystemPrompt(),
     });
     const launched = await ctx.daemon.do('launchAgent', {

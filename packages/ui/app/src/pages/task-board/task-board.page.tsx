@@ -98,15 +98,11 @@ export function TaskBoardPage() {
       onDelegate={(agentRegistryId: string) => void state.delegateSelectedTask(agentRegistryId)}
       onUndelegate={() => void state.undelegateSelectedTask()}
       onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
-      onChangeStatus={(status) => {
-        if (state.selectedTaskId !== null) {
-          void state.setTaskStatusById(state.selectedTaskId, status);
-        }
-      }}
       delegateAgents={delegateOptions}
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
       submissions={state.selectedTaskDeliverableSubmissions}
+      events={state.taskEvents}
       onCreateTemplateFromTask={() => {
         if (state.selectedTask === null) {
           return;
@@ -125,6 +121,21 @@ export function TaskBoardPage() {
           name: 'New deliverable',
           type: 'text',
         });
+      }}
+      onUpdateDeliverable={(input) => void state.updateTaskDeliverable(input)}
+      onDeleteDeliverable={(id) => void state.deleteTaskDeliverable(id)}
+      onAddComment={(body) => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.addTaskComment(state.selectedTask.id, body);
+      }}
+      onDeleteTask={() => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.deleteTaskFromList(state.selectedTask.id);
+        state.setSelectedTaskId(null);
       }}
     />
   ) : null;
@@ -200,18 +211,7 @@ export function TaskBoardPage() {
               if (task === undefined) {
                 return null;
               }
-              const owner = state.findOwnerAgent(task.ownerId);
-              return (
-                <TaskListAccessory
-                  task={task}
-                  ownerName={owner?.name ?? null}
-                  delegateOptions={delegateOptions}
-                  delegating={state.delegating}
-                  trackedPrs={state.trackedPrsForTask(taskId)}
-                  onDelegate={(agentRegistryId) => void state.delegateTaskById(taskId, agentRegistryId)}
-                  onUndelegate={() => void state.undelegateTaskById(taskId)}
-                />
-              );
+              return <TaskListAccessory trackedPrs={state.trackedPrsForTask(taskId)} />;
             }}
             onChangeStatus={(taskId, status) => void state.setTaskStatusById(taskId, status)}
           />
@@ -219,13 +219,14 @@ export function TaskBoardPage() {
           <TaskBoardSettingsView
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
+            onSetPoolTemplate={(poolId, templateId) => void state.setPoolTemplate(poolId, templateId)}
             onDeleteBoard={() => void state.deleteBoard()}
             templates={state.taskTemplates}
             onCreateTemplate={(input) => void state.createTaskTemplate(input)}
             onSelectTemplate={selectTemplate}
             selectedTemplateId={selectedTemplateId}
-            defaultTemplateId={state.board?.defaultTemplateId ?? null}
-            onDefaultTemplateChange={(templateId) => void state.setBoardDefaultTemplate(templateId)}
+            boardTemplateId={state.board?.defaultTemplateId ?? null}
+            onBoardTemplateChange={(templateId) => void state.setBoardTemplate(templateId)}
           />
         )}
       </WorkbenchPageLayout>

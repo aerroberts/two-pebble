@@ -1,4 +1,5 @@
 import type { CellContent } from './cells/index';
+import { renderSkillReferenceText } from './cells/index';
 import type { ConversationThreadCells, ConversationTurn, DataCells } from './types';
 
 export function serializeConversationCells(cells: ConversationThreadCells) {
@@ -48,6 +49,8 @@ function serializeCell(cell: CellContent): string {
       return `## ${cell.content.text}`;
     case 'image':
       return `[image](data:image/*;base64,${cell.content.base64Data})`;
+    case 'skillReference':
+      return renderSkillReferenceText(cell.content);
     case 'text':
       return cell.content.text;
     case 'toolRegistration':

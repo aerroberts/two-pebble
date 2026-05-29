@@ -933,7 +933,8 @@ function toTask(record: {
 }
 
 function toTaskBoardEvent(event: TaskBoardEventRecord): TaskBoardEventRecord {
-  const kind = event.kind === 'delegated' || event.kind === 'undelegated' ? event.kind : 'status';
+  const kind =
+    event.kind === 'delegated' || event.kind === 'undelegated' || event.kind === 'comment' ? event.kind : 'status';
   return {
     id: event.id,
     kind,

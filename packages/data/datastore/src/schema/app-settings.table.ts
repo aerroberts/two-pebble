@@ -22,11 +22,8 @@ export const appSettingsTable = customTable('app_settings', {
   // Current agent instance id that the Assistant page reuses across visits.
   assistantAgentId: text('assistant_agent_id'),
 
-  // Toggle for the Command-K global shortcut that opens the assistant speech overlay.
-  assistantCommandKEnabled: integer('assistant_command_k_enabled', { mode: 'boolean' }).notNull().default(false),
-
   // When the Command-K overlay opens, start the mic immediately instead of showing the
-  // text-with-voice composer. Has no effect when the Command-K shortcut itself is disabled.
+  // text-with-voice composer.
   assistantCommandKVoiceModeEnabled: integer('assistant_command_k_voice_mode_enabled', { mode: 'boolean' })
     .notNull()
     .default(false),
@@ -41,4 +38,8 @@ export const appSettingsTable = customTable('app_settings', {
   // Agent registry id used by the document "Send to Agent" affordance. `null` hides
   // the button on the document view.
   documentRunnerAgentRegistryId: text('document_runner_agent_registry_id'),
+
+  // Local folder used by the data-sync feature for export/import of configuration
+  // and documents. `null` means no directory has been chosen yet.
+  syncDirectory: text('sync_directory'),
 });

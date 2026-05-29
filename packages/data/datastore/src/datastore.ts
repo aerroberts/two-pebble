@@ -94,6 +94,11 @@ import { repositoriesDeleteOperation } from './operations/repositories.delete';
 import { repositoriesListOperation } from './operations/repositories.list';
 import { repositoriesReadOperation } from './operations/repositories.read';
 import { repositoriesUpdateOperation } from './operations/repositories.update';
+import { skillsCreateOperation } from './operations/skills.create';
+import { skillsDeleteOperation } from './operations/skills.delete';
+import { skillsListOperation } from './operations/skills.list';
+import { skillsReadOperation } from './operations/skills.read';
+import { skillsUpdateOperation } from './operations/skills.update';
 import { taskBoardsCreateOperation } from './operations/task-boards.create';
 import { taskBoardsDeleteOperation } from './operations/task-boards.delete';
 import { taskBoardsListOperation } from './operations/task-boards.list';
@@ -105,6 +110,7 @@ import { taskDeliverableSubmissionsUpsertOperation } from './operations/task-del
 import { taskDeliverablesCreateOperation } from './operations/task-deliverables.create';
 import { taskDeliverablesDeleteOperation } from './operations/task-deliverables.delete';
 import { taskDeliverablesListOperation } from './operations/task-deliverables.list';
+import { taskDeliverablesUpdateOperation } from './operations/task-deliverables.update';
 import { taskDependenciesCreateOperation } from './operations/task-dependencies.create';
 import { taskDependenciesDeleteOperation } from './operations/task-dependencies.delete';
 import { taskDependenciesListOperation } from './operations/task-dependencies.list';
@@ -114,6 +120,7 @@ import { taskPoolsCreateOperation } from './operations/task-pools.create';
 import { taskPoolsDeleteOperation } from './operations/task-pools.delete';
 import { taskPoolsListOperation } from './operations/task-pools.list';
 import { taskPoolsSetParentOperation } from './operations/task-pools.set-parent';
+import { taskPoolsSetTemplateOperation } from './operations/task-pools.set-template';
 import { taskTemplateDeliverablesCreateOperation } from './operations/task-template-deliverables.create';
 import { taskTemplateDeliverablesDeleteOperation } from './operations/task-template-deliverables.delete';
 import { taskTemplateDeliverablesListOperation } from './operations/task-template-deliverables.list';
@@ -434,6 +441,22 @@ export class Datastore {
   }
 
   /**
+   * Returns skill persistence handlers.
+   * Skills store only metadata; `diskFolderPath` is an opaque absolute path.
+   * Folder validation and listing live in the daemon, not the datastore.
+   */
+  public get skills() {
+    const bind = this.operationBinder();
+    return {
+      create: bind(skillsCreateOperation, 'skills.create'),
+      delete: bind(skillsDeleteOperation, 'skills.delete'),
+      list: bind(skillsListOperation, 'skills.list'),
+      read: bind(skillsReadOperation, 'skills.read'),
+      update: bind(skillsUpdateOperation, 'skills.update'),
+    };
+  }
+
+  /**
    * Returns worktree persistence handlers.
    * Worktrees track lifecycle of git worktrees managed by the daemon.
    * Filesystem operations live in the daemon, not in the datastore.
@@ -481,6 +504,7 @@ export class Datastore {
         delete: bind(taskPoolsDeleteOperation, 'task-pools.delete'),
         list: bind(taskPoolsListOperation, 'task-pools.list'),
         setParent: bind(taskPoolsSetParentOperation, 'task-pools.set-parent'),
+        setTemplate: bind(taskPoolsSetTemplateOperation, 'task-pools.set-template'),
       },
       templates: {
         create: bind(taskTemplatesCreateOperation, 'task-templates.create'),
@@ -509,6 +533,7 @@ export class Datastore {
         create: bind(taskDeliverablesCreateOperation, 'task-deliverables.create'),
         delete: bind(taskDeliverablesDeleteOperation, 'task-deliverables.delete'),
         list: bind(taskDeliverablesListOperation, 'task-deliverables.list'),
+        update: bind(taskDeliverablesUpdateOperation, 'task-deliverables.update'),
       },
       deliverableSubmissions: {
         list: bind(taskDeliverableSubmissionsListOperation, 'task-deliverable-submissions.list'),

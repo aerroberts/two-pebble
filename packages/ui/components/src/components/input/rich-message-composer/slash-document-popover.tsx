@@ -8,6 +8,7 @@ import type {
   RichComposerDocument,
   RichComposerMemory,
   RichComposerReference,
+  RichComposerSkill,
   RichComposerTask,
 } from './composer-types';
 
@@ -38,6 +39,7 @@ export interface SlashReferencePopoverProps {
   documents: ReadonlyArray<RichComposerDocument>;
   tasks: ReadonlyArray<RichComposerTask>;
   memories: ReadonlyArray<RichComposerMemory>;
+  skills: ReadonlyArray<RichComposerSkill>;
   onSelect: (reference: RichComposerReference) => void;
   onCancel: () => void;
 }
@@ -58,12 +60,12 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
 
   const filtered = useMemo(
     () =>
-      buildReferences(props.documents, props.boards, props.tasks, props.memories).filter((reference) =>
+      buildReferences(props.documents, props.boards, props.tasks, props.memories, props.skills).filter((reference) =>
         props.query.length === 0
           ? true
           : reference.item.name.toLowerCase().includes(props.query) || reference.type.includes(props.query),
       ),
-    [props.query, props.documents, props.boards, props.tasks, props.memories],
+    [props.query, props.documents, props.boards, props.tasks, props.memories, props.skills],
   );
   const activeIndex = clamp(rawActiveIndex, 0, Math.max(filtered.length - 1, 0));
 
@@ -146,7 +148,9 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
                         ? 'list-todo'
                         : reference.type === 'memory'
                           ? 'brain'
-                          : 'layout-dashboard'
+                          : reference.type === 'skill'
+                            ? 'book-marked'
+                            : 'layout-dashboard'
                   }
                 />
                 <span className="min-w-0 flex-1 truncate font-medium">{reference.item.name}</span>
@@ -169,6 +173,7 @@ export function SlashDocumentPopover(props: SlashDocumentPopoverProps) {
       anchorTop={props.anchorTop}
       boards={props.boards ?? []}
       documents={props.documents}
+      skills={[]}
       tasks={props.tasks ?? []}
       memories={[]}
       onCancel={props.onCancel}
@@ -198,11 +203,13 @@ function buildReferences(
   boards: ReadonlyArray<RichComposerBoard>,
   tasks: ReadonlyArray<RichComposerTask>,
   memories: ReadonlyArray<RichComposerMemory>,
+  skills: ReadonlyArray<RichComposerSkill>,
 ): RichComposerReference[] {
   return [
     ...documents.map((item) => ({ type: 'document' as const, item })),
     ...boards.map((item) => ({ type: 'board' as const, item })),
     ...tasks.map((item) => ({ type: 'task' as const, item })),
     ...memories.map((item) => ({ type: 'memory' as const, item })),
+    ...skills.map((item) => ({ type: 'skill' as const, item })),
   ].sort((left, right) => left.item.name.localeCompare(right.item.name));
 }

@@ -22,12 +22,14 @@ import type {
   RichComposerDocument,
   RichComposerMemory,
   RichComposerReference,
+  RichComposerSkill,
   RichComposerSlashTrigger,
   RichComposerSubmitPayload,
   RichComposerTask,
 } from './composer-types';
 import { DocumentMentionNode } from './document-mention-node';
 import { MemoryMentionNode } from './memory-mention-node';
+import { SkillMentionNode } from './skill-mention-node';
 import { SlashReferencePopover } from './slash-document-popover';
 import { insertTranscriptAtCursor, readActiveSlashTrigger, replaceTriggerWithReferenceMention } from './slash-trigger';
 import { TaskMentionNode } from './task-mention-node';
@@ -56,6 +58,8 @@ export interface RichMessageComposerProps {
   tasks?: ReadonlyArray<RichComposerTask>;
   /** Memory collections available to the slash command. */
   memories?: ReadonlyArray<RichComposerMemory>;
+  /** Skills available to the `/skill` slash command. */
+  skills?: ReadonlyArray<RichComposerSkill>;
   /** Called whenever the underlying document changes. */
   onChange?: (doc: JSONContent) => void;
   disabled?: boolean;
@@ -125,6 +129,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
       DocumentMentionNode,
       MemoryMentionNode,
       TaskMentionNode,
+      SkillMentionNode,
     ],
     content: loadInitialDoc(draftStorageKey),
     editorProps: {
@@ -285,6 +290,7 @@ export function RichMessageComposer(props: RichMessageComposerProps) {
         anchorTop={slashTrigger?.anchorTop ?? 0}
         boards={props.boards ?? []}
         documents={props.documents}
+        skills={props.skills ?? []}
         tasks={props.tasks ?? []}
         memories={props.memories ?? []}
         onCancel={handleSlashCancel}

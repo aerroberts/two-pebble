@@ -8,7 +8,7 @@ import {
   SidebarSection,
   TwoPebbleLogo,
 } from '@two-pebble/components';
-import { useAgents, useDocuments, useMemories, useProjects } from '@two-pebble/realtime';
+import { useAgents, useDocuments, useMemories, useProjects, useSkills } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { projectPath, useOptionalProject } from '../project-context';
 import type { AppShellProps } from './app-shell-props';
@@ -29,9 +29,11 @@ export function MainAppShell(props: AppShellProps) {
   const agents = useAgents(projectId === undefined ? undefined : { projectId });
   const documents = useDocuments(projectId === undefined ? undefined : { projectId });
   const memories = useMemories(projectId === undefined ? undefined : { projectId });
+  const skills = useSkills(projectId === undefined ? undefined : { projectId });
   const activeAgentCount = agents.values().filter((agent) => !agent.parentAgentId && agent.status === 'running').length;
   const documentCount = documents.values().length;
   const memoryCount = memories.values().length;
+  const skillCount = skills.values().length;
   const pathname = projectId === undefined ? location.pathname : stripProjectPrefix(location.pathname, projectId);
   const mode = getSidebarMode(pathname);
   const scopedNavigate = (path: string) => navigate(projectId === undefined ? path : projectPath(projectId, path));
@@ -80,6 +82,7 @@ export function MainAppShell(props: AppShellProps) {
             activeAgentCount,
             documentCount,
             memoryCount,
+            skillCount,
             globalNavigate: navigate,
             mode,
             navigate: scopedNavigate,
@@ -99,6 +102,7 @@ function renderSidebarContent(input: {
   activeAgentCount: number;
   documentCount: number;
   memoryCount: number;
+  skillCount: number;
   globalNavigate: SidebarNavigate;
   mode: SidebarMode;
   navigate: SidebarNavigate;
@@ -110,6 +114,7 @@ function renderSidebarContent(input: {
     activeAgentCount,
     documentCount,
     memoryCount,
+    skillCount,
     globalNavigate,
     mode,
     navigate,
@@ -180,6 +185,43 @@ function renderSidebarContent(input: {
           onClick={() => navigate('/assistant')}
         />
       </SidebarSection>
+      <SidebarSection title="Knowledge">
+        <SidebarOption
+          active={pathname.startsWith('/documents')}
+          badge={
+            documentCount > 0 ? (
+              <output aria-label={`${documentCount} ${documentCount === 1 ? 'document' : 'documents'}`}>
+                {documentCount}
+              </output>
+            ) : undefined
+          }
+          icon="file-text"
+          label="Documents"
+          onClick={() => navigate('/documents')}
+        />
+        <SidebarOption
+          active={pathname.startsWith('/skills')}
+          badge={
+            skillCount > 0 ? (
+              <output aria-label={`${skillCount} ${skillCount === 1 ? 'skill' : 'skills'}`}>{skillCount}</output>
+            ) : undefined
+          }
+          icon="book-marked"
+          label="Skills"
+          onClick={() => navigate('/skills')}
+        />
+        <SidebarOption
+          active={pathname.startsWith('/memories')}
+          badge={
+            memoryCount > 0 ? (
+              <output aria-label={`${memoryCount} ${memoryCount === 1 ? 'memory' : 'memories'}`}>{memoryCount}</output>
+            ) : undefined
+          }
+          icon="brain"
+          label="Memories"
+          onClick={() => navigate('/memories')}
+        />
+      </SidebarSection>
       <SidebarSection title="System">
         <SidebarOption
           active={pathname.startsWith('/agents') || pathname.startsWith('/threads')}
@@ -199,30 +241,6 @@ function renderSidebarContent(input: {
           icon="list-checks"
           label="Agent Tasks"
           onClick={() => navigate('/tasks')}
-        />
-        <SidebarOption
-          active={pathname.startsWith('/documents')}
-          badge={
-            documentCount > 0 ? (
-              <output aria-label={`${documentCount} ${documentCount === 1 ? 'document' : 'documents'}`}>
-                {documentCount}
-              </output>
-            ) : undefined
-          }
-          icon="file-text"
-          label="Documents"
-          onClick={() => navigate('/documents')}
-        />
-        <SidebarOption
-          active={pathname.startsWith('/memories')}
-          badge={
-            memoryCount > 0 ? (
-              <output aria-label={`${memoryCount} ${memoryCount === 1 ? 'memory' : 'memories'}`}>{memoryCount}</output>
-            ) : undefined
-          }
-          icon="brain"
-          label="Memories"
-          onClick={() => navigate('/memories')}
         />
         <SidebarOption
           active={pathname.startsWith('/automations')}

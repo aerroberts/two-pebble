@@ -14,6 +14,7 @@ describe('feature: operation task-deliverable-submissions.read', () => {});
 describe('feature: operation task-deliverables.create', () => {});
 describe('feature: operation task-deliverables.delete', () => {});
 describe('feature: operation task-deliverables.list', () => {});
+describe('feature: operation task-deliverables.update', () => {});
 describe('feature: operation task-template-deliverables.create', () => {});
 describe('feature: operation task-template-deliverables.delete', () => {});
 describe('feature: operation task-template-deliverables.list', () => {});

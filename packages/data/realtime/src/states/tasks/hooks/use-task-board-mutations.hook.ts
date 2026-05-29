@@ -2,6 +2,7 @@
 
 import { useRealtimeDatastore } from '../../../hooks/use-realtime-datastore.hook';
 import type {
+  AddTaskCommentInput,
   CreateTaskBoardInput,
   CreateTaskDeliverableInput,
   CreateTaskDependencyInput,
@@ -9,13 +10,16 @@ import type {
   CreateTaskPoolInput,
   DelegateTaskInput,
   DeleteTaskBoardInput,
+  DeleteTaskDeliverableInput,
   DeleteTaskDependencyInput,
   DeleteTaskInput,
   DeleteTaskPoolInput,
   RenameTaskInput,
+  SetTaskPoolTemplateInput,
   SetTaskStatusInput,
   UndelegateTaskInput,
   UpdateTaskBoardInput,
+  UpdateTaskDeliverableInput,
   UpdateTaskDescriptionInput,
 } from '../types';
 
@@ -32,8 +36,10 @@ export function useTaskBoardMutations() {
     deleteBoard: (input: DeleteTaskBoardInput) => datastore.taskBoards.delete(input),
     createPool: (input: CreateTaskPoolInput) => datastore.taskPools.create(input),
     deletePool: (input: DeleteTaskPoolInput) => datastore.taskPools.delete(input),
+    setPoolTemplate: (input: SetTaskPoolTemplateInput) => datastore.taskPools.setTemplate(input),
     createTask: (input: CreateTaskInput) => datastore.tasks.create(input),
     delegateTask: (input: DelegateTaskInput) => datastore.tasks.delegate(input),
+    addTaskComment: (input: AddTaskCommentInput) => datastore.tasks.addComment(input),
     undelegateTask: (input: UndelegateTaskInput) => datastore.tasks.undelegate(input),
     renameTask: (input: RenameTaskInput) => datastore.tasks.rename(input),
     setTaskStatus: (input: SetTaskStatusInput) => datastore.tasks.setStatus(input),
@@ -42,5 +48,7 @@ export function useTaskBoardMutations() {
     createDependency: (input: CreateTaskDependencyInput) => datastore.taskDependencies.create(input),
     deleteDependency: (input: DeleteTaskDependencyInput) => datastore.taskDependencies.delete(input),
     createTaskDeliverable: (input: CreateTaskDeliverableInput) => datastore.taskDeliverables.create(input),
+    updateTaskDeliverable: (input: UpdateTaskDeliverableInput) => datastore.taskDeliverables.update(input),
+    deleteTaskDeliverable: (input: DeleteTaskDeliverableInput) => datastore.taskDeliverables.delete(input),
   };
 }

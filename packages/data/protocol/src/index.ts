@@ -1,4 +1,22 @@
 export * from './daemon-protocol';
+export {
+  actionableEntries,
+  defaultSelected,
+  diskRecordKey,
+  recomputeBlocked,
+  reconcileKey,
+  toggleSelection,
+} from './data-sync/cascade';
+export type {
+  BaseDiffStatus,
+  DependencyRef,
+  DiffStatus,
+  DiskRecord,
+  ReconcileEntry,
+  ReconcilePlan,
+  SyncDirection,
+  SyncEntityType,
+} from './data-sync/types';
 export type { AgentLaunchWorkspaceOverride } from './protocol/agent.launch';
 export type { AgentLivenessEvent } from './protocol/agent.liveness';
 export type { AgentQueuedMessageWireRecord } from './protocol/agent.queued-messages.list';
@@ -18,6 +36,7 @@ export type { MetricNameSummary } from './protocol/metrics.list-names';
 export type { MetricVariant } from './protocol/metrics.list-variants';
 export type { MetricAggregateBucket } from './protocol/metrics.query-aggregated';
 export type { ProjectRecord } from './protocol/projects.list';
+export type { SkillRecord } from './protocol/skills.list';
 export type { TaskBoardRecord } from './protocol/task-boards.list';
 export type {
   TaskDeliverablePayload,

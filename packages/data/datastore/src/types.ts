@@ -34,6 +34,7 @@ import type {
   metricsTable,
   projectsTable,
   repositoriesTable,
+  skillsTable,
   taskBoardsTable,
   taskDeliverableSubmissionsTable,
   taskDeliverablesTable,
@@ -116,6 +117,7 @@ export interface DatastoreSchema extends Record<string, object> {
   metricsTable: typeof metricsTable;
   projectsTable: typeof projectsTable;
   repositoriesTable: typeof repositoriesTable;
+  skillsTable: typeof skillsTable;
   taskBoardsTable: typeof taskBoardsTable;
   taskDependenciesTable: typeof taskDependenciesTable;
   taskDeliverableSubmissionsTable: typeof taskDeliverableSubmissionsTable;
@@ -242,6 +244,17 @@ export interface MemoryRecord {
   path: string;
 }
 
+export interface SkillRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  projectId: string;
+  name: string;
+  description: string;
+  diskFolderPath: string;
+  archivedAt: number | null;
+}
+
 export interface WorktreeRecord {
   id: string;
   createdAt: number;
@@ -313,6 +326,7 @@ export interface TaskPoolRecord {
   boardId: string;
   parentPoolId: string | null;
   name: string;
+  defaultTemplateId: string | null;
 }
 
 export interface TaskRecord {

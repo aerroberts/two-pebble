@@ -9,8 +9,6 @@ export interface AppSettings {
   assistantAgentRegistryId: string | null;
   /** Current agent instance id that the Assistant page reuses across visits. */
   assistantAgentId: string | null;
-  /** Enable Command-K global shortcut to open the assistant speech overlay. */
-  assistantCommandKEnabled: boolean;
   /** When the Command-K overlay opens, auto-start the mic instead of showing the text+voice composer. */
   assistantCommandKVoiceModeEnabled: boolean;
   /**
@@ -27,4 +25,11 @@ export interface AppSettings {
    * hides the button.
    */
   documentRunnerAgentRegistryId: string | null;
+  /**
+   * Local folder the data-sync feature reads from and writes to when exporting
+   * or importing configuration and documents. `null` until the user picks one.
+   * Optional on update so existing settings writers need not set it; the read
+   * row always includes it.
+   */
+  syncDirectory?: string | null;
 }

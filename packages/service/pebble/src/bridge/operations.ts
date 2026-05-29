@@ -256,7 +256,7 @@ export interface TaskBoardDependencyInput {
 
 export interface TaskBoardEventRecord {
   id: string;
-  kind: 'status' | 'delegated' | 'undelegated';
+  kind: 'status' | 'delegated' | 'undelegated' | 'comment';
   taskId: string;
   reason: string;
   createdAt: number;

@@ -16,6 +16,7 @@ import { MemoriesPage } from './pages/memories/memories.page';
 import { MemoryDetailPage } from './pages/memories/memory-detail.page';
 import { ModelCallDetailPage } from './pages/model-call-detail/model-call-detail.page';
 import { OverviewPage } from './pages/overview/overview.page';
+import { SkillsPage } from './pages/skills/skills.page';
 import { TaskBoardPage } from './pages/task-board/task-board.page';
 import { TasksPage } from './pages/tasks/tasks.page';
 import { ProjectProvider } from './project-context';
@@ -115,6 +116,14 @@ export function ProjectRoutes() {
             <MemoriesAppShell>
               <MemoryDetailPage />
             </MemoriesAppShell>
+          }
+        />
+        <Route
+          path="skills"
+          element={
+            <MainAppShell>
+              <SkillsPage />
+            </MainAppShell>
           }
         />
         <Route

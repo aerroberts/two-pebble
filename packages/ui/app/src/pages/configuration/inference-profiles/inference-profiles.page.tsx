@@ -20,13 +20,10 @@ export function InferenceProfilesPage() {
           creating={state.creatingKind === kind}
           integrationsLoading={state.integrations.status === 'loading'}
           kind={kind}
-          onCancelCreate={state.cancelCreate}
           onIntegrationSelected={(integrationId) => void state.createProfile(kind, integrationId)}
           onProfileClick={(profileId) => state.navigate(`/configuration/inference-profiles/${profileId}`)}
-          onStartCreate={() => state.startCreate(kind)}
           profiles={state.profilesForKind(kind)}
           profilesLoading={state.inferenceProfiles.status === 'loading'}
-          selecting={state.selectingKind === kind}
         />
       ))}
     </PageLayout>

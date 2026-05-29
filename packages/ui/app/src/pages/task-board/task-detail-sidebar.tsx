@@ -1,18 +1,20 @@
 import {
   AppBox,
   Button,
+  Icon,
+  IconButton,
+  Input,
   type JSONContent,
   type RichComposerSubmitPayload,
   type RichComposerTask,
   Select,
   type SelectOption,
   TaskStatusIcon,
-  TaskStatusIconSelect,
-  type TaskStatusIconSelectStatus,
   type TaskStatusIconStatus,
 } from '@two-pebble/components';
 import { markdownToTipTap } from '@two-pebble/datatypes';
-import { type ReactNode, useMemo } from 'react';
+import type { TaskEventRecord } from '@two-pebble/realtime';
+import { type ReactNode, useMemo, useState } from 'react';
 import { RichTextFieldHost } from '../../shared/agent-input/rich-text-field-host';
 
 export interface TaskDetailSidebarTask {
@@ -48,14 +50,23 @@ export interface TaskDetailSidebarProps {
   delegateDisabled: boolean;
   deliverables: TaskDetailSidebarDeliverable[];
   submissions: TaskDetailSidebarDeliverableSubmission[];
+  events: TaskEventRecord[];
   onDescriptionSave: (markdown: string, content: string) => void;
   onDelegate: (agentRegistryId: string) => void;
   onUndelegate: () => void;
   onOpenAgent: (agentId: string) => void;
-  onChangeStatus: (status: TaskStatusIconSelectStatus) => void;
   onCreateTemplateFromTask: () => void;
   onAddDeliverable: () => void;
+  onUpdateDeliverable: (input: { id: string; name?: string; description?: string; type?: 'text' | 'pr_url' }) => void;
+  onDeleteDeliverable: (id: string) => void;
+  onAddComment: (body: string) => void;
+  onDeleteTask: () => void;
 }
+
+const DELIVERABLE_TYPE_OPTIONS: SelectOption[] = [
+  { value: 'text', label: 'Text', icon: <Icon name="file-text" color="text-current" /> },
+  { value: 'pr_url', label: 'PR URL', icon: <Icon name="git-pull-request" color="text-current" /> },
+];
 
 /**
  * Detail view rendered into the right-hand task panel. The task name is
@@ -72,17 +83,12 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
   const handleDescriptionCommit = (payload: RichComposerSubmitPayload) => {
     props.onDescriptionSave(payload.markdown, JSON.stringify(payload.doc));
   };
+  const [deliverablesOpen, setDeliverablesOpen] = useState(false);
+  const [commentDraft, setCommentDraft] = useState('');
 
   return (
     <>
       <AppBox variant="task-detail-header">
-        <AppBox variant="controls-row">
-          <TaskStatusIconSelect
-            ariaLabel={`Change status of ${props.task.name || 'task'}`}
-            onChange={props.onChangeStatus}
-            status={props.task.status}
-          />
-        </AppBox>
         <AppBox variant="task-detail-actions">{renderDelegateControl(props)}</AppBox>
       </AppBox>
       {props.ownerAgent !== null ? <AppBox variant="controls-row">{renderOwnerSummary(props)}</AppBox> : null}
@@ -95,19 +101,106 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         value={descriptionDoc}
       />
       <div className="flex flex-col gap-2 pt-3">
-        <AppBox variant="muted-xs">Deliverables</AppBox>
-        {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
-        <Button leftIcon="plus" onClick={props.onAddDeliverable} type="button" variant="secondary">
-          Add deliverable
-        </Button>
+        <div className="flex items-center justify-between">
+          <AppBox variant="muted-xs">Deliverables ({props.deliverables.length})</AppBox>
+          <IconButton
+            aria-label={deliverablesOpen ? 'Hide deliverables' : 'Show deliverables'}
+            icon={deliverablesOpen ? 'chevron-down' : 'chevron-right'}
+            onClick={() => setDeliverablesOpen((open) => !open)}
+            type="button"
+            variant="secondary"
+          />
+        </div>
+        {deliverablesOpen ? (
+          <>
+            {props.deliverables.map((deliverable) => (
+              <DeliverableEditorRow
+                key={deliverable.id}
+                deliverable={deliverable}
+                submission={props.submissions.find((entry) => entry.deliverableId === deliverable.id) ?? null}
+                onUpdate={props.onUpdateDeliverable}
+                onDelete={props.onDeleteDeliverable}
+              />
+            ))}
+            <Button leftIcon="plus" onClick={props.onAddDeliverable} type="button" variant="secondary">
+              Add deliverable
+            </Button>
+          </>
+        ) : null}
+      </div>
+      <div className="flex flex-col gap-2 pt-3">
+        <AppBox variant="muted-xs">Activity</AppBox>
+        <div className="flex items-end gap-2">
+          <div className="min-w-0 flex-1">
+            <Input
+              aria-label="Add a comment"
+              placeholder="Add a comment..."
+              value={commentDraft}
+              onChange={(event) => setCommentDraft(event.target.value)}
+            />
+          </div>
+          <Button
+            disabled={commentDraft.trim().length === 0}
+            leftIcon="send"
+            onClick={() => {
+              props.onAddComment(commentDraft);
+              setCommentDraft('');
+            }}
+            type="button"
+            variant="secondary"
+          >
+            Comment
+          </Button>
+        </div>
+        {props.events.length === 0 ? (
+          <p className="text-xs text-content-muted">No activity yet.</p>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {props.events.map((event) => (
+              <div key={event.id} className="rounded-md border border-border bg-surface px-2 py-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate text-xs font-medium text-content">{describeEvent(event)}</span>
+                  <span className="shrink-0 text-[11px] text-content-muted">
+                    {new Date(event.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                {event.reason.length > 0 ? (
+                  <div className="text-[11px] leading-4 text-content-muted">{event.reason}</div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <AppBox variant="controls-row">
-        <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
-          Create template from task
+        <Button leftIcon="trash" onClick={props.onDeleteTask} type="button" variant="secondary">
+          Delete task
         </Button>
       </AppBox>
+      <div className="mt-auto pt-3">
+        <AppBox variant="controls-row">
+          <Button leftIcon="file-text" onClick={props.onCreateTemplateFromTask} type="button" variant="secondary">
+            Create template from task
+          </Button>
+        </AppBox>
+      </div>
     </>
   );
+}
+
+function describeEvent(event: TaskEventRecord): string {
+  switch (event.kind) {
+    case 'status':
+      return `Status → ${event.status}`;
+    case 'delegated':
+      return `Delegated to ${event.agentName}`;
+    case 'undelegated':
+      return 'Undelegated';
+    case 'comment':
+      return 'Comment';
+    default:
+      return 'Updated';
+  }
 }
 
 function parseDescriptionContent(content: string | null, markdown: string): JSONContent {
@@ -124,34 +217,63 @@ function parseDescriptionContent(content: string | null, markdown: string): JSON
   return markdownToTipTap(markdown);
 }
 
-function renderDeliverableRow(
-  deliverable: TaskDetailSidebarDeliverable,
-  submissions: TaskDetailSidebarDeliverableSubmission[],
-): ReactNode {
-  const submission = submissions.find((entry) => entry.deliverableId === deliverable.id) ?? null;
+interface DeliverableEditorRowProps {
+  deliverable: TaskDetailSidebarDeliverable;
+  submission: TaskDetailSidebarDeliverableSubmission | null;
+  onUpdate: (input: { id: string; name?: string; description?: string; type?: 'text' | 'pr_url' }) => void;
+  onDelete: (id: string) => void;
+}
+
+function DeliverableEditorRow(props: DeliverableEditorRowProps): ReactNode {
+  const { deliverable, submission } = props;
+  const [name, setName] = useState(deliverable.name);
+  const [description, setDescription] = useState(deliverable.description);
   return (
-    <div key={deliverable.id} className="flex items-start gap-2 rounded-md border border-border bg-surface-neutral p-2">
-      <TaskStatusIcon status={submission === null ? 'waiting' : 'success'} size="sm" />
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-medium text-content">{deliverable.name}</div>
-        {deliverable.description.length > 0 ? (
-          <div className="truncate text-xs text-content-muted">{deliverable.description}</div>
-        ) : null}
-        {submission === null ? (
-          <div className="text-xs text-content-muted">Pending</div>
-        ) : submission.payload.type === 'pr_url' ? (
-          <a
-            className="block truncate text-xs text-accent underline-offset-2 hover:underline"
-            href={submission.payload.url}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {submission.payload.url}
-          </a>
-        ) : (
-          <div className="truncate text-xs text-content-muted">{submission.payload.content}</div>
-        )}
+    <div className="flex flex-col gap-2 rounded-md border border-border bg-surface p-2">
+      <div className="grid grid-cols-[auto_1fr_8rem_auto] items-end gap-2">
+        <div className="pb-1.5">
+          <TaskStatusIcon status={submission === null ? 'waiting' : 'success'} size="sm" />
+        </div>
+        <Input
+          aria-label="Deliverable name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          onBlur={() => props.onUpdate({ id: deliverable.id, name: name.trim() || deliverable.name })}
+        />
+        <Select
+          options={DELIVERABLE_TYPE_OPTIONS}
+          value={deliverable.type}
+          onChange={(value) => props.onUpdate({ id: deliverable.id, type: value as 'text' | 'pr_url' })}
+        />
+        <IconButton
+          aria-label="Delete deliverable"
+          icon="trash"
+          onClick={() => props.onDelete(deliverable.id)}
+          type="button"
+          variant="secondary"
+        />
       </div>
+      <Input
+        aria-label="Deliverable description"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        onBlur={() => props.onUpdate({ id: deliverable.id, description })}
+        placeholder="Description"
+      />
+      {submission === null ? (
+        <div className="text-xs text-content-muted">Pending</div>
+      ) : submission.payload.type === 'pr_url' ? (
+        <a
+          className="block truncate text-xs text-accent underline-offset-2 hover:underline"
+          href={submission.payload.url}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {submission.payload.url}
+        </a>
+      ) : (
+        <div className="truncate text-xs text-content-muted">{submission.payload.content}</div>
+      )}
     </div>
   );
 }

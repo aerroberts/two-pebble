@@ -30,6 +30,8 @@ import { createProjectsState } from './states/projects/state';
 import type { ProjectsState } from './states/projects/types';
 import { createRepositoriesState } from './states/repositories/state';
 import type { RepositoriesState } from './states/repositories/types';
+import { createSkillsState } from './states/skills/state';
+import type { SkillsState } from './states/skills/types';
 import { createTasksState } from './states/tasks/state';
 import type { TasksState } from './states/tasks/types';
 import { createThirdPartyAgentInstallsState } from './states/third-party-agent-installs/state';
@@ -55,6 +57,7 @@ export interface RealtimeState
     MemoriesState,
     ProjectsState,
     RepositoriesState,
+    SkillsState,
     TasksState,
     ThirdPartyAgentInstallsState,
     WorkspacesState,
@@ -79,6 +82,7 @@ export function createRealtimeState(): RealtimeState {
     ...createMemoriesState(),
     ...createProjectsState(),
     ...createRepositoriesState(),
+    ...createSkillsState(),
     ...createTasksState(),
     ...createThirdPartyAgentInstallsState(),
     ...createWorkspacesState(),

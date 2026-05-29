@@ -21,6 +21,11 @@ export interface RichComposerMemory {
   name: string;
 }
 
+export interface RichComposerSkill {
+  id: string;
+  name: string;
+}
+
 export type RichComposerReference =
   | {
       type: 'document';
@@ -37,6 +42,10 @@ export type RichComposerReference =
   | {
       type: 'memory';
       item: RichComposerMemory;
+    }
+  | {
+      type: 'skill';
+      item: RichComposerSkill;
     };
 
 export interface RichComposerSubmitPayload {

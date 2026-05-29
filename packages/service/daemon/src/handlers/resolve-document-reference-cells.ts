@@ -2,6 +2,7 @@ import type { Datastore } from '@two-pebble/datastore';
 import { type DocumentTodo, extractTodos, type TipTapDocument } from '@two-pebble/datatypes';
 import type { Logger } from '@two-pebble/logger';
 import { Cell, type CellContent } from '@two-pebble/pebble';
+import { listSkillFolder } from '../skills/skill-folder';
 import { gatherMemoryNavigation } from '../utils/memories/gather-memory-navigation';
 
 export interface ResolveDocumentReferenceCellsInput {
@@ -46,6 +47,31 @@ export async function resolveReferenceCells(input: ResolveDocumentReferenceCells
           error: message,
         });
         resolved.push(Cell.text(`[document ${cell.content.name} (id: ${cell.content.documentId}) is unavailable]`));
+      }
+      continue;
+    }
+    if (cell.type === 'skillReference') {
+      try {
+        const row = await input.datastore.skills.read({ id: cell.content.skillId });
+        const files = listSkillFolder(row.diskFolderPath);
+        resolved.push(
+          Cell.skillReference({
+            skillId: row.id,
+            name: row.name,
+            description: row.description,
+            diskFolderPath: row.diskFolderPath,
+            files,
+          }),
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        input.logger.warn('skill reference resolution failed', {
+          skillId: cell.content.skillId,
+          error: message,
+        });
+        // Archived record or unreadable folder: emit a plain marker instead
+        // of throwing. Restoring the record or folder resolves it next turn.
+        resolved.push(Cell.text(`[skill: ${cell.content.name}] unavailable`));
       }
       continue;
     }

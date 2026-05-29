@@ -1,4 +1,4 @@
-import type { CellContent, DataCells } from '../../../../thread/cells';
+import { type CellContent, type DataCells, renderSkillReferenceText } from '../../../../thread/cells';
 
 /**
  * Renders a CellContent as a plain string the Codex SDK can consume.
@@ -23,6 +23,8 @@ export function cellToString(cell: CellContent): string {
       return `[memory: ${cell.content.name} (memoryId: ${cell.content.memoryId})]`;
     case 'image':
       return '';
+    case 'skillReference':
+      return renderSkillReferenceText(cell.content);
     case 'audio':
       return cell.content.transcript ?? '';
     case 'toolRegistration':

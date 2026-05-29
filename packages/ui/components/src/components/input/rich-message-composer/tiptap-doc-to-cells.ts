@@ -119,6 +119,21 @@ export function tipTapDocToCells(doc: JSONContent): CellContent[] {
       textBuffer += `[task: ${name || taskId}${taskId.length > 0 ? ` (id: ${taskId})` : ''}]`;
       return;
     }
+    if (node.type === 'skillMention') {
+      flushText();
+      const skillId = typeof node.attrs?.skillId === 'string' ? node.attrs.skillId : '';
+      const name = typeof node.attrs?.name === 'string' ? node.attrs.name : '';
+      if (skillId.length === 0) {
+        return;
+      }
+      cells.push(
+        Cell.skillReference({
+          skillId,
+          name,
+        }),
+      );
+      return;
+    }
     for (const child of node.content ?? []) {
       visit(child);
     }
