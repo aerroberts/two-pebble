@@ -102,6 +102,7 @@ export function TaskBoardPage() {
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
       submissions={state.selectedTaskDeliverableSubmissions}
+      events={state.taskEvents}
       onCreateTemplateFromTask={() => {
         if (state.selectedTask === null) {
           return;
