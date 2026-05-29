@@ -5,6 +5,12 @@ export type ProviderLogoSize = 'xs' | 'sm' | 'md' | 'lg';
 export interface ProviderLogoProps {
   provider: ProviderLogoProvider;
   size?: ProviderLogoSize;
+  /**
+   * Sizing override. When set, it fully replaces the `size`-derived
+   * dimensions so callers (e.g. the IDE logo) can drop the logo into a
+   * tightly-sized slot without fighting the default size classes.
+   */
+  className?: string;
 }
 
 const providerLogoUrls: Record<string, string> = {
@@ -15,6 +21,9 @@ const providerLogoUrls: Record<string, string> = {
   openai: new URL('./openai.png', import.meta.url).href,
   openrouter: new URL('./open-router.png', import.meta.url).href,
   git: new URL('./git.png', import.meta.url).href,
+  cursor: new URL('./cursor.png', import.meta.url).href,
+  vscode: new URL('./vscode.png', import.meta.url).href,
+  zed: new URL('./zed.png', import.meta.url).href,
 };
 
 const providerLogoLabels: Record<string, string> = {
@@ -25,6 +34,9 @@ const providerLogoLabels: Record<string, string> = {
   openai: 'OpenAI',
   openrouter: 'OpenRouter',
   git: 'Git',
+  cursor: 'Cursor',
+  vscode: 'Visual Studio Code',
+  zed: 'Zed',
 };
 
 const sizeClasses: Record<ProviderLogoSize, string> = {
@@ -41,7 +53,7 @@ export function ProviderLogo(props: ProviderLogoProps) {
     return null;
   }
 
-  const sizeClass = sizeClasses[props.size ?? 'md'];
+  const sizeClass = props.className ?? sizeClasses[props.size ?? 'md'];
 
   return (
     <img

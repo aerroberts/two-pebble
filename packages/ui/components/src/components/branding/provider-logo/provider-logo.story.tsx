@@ -17,6 +17,9 @@ const providers = [
   { id: 'openrouter', label: 'OpenRouter' },
   { id: 'anthropic', label: 'Anthropic' },
   { id: 'ollama', label: 'Ollama' },
+  { id: 'cursor', label: 'Cursor' },
+  { id: 'vscode', label: 'Visual Studio Code' },
+  { id: 'zed', label: 'Zed' },
 ] as const;
 
 export const Default: Story = {
