@@ -1,12 +1,6 @@
 import type { ReconcilePlan, SyncDirection } from '@two-pebble/protocol';
 import { toggleSelection } from '@two-pebble/protocol';
-import {
-  useApplyDataSyncPlan,
-  useAppSettings,
-  useDataSyncPlan,
-  useProjects,
-  useUpdateAppSettings,
-} from '@two-pebble/realtime';
+import { useApplyDataSyncPlan, useAppSettings, useDataSyncPlan, useUpdateAppSettings } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
 
 export interface ApplySummary {
@@ -18,22 +12,20 @@ export interface ApplySummary {
 }
 
 /**
- * Owns the data-sync page: the persisted directory, the export project scope,
- * the in-flight reconcile plan, and the apply summary. Toggling an entry
- * recomputes the cascade locally via `toggleSelection`; the daemon stays
- * stateless between build and apply.
+ * Owns the data-sync page: the persisted directory, the in-flight reconcile
+ * plan, and the apply summary. Toggling an entry recomputes the cascade
+ * locally via `toggleSelection`; the daemon stays stateless between build
+ * and apply.
  */
 export function useDataSyncPageState() {
   const appSettings = useAppSettings();
   const updateAppSettings = useUpdateAppSettings();
-  const projects = useProjects();
   const buildPlan = useDataSyncPlan();
   const applyPlan = useApplyDataSyncPlan();
 
   const settings = appSettings.value;
   const [directory, setDirectory] = useState('');
   const [directoryLoaded, setDirectoryLoaded] = useState(false);
-  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [plan, setPlan] = useState<ReconcilePlan | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -45,8 +37,6 @@ export function useDataSyncPageState() {
       setDirectoryLoaded(true);
     }
   }, [directoryLoaded, settings]);
-
-  const projectNames = projects.values().map((project) => project.name);
 
   const saveDirectory = async () => {
     if (settings === null) {
@@ -70,12 +60,6 @@ export function useDataSyncPageState() {
     }
   };
 
-  const toggleProject = (name: string) => {
-    setSelectedProjects((current) =>
-      current.includes(name) ? current.filter((entry) => entry !== name) : [...current, name],
-    );
-  };
-
   const build = async (direction: SyncDirection) => {
     if (directory.trim().length === 0) {
       setError('Choose a sync directory first.');
@@ -88,7 +72,7 @@ export function useDataSyncPageState() {
       const result = await buildPlan({
         direction,
         directory: directory.trim(),
-        projectNames: direction === 'export' ? selectedProjects : [],
+        projectNames: [],
       });
       setPlan(result);
     } catch (failure) {
@@ -132,12 +116,9 @@ export function useDataSyncPageState() {
     discardPlan,
     error,
     plan,
-    projectNames,
     saveDirectory,
-    selectedProjects,
     setDirectory,
     summary,
     toggleEntry,
-    toggleProject,
   };
 }
