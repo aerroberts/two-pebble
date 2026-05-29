@@ -6,7 +6,6 @@ import {
   Button,
   Header,
   Input,
-  MarkdownView,
   Modal,
   ModalActions,
   ModalBody,
@@ -32,7 +31,6 @@ export function SkillsPage() {
   const datastore = useRealtimeDatastore();
   const [editing, setEditing] = useState<SkillRecord | 'new' | null>(null);
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   const skillList = skills.values();
   const selectedSkill = useMemo(
@@ -45,7 +43,6 @@ export function SkillsPage() {
       return;
     }
     setSelectedSkillId(skillList[0]?.id ?? null);
-    setSelectedFile(null);
   }, [skillList, selectedSkillId]);
 
   const openSelectedSkillOnDisk = useCallback(async () => {
@@ -59,15 +56,9 @@ export function SkillsPage() {
     <AuxiliarySidebarLayout
       sidebar={
         <SkillsSidebar
-          filesSkill={selectedSkill}
           loading={skills.status === 'loading'}
           onNewSkill={() => setEditing('new')}
-          onSelectFile={setSelectedFile}
-          onSelectSkill={(skillId) => {
-            setSelectedSkillId(skillId);
-            setSelectedFile(null);
-          }}
-          selectedFile={selectedFile}
+          onSelectSkill={setSelectedSkillId}
           selectedSkillId={selectedSkillId}
           skills={skillList}
         />
@@ -93,16 +84,15 @@ export function SkillsPage() {
               </Button>
             </ModalActions>
           }
-          subtitle={selectedSkill?.diskFolderPath}
         >
-          {selectedSkill?.name.length ? selectedSkill.name : 'Skills'}
+          Skills
         </Header>
         {selectedSkill === null ? (
           <AppBox variant="sidebar-empty">
             {skills.status === 'loading' ? 'Loading skills.' : 'No skills yet. Create one to get started.'}
           </AppBox>
         ) : (
-          <SkillFileView selectedFile={selectedFile} skill={selectedSkill} />
+          <SkillDetailsView skill={selectedSkill} />
         )}
       </PageLayout>
       {editing !== null ? (
@@ -117,12 +107,9 @@ export function SkillsPage() {
 }
 
 function SkillsSidebar(props: {
-  filesSkill: SkillRecord | null;
   loading: boolean;
   onNewSkill: () => void;
-  onSelectFile: (file: string | null) => void;
   onSelectSkill: (skillId: string) => void;
-  selectedFile: string | null;
   selectedSkillId: string | null;
   skills: SkillRecord[];
 }) {
@@ -151,170 +138,33 @@ function SkillsSidebar(props: {
           ))
         )}
       </SidebarSection>
-      {props.filesSkill !== null ? (
-        <SidebarSection title="Files">
-          <SidebarOption
-            active={props.selectedFile === null}
-            icon="book-open"
-            label="Overview"
-            onClick={() => props.onSelectFile(null)}
-          />
-          <SkillFileTree selectedFile={props.selectedFile} skill={props.filesSkill} onSelectFile={props.onSelectFile} />
-        </SidebarSection>
-      ) : null}
     </Sidebar>
   );
 }
 
-function SkillFileTree(props: {
-  onSelectFile: (file: string) => void;
-  selectedFile: string | null;
-  skill: SkillRecord;
-}) {
-  const datastore = useRealtimeDatastore();
-  const [files, setFiles] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setFiles([]);
-    setError(null);
-    void datastore.skills
-      .listFiles({ skillId: props.skill.id })
-      .then((result) => {
-        if (!cancelled) {
-          setFiles(result.files);
-        }
-      })
-      .catch((caught: unknown) => {
-        if (!cancelled) {
-          setError(caught instanceof Error ? caught.message : String(caught));
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [datastore, props.skill.id]);
-
-  if (error !== null) {
-    return <AppBox variant="sidebar-empty">{error}</AppBox>;
-  }
-
-  if (files.length === 0) {
-    return <AppBox variant="sidebar-empty">No files found.</AppBox>;
-  }
-
-  return files.map((file) => {
-    const depth = Math.max(0, file.split('/').length - 1);
-    const label = file.split('/').at(-1) ?? file;
-    return (
-      <button
-        className={`block w-full truncate rounded-lg py-1.5 pr-2 text-left text-[12px] leading-4 transition-colors ${
-          props.selectedFile === file ? 'text-accent' : 'text-content-muted hover:text-content'
-        }`}
-        key={file}
-        onClick={() => props.onSelectFile(file)}
-        style={{ paddingLeft: `${0.75 + depth * 0.9}rem` }}
-        title={file}
-        type="button"
-      >
-        {label}
-      </button>
-    );
-  });
-}
-
-function SkillFileView(props: { selectedFile: string | null; skill: SkillRecord }) {
-  const datastore = useRealtimeDatastore();
-  const [files, setFiles] = useState<string[]>([]);
-  const [content, setContent] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    setFiles([]);
-    setError(null);
-    void datastore.skills
-      .listFiles({ skillId: props.skill.id })
-      .then((result) => {
-        if (!cancelled) {
-          setFiles(result.files);
-        }
-      })
-      .catch((caught: unknown) => {
-        if (!cancelled) {
-          setError(caught instanceof Error ? caught.message : String(caught));
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [datastore, props.skill.id]);
-
-  const indexFile = files.find((file) => file.toLowerCase() === 'index.md') ?? null;
-  const fileToRead = props.selectedFile ?? indexFile;
-
-  useEffect(() => {
-    if (fileToRead === null) {
-      setContent('');
-      setLoading(false);
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    void datastore.skills
-      .readFile({ file: fileToRead, skillId: props.skill.id })
-      .then((result) => {
-        if (!cancelled) {
-          setContent(result.content);
-        }
-      })
-      .catch((caught: unknown) => {
-        if (!cancelled) {
-          setError(caught instanceof Error ? caught.message : String(caught));
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [datastore, fileToRead, props.skill.id]);
-
-  if (error !== null) {
-    return <AppBox variant="sidebar-empty">{error}</AppBox>;
-  }
-
-  if (props.selectedFile === null && indexFile === null) {
-    return (
-      <AppBox variant="sidebar-empty">
-        This skill does not have an index.md file yet. Use Open on disk to add one to the skill folder.
-      </AppBox>
-    );
-  }
-
+function SkillDetailsView(props: { skill: SkillRecord }) {
   return (
     <Surface>
-      <div className="mb-3 flex items-center justify-between gap-4 border-b border-border pb-3">
-        <div className="min-w-0">
-          <p className="truncate font-heading text-[13px] font-normal text-content">
-            {props.selectedFile === null ? 'Overview' : props.selectedFile}
-          </p>
-          <p className="truncate text-[12px] text-content-muted">{fileToRead}</p>
+      <dl className="grid gap-4 text-sm">
+        <div>
+          <dt className="font-heading text-[11px] font-normal uppercase tracking-[0.16em] text-content-muted">Name</dt>
+          <dd className="mt-1 text-content">{props.skill.name.length > 0 ? props.skill.name : 'Untitled'}</dd>
         </div>
-      </div>
-      {loading ? (
-        <p className="text-sm text-content-muted">Loading file.</p>
-      ) : fileToRead?.toLowerCase().endsWith('.md') ? (
-        <MarkdownView content={content} />
-      ) : (
-        <pre className="overflow-x-auto whitespace-pre-wrap break-words text-[12px] text-content">{content}</pre>
-      )}
+        <div>
+          <dt className="font-heading text-[11px] font-normal uppercase tracking-[0.16em] text-content-muted">
+            Description
+          </dt>
+          <dd className="mt-1 text-content">
+            {props.skill.description.length > 0 ? props.skill.description : 'No description.'}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-heading text-[11px] font-normal uppercase tracking-[0.16em] text-content-muted">
+            File path
+          </dt>
+          <dd className="mt-1 break-all text-content">{props.skill.diskFolderPath}</dd>
+        </div>
+      </dl>
     </Surface>
   );
 }
