@@ -7,6 +7,8 @@ import { getIsDark, subscribeToTheme } from '../code-block/theme-observer';
 export interface MermaidDiagramProps {
   /** Raw Mermaid source (the body of a fenced ` ```mermaid ` block). */
   code: string;
+  /** Whether the diagram should draw its own surrounding frame. */
+  framed?: boolean;
 }
 
 type MermaidModule = typeof import('mermaid').default;
@@ -55,6 +57,7 @@ const INITIAL_STATE: RenderState = { status: 'idle', svg: '', error: '' };
  * diagram matches the surrounding UI.
  */
 export function MermaidDiagram(props: MermaidDiagramProps) {
+  const framed = props.framed ?? true;
   const isDark = useSyncExternalStore(subscribeToTheme, getIsDark, () => false);
   const reactId = useId();
   // Mermaid uses the diagram id as a DOM id and requires it to be a valid CSS
@@ -99,8 +102,11 @@ export function MermaidDiagram(props: MermaidDiagramProps) {
   }, [props.code, isDark, diagramId]);
 
   if (state.status === 'error') {
+    const errorClassName = framed
+      ? 'my-2 overflow-hidden rounded-md border border-border bg-surface'
+      : 'overflow-hidden bg-surface';
     return (
-      <div className="my-2 overflow-hidden rounded-md border border-border bg-surface">
+      <div className={errorClassName}>
         <div className="border-b border-border bg-surface px-3 py-1 text-xs font-medium text-content-muted">
           Mermaid
         </div>
@@ -113,16 +119,19 @@ export function MermaidDiagram(props: MermaidDiagramProps) {
   }
 
   if (state.status !== 'ready' || state.svg.length === 0) {
-    return (
-      <div className="my-2 overflow-hidden rounded-md border border-border bg-surface px-3 py-2 text-xs text-content-muted">
-        Rendering Mermaid diagram…
-      </div>
-    );
+    const loadingClassName = framed
+      ? 'my-2 overflow-hidden rounded-md border border-border bg-surface px-3 py-2 text-xs text-content-muted'
+      : 'overflow-hidden bg-surface px-3 py-2 text-xs text-content-muted';
+    return <div className={loadingClassName}>Rendering Mermaid diagram…</div>;
   }
+
+  const diagramClassName = framed
+    ? 'my-2 flex justify-center overflow-auto rounded-md border border-border bg-surface px-3 py-2 [&_svg]:max-w-full [&_svg]:h-auto'
+    : 'flex justify-center overflow-auto bg-surface px-3 py-2 [&_svg]:max-w-full [&_svg]:h-auto';
 
   return (
     <div
-      className="my-2 flex justify-center overflow-auto rounded-md border border-border bg-surface px-3 py-2 [&_svg]:max-w-full [&_svg]:h-auto"
+      className={diagramClassName}
       // biome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid is configured with securityLevel 'strict', which sanitizes the produced SVG.
       dangerouslySetInnerHTML={{ __html: state.svg }}
     />
