@@ -121,6 +121,8 @@ export function TaskBoardPage() {
           type: 'text',
         });
       }}
+      onUpdateDeliverable={(input) => void state.updateTaskDeliverable(input)}
+      onDeleteDeliverable={(id) => void state.deleteTaskDeliverable(id)}
       onDeleteTask={() => {
         if (state.selectedTask === null) {
           return;

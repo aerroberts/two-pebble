@@ -70,6 +70,11 @@ export function listenToTasks(ctx: RealtimeOperationContext): void {
       taskDeliverables: ctx.datastore.state.taskDeliverables.withItem(record.id, record, 'ready'),
     });
   });
+  client.listen('taskDeliverableDeleted', (deleted) => {
+    ctx.datastore.patch({
+      taskDeliverables: ctx.datastore.state.taskDeliverables.withoutItem(deleted.id),
+    });
+  });
   client.listen('taskDeliverableSubmissionRecorded', (record) => {
     ctx.datastore.patch({
       taskDeliverableSubmissions: ctx.datastore.state.taskDeliverableSubmissions.withItem(record.id, record, 'ready'),
