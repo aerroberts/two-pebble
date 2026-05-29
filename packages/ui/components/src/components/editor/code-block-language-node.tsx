@@ -213,7 +213,7 @@ function CodeBlockNodeView(props: NodeViewProps) {
       <pre className="m-0 overflow-auto bg-transparent px-3 py-2 text-xs leading-relaxed" spellCheck={false}>
         <NodeViewContent
           as="code"
-          className={`language-${language} font-mono`}
+          className={`language-${language} block min-w-0 rounded-none !bg-transparent p-0 !px-0 font-mono`}
           spellCheck="false"
           autoCorrect="off"
           autoCapitalize="off"

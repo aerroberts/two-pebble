@@ -1,4 +1,4 @@
-import { Button, Checkbox, Header, Input, PageLayout, Section, Surface } from '@two-pebble/components';
+import { Button, Header, Input, PageLayout, Section, Surface } from '@two-pebble/components';
 import { ReconcileTable } from './reconcile-table';
 import { useDataSyncPageState } from './use-data-sync-page-state';
 
@@ -44,21 +44,7 @@ export function DataSyncPage() {
         }
       >
         <Surface>
-          <div className="flex flex-col gap-2">
-            <span className="text-[12px] text-content-muted">
-              Export scope (leave all unchecked to include every project; repositories are always global):
-            </span>
-            <div className="flex flex-wrap gap-3">
-              {state.projectNames.map((name) => (
-                <Checkbox
-                  key={name}
-                  label={name}
-                  checked={state.selectedProjects.includes(name)}
-                  onChange={() => state.toggleProject(name)}
-                />
-              ))}
-            </div>
-          </div>
+          <span className="text-[12px] text-content-muted">Exports and imports include every project.</span>
         </Surface>
       </Section>
 
