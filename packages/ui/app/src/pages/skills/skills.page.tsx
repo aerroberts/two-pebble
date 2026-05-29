@@ -78,9 +78,6 @@ export function SkillsPage() {
                   </Button>
                 </>
               ) : null}
-              <Button leftIcon="plus" onClick={() => setEditing('new')} variant="primary">
-                New skill
-              </Button>
             </ModalActions>
           }
         >
