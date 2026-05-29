@@ -219,6 +219,7 @@ export function TaskBoardPage() {
           <TaskBoardSettingsView
             pools={state.pools}
             onDeletePool={(poolId: string) => void state.deletePool(poolId)}
+            onSetPoolTemplate={(poolId, templateId) => void state.setPoolTemplate(poolId, templateId)}
             onDeleteBoard={() => void state.deleteBoard()}
             templates={state.taskTemplates}
             onCreateTemplate={(input) => void state.createTaskTemplate(input)}

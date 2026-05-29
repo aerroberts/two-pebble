@@ -89,6 +89,7 @@ import { handler as listTaskEventsHandler } from './handlers/task-events.list.ha
 import { handler as createTaskPoolHandler } from './handlers/task-pools.create.handler';
 import { handler as deleteTaskPoolHandler } from './handlers/task-pools.delete.handler';
 import { handler as listTaskPoolsHandler } from './handlers/task-pools.list.handler';
+import { handler as setTaskPoolTemplateHandler } from './handlers/task-pools.set-template.handler';
 import { handler as createTaskTemplateDeliverableHandler } from './handlers/task-template-deliverables.create.handler';
 import { handler as deleteTaskTemplateDeliverableHandler } from './handlers/task-template-deliverables.delete.handler';
 import { handler as listTaskTemplateDeliverablesHandler } from './handlers/task-template-deliverables.list.handler';
@@ -229,6 +230,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('listTaskPools', listTaskPoolsHandler(context));
   register('createTaskPool', createTaskPoolHandler(context));
   register('deleteTaskPool', deleteTaskPoolHandler(context));
+  register('setTaskPoolTemplate', setTaskPoolTemplateHandler(context));
   register('listTasks', listTasksHandler(context));
   register('createTask', createTaskHandler(context));
   register('delegateTask', delegateTaskHandler(context));

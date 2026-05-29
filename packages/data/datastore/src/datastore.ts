@@ -109,6 +109,7 @@ import { taskPoolsCreateOperation } from './operations/task-pools.create';
 import { taskPoolsDeleteOperation } from './operations/task-pools.delete';
 import { taskPoolsListOperation } from './operations/task-pools.list';
 import { taskPoolsSetParentOperation } from './operations/task-pools.set-parent';
+import { taskPoolsSetTemplateOperation } from './operations/task-pools.set-template';
 import { taskTemplateDeliverablesCreateOperation } from './operations/task-template-deliverables.create';
 import { taskTemplateDeliverablesDeleteOperation } from './operations/task-template-deliverables.delete';
 import { taskTemplateDeliverablesListOperation } from './operations/task-template-deliverables.list';
@@ -460,6 +461,7 @@ export class Datastore {
         delete: bind(taskPoolsDeleteOperation, 'task-pools.delete'),
         list: bind(taskPoolsListOperation, 'task-pools.list'),
         setParent: bind(taskPoolsSetParentOperation, 'task-pools.set-parent'),
+        setTemplate: bind(taskPoolsSetTemplateOperation, 'task-pools.set-template'),
       },
       templates: {
         create: bind(taskTemplatesCreateOperation, 'task-templates.create'),

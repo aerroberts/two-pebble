@@ -87,6 +87,7 @@ import { listTaskEventsOperation } from './operations/task-events.list.operation
 import { createTaskPoolOperation } from './operations/task-pools.create.operation';
 import { deleteTaskPoolOperation } from './operations/task-pools.delete.operation';
 import { listTaskPoolsOperation } from './operations/task-pools.list.operation';
+import { setTaskPoolTemplateOperation } from './operations/task-pools.set-template.operation';
 import { createTaskTemplateDeliverableOperation } from './operations/task-template-deliverables.create.operation';
 import { deleteTaskTemplateDeliverableOperation } from './operations/task-template-deliverables.delete.operation';
 import { listTaskTemplateDeliverablesOperation } from './operations/task-template-deliverables.list.operation';
@@ -342,6 +343,7 @@ export class RealtimeDatastore {
       create: createTaskPoolOperation({ datastore: this }),
       delete: deleteTaskPoolOperation({ datastore: this }),
       list: listTaskPoolsOperation({ datastore: this }),
+      setTemplate: setTaskPoolTemplateOperation({ datastore: this }),
     };
   }
 
