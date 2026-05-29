@@ -41,4 +41,8 @@ export const appSettingsTable = customTable('app_settings', {
   // Agent registry id used by the document "Send to Agent" affordance. `null` hides
   // the button on the document view.
   documentRunnerAgentRegistryId: text('document_runner_agent_registry_id'),
+
+  // Local folder used by the data-sync feature for export/import of configuration
+  // and documents. `null` means no directory has been chosen yet.
+  syncDirectory: text('sync_directory'),
 });

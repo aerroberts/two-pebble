@@ -34,6 +34,8 @@ import { deleteAutomationOperation } from './operations/automations.delete.opera
 import { listAutomationsOperation } from './operations/automations.list.operation';
 import { runAutomationNowOperation } from './operations/automations.run-now.operation';
 import { updateAutomationOperation } from './operations/automations.update.operation';
+import { applyDataSyncPlanOperation } from './operations/data-sync.apply.operation';
+import { buildDataSyncPlanOperation } from './operations/data-sync.build-plan.operation';
 import { describeDatabaseOperation } from './operations/database.describe.operation';
 import { migrateDatabaseOperation } from './operations/database.migrate.operation';
 import { openDatabaseOperation } from './operations/database.open.operation';
@@ -558,6 +560,18 @@ export class RealtimeDatastore {
       migrate: migrateDatabaseOperation({ datastore: this }),
       open: openDatabaseOperation({ datastore: this }),
       runQuery: runDatabaseQueryOperation({ datastore: this }),
+    };
+  }
+
+  /**
+   * Returns data-sync commands bound to this realtime datastore. Building a
+   * plan and applying it are one-shot daemon round-trips; the reviewed plan is
+   * held in the UI and travels back with the apply call.
+   */
+  public get dataSync() {
+    return {
+      buildPlan: buildDataSyncPlanOperation({ datastore: this }),
+      apply: applyDataSyncPlanOperation({ datastore: this }),
     };
   }
 

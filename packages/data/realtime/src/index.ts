@@ -115,6 +115,8 @@ export type {
   RunAutomationNowInput,
   UpdateAutomationInput,
 } from './states/automations/types';
+export { useApplyDataSyncPlan } from './states/data-sync/hooks/use-apply-data-sync-plan.hook';
+export { useDataSyncPlan } from './states/data-sync/hooks/use-data-sync-plan.hook';
 export {
   type UseDebugLogContentResult,
   useDebugLogContent,
