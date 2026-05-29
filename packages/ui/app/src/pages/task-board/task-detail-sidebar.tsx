@@ -13,6 +13,7 @@ import {
   type TaskStatusIconStatus,
 } from '@two-pebble/components';
 import { markdownToTipTap } from '@two-pebble/datatypes';
+import type { TaskEventRecord } from '@two-pebble/realtime';
 import { type ReactNode, useMemo, useState } from 'react';
 import { RichTextFieldHost } from '../../shared/agent-input/rich-text-field-host';
 
@@ -49,6 +50,7 @@ export interface TaskDetailSidebarProps {
   delegateDisabled: boolean;
   deliverables: TaskDetailSidebarDeliverable[];
   submissions: TaskDetailSidebarDeliverableSubmission[];
+  events: TaskEventRecord[];
   onDescriptionSave: (markdown: string, content: string) => void;
   onDelegate: (agentRegistryId: string) => void;
   onUndelegate: () => void;
@@ -124,6 +126,28 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
           </>
         ) : null}
       </div>
+      <div className="flex flex-col gap-2 pt-3">
+        <AppBox variant="muted-xs">Activity</AppBox>
+        {props.events.length === 0 ? (
+          <p className="text-xs text-content-muted">No activity yet.</p>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {props.events.map((event) => (
+              <div key={event.id} className="rounded-md border border-border bg-surface px-2 py-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate text-xs font-medium text-content">{describeEvent(event)}</span>
+                  <span className="shrink-0 text-[11px] text-content-muted">
+                    {new Date(event.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                {event.reason.length > 0 ? (
+                  <div className="text-[11px] leading-4 text-content-muted">{event.reason}</div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       <AppBox variant="controls-row">
         <Button leftIcon="trash" onClick={props.onDeleteTask} type="button" variant="secondary">
           Delete task
@@ -138,6 +162,19 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
       </div>
     </>
   );
+}
+
+function describeEvent(event: TaskEventRecord): string {
+  switch (event.kind) {
+    case 'status':
+      return `Status → ${event.status}`;
+    case 'delegated':
+      return `Delegated to ${event.agentName}`;
+    case 'undelegated':
+      return 'Undelegated';
+    default:
+      return 'Updated';
+  }
 }
 
 function parseDescriptionContent(content: string | null, markdown: string): JSONContent {
