@@ -126,6 +126,13 @@ export function TaskBoardPage() {
           type: 'text',
         });
       }}
+      onDeleteTask={() => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.deleteTaskFromList(state.selectedTask.id);
+        state.setSelectedTaskId(null);
+      }}
     />
   ) : null;
 
