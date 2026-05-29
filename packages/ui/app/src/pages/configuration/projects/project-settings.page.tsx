@@ -1,15 +1,13 @@
-import { Button, Header, Input, PageLayout, Section, Surface } from '@two-pebble/components';
+import { Header, Input, PageLayout, Section, Surface } from '@two-pebble/components';
 import { useProjectMutations, useProjects } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { projectPath } from '../../../project-context';
+import { Navigate, useParams } from 'react-router-dom';
 
 export function ProjectSettingsPage() {
   const params = useParams();
   const projectId = params.projectId ?? '';
   const projects = useProjects();
   const mutations = useProjectMutations();
-  const navigate = useNavigate();
   const project = projects.getItem(projectId)?.value ?? null;
   const [name, setName] = useState(project?.name ?? '');
   const [error, setError] = useState('');
@@ -51,14 +49,7 @@ export function ProjectSettingsPage() {
   return (
     <PageLayout width="fixed">
       <Header subtitle={project.id}>Projects</Header>
-      <Section
-        actionItems={
-          <Button leftIcon="arrow-right" onClick={() => navigate(projectPath(project.id, '/'))} type="button">
-            Open project
-          </Button>
-        }
-        title="Configure"
-      >
+      <Section title="Configure">
         {error.length > 0 ? <Surface>{error}</Surface> : null}
         <Surface>
           <Input
