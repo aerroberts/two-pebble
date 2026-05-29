@@ -26,7 +26,7 @@ export interface CreateAgentInput {
   description: string;
   name: string;
   parentAgentId?: string | null;
-  projectId?: string;
+  projectId: string;
 }
 
 export interface CompleteAgentInput {

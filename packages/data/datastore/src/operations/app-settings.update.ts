@@ -7,10 +7,12 @@ type OperationHandlerInput = {
   defaultSpeechProfileId: string | null;
   assistantAgentRegistryId: string | null;
   assistantAgentId: string | null;
-  assistantCommandKEnabled: boolean;
   assistantCommandKVoiceModeEnabled: boolean;
   chatConversationFoldingEnabled: boolean;
   documentRunnerAgentRegistryId: string | null;
+  // `undefined` preserves the existing value so callers that predate data-sync
+  // need not set it; an explicit value (including `null`) writes through.
+  syncDirectory?: string | null;
 };
 
 /**
@@ -34,10 +36,10 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
           defaultSpeechProfileId: input.defaultSpeechProfileId,
           assistantAgentRegistryId: input.assistantAgentRegistryId,
           assistantAgentId: input.assistantAgentId,
-          assistantCommandKEnabled: input.assistantCommandKEnabled,
           assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
           chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
           documentRunnerAgentRegistryId: input.documentRunnerAgentRegistryId,
+          syncDirectory: input.syncDirectory ?? null,
         })
         .returning()
         .get();
@@ -52,10 +54,10 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         defaultSpeechProfileId: input.defaultSpeechProfileId,
         assistantAgentRegistryId: input.assistantAgentRegistryId,
         assistantAgentId: input.assistantAgentId,
-        assistantCommandKEnabled: input.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
         chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
         documentRunnerAgentRegistryId: input.documentRunnerAgentRegistryId,
+        syncDirectory: input.syncDirectory === undefined ? existing.syncDirectory : input.syncDirectory,
       })
       .where(eq(ctx.schema.appSettingsTable.id, 'singleton'))
       .returning()

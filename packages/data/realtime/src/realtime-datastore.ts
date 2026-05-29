@@ -34,6 +34,8 @@ import { deleteAutomationOperation } from './operations/automations.delete.opera
 import { listAutomationsOperation } from './operations/automations.list.operation';
 import { runAutomationNowOperation } from './operations/automations.run-now.operation';
 import { updateAutomationOperation } from './operations/automations.update.operation';
+import { applyDataSyncPlanOperation } from './operations/data-sync.apply.operation';
+import { buildDataSyncPlanOperation } from './operations/data-sync.build-plan.operation';
 import { describeDatabaseOperation } from './operations/database.describe.operation';
 import { migrateDatabaseOperation } from './operations/database.migrate.operation';
 import { openDatabaseOperation } from './operations/database.open.operation';
@@ -84,7 +86,9 @@ import { listTaskBoardsOperation } from './operations/task-boards.list.operation
 import { updateTaskBoardOperation } from './operations/task-boards.update.operation';
 import { listTaskDeliverableSubmissionsOperation } from './operations/task-deliverable-submissions.list.operation';
 import { createTaskDeliverableOperation } from './operations/task-deliverables.create.operation';
+import { deleteTaskDeliverableOperation } from './operations/task-deliverables.delete.operation';
 import { listTaskDeliverablesOperation } from './operations/task-deliverables.list.operation';
+import { updateTaskDeliverableOperation } from './operations/task-deliverables.update.operation';
 import { createTaskDependencyOperation } from './operations/task-dependencies.create.operation';
 import { deleteTaskDependencyOperation } from './operations/task-dependencies.delete.operation';
 import { listTaskDependenciesOperation } from './operations/task-dependencies.list.operation';
@@ -92,6 +96,7 @@ import { listTaskEventsOperation } from './operations/task-events.list.operation
 import { createTaskPoolOperation } from './operations/task-pools.create.operation';
 import { deleteTaskPoolOperation } from './operations/task-pools.delete.operation';
 import { listTaskPoolsOperation } from './operations/task-pools.list.operation';
+import { setTaskPoolTemplateOperation } from './operations/task-pools.set-template.operation';
 import { createTaskTemplateDeliverableOperation } from './operations/task-template-deliverables.create.operation';
 import { deleteTaskTemplateDeliverableOperation } from './operations/task-template-deliverables.delete.operation';
 import { listTaskTemplateDeliverablesOperation } from './operations/task-template-deliverables.list.operation';
@@ -100,6 +105,7 @@ import { createTaskTemplateOperation } from './operations/task-templates.create.
 import { deleteTaskTemplateOperation } from './operations/task-templates.delete.operation';
 import { listTaskTemplatesOperation } from './operations/task-templates.list.operation';
 import { updateTaskTemplateOperation } from './operations/task-templates.update.operation';
+import { addTaskCommentOperation } from './operations/tasks.add-comment.operation';
 import { createTaskOperation } from './operations/tasks.create.operation';
 import { delegateTaskOperation } from './operations/tasks.delegate.operation';
 import { deleteTaskOperation } from './operations/tasks.delete.operation';
@@ -362,6 +368,7 @@ export class RealtimeDatastore {
       create: createTaskPoolOperation({ datastore: this }),
       delete: deleteTaskPoolOperation({ datastore: this }),
       list: listTaskPoolsOperation({ datastore: this }),
+      setTemplate: setTaskPoolTemplateOperation({ datastore: this }),
     };
   }
 
@@ -375,6 +382,7 @@ export class RealtimeDatastore {
       delete: deleteTaskOperation({ datastore: this }),
       list: listTasksOperation({ datastore: this }),
       delegate: delegateTaskOperation({ datastore: this }),
+      addComment: addTaskCommentOperation({ datastore: this }),
       rename: renameTaskOperation({ datastore: this }),
       setStatus: setTaskStatusOperation({ datastore: this }),
       undelegate: undelegateTaskOperation({ datastore: this }),
@@ -435,7 +443,9 @@ export class RealtimeDatastore {
   public get taskDeliverables() {
     return {
       create: createTaskDeliverableOperation({ datastore: this }),
+      delete: deleteTaskDeliverableOperation({ datastore: this }),
       list: listTaskDeliverablesOperation({ datastore: this }),
+      update: updateTaskDeliverableOperation({ datastore: this }),
     };
   }
 
@@ -578,6 +588,18 @@ export class RealtimeDatastore {
       migrate: migrateDatabaseOperation({ datastore: this }),
       open: openDatabaseOperation({ datastore: this }),
       runQuery: runDatabaseQueryOperation({ datastore: this }),
+    };
+  }
+
+  /**
+   * Returns data-sync commands bound to this realtime datastore. Building a
+   * plan and applying it are one-shot daemon round-trips; the reviewed plan is
+   * held in the UI and travels back with the apply call.
+   */
+  public get dataSync() {
+    return {
+      buildPlan: buildDataSyncPlanOperation({ datastore: this }),
+      apply: applyDataSyncPlanOperation({ datastore: this }),
     };
   }
 

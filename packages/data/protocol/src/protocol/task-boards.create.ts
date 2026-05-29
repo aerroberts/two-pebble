@@ -6,7 +6,7 @@ export interface TaskBoardsCreateOperation {
   name: 'createTaskBoard';
   request: {
     name: string;
-    projectId?: string;
+    projectId: string;
   };
   response: {
     id: string;

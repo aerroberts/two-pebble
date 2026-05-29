@@ -11,6 +11,7 @@ export interface TaskPoolUpdatedEvent {
     boardId: string;
     parentPoolId: string | null;
     name: string;
+    defaultTemplateId: string | null;
   };
 }
 

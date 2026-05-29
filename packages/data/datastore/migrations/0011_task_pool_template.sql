@@ -1,0 +1,1 @@
+ALTER TABLE `task_pools` ADD `default_template_id` text;

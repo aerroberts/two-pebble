@@ -130,6 +130,21 @@ export class TaskBoardService extends DaemonService {
   }
 
   /**
+   * Records a free-form 'comment' event on a task. Comments share the task
+   * event stream so they render inline in the activity log.
+   */
+  public async recordCommentEvent(input: { taskId: string; body: string }): Promise<RecordedTaskEvent> {
+    const row = await this.datastore.taskBoards.events.record({
+      taskId: input.taskId,
+      kind: 'comment',
+      status: '',
+      reason: input.body,
+      data: '{}',
+    });
+    return rowToProtocolEvent(row);
+  }
+
+  /**
    * Updates a task's free-form description and persists the change.
    * Like rename, the engine ignores prose fields, so this is a pure DB write.
    */
@@ -168,6 +183,14 @@ export class TaskBoardService extends DaemonService {
   }
 
   /**
+   * Assigns (or clears) the template used for tasks created in a group.
+   * Template assignment is pool metadata only, so no engine mutation runs.
+   */
+  public async setPoolTemplate(id: string, defaultTemplateId: string | null) {
+    return this.datastore.taskBoards.pools.setTemplate({ id, defaultTemplateId });
+  }
+
+  /**
    * Removes a pool. Throws when the pool still has members.
    * Mirrors the engine validation; persistent rows are cleaned up after.
    */
@@ -192,15 +215,24 @@ export class TaskBoardService extends DaemonService {
         throw new Error(`task pool "${poolId}" not found on board "${input.boardId}"`);
       }
     }
-    // Resolve the template: explicit `templateId` wins; otherwise fall back to
-    // the board's `defaultTemplateId` so per-board configuration applies
-    // without callers needing to thread it through every code path.
+    // Resolve the template: an explicit `templateId` wins; otherwise prefer the
+    // template assigned to the task's group (pool), then fall back to the
+    // board template, so per-group configuration overrides the board default.
     let effectiveTemplateId: string | null = null;
     if (input.templateId !== undefined && input.templateId !== null) {
       effectiveTemplateId = input.templateId;
     } else {
-      const board = await this.datastore.taskBoards.read({ id: input.boardId });
-      effectiveTemplateId = board?.defaultTemplateId ?? null;
+      let poolTemplateId: string | null = null;
+      if (poolId !== null) {
+        const pools = (await this.datastore.taskBoards.pools.list({ boardId: input.boardId })).items;
+        poolTemplateId = pools.find((pool) => pool.id === poolId)?.defaultTemplateId ?? null;
+      }
+      if (poolTemplateId !== null) {
+        effectiveTemplateId = poolTemplateId;
+      } else {
+        const board = await this.datastore.taskBoards.read({ id: input.boardId });
+        effectiveTemplateId = board?.defaultTemplateId ?? null;
+      }
     }
     const template =
       effectiveTemplateId === null ? null : await this.datastore.taskBoards.templates.read({ id: effectiveTemplateId });

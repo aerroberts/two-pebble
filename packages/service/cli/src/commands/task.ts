@@ -5,6 +5,7 @@ import { DAEMON_URL } from '../consts';
 
 interface BoardCreateOptions {
   name: string;
+  project: string;
 }
 
 interface PoolCreateOptions {
@@ -35,6 +36,11 @@ interface EventsOptions {
   task: string;
 }
 
+interface CommentOptions {
+  task: string;
+  body: string;
+}
+
 interface RequirementAddOptions {
   task: string;
   name: string;
@@ -63,9 +69,10 @@ export function registerTaskCommand(program: Command) {
   task
     .command('board-create')
     .requiredOption('--name <name>', 'board name')
+    .requiredOption('--project <projectId>', 'project id')
     .action(async (options: BoardCreateOptions) =>
       runAction(async (client) => {
-        const result = await client.do('createTaskBoard', { name: options.name });
+        const result = await client.do('createTaskBoard', { name: options.name, projectId: options.project });
         writeJson(result);
       }),
     );
@@ -138,6 +145,18 @@ export function registerTaskCommand(program: Command) {
     .action(async (options: EventsOptions) =>
       runAction(async (client) => {
         const result = await client.do('listTaskEvents', { taskId: options.task });
+        writeJson(result);
+      }),
+    );
+
+  task
+    .command('comment')
+    .description('Add a comment to a task, recorded in its event log')
+    .requiredOption('--task <taskId>', 'task id')
+    .requiredOption('--body <body>', 'comment text')
+    .action(async (options: CommentOptions) =>
+      runAction(async (client) => {
+        const result = await client.do('addTaskComment', { taskId: options.task, body: options.body });
         writeJson(result);
       }),
     );

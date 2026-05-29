@@ -315,6 +315,7 @@ export interface TaskPoolRecord {
   boardId: string;
   parentPoolId: string | null;
   name: string;
+  defaultTemplateId: string | null;
 }
 
 export interface TaskRecord {

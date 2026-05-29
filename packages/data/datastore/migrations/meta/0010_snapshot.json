@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1bcb05de-b063-4d65-8362-92f82470c335",
+  "id": "ba9698e8-603f-40de-8a89-771ddf4eee73",
   "prevId": "92ca3c99-cd8e-4870-a42a-8450357c521a",
   "tables": {
     "agent_calls": {
@@ -845,14 +845,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "assistant_command_k_enabled": {
-          "name": "assistant_command_k_enabled",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
         "assistant_command_k_voice_mode_enabled": {
           "name": "assistant_command_k_voice_mode_enabled",
           "type": "integer",
@@ -1488,85 +1480,6 @@
         "repositories_updated_at_idx": {
           "name": "repositories_updated_at_idx",
           "columns": ["updated_at"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "skills": {
-      "name": "skills",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'Untitled'"
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "disk_folder_path": {
-          "name": "disk_folder_path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "archived_at": {
-          "name": "archived_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "skills_updated_at_idx": {
-          "name": "skills_updated_at_idx",
-          "columns": ["updated_at"],
-          "isUnique": false
-        },
-        "skills_project_id_idx": {
-          "name": "skills_project_id_idx",
-          "columns": ["project_id"],
           "isUnique": false
         }
       },

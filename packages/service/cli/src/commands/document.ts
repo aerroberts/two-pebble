@@ -19,6 +19,7 @@ interface WriteOptions {
   file?: string;
   id?: string;
   name: string;
+  project?: string;
   stdin?: boolean;
 }
 
@@ -74,6 +75,7 @@ export function registerDocumentCommand(program: Command) {
     .command('write')
     .requiredOption('--name <name>', 'document name')
     .option('--id <id>', 'document id to update')
+    .option('--project <projectId>', 'project id (required when creating a new document)')
     .option('--file <path>', 'Markdown file to import')
     .option('--stdin', 'read Markdown from stdin')
     .action((options: WriteOptions) =>
@@ -86,7 +88,14 @@ export function registerDocumentCommand(program: Command) {
           return;
         }
 
-        const created = await client.do('createDocument', { name: options.name, content });
+        if (options.project === undefined) {
+          throw new Error('--project is required when creating a new document.');
+        }
+        const created = await client.do('createDocument', {
+          name: options.name,
+          content,
+          projectId: options.project,
+        });
         process.stdout.write(`${created.id}\n`);
       }),
     );

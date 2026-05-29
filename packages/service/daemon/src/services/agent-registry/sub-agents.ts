@@ -57,11 +57,13 @@ async function ensureSubAgentRecord(ctx: EnsureContext, input: EnsureSubAgentInp
     return existing.id;
   }
   const templateId = input.event.agentTemplateId;
+  const parent = await ctx.datastore.agent.read({ id: input.parentAgentId });
   const result = await createSubAgent(ctx.datastore, {
     id,
     description: `Sub-agent ${input.event.agentInstanceId} spawned by ${input.parentAgentId}`,
     name: templateId === undefined ? 'Sub-agent' : `Sub-agent: ${templateId}`,
     parentAgentId: input.parentAgentId,
+    projectId: parent.projectId,
     workspaceId: input.workspaceId,
   });
   // Only emit `agentRecorded` for newly persisted rows. Reusing an existing

@@ -35,6 +35,8 @@ import { handler as listAutomationsHandler } from './handlers/automations.list.h
 import { handler as runAutomationNowHandler } from './handlers/automations.run-now.handler';
 import { handler as updateAutomationHandler } from './handlers/automations.update.handler';
 import { handler as getDaemonStatusHandler } from './handlers/daemon.status.handler';
+import { handler as applyDataSyncPlanHandler } from './handlers/data-sync.apply.handler';
+import { handler as buildDataSyncPlanHandler } from './handlers/data-sync.build-plan.handler';
 import { handler as describeDatabaseHandler } from './handlers/database.describe.handler';
 import { handler as migrateDatabaseHandler } from './handlers/database.migrate.handler';
 import { handler as openDatabaseHandler } from './handlers/database.open.handler';
@@ -86,7 +88,9 @@ import { handler as updateTaskBoardHandler } from './handlers/task-boards.update
 import { handler as listTaskDeliverableSubmissionsHandler } from './handlers/task-deliverable-submissions.list.handler';
 import { handler as submitTaskDeliverableHandler } from './handlers/task-deliverable-submissions.submit.handler';
 import { handler as createTaskDeliverableHandler } from './handlers/task-deliverables.create.handler';
+import { handler as deleteTaskDeliverableHandler } from './handlers/task-deliverables.delete.handler';
 import { handler as listTaskDeliverablesHandler } from './handlers/task-deliverables.list.handler';
+import { handler as updateTaskDeliverableHandler } from './handlers/task-deliverables.update.handler';
 import { handler as createTaskDependencyHandler } from './handlers/task-dependencies.create.handler';
 import { handler as deleteTaskDependencyHandler } from './handlers/task-dependencies.delete.handler';
 import { handler as listTaskDependenciesHandler } from './handlers/task-dependencies.list.handler';
@@ -94,6 +98,7 @@ import { handler as listTaskEventsHandler } from './handlers/task-events.list.ha
 import { handler as createTaskPoolHandler } from './handlers/task-pools.create.handler';
 import { handler as deleteTaskPoolHandler } from './handlers/task-pools.delete.handler';
 import { handler as listTaskPoolsHandler } from './handlers/task-pools.list.handler';
+import { handler as setTaskPoolTemplateHandler } from './handlers/task-pools.set-template.handler';
 import { handler as createTaskTemplateDeliverableHandler } from './handlers/task-template-deliverables.create.handler';
 import { handler as deleteTaskTemplateDeliverableHandler } from './handlers/task-template-deliverables.delete.handler';
 import { handler as listTaskTemplateDeliverablesHandler } from './handlers/task-template-deliverables.list.handler';
@@ -103,6 +108,7 @@ import { handler as deleteTaskTemplateHandler } from './handlers/task-templates.
 import { handler as listTaskTemplatesHandler } from './handlers/task-templates.list.handler';
 import { handler as readTaskTemplateHandler } from './handlers/task-templates.read.handler';
 import { handler as updateTaskTemplateHandler } from './handlers/task-templates.update.handler';
+import { handler as addTaskCommentHandler } from './handlers/tasks.add-comment.handler';
 import { handler as createTaskHandler } from './handlers/tasks.create.handler';
 import { handler as delegateTaskHandler } from './handlers/tasks.delegate.handler';
 import { handler as deleteTaskHandler } from './handlers/tasks.delete.handler';
@@ -166,6 +172,8 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('recordAgentTrace', recordAgentTraceHandler(context));
   register('callAgentTool', callAgentToolHandler(context));
   register('describeDatabase', describeDatabaseHandler(context));
+  register('buildDataSyncPlan', buildDataSyncPlanHandler(context));
+  register('applyDataSyncPlan', applyDataSyncPlanHandler(context));
   register('migrateDatabase', migrateDatabaseHandler(context));
   register('openDatabase', openDatabaseHandler(context));
   register('runDatabaseQuery', runDatabaseQueryHandler(context));
@@ -239,10 +247,12 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('listTaskPools', listTaskPoolsHandler(context));
   register('createTaskPool', createTaskPoolHandler(context));
   register('deleteTaskPool', deleteTaskPoolHandler(context));
+  register('setTaskPoolTemplate', setTaskPoolTemplateHandler(context));
   register('listTasks', listTasksHandler(context));
   register('createTask', createTaskHandler(context));
   register('delegateTask', delegateTaskHandler(context));
   register('undelegateTask', undelegateTaskHandler(context));
+  register('addTaskComment', addTaskCommentHandler(context));
   register('renameTask', renameTaskHandler(context));
   register('setTaskStatus', setTaskStatusHandler(context));
   register('updateTaskDescription', updateTaskDescriptionHandler(context));
@@ -262,6 +272,8 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('deleteTaskTemplateDeliverable', deleteTaskTemplateDeliverableHandler(context));
   register('listTaskDeliverables', listTaskDeliverablesHandler(context));
   register('createTaskDeliverable', createTaskDeliverableHandler(context));
+  register('updateTaskDeliverable', updateTaskDeliverableHandler(context));
+  register('deleteTaskDeliverable', deleteTaskDeliverableHandler(context));
   register('listTaskDeliverableSubmissions', listTaskDeliverableSubmissionsHandler(context));
   register('submitTaskDeliverable', submitTaskDeliverableHandler(context));
   register('listTrackedPrs', listTrackedPrsHandler(context));

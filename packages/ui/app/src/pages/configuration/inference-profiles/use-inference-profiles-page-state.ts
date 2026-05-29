@@ -21,7 +21,6 @@ export function useInferenceProfilesPageState() {
   const integrations = useIntegrations();
   const navigate = useNavigate();
   const [creatingKind, setCreatingKind] = useState<InferenceProfileKind | null>(null);
-  const [selectingKind, setSelectingKind] = useState<InferenceProfileKind | null>(null);
   const [createError, setCreateError] = useState<CreateError | null>(null);
 
   const integrationList: IntegrationRecord[] = integrations
@@ -33,15 +32,6 @@ export function useInferenceProfilesPageState() {
 
   const profilesForKind = (kind: InferenceProfileKind): InferenceProfileRecord[] =>
     inferenceProfiles.values().filter((profile) => profile.kind === kind);
-
-  const startCreate = (kind: InferenceProfileKind) => {
-    setCreateError(null);
-    setSelectingKind(kind);
-  };
-
-  const cancelCreate = () => {
-    setSelectingKind(null);
-  };
 
   const createProfile = async (kind: InferenceProfileKind, integrationId: string) => {
     const integration = integrationsForKind(kind).find((candidate) => candidate.id === integrationId);
@@ -59,7 +49,6 @@ export function useInferenceProfilesPageState() {
     setCreatingKind(kind);
     try {
       const created = await createInferenceProfile(input);
-      setSelectingKind(null);
       navigate(`/configuration/inference-profiles/${created.id}`);
     } catch (error) {
       setCreateError({ kind, message: error instanceof Error ? error.message : 'Could not create inference profile.' });
@@ -69,7 +58,6 @@ export function useInferenceProfilesPageState() {
   };
 
   return {
-    cancelCreate,
     createError,
     createProfile,
     creatingKind,
@@ -78,7 +66,5 @@ export function useInferenceProfilesPageState() {
     integrationsForKind,
     navigate,
     profilesForKind,
-    selectingKind,
-    startCreate,
   };
 }

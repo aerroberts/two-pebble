@@ -47,6 +47,8 @@ import type { AutomationsRunNowOperation } from './protocol/automations.run-now'
 import type { AutomationsUpdateOperation } from './protocol/automations.update';
 import type { AutomationDeletedEvent, AutomationUpdatedEvent } from './protocol/automations.updated';
 import type { DaemonStatusOperation } from './protocol/daemon.status';
+import type { DataSyncApplyOperation } from './protocol/data-sync.apply';
+import type { DataSyncBuildPlanOperation } from './protocol/data-sync.build-plan';
 import type { DatabaseDescribeOperation } from './protocol/database.describe';
 import type { DatabaseMigrateOperation } from './protocol/database.migrate';
 import type { DatabaseOpenOperation } from './protocol/database.open';
@@ -114,7 +116,9 @@ import type { TaskDeliverableSubmissionsListOperation } from './protocol/task-de
 import type { TaskDeliverableSubmissionRecordedEvent } from './protocol/task-deliverable-submissions.recorded';
 import type { TaskDeliverableSubmissionsSubmitOperation } from './protocol/task-deliverable-submissions.submit';
 import type { TaskDeliverablesCreateOperation } from './protocol/task-deliverables.create';
+import type { TaskDeliverableDeletedEvent, TaskDeliverablesDeleteOperation } from './protocol/task-deliverables.delete';
 import type { TaskDeliverablesListOperation } from './protocol/task-deliverables.list';
+import type { TaskDeliverablesUpdateOperation } from './protocol/task-deliverables.update';
 import type { TaskDeliverableUpdatedEvent } from './protocol/task-deliverables.updated';
 import type { TaskDependenciesCreateOperation } from './protocol/task-dependencies.create';
 import type { TaskDependenciesDeleteOperation } from './protocol/task-dependencies.delete';
@@ -125,6 +129,7 @@ import type { TaskEventRecordedEvent } from './protocol/task-events.recorded';
 import type { TaskPoolsCreateOperation } from './protocol/task-pools.create';
 import type { TaskPoolsDeleteOperation } from './protocol/task-pools.delete';
 import type { TaskPoolsListOperation } from './protocol/task-pools.list';
+import type { TaskPoolsSetTemplateOperation } from './protocol/task-pools.set-template';
 import type { TaskPoolDeletedEvent, TaskPoolUpdatedEvent } from './protocol/task-pools.updated';
 import type { TaskTemplateDeliverablesCreateOperation } from './protocol/task-template-deliverables.create';
 import type { TaskTemplateDeliverablesDeleteOperation } from './protocol/task-template-deliverables.delete';
@@ -139,6 +144,7 @@ import type { TaskTemplatesListOperation } from './protocol/task-templates.list'
 import type { TaskTemplatesReadOperation } from './protocol/task-templates.read';
 import type { TaskTemplatesUpdateOperation } from './protocol/task-templates.update';
 import type { TaskTemplateUpdatedEvent } from './protocol/task-templates.updated';
+import type { TasksAddCommentOperation } from './protocol/tasks.add-comment';
 import type { TasksCreateOperation } from './protocol/tasks.create';
 import type { TasksDelegateOperation, TasksUndelegateOperation } from './protocol/tasks.delegate';
 import type { TasksDeleteOperation } from './protocol/tasks.delete';
@@ -202,6 +208,8 @@ export type DaemonOperations = [
   DatabaseOpenOperation,
   DatabaseMigrateOperation,
   DatabaseRunQueryOperation,
+  DataSyncBuildPlanOperation,
+  DataSyncApplyOperation,
   ProjectsListOperation,
   ProjectsCreateOperation,
   ProjectsUpdateOperation,
@@ -272,6 +280,7 @@ export type DaemonOperations = [
   TaskPoolsListOperation,
   TaskPoolsCreateOperation,
   TaskPoolsDeleteOperation,
+  TaskPoolsSetTemplateOperation,
   TasksListOperation,
   TasksCreateOperation,
   TasksRenameOperation,
@@ -279,6 +288,7 @@ export type DaemonOperations = [
   TasksUpdateStatusOperation,
   TasksDelegateOperation,
   TasksUndelegateOperation,
+  TasksAddCommentOperation,
   TasksDeleteOperation,
   TaskDependenciesListOperation,
   TaskDependenciesCreateOperation,
@@ -295,6 +305,8 @@ export type DaemonOperations = [
   TaskTemplateDeliverablesDeleteOperation,
   TaskDeliverablesListOperation,
   TaskDeliverablesCreateOperation,
+  TaskDeliverablesUpdateOperation,
+  TaskDeliverablesDeleteOperation,
   TaskDeliverableSubmissionsListOperation,
   TaskDeliverableSubmissionsSubmitOperation,
   TrackedPrsListOperation,
@@ -349,6 +361,7 @@ export type DaemonEvents = [
   TaskTemplateDeliverableUpdatedEvent,
   TaskTemplateDeliverableDeletedEvent,
   TaskDeliverableUpdatedEvent,
+  TaskDeliverableDeletedEvent,
   TaskDeliverableSubmissionRecordedEvent,
   TrackedPrRecordedEvent,
   AutomationUpdatedEvent,
