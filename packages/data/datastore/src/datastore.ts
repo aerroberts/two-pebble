@@ -89,6 +89,11 @@ import { repositoriesDeleteOperation } from './operations/repositories.delete';
 import { repositoriesListOperation } from './operations/repositories.list';
 import { repositoriesReadOperation } from './operations/repositories.read';
 import { repositoriesUpdateOperation } from './operations/repositories.update';
+import { skillsCreateOperation } from './operations/skills.create';
+import { skillsDeleteOperation } from './operations/skills.delete';
+import { skillsListOperation } from './operations/skills.list';
+import { skillsReadOperation } from './operations/skills.read';
+import { skillsUpdateOperation } from './operations/skills.update';
 import { taskBoardsCreateOperation } from './operations/task-boards.create';
 import { taskBoardsDeleteOperation } from './operations/task-boards.delete';
 import { taskBoardsListOperation } from './operations/task-boards.list';
@@ -409,6 +414,22 @@ export class Datastore {
       list: bind(documentsListOperation, 'documents.list'),
       read: bind(documentsReadOperation, 'documents.read'),
       update: bind(documentsUpdateOperation, 'documents.update'),
+    };
+  }
+
+  /**
+   * Returns skill persistence handlers.
+   * Skills store only metadata; `diskFolderPath` is an opaque absolute path.
+   * Folder validation and listing live in the daemon, not the datastore.
+   */
+  public get skills() {
+    const bind = this.operationBinder();
+    return {
+      create: bind(skillsCreateOperation, 'skills.create'),
+      delete: bind(skillsDeleteOperation, 'skills.delete'),
+      list: bind(skillsListOperation, 'skills.list'),
+      read: bind(skillsReadOperation, 'skills.read'),
+      update: bind(skillsUpdateOperation, 'skills.update'),
     };
   }
 

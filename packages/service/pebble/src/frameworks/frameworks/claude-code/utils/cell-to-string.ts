@@ -1,4 +1,4 @@
-import type { CellContent, DataCells } from '../../../../thread/cells';
+import { type CellContent, type DataCells, renderSkillReferenceText } from '../../../../thread/cells';
 
 /**
  * Renders a CellContent as a plain string the Claude Code SDK can consume.
@@ -21,6 +21,8 @@ export function cellToString(cell: CellContent): string {
       return `[document: ${cell.content.name} (id: ${cell.content.documentId})]\n${cell.content.contentSnapshot}`;
     case 'image':
       return '';
+    case 'skillReference':
+      return renderSkillReferenceText(cell.content);
     case 'audio':
       return cell.content.transcript ?? '';
     case 'toolRegistration':

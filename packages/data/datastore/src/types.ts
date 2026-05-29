@@ -33,6 +33,7 @@ import type {
   metricsTable,
   projectsTable,
   repositoriesTable,
+  skillsTable,
   taskBoardsTable,
   taskDeliverableSubmissionsTable,
   taskDeliverablesTable,
@@ -114,6 +115,7 @@ export interface DatastoreSchema extends Record<string, object> {
   metricsTable: typeof metricsTable;
   projectsTable: typeof projectsTable;
   repositoriesTable: typeof repositoriesTable;
+  skillsTable: typeof skillsTable;
   taskBoardsTable: typeof taskBoardsTable;
   taskDependenciesTable: typeof taskDependenciesTable;
   taskDeliverableSubmissionsTable: typeof taskDeliverableSubmissionsTable;
@@ -229,6 +231,17 @@ export interface DocumentRecord {
   references: string;
   archivedAt: number | null;
   section: string | null;
+}
+
+export interface SkillRecord {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  projectId: string;
+  name: string;
+  description: string;
+  diskFolderPath: string;
+  archivedAt: number | null;
 }
 
 export interface WorktreeRecord {

@@ -199,6 +199,18 @@ export type {
   RepositoryRecord,
   UpdateRepositoryInput,
 } from './states/repositories/types';
+export { useSkill } from './states/skills/hooks/use-skill.hook';
+export { useSkillMutations } from './states/skills/hooks/use-skill-mutations.hook';
+export { useSkills } from './states/skills/hooks/use-skills.hook';
+export type {
+  CreateSkillInput,
+  CreateSkillResponse,
+  DeleteSkillInput,
+  ReadSkillInput,
+  SkillRecord,
+  SkillsState,
+  UpdateSkillInput,
+} from './states/skills/types';
 export { useTaskBoardContents } from './states/tasks/hooks/use-task-board-contents.hook';
 export { useTaskBoardMutations } from './states/tasks/hooks/use-task-board-mutations.hook';
 export { useTaskBoards } from './states/tasks/hooks/use-task-boards.hook';

@@ -100,6 +100,7 @@ function isInlineCell(cell: CellContent): boolean {
     case 'header2':
     case 'documentReference':
     case 'boardReference':
+    case 'skillReference':
     case 'audio':
       return true;
     default:
@@ -136,6 +137,8 @@ function InlineUserMessageCell(props: {
           href={props.getDocumentHref?.(cell.content.documentId)}
         />
       );
+    case 'skillReference':
+      return <SkillPill name={cell.content.name} skillId={cell.content.skillId} />;
     case 'audio':
       return (
         <InlineText
@@ -215,12 +218,29 @@ function BoardPill(props: { boardId: string; href?: string; name: string }) {
   );
 }
 
+function SkillPill(props: { skillId: string; href?: string; name: string }) {
+  return (
+    <a
+      className="mx-0.5 inline-flex items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0 align-baseline text-[11px] font-medium leading-4 text-content no-underline transition-colors hover:border-accent hover:text-accent"
+      data-skill-id={props.skillId}
+      href={props.href ?? `/skills/${props.skillId}`}
+    >
+      <span aria-hidden="true" className="text-content-muted">
+        skill:
+      </span>
+      {props.name.length > 0 ? props.name : 'skill'}
+    </a>
+  );
+}
+
 function cellKey(cell: CellContent): string {
   switch (cell.type) {
     case 'boardReference':
       return `boardReference:${cell.content.boardId}`;
     case 'documentReference':
       return `documentReference:${cell.content.documentId}`;
+    case 'skillReference':
+      return `skillReference:${cell.content.skillId}`;
     case 'text':
       return `text:${cell.content.text}`;
     case 'codeBlock':
@@ -255,6 +275,9 @@ function buildSpeakableText(cells: readonly CellContent[]): string {
         break;
       case 'boardReference':
         parts.push(`#${cell.content.name}`);
+        break;
+      case 'skillReference':
+        parts.push(`*${cell.content.name}`);
         break;
       case 'codeBlock':
         parts.push(cell.content.code);

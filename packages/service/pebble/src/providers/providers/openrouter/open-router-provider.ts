@@ -1,5 +1,6 @@
 import type { ToolInputRecord } from '../../../agent/tools/tool-input';
 import type { CellContent, DataCells } from '../../../thread/cells/index';
+import { renderSkillReferenceText } from '../../../thread/cells/index';
 import type { ConversationThread, ConversationTurn } from '../../../thread/index';
 import { ModelProvider } from '../../model-provider';
 import { END_TURN_STOP_TOKEN } from '../../model-provider-constants';
@@ -265,6 +266,8 @@ export class OpenRouterProvider extends ModelProvider {
         return `## ${cell.content.text}`;
       case 'image':
         return `[image](data:image/*;base64,${cell.content.base64Data})`;
+      case 'skillReference':
+        return renderSkillReferenceText(cell.content);
       case 'text':
         return cell.content.text;
       case 'toolRegistration':

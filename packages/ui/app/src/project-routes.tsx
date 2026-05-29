@@ -13,6 +13,7 @@ import { DocumentEditorPage } from './pages/documents/document-editor.page';
 import { DocumentsPage } from './pages/documents/documents.page';
 import { ModelCallDetailPage } from './pages/model-call-detail/model-call-detail.page';
 import { OverviewPage } from './pages/overview/overview.page';
+import { SkillsPage } from './pages/skills/skills.page';
 import { TaskBoardPage } from './pages/task-board/task-board.page';
 import { TasksPage } from './pages/tasks/tasks.page';
 import { ProjectProvider } from './project-context';
@@ -96,6 +97,14 @@ export function ProjectRoutes() {
             <DocumentsAppShell>
               <DocumentEditorPage />
             </DocumentsAppShell>
+          }
+        />
+        <Route
+          path="skills"
+          element={
+            <MainAppShell>
+              <SkillsPage />
+            </MainAppShell>
           }
         />
         <Route

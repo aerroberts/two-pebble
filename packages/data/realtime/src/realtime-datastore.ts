@@ -73,6 +73,11 @@ import { createRepositoryOperation } from './operations/repositories.create.oper
 import { deleteRepositoryOperation } from './operations/repositories.delete.operation';
 import { listRepositoriesOperation } from './operations/repositories.list.operation';
 import { updateRepositoryOperation } from './operations/repositories.update.operation';
+import { createSkillOperation } from './operations/skills.create.operation';
+import { deleteSkillOperation } from './operations/skills.delete.operation';
+import { listSkillsOperation } from './operations/skills.list.operation';
+import { readSkillOperation } from './operations/skills.read.operation';
+import { updateSkillOperation } from './operations/skills.update.operation';
 import { createTaskBoardOperation } from './operations/task-boards.create.operation';
 import { deleteTaskBoardOperation } from './operations/task-boards.delete.operation';
 import { listTaskBoardsOperation } from './operations/task-boards.list.operation';
@@ -134,6 +139,7 @@ import { listenToInferenceProfiles } from './states/inference-profiles/listen';
 import { listenToIntegrations } from './states/integrations/listen';
 import { listenToKnownIdes } from './states/known-ides/listen';
 import { listenToRepositories } from './states/repositories/listen';
+import { listenToSkills } from './states/skills/listen';
 import { listenToTasks } from './states/tasks/listen';
 import { listenToThirdPartyAgentInstalls } from './states/third-party-agent-installs/listen';
 import { listenToWorkspaces } from './states/workspaces/listen';
@@ -291,6 +297,20 @@ export class RealtimeDatastore {
       list: listDocumentsOperation({ datastore: this }),
       read: readDocumentOperation({ datastore: this }),
       update: updateDocumentOperation({ datastore: this }),
+    };
+  }
+
+  /**
+   * Returns skill operations bound to this realtime datastore.
+   * Skills cache only metadata; the folder on disk is read by the daemon.
+   */
+  public get skills() {
+    return {
+      create: createSkillOperation({ datastore: this }),
+      delete: deleteSkillOperation({ datastore: this }),
+      list: listSkillsOperation({ datastore: this }),
+      read: readSkillOperation({ datastore: this }),
+      update: updateSkillOperation({ datastore: this }),
     };
   }
 
@@ -696,6 +716,7 @@ export class RealtimeDatastore {
     listenToAutomations({ datastore: this });
     listenToDebugLogs({ datastore: this });
     listenToDocuments({ datastore: this });
+    listenToSkills({ datastore: this });
     listenToInferenceProfiles({ datastore: this });
     listenToIntegrations({ datastore: this });
     listenToKnownIdes({ datastore: this });
