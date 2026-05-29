@@ -1,7 +1,4 @@
-{
-  "inherit": ["guardrails-package"],
-  // This package previously used an empty top-level `rules` list, so it did not opt into shared TypeScript checks.
-  // Keep the migrated structure empty to preserve that behavior; add package-local checks here when components has
-  // guardrails that fit the structure-only format.
-  "structure": []
-}
+# components uses the shared package guards only. It intentionally does NOT use
+# the shared TypeScript guards: the previous guard configuration did not opt this
+# package into the TypeScript checks, so that baseline is preserved here.
+use "../../../guard/package.guard";

@@ -22,6 +22,12 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      # The guard CLI (https://github.com/aerroberts/guard) is a Rust binary and
+      # is not present on the runner. Build and install it from source; cargo is
+      # preinstalled on ubuntu runners and ~/.cargo/bin is already on PATH.
+      - name: Install guard CLI
+        run: cargo install --git https://github.com/aerroberts/guard guard-cli --locked
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 

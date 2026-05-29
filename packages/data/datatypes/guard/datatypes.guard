@@ -1,0 +1,81 @@
+# datatypes package guards.
+
+# Integration domain types expose one simple union from the folder-level types
+# file.
+guard datatypes_integration_types {
+  find src/integrations/types.ts {
+    assert {
+      exists;
+      contains($content, "export type Integration =");
+    }
+  }
+}
+
+# Inference profile domain types expose one simple union from the folder-level
+# types file.
+guard datatypes_inference_profile_types {
+  find src/inference-profiles/types.ts {
+    assert {
+      exists;
+      contains($content, "export type InferenceProfile =");
+    }
+  }
+}
+
+# Each integration provider protocol definition stays a pure type file: it
+# exposes its contract through an exported interface and declares no runtime
+# values. (The DSL has no const kind, so the old "no exported const" check is
+# preserved as steering; classes and functions are still enforced.)
+guard datatypes_integration_protocol_pure {
+  find src/integrations/protocol/* {
+    findAst typescript export/interface {
+      assert {
+        count() >= 1;
+      }
+    }
+    findAst typescript export/class {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript export/function {
+      assert {
+        count() == 0;
+      }
+    }
+  }
+
+  # Provider protocols stay one flat file per provider; no nested folders.
+  find src/integrations/protocol/*/ {
+    assert {
+      count() == 0;
+    }
+  }
+}
+
+# Each inference profile provider protocol definition stays a pure type file.
+guard datatypes_inference_profile_protocol_pure {
+  find src/inference-profiles/protocol/* {
+    findAst typescript export/interface {
+      assert {
+        count() >= 1;
+      }
+    }
+    findAst typescript export/class {
+      assert {
+        count() == 0;
+      }
+    }
+    findAst typescript export/function {
+      assert {
+        count() == 0;
+      }
+    }
+  }
+
+  find src/inference-profiles/protocol/*/ {
+    assert {
+      count() == 0;
+    }
+  }
+}

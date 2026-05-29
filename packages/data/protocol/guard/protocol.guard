@@ -1,0 +1,55 @@
+# protocol package guards.
+
+# Protocol operation modules stay flat and domain-named so the bridge contract is
+# visible in one directory, and each exposes its wire contract as an interface.
+# (Import allowlists are not expressible in this DSL; keep imports limited to
+# datatypes, pebble, task-events, and explicit sibling protocol dependencies.)
+guard protocol_operations_are_interfaces {
+  find src/protocol/* {
+    findAst typescript export/interface {
+      assert {
+        count() >= 1;
+      }
+    }
+  }
+
+  # Operation modules must not use nested folders; encode hierarchy in the name.
+  find src/protocol/*/ {
+    assert {
+      count() == 0;
+    }
+  }
+}
+
+# Each task event kind lives in its own flat file with a self-contained exported
+# interface so wire shapes are easy to scan. The barrel and union files round out
+# the folder. (Per-file "no export type" is kept as steering: this DSL has no
+# type-alias kind. Shared unions belong in task-events/types.ts.)
+guard protocol_task_events {
+  find src/task-events/status.ts or src/task-events/delegated.ts or src/task-events/undelegated.ts {
+    findAst typescript export/interface {
+      assert {
+        count() >= 1;
+      }
+    }
+  }
+
+  find src/task-events/index.ts {
+    assert {
+      exists;
+    }
+  }
+
+  find src/task-events/types.ts {
+    assert {
+      exists;
+    }
+  }
+
+  # Task event modules must not use nested folders.
+  find src/task-events/*/ {
+    assert {
+      count() == 0;
+    }
+  }
+}

@@ -1,0 +1,44 @@
+# daemon package guards.
+
+# Daemon services live one folder per service as service.ts. The only root
+# service module is daemon-service.ts, which owns the host/base-class module.
+#
+# Steering only (not expressible): "no other loose .ts directly under
+# src/services". This DSL's `*` glob crosses directory separators, so a
+# single-segment "direct children only" match cannot be written; keep new
+# services in their own folder as service.ts and out of the services root.
+guard daemon_services_layout {
+  find src/services/daemon-service.ts {
+    assert {
+      exists;
+    }
+  }
+
+  find src/services/*/service.ts {
+    assert {
+      exists;
+    }
+  }
+}
+
+# Each daemon handler exports exactly one `handler` function so error handling,
+# logging, and bridge fanout stay consistent. (The handler must accept the
+# daemon handler context as `ctx`; parameter-name checks are not expressible in
+# this DSL, so that part is enforced by review.) Handler tests live in src/tests,
+# not beside the handler files.
+guard daemon_handler_shape {
+  find src/handlers/*.handler.ts {
+    findAst typescript export/function {
+      assert {
+        count() == 1;
+        $name == "handler";
+      }
+    }
+  }
+
+  find src/handlers/*.test.ts {
+    assert {
+      count() == 0;
+    }
+  }
+}

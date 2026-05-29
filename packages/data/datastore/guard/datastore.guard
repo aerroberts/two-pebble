@@ -1,0 +1,74 @@
+# datastore package guards.
+
+# Every schema module declares one table via `customTable` and exports exactly
+# one declaration for it. One file == one table, named after its filename.
+guard datastore_schema_one_table_per_file {
+  find src/schema/* except src/schema/index.ts {
+
+    # Schema modules build their table with customTable.
+    assert {
+      contains($content, "customTable");
+    }
+
+    # Exactly one exported declaration (the table) per schema file. (The old
+    # guard checked "exactly one exported const"; this DSL has no const kind, so
+    # we assert a single export statement, which is equivalent here.)
+    findAst typescript export {
+      assert {
+        count() == 1;
+      }
+    }
+  }
+}
+
+# Every operation module follows the same shape: one exported builder function
+# that takes a DatastoreContext and returns an async handler.
+guard datastore_operation_shape {
+  find src/operations/*.ts {
+
+    # The builder returns an async handler...
+    assert {
+      contains($content, "return async function handler");
+    }
+
+    # ...and accepts the datastore context.
+    assert {
+      contains($content, "Operation(ctx: DatastoreContext)");
+    }
+
+    # The operation entrypoint is the file's only exported function.
+    findAst typescript export/function {
+      assert {
+        count() == 1;
+      }
+    }
+
+    # Helpers leak the operation surface; keep them inside the handler or move
+    # them out of this folder. No un-exported top-level function declarations.
+    findAst typescript /function {
+      assert {
+        count() == 0;
+      }
+    }
+  }
+}
+
+# Every operation must be exercised by a test. Each operation's file-stem name
+# must appear as a substring in the contents of some test file under src/tests.
+guard datastore_operations_have_tests {
+  find src/operations/*.ts {
+    capture {
+      $name as $operations;
+    }
+  }
+
+  find src/tests/*.test.ts {
+    capture {
+      $content as $testContents;
+    }
+
+    assert {
+      covers($operations, $testContents, substring);
+    }
+  }
+}

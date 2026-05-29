@@ -1,5 +1,3 @@
-{
-  "inherit": ["guardrails-package", "guardrails-typescript"],
-  // Names relies on the shared TypeScript structure checks and does not add package-local structure rules.
-  "structure": []
-}
+# names uses the shared package and TypeScript guards; no package-local rules.
+use "../../../guard/package.guard";
+use "../../../guard/typescript.guard";
