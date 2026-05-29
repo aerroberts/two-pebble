@@ -12,11 +12,18 @@ interface ExampleSection {
   features: ExampleEntry[];
 }
 
+interface ExampleGuide {
+  title: string;
+  subtitle: string;
+  steps: ExampleEntry[];
+}
+
 export interface ExampleDocPage {
   id: string;
   title: string;
   subtitle: string;
   icon: string;
+  guide: ExampleGuide;
   sections: ExampleSection[];
 }
 
@@ -26,6 +33,32 @@ export const EXAMPLE_DOC_PAGES: ExampleDocPage[] = [
     title: 'Agents',
     subtitle: 'Run, observe, and steer coding agents from a single chat surface.',
     icon: 'bot',
+    guide: {
+      title: 'Run an agent from chat',
+      subtitle: 'Use this flow when you want Two Pebble to turn a request into tracked work.',
+      steps: [
+        {
+          title: 'Start with the right context',
+          description:
+            'Open the project that owns the repository, documents, and task boards you want the agent to use. Project scope keeps references and navigation pointed at the right workspace.',
+        },
+        {
+          title: 'Choose a runner before sending',
+          description:
+            'Use the agent selector in the composer or Cmd+K menu to choose Assistant, Codex, Claude Code, or another configured registry before the first prompt.',
+        },
+        {
+          title: 'Attach durable references',
+          description:
+            'Mention documents, boards, and tasks directly in the prompt so the agent sees stable IDs instead of vague natural-language context.',
+        },
+        {
+          title: 'Inspect the run as it works',
+          description:
+            'Use the trace, waterfall, and price tabs to review tool calls, model calls, queued follow-ups, and cost while the agent is still running.',
+        },
+      ],
+    },
     sections: [
       {
         title: 'Chat Workflow',
@@ -76,6 +109,32 @@ export const EXAMPLE_DOC_PAGES: ExampleDocPage[] = [
     title: 'Documents',
     subtitle: 'Long-form, agent-aware editing built on a TipTap surface.',
     icon: 'file-text',
+    guide: {
+      title: 'Build an agent-ready document',
+      subtitle: 'Use documents when work needs durable structure that agents can read and update over time.',
+      steps: [
+        {
+          title: 'Create or import the source material',
+          description:
+            'Draft directly in the editor or paste Markdown with headings, lists, code blocks, and tables. The editor keeps the document structured for later agent edits.',
+        },
+        {
+          title: 'Organize before sharing',
+          description:
+            'Assign the document to a section from the header dropdown so it appears in the right sidebar group and remains easy to find.',
+        },
+        {
+          title: 'Reference the document from chat or tasks',
+          description:
+            'Use document mentions in prompts and task descriptions instead of copying long content into chat. Agents receive the referenced content with stable boundaries.',
+        },
+        {
+          title: 'Send the document to a runner',
+          description:
+            'Use the document header action when the document itself is the work item. The configured runner receives the document context and can write updates back.',
+        },
+      ],
+    },
     sections: [
       {
         title: 'Editing',
@@ -126,6 +185,32 @@ export const EXAMPLE_DOC_PAGES: ExampleDocPage[] = [
     title: 'Tasks',
     subtitle: 'Plan, dispatch, and track work across boards and dependency graphs.',
     icon: 'list-todo',
+    guide: {
+      title: 'Drive work from a board',
+      subtitle: 'Use task boards when multiple changes need clear ownership, requirements, and independent PRs.',
+      steps: [
+        {
+          title: 'Create the board shape first',
+          description:
+            'Set up pools, dependencies, and a default task template before adding many tasks. The structure tells agents which work is unblocked.',
+        },
+        {
+          title: 'Write tasks as executable requests',
+          description:
+            'Give each task a specific outcome, project context, and any relevant document or board references. Add deliverables when the result must include a PR, text answer, or artifact.',
+        },
+        {
+          title: 'Delegate only actionable tasks',
+          description:
+            'Assign agents to tasks that are not blocked by dependencies. The task drawer and status events show whether an agent is working, waiting, or complete.',
+        },
+        {
+          title: 'Close the loop with deliverables',
+          description:
+            'Review submitted PRs or text deliverables from the task drawer, then mark the task success, failure, waiting, or canceled with a reason.',
+        },
+      ],
+    },
     sections: [
       {
         title: 'Planning',
@@ -171,6 +256,32 @@ export const EXAMPLE_DOC_PAGES: ExampleDocPage[] = [
     title: 'Workspace',
     subtitle: 'Project scope, repository connections, and local editor bridges.',
     icon: 'folder-open',
+    guide: {
+      title: 'Set up a working project',
+      subtitle: 'Use workspace settings to connect the data, repository, and local editor an agent needs.',
+      steps: [
+        {
+          title: 'Create or choose a project',
+          description:
+            'Use the projects page as the entry point for new work. A project scopes agents, documents, task boards, and workspace navigation.',
+        },
+        {
+          title: 'Register the repository',
+          description:
+            'Add the repository path and integration details under settings so agents can create worktrees and link PRs back to the right source.',
+        },
+        {
+          title: 'Connect the local IDE',
+          description:
+            'Detect or add your preferred editor, then set the default IDE from the IDE settings page so open-in-editor buttons use the right target.',
+        },
+        {
+          title: 'Use scoped navigation',
+          description:
+            'Switch projects from the sidebar selector and stay inside project-scoped routes while working on agents, documents, tasks, and automations.',
+        },
+      ],
+    },
     sections: [
       {
         title: 'Projects',
@@ -221,6 +332,32 @@ export const EXAMPLE_DOC_PAGES: ExampleDocPage[] = [
     title: 'Voice',
     subtitle: 'Talk to agents without losing the keyboard surface.',
     icon: 'mic',
+    guide: {
+      title: 'Send a voice-assisted prompt',
+      subtitle: 'Use voice input for longer prompts while keeping the normal composer available for edits.',
+      steps: [
+        {
+          title: 'Configure transcription first',
+          description:
+            'Pick the transcription provider and profile in voice settings. The composer uses those settings when it captures speech.',
+        },
+        {
+          title: 'Capture without leaving the composer',
+          description:
+            'Start voice mode from the composer. The text input remains visible while the waveform shows capture activity near the mic control.',
+        },
+        {
+          title: 'Review before sending',
+          description:
+            'Treat the transcript as a draft. Edit names, paths, and references before submitting so the agent receives precise instructions.',
+        },
+        {
+          title: 'Reuse past transcripts',
+          description:
+            'Open transcription history when you need to recover a previous capture, copy a prompt, or check when a voice note was recorded.',
+        },
+      ],
+    },
     sections: [
       {
         title: 'Capture',
@@ -255,6 +392,32 @@ export const EXAMPLE_DOC_PAGES: ExampleDocPage[] = [
     title: 'Operations',
     subtitle: 'Background work, developer signals, and analytics that keep the workspace healthy.',
     icon: 'activity',
+    guide: {
+      title: 'Operate and debug the system',
+      subtitle: 'Use these views when you need to understand what Two Pebble is doing behind the scenes.',
+      steps: [
+        {
+          title: 'Start with runtime signals',
+          description:
+            'Use developer signal and heartbeat pages to see whether agents, automations, and background services are running or waiting.',
+        },
+        {
+          title: 'Inspect individual model calls',
+          description:
+            'Open a model call when you need raw request and response details, pricing line items, or a precise failure point.',
+        },
+        {
+          title: 'Schedule repeatable work',
+          description:
+            'Use automations for recurring agent runs. Each automation records runs so you can audit what happened and when.',
+        },
+        {
+          title: 'Watch cost and throughput',
+          description:
+            'Use metrics and pricing pages to compare usage over time, spot expensive runs, and verify model activity by provider or agent.',
+        },
+      ],
+    },
     sections: [
       {
         title: 'Runtime Observability',
@@ -309,6 +472,16 @@ export function ExamplesPage() {
   return (
     <PageLayout width="fixed">
       <Header subtitle={page.subtitle}>{page.title}</Header>
+      <Section title={page.guide.title} subtitle={page.guide.subtitle}>
+        <ListLayout
+          bordered
+          items={page.guide.steps.map((step, index) => ({
+            key: step.title,
+            title: `${index + 1}. ${step.title}`,
+            subtitle: step.description,
+          }))}
+        />
+      </Section>
       {page.sections.map((section) => (
         <Section key={section.title} title={section.title} subtitle={section.subtitle}>
           <ListLayout
