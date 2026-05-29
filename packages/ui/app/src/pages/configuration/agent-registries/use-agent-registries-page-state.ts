@@ -8,7 +8,6 @@ import {
 } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { readLastViewedProjectId } from '../../../project-context';
 
 const DEFAULT_PEBBLE_CAPABILITIES: { id: string; config: Record<string, never> }[] = [
   { id: 'workspace-access', config: {} },
@@ -18,7 +17,7 @@ const DEFAULT_PEBBLE_CAPABILITIES: { id: string; config: Record<string, never> }
 export function useAgentRegistriesPageState() {
   const createAgentRegistry = useCreateAgentRegistry();
   const projects = useProjects();
-  const projectId = readLastViewedProjectId() ?? projects.values()[0]?.id ?? '';
+  const projectId = projects.values()[0]?.id ?? '';
   const agentRegistries = useAgentRegistries(projectId.length === 0 ? undefined : { projectId });
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();

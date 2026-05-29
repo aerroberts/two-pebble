@@ -12,7 +12,7 @@ import {
 } from '@two-pebble/realtime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { projectPath, readLastViewedProjectId } from '../project-context';
+import { projectPath } from '../project-context';
 import { AgentInput, type RichComposerSubmitPayload } from '../shared/agent-input/agent-input';
 import { agentRegistryIcon } from '../shared/agents/agent-registry-icon';
 
@@ -33,8 +33,7 @@ export function AssistantCommandK() {
   const location = useLocation();
   const sendAssistantMessage = useSendAssistantMessage();
   const launchAgent = useLaunchAgent();
-  const fallbackProjectId = readLastViewedProjectId();
-  const projectId = readProjectIdFromPath(location.pathname) ?? fallbackProjectId;
+  const projectId = readProjectIdFromPath(location.pathname);
   const project = projectId === null ? null : (projects.getItem(projectId)?.value ?? null);
   const agentRegistries = useAgentRegistries(projectId === null ? undefined : { projectId });
   const inferenceProfiles = useInferenceProfiles();
