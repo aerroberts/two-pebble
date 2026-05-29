@@ -185,6 +185,33 @@ function renderSidebarContent(input: {
           onClick={() => navigate('/assistant')}
         />
       </SidebarSection>
+      <SidebarSection title="System">
+        <SidebarOption
+          active={pathname.startsWith('/agents') || pathname.startsWith('/threads')}
+          badge={
+            activeAgentCount > 0 ? (
+              <output aria-label={`${activeAgentCount} ${activeAgentCount === 1 ? 'agent' : 'agents'} active`}>
+                {activeAgentCount} active
+              </output>
+            ) : undefined
+          }
+          icon="bot"
+          label="Agents"
+          onClick={() => navigate('/agents')}
+        />
+        <SidebarOption
+          active={pathname.startsWith('/tasks')}
+          icon="list-checks"
+          label="Agent Tasks"
+          onClick={() => navigate('/tasks')}
+        />
+        <SidebarOption
+          active={pathname.startsWith('/automations')}
+          icon="calendar-clock"
+          label="Automations"
+          onClick={() => navigate('/automations')}
+        />
+      </SidebarSection>
       <SidebarSection title="Knowledge">
         <SidebarOption
           active={pathname.startsWith('/documents')}
@@ -220,33 +247,6 @@ function renderSidebarContent(input: {
           icon="brain"
           label="Memories"
           onClick={() => navigate('/memories')}
-        />
-      </SidebarSection>
-      <SidebarSection title="System">
-        <SidebarOption
-          active={pathname.startsWith('/agents') || pathname.startsWith('/threads')}
-          badge={
-            activeAgentCount > 0 ? (
-              <output aria-label={`${activeAgentCount} ${activeAgentCount === 1 ? 'agent' : 'agents'} active`}>
-                {activeAgentCount} active
-              </output>
-            ) : undefined
-          }
-          icon="bot"
-          label="Agents"
-          onClick={() => navigate('/agents')}
-        />
-        <SidebarOption
-          active={pathname.startsWith('/tasks')}
-          icon="list-checks"
-          label="Agent Tasks"
-          onClick={() => navigate('/tasks')}
-        />
-        <SidebarOption
-          active={pathname.startsWith('/automations')}
-          icon="calendar-clock"
-          label="Automations"
-          onClick={() => navigate('/automations')}
         />
       </SidebarSection>
     </>
