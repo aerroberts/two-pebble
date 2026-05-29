@@ -1,4 +1,8 @@
 import { describe, expect, test } from 'bun:test';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { listSkillFiles, readSkillFile } from './skill-files';
 import { listSkillFolder, MAX_ENTRIES, type SkillFolderFs, validateSkillFolder } from './skill-folder';
 
 function fakeFs(options: { isDirectory?: boolean; exists?: boolean; entries?: string[] }): SkillFolderFs {
@@ -59,5 +63,34 @@ describe('feature: listSkillFolder', () => {
     );
     const result = listSkillFolder('/Users/x/skills/big', fakeFs({ entries }));
     expect(result).toHaveLength(MAX_ENTRIES);
+  });
+});
+
+describe('feature: skill file browsing', () => {
+  test('happy: lists and reads files relative to the skill folder', async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'two-pebble-skill-'));
+    try {
+      await mkdir(path.join(root, 'docs'));
+      await mkdir(path.join(root, '.git'));
+      await mkdir(path.join(root, 'node_modules'));
+      await writeFile(path.join(root, 'index.md'), '# Skill');
+      await writeFile(path.join(root, 'docs', 'usage.md'), 'Use it well.');
+      await writeFile(path.join(root, '.git', 'config'), 'hidden');
+      await writeFile(path.join(root, 'node_modules', 'pkg.js'), 'hidden');
+
+      await expect(listSkillFiles(root)).resolves.toEqual(['docs/usage.md', 'index.md']);
+      await expect(readSkillFile(root, 'docs/usage.md')).resolves.toBe('Use it well.');
+    } finally {
+      await rm(root, { force: true, recursive: true });
+    }
+  });
+
+  test('sad: rejects file reads that escape the skill folder', async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'two-pebble-skill-'));
+    try {
+      await expect(readSkillFile(root, '../escape.md')).rejects.toThrow(/escapes/);
+    } finally {
+      await rm(root, { force: true, recursive: true });
+    }
   });
 });
