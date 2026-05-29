@@ -8,8 +8,6 @@ import {
   Select,
   type SelectOption,
   TaskStatusIcon,
-  TaskStatusIconSelect,
-  type TaskStatusIconSelectStatus,
   type TaskStatusIconStatus,
 } from '@two-pebble/components';
 import { markdownToTipTap } from '@two-pebble/datatypes';
@@ -53,7 +51,6 @@ export interface TaskDetailSidebarProps {
   onDelegate: (agentRegistryId: string) => void;
   onUndelegate: () => void;
   onOpenAgent: (agentId: string) => void;
-  onChangeStatus: (status: TaskStatusIconSelectStatus) => void;
   onCreateTemplateFromTask: () => void;
   onAddDeliverable: () => void;
   onDeleteTask: () => void;
@@ -79,13 +76,6 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
   return (
     <>
       <AppBox variant="task-detail-header">
-        <AppBox variant="controls-row">
-          <TaskStatusIconSelect
-            ariaLabel={`Change status of ${props.task.name || 'task'}`}
-            onChange={props.onChangeStatus}
-            status={props.task.status}
-          />
-        </AppBox>
         <AppBox variant="task-detail-actions">{renderDelegateControl(props)}</AppBox>
       </AppBox>
       {props.ownerAgent !== null ? <AppBox variant="controls-row">{renderOwnerSummary(props)}</AppBox> : null}
