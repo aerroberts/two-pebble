@@ -1,9 +1,13 @@
-import { SidebarOption, SidebarSection } from '@two-pebble/components';
+import { SidebarOption, SidebarSection, SidebarSubitem } from '@two-pebble/components';
+import { useProjects } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export function ConfigurationSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const projects = useProjects();
+  const projectsActive = location.pathname.startsWith('/configuration/projects');
+  const projectList = projects.values().sort((left, right) => left.name.localeCompare(right.name));
 
   return (
     <>
@@ -35,11 +39,21 @@ export function ConfigurationSidebar() {
       </SidebarSection>
       <SidebarSection title="Workspaces">
         <SidebarOption
-          active={location.pathname.startsWith('/configuration/projects')}
+          active={projectsActive}
           icon="folder"
           label="Projects"
           onClick={() => navigate('/configuration/projects')}
         />
+        {projectsActive
+          ? projectList.map((project) => (
+              <SidebarSubitem
+                active={location.pathname === `/configuration/projects/${project.id}`}
+                key={project.id}
+                label={project.name.length > 0 ? project.name : 'Untitled project'}
+                onClick={() => navigate(`/configuration/projects/${project.id}`)}
+              />
+            ))
+          : null}
         <SidebarOption
           active={location.pathname.startsWith('/configuration/repositories')}
           icon="folder-open"
@@ -65,12 +79,6 @@ export function ConfigurationSidebar() {
           icon="messages-square"
           label="Assistant"
           onClick={() => navigate('/configuration/assistant')}
-        />
-        <SidebarOption
-          active={location.pathname.startsWith('/configuration/documents')}
-          icon="file-text"
-          label="Documents"
-          onClick={() => navigate('/configuration/documents')}
         />
       </SidebarSection>
       <SidebarSection title="Sharing">

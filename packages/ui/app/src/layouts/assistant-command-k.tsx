@@ -2,10 +2,10 @@
 
 import { MinimalSelect, type SelectOption, useToast } from '@two-pebble/components';
 import {
-  useAgentRegistries,
   useAppSettings,
   useInferenceProfiles,
   useLaunchAgent,
+  useProjectAgentRegistries,
   useProjects,
   useSendAssistantMessage,
   useThirdPartyAgentInstalls,
@@ -35,7 +35,7 @@ export function AssistantCommandK() {
   const launchAgent = useLaunchAgent();
   const projectId = readProjectIdFromPath(location.pathname);
   const project = projectId === null ? null : (projects.getItem(projectId)?.value ?? null);
-  const agentRegistries = useAgentRegistries(projectId === null ? undefined : { projectId });
+  const agentRegistries = useProjectAgentRegistries(projectId === null ? undefined : projectId);
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const navigate = useNavigate();

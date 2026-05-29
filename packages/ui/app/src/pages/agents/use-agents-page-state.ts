@@ -1,8 +1,8 @@
 import type { RichComposerSubmitPayload } from '@two-pebble/components';
 import {
-  useAgentRegistries,
   useInferenceProfiles,
   useLaunchAgent,
+  useProjectAgentRegistries,
   useThirdPartyAgentInstalls,
 } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,7 @@ export function useAgentsPageState() {
   const [agentRegistryId, setAgentRegistryId] = useState('');
   const projectId = useProjectId();
   const [launching, setLaunching] = useState(false);
-  const agentRegistries = useAgentRegistries({ projectId });
+  const agentRegistries = useProjectAgentRegistries(projectId);
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const agentRegistryList = agentRegistries.values().sort((left, right) => left.name.localeCompare(right.name));

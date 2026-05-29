@@ -120,7 +120,7 @@ export class DataSyncService {
           if (type === 'project') {
             projectIdByName.set(deserialized.name, id);
           } else if (type === 'agentRegistry') {
-            agentRegistryIdByKey.set(`${deserialized.projectName ?? '*'}:${deserialized.name}`, id);
+            agentRegistryIdByKey.set(deserialized.name, id);
           } else if (type === 'repository') {
             context.repositoryIdByName.set(deserialized.name, id);
           }
@@ -173,10 +173,7 @@ export class DataSyncService {
         return created.id;
       }
       case 'agentRegistry': {
-        if (projectId === undefined) {
-          throw new Error('project id required');
-        }
-        const all = await this.datastore.agentRegistries.list({ limit: LIST_LIMIT, offset: 0, projectId });
+        const all = await this.datastore.agentRegistries.list({ limit: LIST_LIMIT, offset: 0 });
         const existing = all.items.find((row) => row.name === record.name);
         const values = {
           name: record.name,
@@ -190,7 +187,7 @@ export class DataSyncService {
           await this.datastore.agentRegistries.update({ id: existing.id, ...values });
           return existing.id;
         }
-        const created = await this.datastore.agentRegistries.create({ ...values, projectId });
+        const created = await this.datastore.agentRegistries.create(values);
         return created.id;
       }
       case 'document': {
@@ -231,9 +228,7 @@ export class DataSyncService {
       case 'automation': {
         const agentRegistryName = typeof input.agentRegistryName === 'string' ? input.agentRegistryName : null;
         const agentRegistryId =
-          agentRegistryName === null
-            ? undefined
-            : resolvers.agentRegistryIdByKey.get(`${resolvers.projectName ?? '*'}:${agentRegistryName}`);
+          agentRegistryName === null ? undefined : resolvers.agentRegistryIdByKey.get(agentRegistryName);
         if (agentRegistryId === undefined) {
           throw new Error('referenced agent not found');
         }
@@ -309,7 +304,6 @@ export class DataSyncService {
       projectNameById: new Map(projects.items.map((row) => [row.id, row.name])),
       repositoryNameById: new Map(repositories.items.map((row) => [row.id, row.name])),
       agentRegistryNameById: new Map(agentRegistries.items.map((row) => [row.id, row.name])),
-      agentRegistryProjectIdById: new Map(agentRegistries.items.map((row) => [row.id, row.projectId])),
       inferenceProfileNameById: new Map(inferenceProfiles.items.map((row) => [row.id, row.name])),
       thirdPartyInstallNameById: new Map(installs.items.map((row) => [row.id, row.name])),
       taskTemplateNameById: await this.taskTemplateNameById(),
@@ -343,13 +337,10 @@ export class DataSyncService {
   }
 
   private async agentRegistryIdByKey(): Promise<Map<string, string>> {
-    const projects = await this.datastore.projects.list({});
-    const projectNameById = new Map(projects.items.map((row) => [row.id, row.name]));
     const registries = await this.datastore.agentRegistries.list({ limit: LIST_LIMIT, offset: 0 });
     const map = new Map<string, string>();
     for (const registry of registries.items) {
-      const projectName = projectNameById.get(registry.projectId) ?? '*';
-      map.set(`${projectName}:${registry.name}`, registry.id);
+      map.set(registry.name, registry.id);
     }
     return map;
   }

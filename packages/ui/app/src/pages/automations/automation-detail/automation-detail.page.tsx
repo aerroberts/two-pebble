@@ -17,10 +17,10 @@ import {
   type AutomationIntervalUnit,
   type AutomationRecord,
   type HeartbeatReport,
-  useAgentRegistries,
   useAutomations,
   useDeleteAutomation,
   useHeartbeats,
+  useProjectAgentRegistries,
   useRunAutomationNow,
   useUpdateAutomation,
 } from '@two-pebble/realtime';
@@ -63,7 +63,7 @@ export function AutomationDetailPage() {
   const navigate = useNavigate();
   const automations = useAutomations({ projectId });
   const heartbeats = useHeartbeats();
-  const agentRegistries = useAgentRegistries({ projectId });
+  const agentRegistries = useProjectAgentRegistries(projectId);
   const updateAutomation = useUpdateAutomation();
   const deleteAutomation = useDeleteAutomation();
   const runNow = useRunAutomationNow();

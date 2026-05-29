@@ -9,7 +9,6 @@ export interface AgentRegistryRecord {
   createdAt: number;
   updatedAt: number;
   name: string;
-  projectId: string;
   /**
    * Discriminator: 'pebble' rows reference an inference profile;
    * 'framework' rows reference a third-party agent install.
@@ -41,7 +40,6 @@ export interface AgentRegistriesListOperation {
   request: {
     limit?: number;
     offset?: number;
-    projectId?: string;
   };
   response: {
     items: AgentRegistryRecord[];

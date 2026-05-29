@@ -1,50 +1,13 @@
-import { Checkbox, Header, PageLayout, Section, Select, type SelectOption, Surface } from '@two-pebble/components';
-import {
-  type AgentRegistryRecord,
-  type InferenceProfileRecord,
-  type LoadableRegistry,
-  type ThirdPartyAgentInstallRecord,
-  useAgentRegistries,
-  useAppSettings,
-  useInferenceProfiles,
-  useProjectMutations,
-  useProjects,
-  useThirdPartyAgentInstalls,
-  useUpdateAppSettings,
-} from '@two-pebble/realtime';
-import { agentRegistryIcon } from '../../../shared/agents/agent-registry-icon';
-
-const NONE_VALUE = '__none__';
+import { Checkbox, Header, PageLayout, Section, Surface } from '@two-pebble/components';
+import { useAppSettings, useUpdateAppSettings } from '@two-pebble/realtime';
 
 export function AssistantSettingsPage() {
   const appSettings = useAppSettings();
-  const projects = useProjects();
-  const projectId = projects.values()[0]?.id ?? '';
-  const project = projects.getItem(projectId)?.value ?? null;
-  const projectMutations = useProjectMutations();
-  const agentRegistries = useAgentRegistries(projectId.length === 0 ? undefined : { projectId });
-  const inferenceProfiles = useInferenceProfiles();
-  const installs = useThirdPartyAgentInstalls();
   const updateAppSettings = useUpdateAppSettings();
 
-  const assistantAgentOptions = buildAgentRegistryOptions(agentRegistries, inferenceProfiles, installs);
   const settings = appSettings.value;
-  const assistantAgentRegistryId = project?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
   const chatConversationFoldingEnabled = settings?.chatConversationFoldingEnabled ?? false;
-
-  const onAssistantAgentChange = (value: string) => {
-    if (project === null) {
-      return;
-    }
-    const nextRegistryId = value === NONE_VALUE ? null : value;
-    const registryChanged = nextRegistryId !== project.assistantAgentRegistryId;
-    void projectMutations.updateProject({
-      id: project.id,
-      assistantAgentRegistryId: nextRegistryId,
-      assistantAgentId: registryChanged ? null : project.assistantAgentId,
-    });
-  };
 
   const onAssistantCommandKVoiceModeChange = (next: boolean) => {
     if (settings === null) {
@@ -58,7 +21,6 @@ export function AssistantSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKVoiceModeEnabled: next,
       chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
-      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
     });
   };
 
@@ -74,29 +36,14 @@ export function AssistantSettingsPage() {
       assistantAgentId: settings.assistantAgentId,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
       chatConversationFoldingEnabled: next,
-      documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
     });
   };
 
   return (
     <PageLayout width="fixed">
-      <Header subtitle="Configure which agent backs the Assistant page and whether the floating launcher (FAB) is enabled.">
+      <Header subtitle="Configure Assistant behavior. The agent that backs the Assistant is set per project in Project settings.">
         Assistant
       </Header>
-      <Section subtitle="Agent registry that powers the Assistant page." title="Agent">
-        <Surface>
-          <Select
-            fullWidth
-            label="Assistant agent"
-            onChange={onAssistantAgentChange}
-            options={assistantAgentOptions}
-            placeholder={
-              assistantAgentOptions.length <= 1 ? 'Create an agent in the agent registry first' : 'Select agent'
-            }
-            value={assistantAgentRegistryId}
-          />
-        </Surface>
-      </Section>
       <Section
         subtitle="The Assistant overlay always opens with Cmd+K (or Ctrl+K) from anywhere."
         title="Keyboard shortcut"
@@ -123,20 +70,4 @@ export function AssistantSettingsPage() {
       </Section>
     </PageLayout>
   );
-}
-
-function buildAgentRegistryOptions(
-  registries: LoadableRegistry<AgentRegistryRecord>,
-  profiles: LoadableRegistry<InferenceProfileRecord>,
-  installs: LoadableRegistry<ThirdPartyAgentInstallRecord>,
-): SelectOption[] {
-  const matching = registries
-    .values()
-    .sort((left, right) => left.name.localeCompare(right.name))
-    .map((registry) => ({
-      icon: agentRegistryIcon(registry, profiles, installs),
-      label: registry.name.length > 0 ? registry.name : 'Untitled agent',
-      value: registry.id,
-    }));
-  return [{ label: 'None', value: NONE_VALUE }, ...matching];
 }

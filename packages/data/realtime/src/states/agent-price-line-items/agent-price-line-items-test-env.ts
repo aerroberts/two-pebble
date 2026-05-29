@@ -23,7 +23,6 @@ export async function launchPricedAgent(ctx: RealtimeContext) {
     const registry = await ctx.daemon.do('createAgentRegistry', {
       inferenceProfileId: profile.id,
       name: 'Price Test Agent',
-      projectId: 'proj_default',
       systemPrompt: emptyAgentSystemPrompt(),
     });
     const agent = await ctx.daemon.do('launchAgent', {

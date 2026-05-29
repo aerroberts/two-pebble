@@ -10,7 +10,7 @@ import {
   Select,
   Surface,
 } from '@two-pebble/components';
-import { type AutomationIntervalUnit, useAgentRegistries, useCreateAutomation } from '@two-pebble/realtime';
+import { type AutomationIntervalUnit, useCreateAutomation, useProjectAgentRegistries } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { projectPath, useProjectId } from '../../project-context';
@@ -41,7 +41,7 @@ export function AutomationsNewPage() {
   const navigate = useNavigate();
   const projectId = useProjectId();
   const createAutomation = useCreateAutomation();
-  const agentRegistries = useAgentRegistries({ projectId });
+  const agentRegistries = useProjectAgentRegistries(projectId);
   const registryOptions = agentRegistries.values().map((registry) => ({ label: registry.name, value: registry.id }));
   const [name, setName] = useState('');
   const [agentRegistryId, setAgentRegistryId] = useState('');

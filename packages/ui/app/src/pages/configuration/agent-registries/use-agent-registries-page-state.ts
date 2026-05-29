@@ -3,7 +3,6 @@ import {
   useAgentRegistries,
   useCreateAgentRegistry,
   useInferenceProfiles,
-  useProjects,
   useThirdPartyAgentInstalls,
 } from '@two-pebble/realtime';
 import { useState } from 'react';
@@ -17,9 +16,7 @@ const DEFAULT_PEBBLE_CAPABILITIES: { id: string; config: Record<string, never> }
 
 export function useAgentRegistriesPageState() {
   const createAgentRegistry = useCreateAgentRegistry();
-  const projects = useProjects();
-  const projectId = projects.values()[0]?.id ?? '';
-  const agentRegistries = useAgentRegistries(projectId.length === 0 ? undefined : { projectId });
+  const agentRegistries = useAgentRegistries();
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const navigate = useNavigate();
@@ -40,7 +37,6 @@ export function useAgentRegistriesPageState() {
         capabilities: JSON.stringify(DEFAULT_PEBBLE_CAPABILITIES),
         inferenceProfileId: profile.id,
         name: '',
-        projectId,
         systemPrompt: emptyAgentSystemPrompt(),
       });
       navigate(`/configuration/agent-registries/${created.id}`);
@@ -63,7 +59,6 @@ export function useAgentRegistriesPageState() {
     try {
       const created = await createAgentRegistry({
         name: '',
-        projectId,
         systemPrompt: emptyAgentSystemPrompt(),
         thirdPartyAgentInstallId: install.id,
       });
