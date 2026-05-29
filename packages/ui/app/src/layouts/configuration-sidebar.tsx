@@ -66,6 +66,12 @@ export function ConfigurationSidebar() {
           label="Assistant"
           onClick={() => navigate('/configuration/assistant')}
         />
+        <SidebarOption
+          active={location.pathname.startsWith('/configuration/documents')}
+          icon="file-text"
+          label="Documents"
+          onClick={() => navigate('/configuration/documents')}
+        />
       </SidebarSection>
       <SidebarSection title="Appearance">
         <SidebarOption
