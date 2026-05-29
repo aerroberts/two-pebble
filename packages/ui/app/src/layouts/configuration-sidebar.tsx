@@ -72,6 +72,8 @@ export function ConfigurationSidebar() {
           label="Documents"
           onClick={() => navigate('/configuration/documents')}
         />
+      </SidebarSection>
+      <SidebarSection title="Sharing">
         <SidebarOption
           active={location.pathname.startsWith('/configuration/data-sync')}
           icon="refresh-cw"
