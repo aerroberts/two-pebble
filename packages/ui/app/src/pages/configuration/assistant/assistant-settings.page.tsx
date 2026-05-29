@@ -32,7 +32,6 @@ export function AssistantSettingsPage() {
   const assistantAgentRegistryId = project?.assistantAgentRegistryId ?? NONE_VALUE;
   const assistantCommandKVoiceModeEnabled = settings?.assistantCommandKVoiceModeEnabled ?? false;
   const chatConversationFoldingEnabled = settings?.chatConversationFoldingEnabled ?? false;
-  const documentRunnerAgentRegistryId = settings?.documentRunnerAgentRegistryId ?? NONE_VALUE;
 
   const onAssistantAgentChange = (value: string) => {
     if (project === null) {
@@ -79,22 +78,6 @@ export function AssistantSettingsPage() {
     });
   };
 
-  const onDocumentRunnerChange = (value: string) => {
-    if (settings === null) {
-      return;
-    }
-    void updateAppSettings({
-      defaultKnownIdeId: settings.defaultKnownIdeId,
-      defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
-      defaultSpeechProfileId: settings.defaultSpeechProfileId,
-      assistantAgentRegistryId: settings.assistantAgentRegistryId,
-      assistantAgentId: settings.assistantAgentId,
-      assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
-      chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
-      documentRunnerAgentRegistryId: value === NONE_VALUE ? null : value,
-    });
-  };
-
   return (
     <PageLayout width="fixed">
       <Header subtitle="Configure which agent backs the Assistant page and whether the floating launcher (FAB) is enabled.">
@@ -135,23 +118,6 @@ export function AssistantSettingsPage() {
             checked={chatConversationFoldingEnabled}
             label="Fold tool and model traffic by default"
             onChange={(event) => onChatConversationFoldingChange(event.target.checked)}
-          />
-        </Surface>
-      </Section>
-      <Section
-        subtitle="Agent launched by the 'Send to Agent' button on documents. The agent receives a single message containing the document as a reference pill."
-        title="Document runner"
-      >
-        <Surface>
-          <Select
-            fullWidth
-            label="Document runner agent"
-            onChange={onDocumentRunnerChange}
-            options={assistantAgentOptions}
-            placeholder={
-              assistantAgentOptions.length <= 1 ? 'Create an agent in the agent registry first' : 'Select agent'
-            }
-            value={documentRunnerAgentRegistryId}
           />
         </Surface>
       </Section>
