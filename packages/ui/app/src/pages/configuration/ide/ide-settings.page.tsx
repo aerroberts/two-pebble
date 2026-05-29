@@ -66,7 +66,6 @@ export function IdeSettingsPage() {
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
       assistantAgentId: settings.assistantAgentId,
-      assistantCommandKEnabled: settings.assistantCommandKEnabled,
       assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
       chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
       documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,

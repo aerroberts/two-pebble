@@ -7,7 +7,6 @@ type OperationHandlerInput = {
   defaultSpeechProfileId: string | null;
   assistantAgentRegistryId: string | null;
   assistantAgentId: string | null;
-  assistantCommandKEnabled: boolean;
   assistantCommandKVoiceModeEnabled: boolean;
   chatConversationFoldingEnabled: boolean;
   documentRunnerAgentRegistryId: string | null;
@@ -34,7 +33,6 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
           defaultSpeechProfileId: input.defaultSpeechProfileId,
           assistantAgentRegistryId: input.assistantAgentRegistryId,
           assistantAgentId: input.assistantAgentId,
-          assistantCommandKEnabled: input.assistantCommandKEnabled,
           assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
           chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
           documentRunnerAgentRegistryId: input.documentRunnerAgentRegistryId,
@@ -52,7 +50,6 @@ export function appSettingsUpdateOperation(ctx: DatastoreContext) {
         defaultSpeechProfileId: input.defaultSpeechProfileId,
         assistantAgentRegistryId: input.assistantAgentRegistryId,
         assistantAgentId: input.assistantAgentId,
-        assistantCommandKEnabled: input.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: input.assistantCommandKVoiceModeEnabled,
         chatConversationFoldingEnabled: input.chatConversationFoldingEnabled,
         documentRunnerAgentRegistryId: input.documentRunnerAgentRegistryId,

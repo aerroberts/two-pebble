@@ -54,7 +54,6 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
         defaultSpeechProfileId: settings.defaultSpeechProfileId,
         assistantAgentRegistryId: settings.assistantAgentRegistryId,
         assistantAgentId: launched.id,
-        assistantCommandKEnabled: settings.assistantCommandKEnabled,
         assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
         chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
         documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
