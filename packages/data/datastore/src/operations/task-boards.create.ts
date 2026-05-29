@@ -2,7 +2,7 @@ import type { DatastoreContext, TaskBoardRecord } from '../types';
 
 type OperationHandlerInput = {
   name: string;
-  projectId?: string;
+  projectId: string;
 };
 
 /**
@@ -12,7 +12,7 @@ export function taskBoardsCreateOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput) {
     const row = await ctx.database
       .insert(ctx.schema.taskBoardsTable)
-      .values({ name: input.name, projectId: input.projectId ?? 'proj_default' })
+      .values({ name: input.name, projectId: input.projectId })
       .returning()
       .get();
     return row as TaskBoardRecord;

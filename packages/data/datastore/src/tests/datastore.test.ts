@@ -31,7 +31,12 @@ describe('feature: operation datastore.migrate self-heal', () => {
 describe('feature: operation datastore.status', () => {
   test('happy: reads aggregate datastore counts', async () => {
     const datastore = await useDatastoreForTesting();
-    await datastore.agent.create({ description: 'Status test agent', name: 'Status Agent', workspaceId: 'legacy' });
+    await datastore.agent.create({
+      description: 'Status test agent',
+      name: 'Status Agent',
+      projectId: 'proj_default',
+      workspaceId: 'legacy',
+    });
     await datastore.integrations.create({
       data: { apiKey: 'sk-status' },
       name: 'OpenAI',

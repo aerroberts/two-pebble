@@ -6,7 +6,7 @@ const EMPTY_DOCUMENT_CONTENT = JSON.stringify(createEmptyTipTapDocument());
 type OperationHandlerInput = {
   content?: string;
   name?: string;
-  projectId?: string;
+  projectId: string;
   references?: string;
   section?: string | null;
 };
@@ -24,7 +24,7 @@ export function documentsCreateOperation(ctx: DatastoreContext) {
       .values({
         content: input.content ?? EMPTY_DOCUMENT_CONTENT,
         name: input.name ?? 'Untitled',
-        projectId: input.projectId ?? 'proj_default',
+        projectId: input.projectId,
         ...(input.references === undefined ? {} : { references: input.references }),
         ...(input.section === undefined ? {} : { section: input.section }),
       })

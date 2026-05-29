@@ -29,7 +29,7 @@ describe('feature: realtime assistant messages', () => {
         documentRunnerAgentRegistryId: null,
       });
 
-      const result = await sendAssistantMessage.current()({ message: 'relaunch me' });
+      const result = await sendAssistantMessage.current()({ message: 'relaunch me', projectId: 'proj_default' });
 
       const settings = await ctx.daemon.do('readAppSettings', {});
       expect(result?.launched).toBe(true);
@@ -61,6 +61,7 @@ describe('feature: realtime assistant messages', () => {
 
       const result = await sendAssistantMessage.current()({
         message: 'send me with cells',
+        projectId: 'proj_default',
         cells: [Cell.text('send me with cells')],
       });
 

@@ -3,6 +3,7 @@ import type { PebbleAgentUserMessageTrace } from '@two-pebble/pebble';
 export interface AgentCreateTestInput {
   description: string;
   name: string;
+  projectId: string;
 }
 
 export interface ModelCallRecordTestInput {

@@ -5,7 +5,12 @@ import { useDatastoreForTesting } from '../testing/datastore-test-env';
 describe('feature: operation agent.list', () => {
   test('happy: lists recorded agents', async () => {
     const datastore = await useDatastoreForTesting();
-    await datastore.agent.create({ description: 'List test agent', name: 'List Agent', workspaceId: 'legacy' });
+    await datastore.agent.create({
+      description: 'List test agent',
+      name: 'List Agent',
+      projectId: 'proj_default',
+      workspaceId: 'legacy',
+    });
     const list = await datastore.agent.list({ limit: 50, offset: 0 });
     await datastore.close();
     expect(list.items).toHaveLength(1);
@@ -18,6 +23,7 @@ describe('feature: operation agent.read', () => {
     const agent = await datastore.agent.create({
       description: 'Read test agent',
       name: 'Read Agent',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     const read = await datastore.agent.read({ id: agent.id });
@@ -42,6 +48,7 @@ describe('feature: operation agent.create', () => {
     const agent = await datastore.agent.create({
       description: 'Create test agent',
       name: 'Create Agent',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     await datastore.close();
@@ -73,6 +80,7 @@ describe('feature: operation agent.complete', () => {
     const agent = await datastore.agent.create({
       description: 'Complete test agent',
       name: 'Complete Agent',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     const completed = await datastore.agent.complete({ id: agent.id });
@@ -87,6 +95,7 @@ describe('feature: operation agent.fail', () => {
     const agent = await datastore.agent.create({
       description: 'Fail test agent',
       name: 'Fail Agent',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     const failed = await datastore.agent.fail({ id: agent.id });
@@ -101,6 +110,7 @@ describe('feature: operation agent.set-status', () => {
     const agent = await datastore.agent.create({
       description: 'set status agent',
       name: 'Set Status',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     const running = await datastore.agent.setStatus({ id: agent.id, status: 'running' });
@@ -113,6 +123,7 @@ describe('feature: operation agent.set-status', () => {
     const agent = await datastore.agent.create({
       description: 'interrupted status agent',
       name: 'Interrupted Status',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     const interrupted = await datastore.agent.setStatus({ id: agent.id, status: 'interrupted' });
@@ -151,6 +162,7 @@ describe('feature: agent registry link', () => {
       agentRegistryId: 'registry-1',
       description: 'registry-linked agent',
       name: 'Registry Agent',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     const read = await datastore.agent.read({ id: agent.id });
@@ -163,6 +175,7 @@ describe('feature: agent registry link', () => {
     const agent = await datastore.agent.create({
       description: 'pre-resume agent',
       name: 'Legacy Agent',
+      projectId: 'proj_default',
       workspaceId: 'legacy',
     });
     const read = await datastore.agent.read({ id: agent.id });

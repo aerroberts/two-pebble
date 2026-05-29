@@ -5,6 +5,7 @@ export interface CreateSubAgentInput {
   id: string;
   name: string;
   parentAgentId: string;
+  projectId: string;
   workspaceId: string;
 }
 
