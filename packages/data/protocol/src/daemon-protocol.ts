@@ -100,6 +100,13 @@ import type { RepositoriesDeletedEvent } from './protocol/repositories.deleted';
 import type { RepositoriesListOperation } from './protocol/repositories.list';
 import type { RepositoriesUpdateOperation } from './protocol/repositories.update';
 import type { RepositoriesUpdatedEvent } from './protocol/repositories.updated';
+import type { CreateSkillOperation } from './protocol/skills.create';
+import type { DeleteSkillOperation } from './protocol/skills.delete';
+import type { SkillDeletedEvent } from './protocol/skills.deleted';
+import type { SkillsListOperation } from './protocol/skills.list';
+import type { ReadSkillOperation } from './protocol/skills.read';
+import type { UpdateSkillOperation } from './protocol/skills.update';
+import type { SkillUpdatedEvent } from './protocol/skills.updated';
 import type { TaskBoardsCreateOperation } from './protocol/task-boards.create';
 import type { TaskBoardsDeleteOperation } from './protocol/task-boards.delete';
 import type { TaskBoardsListOperation } from './protocol/task-boards.list';
@@ -253,6 +260,11 @@ export type DaemonOperations = [
   ReadDocumentOperation,
   UpdateDocumentOperation,
   DeleteDocumentOperation,
+  SkillsListOperation,
+  CreateSkillOperation,
+  ReadSkillOperation,
+  UpdateSkillOperation,
+  DeleteSkillOperation,
   WorktreesListOperation,
   WorktreesCreateOperation,
   WorktreesDeleteOperation,
@@ -328,6 +340,8 @@ export type DaemonEvents = [
   RepositoriesDeletedEvent,
   DocumentUpdatedEvent,
   DocumentDeletedEvent,
+  SkillUpdatedEvent,
+  SkillDeletedEvent,
   WorktreesUpdatedEvent,
   WorkspacesUpdatedEvent,
   AgentRegistriesUpdatedEvent,

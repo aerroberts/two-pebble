@@ -26,7 +26,7 @@ export function isComposerDocEmpty(doc: JSONContent): boolean {
 }
 
 function isNodeEmpty(node: JSONContent): boolean {
-  if (node.type === 'documentMention' || node.type === 'boardMention') {
+  if (node.type === 'documentMention' || node.type === 'boardMention' || node.type === 'skillMention') {
     return false;
   }
   if (node.type === 'text') {

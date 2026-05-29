@@ -61,6 +61,30 @@ export const MIXED_MENTION_DOC: JSONContent = {
   ],
 };
 
+export const SKILL_MENTION_DOC: JSONContent = {
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: 'run ' },
+        { type: 'skillMention', attrs: { skillId: 'skills:1', name: 'log-access' } },
+        { type: 'text', text: ' now' },
+      ],
+    },
+  ],
+};
+
+export const MISSING_ID_SKILL_MENTION_DOC: JSONContent = {
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [{ type: 'skillMention', attrs: { skillId: '', name: 'ghost' } }],
+    },
+  ],
+};
+
 export const CODE_BLOCK_DOC: JSONContent = {
   type: 'doc',
   content: [

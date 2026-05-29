@@ -35,6 +35,7 @@ export type { MetricNameSummary } from './protocol/metrics.list-names';
 export type { MetricVariant } from './protocol/metrics.list-variants';
 export type { MetricAggregateBucket } from './protocol/metrics.query-aggregated';
 export type { ProjectRecord } from './protocol/projects.list';
+export type { SkillRecord } from './protocol/skills.list';
 export type { TaskBoardRecord } from './protocol/task-boards.list';
 export type {
   TaskDeliverablePayload,

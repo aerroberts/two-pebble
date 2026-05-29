@@ -82,6 +82,18 @@ export function replaceTriggerWithReferenceMention(
       .run();
     return;
   }
+  if (selection.type === 'skill') {
+    editor
+      .chain()
+      .focus()
+      .deleteRange({ from: trigger.from, to: trigger.to })
+      .insertContent([
+        { type: 'skillMention', attrs: { skillId: selection.item.id, name: selection.item.name } },
+        { type: 'text', text: ' ' },
+      ])
+      .run();
+    return;
+  }
   editor
     .chain()
     .focus()

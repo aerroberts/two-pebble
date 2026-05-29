@@ -8,7 +8,7 @@ import {
   SidebarSection,
   TwoPebbleLogo,
 } from '@two-pebble/components';
-import { useAgents, useDocuments, useProjects } from '@two-pebble/realtime';
+import { useAgents, useDocuments, useProjects, useSkills } from '@two-pebble/realtime';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { projectPath, useOptionalProject } from '../project-context';
 import type { AppShellProps } from './app-shell-props';
@@ -28,8 +28,10 @@ export function MainAppShell(props: AppShellProps) {
   const projects = useProjects();
   const agents = useAgents(projectId === undefined ? undefined : { projectId });
   const documents = useDocuments(projectId === undefined ? undefined : { projectId });
+  const skills = useSkills(projectId === undefined ? undefined : { projectId });
   const activeAgentCount = agents.values().filter((agent) => !agent.parentAgentId && agent.status === 'running').length;
   const documentCount = documents.values().length;
+  const skillCount = skills.values().length;
   const pathname = projectId === undefined ? location.pathname : stripProjectPrefix(location.pathname, projectId);
   const mode = getSidebarMode(pathname);
   const scopedNavigate = (path: string) => navigate(projectId === undefined ? path : projectPath(projectId, path));
@@ -77,6 +79,7 @@ export function MainAppShell(props: AppShellProps) {
           {renderSidebarContent({
             activeAgentCount,
             documentCount,
+            skillCount,
             globalNavigate: navigate,
             mode,
             navigate: scopedNavigate,
@@ -95,6 +98,7 @@ export function MainAppShell(props: AppShellProps) {
 function renderSidebarContent(input: {
   activeAgentCount: number;
   documentCount: number;
+  skillCount: number;
   globalNavigate: SidebarNavigate;
   mode: SidebarMode;
   navigate: SidebarNavigate;
@@ -102,7 +106,8 @@ function renderSidebarContent(input: {
   projectId?: string;
   projects: ReturnType<typeof useProjects>;
 }) {
-  const { activeAgentCount, documentCount, globalNavigate, mode, navigate, pathname, projectId, projects } = input;
+  const { activeAgentCount, documentCount, skillCount, globalNavigate, mode, navigate, pathname, projectId, projects } =
+    input;
   if (mode === 'configuration') {
     return (
       <>
@@ -166,6 +171,32 @@ function renderSidebarContent(input: {
           onClick={() => navigate('/assistant')}
         />
       </SidebarSection>
+      <SidebarSection title="Knowledge">
+        <SidebarOption
+          active={pathname.startsWith('/documents')}
+          badge={
+            documentCount > 0 ? (
+              <output aria-label={`${documentCount} ${documentCount === 1 ? 'document' : 'documents'}`}>
+                {documentCount}
+              </output>
+            ) : undefined
+          }
+          icon="file-text"
+          label="Documents"
+          onClick={() => navigate('/documents')}
+        />
+        <SidebarOption
+          active={pathname.startsWith('/skills')}
+          badge={
+            skillCount > 0 ? (
+              <output aria-label={`${skillCount} ${skillCount === 1 ? 'skill' : 'skills'}`}>{skillCount}</output>
+            ) : undefined
+          }
+          icon="book-marked"
+          label="Skills"
+          onClick={() => navigate('/skills')}
+        />
+      </SidebarSection>
       <SidebarSection title="System">
         <SidebarOption
           active={pathname.startsWith('/agents') || pathname.startsWith('/threads')}
@@ -185,19 +216,6 @@ function renderSidebarContent(input: {
           icon="list-checks"
           label="Agent Tasks"
           onClick={() => navigate('/tasks')}
-        />
-        <SidebarOption
-          active={pathname.startsWith('/documents')}
-          badge={
-            documentCount > 0 ? (
-              <output aria-label={`${documentCount} ${documentCount === 1 ? 'document' : 'documents'}`}>
-                {documentCount}
-              </output>
-            ) : undefined
-          }
-          icon="file-text"
-          label="Documents"
-          onClick={() => navigate('/documents')}
         />
         <SidebarOption
           active={pathname.startsWith('/automations')}

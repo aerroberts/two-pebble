@@ -7,6 +7,7 @@ import type {
   RichComposerBoard,
   RichComposerDocument,
   RichComposerReference,
+  RichComposerSkill,
   RichComposerTask,
 } from './composer-types';
 
@@ -36,6 +37,7 @@ export interface SlashReferencePopoverProps {
   boards: ReadonlyArray<RichComposerBoard>;
   documents: ReadonlyArray<RichComposerDocument>;
   tasks: ReadonlyArray<RichComposerTask>;
+  skills: ReadonlyArray<RichComposerSkill>;
   onSelect: (reference: RichComposerReference) => void;
   onCancel: () => void;
 }
@@ -56,12 +58,12 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
 
   const filtered = useMemo(
     () =>
-      buildReferences(props.documents, props.boards, props.tasks).filter((reference) =>
+      buildReferences(props.documents, props.boards, props.tasks, props.skills).filter((reference) =>
         props.query.length === 0
           ? true
           : reference.item.name.toLowerCase().includes(props.query) || reference.type.includes(props.query),
       ),
-    [props.query, props.documents, props.boards, props.tasks],
+    [props.query, props.documents, props.boards, props.tasks, props.skills],
   );
   const activeIndex = clamp(rawActiveIndex, 0, Math.max(filtered.length - 1, 0));
 
@@ -142,7 +144,9 @@ export function SlashReferencePopover(props: SlashReferencePopoverProps) {
                       ? 'file-text'
                       : reference.type === 'task'
                         ? 'list-todo'
-                        : 'layout-dashboard'
+                        : reference.type === 'skill'
+                          ? 'book-marked'
+                          : 'layout-dashboard'
                   }
                 />
                 <span className="min-w-0 flex-1 truncate font-medium">{reference.item.name}</span>
@@ -165,6 +169,7 @@ export function SlashDocumentPopover(props: SlashDocumentPopoverProps) {
       anchorTop={props.anchorTop}
       boards={props.boards ?? []}
       documents={props.documents}
+      skills={[]}
       tasks={props.tasks ?? []}
       onCancel={props.onCancel}
       onSelect={(reference) => {
@@ -192,10 +197,12 @@ function buildReferences(
   documents: ReadonlyArray<RichComposerDocument>,
   boards: ReadonlyArray<RichComposerBoard>,
   tasks: ReadonlyArray<RichComposerTask>,
+  skills: ReadonlyArray<RichComposerSkill>,
 ): RichComposerReference[] {
   return [
     ...documents.map((item) => ({ type: 'document' as const, item })),
     ...boards.map((item) => ({ type: 'board' as const, item })),
     ...tasks.map((item) => ({ type: 'task' as const, item })),
+    ...skills.map((item) => ({ type: 'skill' as const, item })),
   ].sort((left, right) => left.item.name.localeCompare(right.item.name));
 }

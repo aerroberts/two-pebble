@@ -76,6 +76,11 @@ import { handler as createRepositoryHandler } from './handlers/repositories.crea
 import { handler as deleteRepositoryHandler } from './handlers/repositories.delete.handler';
 import { handler as listRepositoriesHandler } from './handlers/repositories.list.handler';
 import { handler as updateRepositoryHandler } from './handlers/repositories.update.handler';
+import { handler as createSkillHandler } from './handlers/skills.create.handler';
+import { handler as deleteSkillHandler } from './handlers/skills.delete.handler';
+import { handler as listSkillsHandler } from './handlers/skills.list.handler';
+import { handler as readSkillHandler } from './handlers/skills.read.handler';
+import { handler as updateSkillHandler } from './handlers/skills.update.handler';
 import { handler as createTaskBoardHandler } from './handlers/task-boards.create.handler';
 import { handler as deleteTaskBoardHandler } from './handlers/task-boards.delete.handler';
 import { handler as listTaskBoardsHandler } from './handlers/task-boards.list.handler';
@@ -204,6 +209,11 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('readDocument', readDocumentHandler(context));
   register('updateDocument', updateDocumentHandler(context));
   register('deleteDocument', deleteDocumentHandler(context));
+  register('listSkills', listSkillsHandler(context));
+  register('createSkill', createSkillHandler(context));
+  register('readSkill', readSkillHandler(context));
+  register('updateSkill', updateSkillHandler(context));
+  register('deleteSkill', deleteSkillHandler(context));
   register('listWorktrees', listWorktreesHandler(context));
   register('createWorktree', createWorktreeHandler(context));
   register('deleteWorktree', deleteWorktreeHandler(context));
