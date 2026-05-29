@@ -221,7 +221,7 @@ function CodeBlockNodeView(props: NodeViewProps) {
       </pre>
       {language === 'mermaid' ? (
         <div className="border-t border-border" contentEditable={false}>
-          <MermaidDiagram code={mermaidSource} />
+          <MermaidDiagram code={mermaidSource} framed={false} />
         </div>
       ) : null}
     </NodeViewWrapper>
