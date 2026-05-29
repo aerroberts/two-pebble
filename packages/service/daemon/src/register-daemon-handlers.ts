@@ -68,10 +68,12 @@ import { handler as openWorkspaceInIdeHandler } from './handlers/known-ides.open
 import { handler as createMemoryHandler } from './handlers/memories.create.handler';
 import { handler as deleteMemoryHandler } from './handlers/memories.delete.handler';
 import { handler as listMemoryFilesHandler } from './handlers/memories.files.list.handler';
+import { handler as openMemoryFolderHandler } from './handlers/memories.files.open-folder.handler';
 import { handler as readMemoryFileHandler } from './handlers/memories.files.read.handler';
 import { handler as writeMemoryFileHandler } from './handlers/memories.files.write.handler';
 import { handler as listMemoriesHandler } from './handlers/memories.list.handler';
 import { handler as readMemoryHandler } from './handlers/memories.read.handler';
+import { handler as updateMemoryHandler } from './handlers/memories.update.handler';
 import { handler as listMetricNamesHandler } from './handlers/metrics.list-names.handler';
 import { handler as listMetricVariantsHandler } from './handlers/metrics.list-variants.handler';
 import { handler as queryMetricsAggregatedHandler } from './handlers/metrics.query-aggregated.handler';
@@ -222,7 +224,9 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('listMemories', listMemoriesHandler(context));
   register('createMemory', createMemoryHandler(context));
   register('readMemory', readMemoryHandler(context));
+  register('updateMemory', updateMemoryHandler(context));
   register('deleteMemory', deleteMemoryHandler(context));
+  register('openMemoryFolder', openMemoryFolderHandler(context));
   register('listMemoryFiles', listMemoryFilesHandler(context));
   register('readMemoryFile', readMemoryFileHandler(context));
   register('writeMemoryFile', writeMemoryFileHandler(context));

@@ -1,4 +1,4 @@
-import { AppBox, Button, Header, PageLayout, Surface } from '@two-pebble/components';
+import { AppBox, Header, IconButton, Input, PageLayout, Surface } from '@two-pebble/components';
 import { useMemory, useMemoryMutations, useRealtimeDatastore } from '@two-pebble/realtime';
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
@@ -12,48 +12,31 @@ export function MemoryDetailPage() {
   const mutations = useMemoryMutations();
   const memory = useMemory({ id: memoryId ?? '' });
 
-  const [files, setFiles] = useState<string[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [content, setContent] = useState<string>('');
+  const [draftName, setDraftName] = useState('');
+  const [draftPath, setDraftPath] = useState('');
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const id = memoryId ?? '';
-
-  useEffect(() => {
-    if (id.length === 0) {
-      return;
-    }
-    setError(null);
-    void datastore.memories
-      .listFiles({ memoryId: id })
-      .then((result) => {
-        setFiles(result.files);
-      })
-      .catch((caught: unknown) => {
-        setError(caught instanceof Error ? caught.message : String(caught));
-      });
-  }, [datastore, id]);
-
-  const openFile = useCallback(
-    (file: string) => {
-      setSelected(file);
-      setContent('');
-      void datastore.memories
-        .readFile({ memoryId: id, file })
-        .then((result) => {
-          setContent(result.content);
-        })
-        .catch((caught: unknown) => {
-          setContent(`Failed to read ${file}: ${caught instanceof Error ? caught.message : String(caught)}`);
-        });
-    },
-    [datastore, id],
-  );
+  const record = memory?.value ?? null;
 
   const deleteCollection = useCallback(async () => {
     await mutations.deleteMemory({ id });
     navigate(projectPath(projectId, '/memories'));
   }, [mutations, id, navigate, projectId]);
+
+  const openCollectionFolder = useCallback(async () => {
+    await datastore.memories.openFolder({ memoryId: id });
+  }, [datastore, id]);
+
+  useEffect(() => {
+    if (record === null) {
+      return;
+    }
+    setDraftName(record.name);
+    setDraftPath(record.path);
+    setError(null);
+  }, [record]);
 
   if (memoryId === undefined || memoryId.length === 0) {
     return <Navigate replace to={projectPath(projectId, '/memories')} />;
@@ -77,60 +60,72 @@ export function MemoryDetailPage() {
     );
   }
 
-  const record = memory.value;
+  const loadedRecord = memory.value;
+
+  const saveMetadata = async () => {
+    const nextName = draftName.trim();
+    const nextPath = draftPath.trim();
+    if (nextPath.length === 0) {
+      setError('Folder path is required.');
+      return;
+    }
+    if (nextName === loadedRecord.name && nextPath === loadedRecord.path) {
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await mutations.updateMemory({ id, name: nextName, path: nextPath });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not update memory.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <PageLayout width="fixed">
       <Header
         actionItems={
-          <Button onClick={() => void deleteCollection()} variant="secondary">
-            Delete collection
-          </Button>
+          <div className="flex items-center gap-1">
+            <IconButton
+              aria-label="Open memory folder"
+              icon="folder-open"
+              onClick={() => void openCollectionFolder()}
+              variant="secondary"
+            />
+            <IconButton
+              aria-label="Delete memory"
+              icon="trash"
+              onClick={() => void deleteCollection()}
+              variant="secondary"
+            />
+          </div>
         }
-        subtitle={record.path}
+        subtitle={loadedRecord.path}
       >
-        {record.name.length > 0 ? record.name : 'Untitled'}
+        {loadedRecord.name.length > 0 ? loadedRecord.name : 'Untitled'}
       </Header>
-      {error === null ? (
-        <div className="flex gap-4">
-          <div className="flex w-[220px] shrink-0 flex-col gap-1">
-            {files.length === 0 ? (
-              <AppBox variant="sidebar-empty">No files yet.</AppBox>
-            ) : (
-              files.map((file) => (
-                <button
-                  className={`rounded-sm px-2 py-1 text-left text-[12px] transition-colors ${
-                    file === selected
-                      ? 'bg-surface-hover text-content'
-                      : 'text-content-muted hover:bg-surface-hover hover:text-content'
-                  }`}
-                  key={file}
-                  onClick={() => openFile(file)}
-                  type="button"
-                >
-                  {file}
-                </button>
-              ))
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <Surface>
-              {selected === null ? (
-                <p className="text-sm text-content-muted">Select a file to view its contents.</p>
-              ) : (
-                <pre className="overflow-x-auto whitespace-pre-wrap break-words text-[12px] text-content">
-                  {content}
-                </pre>
-              )}
-            </Surface>
-          </div>
+      <Surface>
+        <div className="grid gap-3">
+          <Input
+            disabled={saving}
+            label="Name"
+            onBlur={() => void saveMetadata()}
+            onChange={(event) => setDraftName(event.target.value)}
+            value={draftName}
+          />
+          <Input
+            disabled={saving}
+            label="Folder path"
+            leadingIcon="folder"
+            onBlur={() => void saveMetadata()}
+            onChange={(event) => setDraftPath(event.target.value)}
+            value={draftPath}
+          />
+          {error !== null ? <p className="text-[12px] leading-4 text-danger">{error}</p> : null}
         </div>
-      ) : (
-        <AppBox variant="sidebar-empty">
-          This collection's folder is unavailable ({error}). The files at {record.path} may have been moved or deleted.
-          Delete the collection and create a new one.
-        </AppBox>
-      )}
+      </Surface>
     </PageLayout>
   );
 }

@@ -63,6 +63,15 @@ describe('feature: operation memories.update', () => {
     expect(updated.name).toBe('New');
     expect(updated.path).toBe('/tmp/z');
   });
+
+  test('happy: updates a memory path', async () => {
+    const datastore = await useDatastoreForTesting();
+    const memory = await datastore.memories.create({ name: 'Notes', path: '/tmp/old' });
+    const updated = await datastore.memories.update({ id: memory.id, path: '/tmp/new' });
+    await datastore.close();
+    expect(updated.name).toBe('Notes');
+    expect(updated.path).toBe('/tmp/new');
+  });
 });
 
 describe('feature: operation memories.delete', () => {
