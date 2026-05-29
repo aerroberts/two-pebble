@@ -19,13 +19,6 @@ export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps)
       <div className="flex justify-end">
         <OpenInIdeButton workspacePath={props.workspacePath} />
       </div>
-      <AgentInput
-        ariaLabel="Follow-up message"
-        disabled={props.chatSending}
-        draftStorageKey={`composer:agent-detail:${props.agentId}`}
-        onSubmit={(payload) => props.onChatSubmit(payload)}
-        placeholder="Send a follow-up — Enter to send, / for documents"
-      />
       {queuedMessages.length > 0 ? (
         <div className="flex flex-col gap-1.5">
           {queuedMessages.map((message) => (
@@ -56,6 +49,13 @@ export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps)
           ))}
         </div>
       ) : null}
+      <AgentInput
+        ariaLabel="Follow-up message"
+        disabled={props.chatSending}
+        draftStorageKey={`composer:agent-detail:${props.agentId}`}
+        onSubmit={(payload) => props.onChatSubmit(payload)}
+        placeholder="Send a follow-up — Enter to send, / for documents"
+      />
     </div>
   );
 }
