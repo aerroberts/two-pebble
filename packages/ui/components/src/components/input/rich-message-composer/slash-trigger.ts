@@ -82,6 +82,18 @@ export function replaceTriggerWithReferenceMention(
       .run();
     return;
   }
+  if (selection.type === 'memory') {
+    editor
+      .chain()
+      .focus()
+      .deleteRange({ from: trigger.from, to: trigger.to })
+      .insertContent([
+        { type: 'memoryMention', attrs: { memoryId: selection.item.id, name: selection.item.name } },
+        { type: 'text', text: ' ' },
+      ])
+      .run();
+    return;
+  }
   if (selection.type === 'skill') {
     editor
       .chain()

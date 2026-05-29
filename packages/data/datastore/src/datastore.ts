@@ -76,6 +76,11 @@ import { knownIdesCreateOperation } from './operations/known-ides.create';
 import { knownIdesDeleteOperation } from './operations/known-ides.delete';
 import { knownIdesListOperation } from './operations/known-ides.list';
 import { knownIdesReadOperation } from './operations/known-ides.read';
+import { memoriesCreateOperation } from './operations/memories.create';
+import { memoriesDeleteOperation } from './operations/memories.delete';
+import { memoriesListOperation } from './operations/memories.list';
+import { memoriesReadOperation } from './operations/memories.read';
+import { memoriesUpdateOperation } from './operations/memories.update';
 import { metricsListNamesOperation } from './operations/metrics.list-names';
 import { metricsListVariantsOperation } from './operations/metrics.list-variants';
 import { metricsQueryAggregatedOperation } from './operations/metrics.query-aggregated';
@@ -416,6 +421,22 @@ export class Datastore {
       list: bind(documentsListOperation, 'documents.list'),
       read: bind(documentsReadOperation, 'documents.read'),
       update: bind(documentsUpdateOperation, 'documents.update'),
+    };
+  }
+
+  /**
+   * Returns memory collection persistence handlers.
+   * The row is a pointer to a folder of markdown files on disk; all
+   * filesystem operations live in the daemon, not in the datastore.
+   */
+  public get memories() {
+    const bind = this.operationBinder();
+    return {
+      create: bind(memoriesCreateOperation, 'memories.create'),
+      delete: bind(memoriesDeleteOperation, 'memories.delete'),
+      list: bind(memoriesListOperation, 'memories.list'),
+      read: bind(memoriesReadOperation, 'memories.read'),
+      update: bind(memoriesUpdateOperation, 'memories.update'),
     };
   }
 

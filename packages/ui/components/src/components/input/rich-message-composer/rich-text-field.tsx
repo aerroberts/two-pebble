@@ -10,6 +10,7 @@ import { emptyComposerDoc } from './composer-doc';
 import type {
   RichComposerBoard,
   RichComposerDocument,
+  RichComposerMemory,
   RichComposerReference,
   RichComposerSkill,
   RichComposerSlashTrigger,
@@ -17,6 +18,7 @@ import type {
   RichComposerTask,
 } from './composer-types';
 import { DocumentMentionNode } from './document-mention-node';
+import { MemoryMentionNode } from './memory-mention-node';
 import { SkillMentionNode } from './skill-mention-node';
 import { SlashReferencePopover } from './slash-document-popover';
 import { readActiveSlashTrigger, replaceTriggerWithReferenceMention } from './slash-trigger';
@@ -33,6 +35,8 @@ export interface RichTextFieldProps {
   boards?: ReadonlyArray<RichComposerBoard>;
   /** Tasks available to the slash command. */
   tasks?: ReadonlyArray<RichComposerTask>;
+  /** Memory collections available to the slash command. */
+  memories?: ReadonlyArray<RichComposerMemory>;
   /** Skills available to the `/skill` slash command. */
   skills?: ReadonlyArray<RichComposerSkill>;
   /** Fires on blur with the current markdown + structured cells. */
@@ -82,6 +86,7 @@ export function RichTextField(props: RichTextFieldProps) {
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing — / to insert a document' }),
       BoardMentionNode,
       DocumentMentionNode,
+      MemoryMentionNode,
       TaskMentionNode,
       SkillMentionNode,
     ],
@@ -170,6 +175,7 @@ export function RichTextField(props: RichTextFieldProps) {
         documents={props.documents}
         skills={props.skills ?? []}
         tasks={props.tasks ?? []}
+        memories={props.memories ?? []}
         onCancel={handleSlashCancel}
         onSelect={handleReferenceSelected}
         open={slashTrigger !== null}

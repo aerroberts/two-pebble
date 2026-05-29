@@ -16,6 +16,11 @@ export interface RichComposerTask {
   name: string;
 }
 
+export interface RichComposerMemory {
+  id: string;
+  name: string;
+}
+
 export interface RichComposerSkill {
   id: string;
   name: string;
@@ -33,6 +38,10 @@ export type RichComposerReference =
   | {
       type: 'task';
       item: RichComposerTask;
+    }
+  | {
+      type: 'memory';
+      item: RichComposerMemory;
     }
   | {
       type: 'skill';

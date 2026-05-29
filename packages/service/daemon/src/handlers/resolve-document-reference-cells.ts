@@ -3,6 +3,7 @@ import { type DocumentTodo, extractTodos, type TipTapDocument } from '@two-pebbl
 import type { Logger } from '@two-pebble/logger';
 import { Cell, type CellContent } from '@two-pebble/pebble';
 import { listSkillFolder } from '../skills/skill-folder';
+import { gatherMemoryNavigation } from '../utils/memories/gather-memory-navigation';
 
 export interface ResolveDocumentReferenceCellsInput {
   cells: CellContent[];
@@ -90,6 +91,29 @@ export async function resolveReferenceCells(input: ResolveDocumentReferenceCells
           error: message,
         });
         resolved.push(Cell.text(`[board ${cell.content.name} (id: ${cell.content.boardId}) is unavailable]`));
+      }
+      continue;
+    }
+    if (cell.type === 'memoryReference') {
+      try {
+        const row = await input.datastore.memories.read({ id: cell.content.memoryId });
+        const navigation = await gatherMemoryNavigation(row.path);
+        resolved.push(
+          Cell.memoryReference({
+            memoryId: row.id,
+            name: row.name,
+            unavailable: navigation.unavailable,
+            files: navigation.files,
+            ...(navigation.index === undefined ? {} : { index: navigation.index }),
+          }),
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        input.logger.warn('memory reference resolution failed', {
+          memoryId: cell.content.memoryId,
+          error: message,
+        });
+        resolved.push(Cell.text(`[memory ${cell.content.name} (id: ${cell.content.memoryId}) is unavailable]`));
       }
       continue;
     }

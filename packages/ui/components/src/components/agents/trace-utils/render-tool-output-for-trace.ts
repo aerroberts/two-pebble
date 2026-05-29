@@ -88,6 +88,8 @@ function renderToolCellText(cell: CellContent) {
       return JSON.stringify(cell.content.value, null, 2);
     case 'documentReference':
       return `[document: ${cell.content.name}]\n\n${cell.content.contentSnapshot}`;
+    case 'memoryReference':
+      return `[memory: ${cell.content.name}]`;
     case 'header1':
       return `# ${cell.content.text}`;
     case 'header2':

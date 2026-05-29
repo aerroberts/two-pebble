@@ -24,6 +24,8 @@ function renderCellForTrace(cell: CellContent): unknown {
       return `\`\`\`json\n${JSON.stringify(cell.content.value, null, 2)}\n\`\`\``;
     case 'documentReference':
       return `[document: @${cell.content.name}]`;
+    case 'memoryReference':
+      return `[memory: @${cell.content.name}]`;
     case 'header1':
       return `# ${cell.content.text}`;
     case 'header2':

@@ -87,6 +87,15 @@ import type { DetectIdesOperation } from './protocol/known-ides.detect';
 import type { ListKnownIdesOperation } from './protocol/known-ides.list';
 import type { OpenWorkspaceInIdeOperation } from './protocol/known-ides.open-workspace';
 import type { KnownIdeUpdatedEvent } from './protocol/known-ides.updated';
+import type { CreateMemoryOperation } from './protocol/memories.create';
+import type { DeleteMemoryOperation } from './protocol/memories.delete';
+import type { MemoryDeletedEvent } from './protocol/memories.deleted';
+import type { MemoryFilesListOperation } from './protocol/memories.files.list';
+import type { MemoryFilesReadOperation } from './protocol/memories.files.read';
+import type { MemoryFilesWriteOperation } from './protocol/memories.files.write';
+import type { MemoriesListOperation } from './protocol/memories.list';
+import type { ReadMemoryOperation } from './protocol/memories.read';
+import type { MemoryUpdatedEvent } from './protocol/memories.updated';
 import type { MetricsListNamesOperation } from './protocol/metrics.list-names';
 import type { MetricsListVariantsOperation } from './protocol/metrics.list-variants';
 import type { MetricsQueryAggregatedOperation } from './protocol/metrics.query-aggregated';
@@ -260,6 +269,13 @@ export type DaemonOperations = [
   ReadDocumentOperation,
   UpdateDocumentOperation,
   DeleteDocumentOperation,
+  MemoriesListOperation,
+  CreateMemoryOperation,
+  ReadMemoryOperation,
+  DeleteMemoryOperation,
+  MemoryFilesListOperation,
+  MemoryFilesReadOperation,
+  MemoryFilesWriteOperation,
   SkillsListOperation,
   CreateSkillOperation,
   ReadSkillOperation,
@@ -340,6 +356,8 @@ export type DaemonEvents = [
   RepositoriesDeletedEvent,
   DocumentUpdatedEvent,
   DocumentDeletedEvent,
+  MemoryUpdatedEvent,
+  MemoryDeletedEvent,
   SkillUpdatedEvent,
   SkillDeletedEvent,
   WorktreesUpdatedEvent,

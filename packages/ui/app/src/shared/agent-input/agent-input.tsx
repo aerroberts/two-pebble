@@ -3,12 +3,13 @@
 import {
   type RichComposerBoard,
   type RichComposerDocument,
+  type RichComposerMemory,
   type RichComposerSkill,
   type RichComposerSubmitPayload,
   RichMessageComposer,
   type RichMessageComposerVoiceHandlers,
 } from '@two-pebble/components';
-import { useDocuments, useSkills, useTaskBoards } from '@two-pebble/realtime';
+import { useDocuments, useMemories, useSkills, useTaskBoards } from '@two-pebble/realtime';
 import { useMemo } from 'react';
 import { useOptionalProject } from '../../project-context';
 import { VoiceCaptureButton } from '../voice/voice-capture-button';
@@ -41,6 +42,7 @@ export function AgentInput(props: AgentInputProps) {
   const projectId = useOptionalProject()?.projectId;
   const documents = useDocuments(projectId === undefined ? undefined : { projectId });
   const taskBoards = useTaskBoards(projectId === undefined ? undefined : { projectId });
+  const memories = useMemories(projectId === undefined ? undefined : { projectId });
   const skills = useSkills(projectId === undefined ? undefined : { projectId });
   const documentItems = useMemo<RichComposerDocument[]>(() => {
     const value = documents.value;
@@ -70,6 +72,20 @@ export function AgentInput(props: AgentInputProps) {
     rows.sort((a, b) => a.name.localeCompare(b.name));
     return rows;
   }, [taskBoards.value]);
+  const memoryItems = useMemo<RichComposerMemory[]>(() => {
+    const value = memories.value;
+    if (value === null) {
+      return [];
+    }
+    const rows: RichComposerMemory[] = [];
+    for (const entry of value.values()) {
+      if (entry.value !== null) {
+        rows.push({ id: entry.value.id, name: entry.value.name });
+      }
+    }
+    rows.sort((a, b) => a.name.localeCompare(b.name));
+    return rows;
+  }, [memories.value]);
   const skillItems = useMemo<RichComposerSkill[]>(() => {
     const value = skills.value;
     if (value === null) {
@@ -105,6 +121,7 @@ export function AgentInput(props: AgentInputProps) {
       boards={boardItems}
       disabled={props.disabled}
       documents={documentItems}
+      memories={memoryItems}
       draftStorageKey={props.draftStorageKey}
       initialMode={props.initialMode}
       maxHeight={props.maxHeight}

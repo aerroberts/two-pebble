@@ -13,6 +13,7 @@ export { heartbeatsTable } from './heartbeats.table';
 export { inferenceProfilesTable } from './inference-profiles.table';
 export { integrationsTable } from './integrations.table';
 export { knownIdesTable } from './known-ides.table';
+export { memoriesTable } from './memories.table';
 export { metricsTable } from './metrics.table';
 export { projectsTable } from './projects.table';
 export { repositoriesTable } from './repositories.table';

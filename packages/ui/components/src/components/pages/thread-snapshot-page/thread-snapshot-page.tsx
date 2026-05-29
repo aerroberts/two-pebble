@@ -235,6 +235,8 @@ function serializeCellContent(content: CellContent) {
       return `[board: ${content.content.name} (id: ${content.content.boardId})]`;
     case 'documentReference':
       return `[document: ${content.content.name} (id: ${content.content.documentId})]\n\n${content.content.contentSnapshot}`;
+    case 'memoryReference':
+      return `[memory: ${content.content.name} (memoryId: ${content.content.memoryId})]`;
     case 'header1':
       return `# ${content.content.text}`;
     case 'header2':

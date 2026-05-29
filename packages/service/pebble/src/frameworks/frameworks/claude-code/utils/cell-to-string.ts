@@ -19,6 +19,8 @@ export function cellToString(cell: CellContent): string {
       return `[board: ${cell.content.name} (id: ${cell.content.boardId})]`;
     case 'documentReference':
       return `[document: ${cell.content.name} (id: ${cell.content.documentId})]\n${cell.content.contentSnapshot}`;
+    case 'memoryReference':
+      return `[memory: ${cell.content.name} (memoryId: ${cell.content.memoryId})]`;
     case 'image':
       return '';
     case 'skillReference':
