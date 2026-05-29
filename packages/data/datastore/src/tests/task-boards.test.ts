@@ -104,6 +104,16 @@ describe('feature: operation task-pools.set-parent', () => {
   });
 });
 
+describe('feature: operation task-pools.set-template', () => {
+  test('happy: setTemplate assigns a template to a pool', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { childPoolId } = await seedBoardWithTwoPools(datastore);
+    const pool = await datastore.taskBoards.pools.setTemplate({ id: childPoolId, defaultTemplateId: 'tmpl-1' });
+    await datastore.close();
+    expect(pool.defaultTemplateId).toBe('tmpl-1');
+  });
+});
+
 describe('feature: operation tasks.create', () => {
   test('happy: task persists with status and pool', async () => {
     const datastore = await useDatastoreForTesting();

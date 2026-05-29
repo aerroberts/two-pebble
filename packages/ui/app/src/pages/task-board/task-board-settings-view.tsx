@@ -1,4 +1,4 @@
-import { AppBox, Button, ListLayout, type ListLayoutItem, Section, Select, Surface } from '@two-pebble/components';
+import { AppBox, Button, Icon, ListLayout, Section, Select, Surface } from '@two-pebble/components';
 import type { TaskPoolRecord } from '@two-pebble/realtime';
 
 const NONE_VALUE = '__none__';
@@ -6,6 +6,7 @@ const NONE_VALUE = '__none__';
 interface TaskBoardSettingsViewProps {
   pools: TaskPoolRecord[];
   onDeletePool: (poolId: string) => void;
+  onSetPoolTemplate: (poolId: string, templateId: string | null) => void;
   onDeleteBoard: () => void;
   templates: Array<{ id: string; name: string; prompt: string }>;
   onCreateTemplate: (input: { name: string; prompt?: string }) => void;
@@ -16,7 +17,7 @@ interface TaskBoardSettingsViewProps {
 }
 
 export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
-  const boardTemplateOptions = [
+  const templateOptions = [
     { label: 'None', value: NONE_VALUE },
     ...props.templates.map((template) => ({ label: template.name, value: template.id })),
   ];
@@ -46,24 +47,50 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
       <Section
         compact
         title="Board template"
-        subtitle="The template assigned to this board. Applied to new tasks unless a task picks its own template."
+        subtitle="The template assigned to this board. Applied to new tasks unless a group or task picks its own template."
       >
         <Surface>
           <Select
             fullWidth
             label="Board template"
             onChange={(value) => props.onBoardTemplateChange(value === NONE_VALUE ? null : value)}
-            options={boardTemplateOptions}
+            options={templateOptions}
             placeholder={props.templates.length === 0 ? 'Create a template first' : 'Select template'}
             value={props.boardTemplateId ?? NONE_VALUE}
           />
         </Surface>
       </Section>
-      <Section compact title="Groups">
-        <ListLayout
-          emptyState="No groups yet."
-          items={props.pools.map((pool) => toPoolItem({ pool, onDelete: props.onDeletePool }))}
-        />
+      <Section compact title="Groups" subtitle="Assign a template per group. Tasks added to a group use its template.">
+        <Surface>
+          {props.pools.length === 0 ? (
+            <p className="text-[12px] leading-4 text-content-muted">No groups yet.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {props.pools.map((pool) => (
+                <div
+                  key={pool.id}
+                  className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-border px-3 py-2"
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Icon name="folder" color="text-content-muted" />
+                    <span className="truncate text-[13px] font-medium leading-5 text-content">{pool.name}</span>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Select
+                      onChange={(value) => props.onSetPoolTemplate(pool.id, value === NONE_VALUE ? null : value)}
+                      options={templateOptions}
+                      placeholder={props.templates.length === 0 ? 'No templates' : 'Board template'}
+                      value={pool.defaultTemplateId ?? NONE_VALUE}
+                    />
+                    <Button leftIcon="trash" onClick={() => props.onDeletePool(pool.id)}>
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Surface>
       </Section>
       <Section compact title="Danger zone">
         <Surface>
@@ -80,22 +107,4 @@ export function TaskBoardSettingsView(props: TaskBoardSettingsViewProps) {
       </Section>
     </>
   );
-}
-
-interface PoolItemInput {
-  pool: TaskPoolRecord;
-  onDelete: (poolId: string) => void;
-}
-
-function toPoolItem(input: PoolItemInput): ListLayoutItem {
-  return {
-    key: input.pool.id,
-    icon: 'folder',
-    title: input.pool.name,
-    trailingAccessory: (
-      <Button leftIcon="trash" onClick={() => input.onDelete(input.pool.id)}>
-        Delete
-      </Button>
-    ),
-  };
 }

@@ -159,6 +159,10 @@ export function useTaskBoardPageState() {
         }
         await mutations.updateBoard({ id: board.id, name: board.name, defaultTemplateId: templateId });
       }),
+    setPoolTemplate: (poolId: string, templateId: string | null) =>
+      handle(async () => {
+        await mutations.setPoolTemplate({ id: poolId, defaultTemplateId: templateId });
+      }),
     saveTaskName: () =>
       handle(async () => {
         if (selectedTask === null) {

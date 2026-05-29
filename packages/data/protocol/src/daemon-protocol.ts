@@ -118,6 +118,7 @@ import type { TaskEventRecordedEvent } from './protocol/task-events.recorded';
 import type { TaskPoolsCreateOperation } from './protocol/task-pools.create';
 import type { TaskPoolsDeleteOperation } from './protocol/task-pools.delete';
 import type { TaskPoolsListOperation } from './protocol/task-pools.list';
+import type { TaskPoolsSetTemplateOperation } from './protocol/task-pools.set-template';
 import type { TaskPoolDeletedEvent, TaskPoolUpdatedEvent } from './protocol/task-pools.updated';
 import type { TaskTemplateDeliverablesCreateOperation } from './protocol/task-template-deliverables.create';
 import type { TaskTemplateDeliverablesDeleteOperation } from './protocol/task-template-deliverables.delete';
@@ -260,6 +261,7 @@ export type DaemonOperations = [
   TaskPoolsListOperation,
   TaskPoolsCreateOperation,
   TaskPoolsDeleteOperation,
+  TaskPoolsSetTemplateOperation,
   TasksListOperation,
   TasksCreateOperation,
   TasksRenameOperation,
