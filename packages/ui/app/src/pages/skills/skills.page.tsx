@@ -63,7 +63,6 @@ export function SkillsPage() {
           skills={skillList}
         />
       }
-      sidebarWidth="wide"
     >
       <PageLayout width="full">
         <Header
@@ -114,14 +113,7 @@ function SkillsSidebar(props: {
   skills: SkillRecord[];
 }) {
   return (
-    <Sidebar
-      footer={
-        <Button className="w-full" leftIcon="plus" onClick={props.onNewSkill} variant="primary">
-          New skill
-        </Button>
-      }
-      tone="auxiliary"
-    >
+    <Sidebar footer={<SidebarOption icon="plus" label="New skill" onClick={props.onNewSkill} />}>
       <SidebarSection title="Skills">
         {props.skills.length === 0 ? (
           <AppBox variant="sidebar-empty">{props.loading ? 'Loading skills.' : 'No skills yet.'}</AppBox>
