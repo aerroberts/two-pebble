@@ -28,7 +28,7 @@ export function SidebarSection(props: SidebarSectionProps) {
   const headerContent = (
     <>
       {chevronNode}
-      <span className="truncate">{title}</span>
+      <span className="truncate capitalize">{title}</span>
     </>
   );
 
