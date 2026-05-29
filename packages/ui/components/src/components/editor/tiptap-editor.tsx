@@ -20,6 +20,7 @@ export interface TipTapEditorProps {
   placeholder?: string;
   editable?: boolean;
   onBlur?: (content: JSONContent) => void;
+  onUpdate?: (content: JSONContent) => void;
   /**
    * Receives the live editor instance once it's mounted so callers can
    * attach surface-specific behaviours (toolbar commands, programmatic
@@ -95,6 +96,7 @@ export function TipTapEditor(props: TipTapEditorProps) {
     onBlur: ({ editor: currentEditor }) => propsRef.current.onBlur?.(currentEditor.getJSON()),
     onUpdate: ({ editor: currentEditor }) => {
       propsRef.current.onSlashTrigger?.(readActiveSlashTrigger(currentEditor));
+      propsRef.current.onUpdate?.(currentEditor.getJSON());
     },
     onSelectionUpdate: ({ editor: currentEditor }) => {
       propsRef.current.onSlashTrigger?.(readActiveSlashTrigger(currentEditor));

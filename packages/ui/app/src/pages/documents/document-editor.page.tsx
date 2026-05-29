@@ -1,4 +1,5 @@
 import type { Editor } from '@tiptap/core';
+import type { JSONContent } from '@two-pebble/components';
 import {
   AutocompleteInput,
   type AutocompleteSuggestion,
@@ -40,6 +41,10 @@ export function DocumentEditorPage() {
   const [editor, setEditor] = useState<Editor | null>(null);
   const [slashTrigger, setSlashTrigger] = useState<SlashTrigger | null>(null);
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
+  const latestUnsavedContentRef = useRef<JSONContent | null>(null);
+  const autosaveInFlightRef = useRef(false);
+  const autosaveDocumentIdRef = useRef(state.documentId);
+  const saveContentRef = useRef(state.saveContent);
   const documents = useDocuments({ projectId });
   const boards = useTaskBoards({ projectId });
   const appSettings = useAppSettings();
@@ -47,6 +52,37 @@ export function DocumentEditorPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const documentRunnerRegistryId = appSettings.value?.documentRunnerAgentRegistryId ?? null;
+
+  useEffect(() => {
+    saveContentRef.current = state.saveContent;
+  }, [state.saveContent]);
+
+  useEffect(() => {
+    if (autosaveDocumentIdRef.current === state.documentId) {
+      return;
+    }
+    autosaveDocumentIdRef.current = state.documentId;
+    latestUnsavedContentRef.current = null;
+    autosaveInFlightRef.current = false;
+  }, [state.documentId]);
+
+  useEffect(() => {
+    if (state.document === null) {
+      return undefined;
+    }
+    const intervalId = window.setInterval(() => {
+      if (autosaveInFlightRef.current || latestUnsavedContentRef.current === null) {
+        return;
+      }
+      const content = latestUnsavedContentRef.current;
+      latestUnsavedContentRef.current = null;
+      autosaveInFlightRef.current = true;
+      void saveContentRef.current(content).finally(() => {
+        autosaveInFlightRef.current = false;
+      });
+    }, 2000);
+    return () => window.clearInterval(intervalId);
+  }, [state.document]);
 
   const documentItems = useMemo<ReferenceItem[]>(() => {
     const value = documents.value;
@@ -361,6 +397,9 @@ export function DocumentEditorPage() {
             onBlur={(content) => void state.saveContent(content)}
             onEditorReady={setEditor}
             onSlashTrigger={setSlashTrigger}
+            onUpdate={(content) => {
+              latestUnsavedContentRef.current = content;
+            }}
           />
           <CommentPopover
             anchorElement={activeCell?.anchor ?? null}
