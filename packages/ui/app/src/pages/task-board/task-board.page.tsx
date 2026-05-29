@@ -224,8 +224,8 @@ export function TaskBoardPage() {
             onCreateTemplate={(input) => void state.createTaskTemplate(input)}
             onSelectTemplate={selectTemplate}
             selectedTemplateId={selectedTemplateId}
-            defaultTemplateId={state.board?.defaultTemplateId ?? null}
-            onDefaultTemplateChange={(templateId) => void state.setBoardDefaultTemplate(templateId)}
+            boardTemplateId={state.board?.defaultTemplateId ?? null}
+            onBoardTemplateChange={(templateId) => void state.setBoardTemplate(templateId)}
           />
         )}
       </WorkbenchPageLayout>
