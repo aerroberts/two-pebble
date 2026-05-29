@@ -81,7 +81,9 @@ import { handler as updateTaskBoardHandler } from './handlers/task-boards.update
 import { handler as listTaskDeliverableSubmissionsHandler } from './handlers/task-deliverable-submissions.list.handler';
 import { handler as submitTaskDeliverableHandler } from './handlers/task-deliverable-submissions.submit.handler';
 import { handler as createTaskDeliverableHandler } from './handlers/task-deliverables.create.handler';
+import { handler as deleteTaskDeliverableHandler } from './handlers/task-deliverables.delete.handler';
 import { handler as listTaskDeliverablesHandler } from './handlers/task-deliverables.list.handler';
+import { handler as updateTaskDeliverableHandler } from './handlers/task-deliverables.update.handler';
 import { handler as createTaskDependencyHandler } from './handlers/task-dependencies.create.handler';
 import { handler as deleteTaskDependencyHandler } from './handlers/task-dependencies.delete.handler';
 import { handler as listTaskDependenciesHandler } from './handlers/task-dependencies.list.handler';
@@ -254,6 +256,8 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('deleteTaskTemplateDeliverable', deleteTaskTemplateDeliverableHandler(context));
   register('listTaskDeliverables', listTaskDeliverablesHandler(context));
   register('createTaskDeliverable', createTaskDeliverableHandler(context));
+  register('updateTaskDeliverable', updateTaskDeliverableHandler(context));
+  register('deleteTaskDeliverable', deleteTaskDeliverableHandler(context));
   register('listTaskDeliverableSubmissions', listTaskDeliverableSubmissionsHandler(context));
   register('submitTaskDeliverable', submitTaskDeliverableHandler(context));
   register('listTrackedPrs', listTrackedPrsHandler(context));

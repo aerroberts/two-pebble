@@ -107,7 +107,9 @@ import type { TaskDeliverableSubmissionsListOperation } from './protocol/task-de
 import type { TaskDeliverableSubmissionRecordedEvent } from './protocol/task-deliverable-submissions.recorded';
 import type { TaskDeliverableSubmissionsSubmitOperation } from './protocol/task-deliverable-submissions.submit';
 import type { TaskDeliverablesCreateOperation } from './protocol/task-deliverables.create';
+import type { TaskDeliverableDeletedEvent, TaskDeliverablesDeleteOperation } from './protocol/task-deliverables.delete';
 import type { TaskDeliverablesListOperation } from './protocol/task-deliverables.list';
+import type { TaskDeliverablesUpdateOperation } from './protocol/task-deliverables.update';
 import type { TaskDeliverableUpdatedEvent } from './protocol/task-deliverables.updated';
 import type { TaskDependenciesCreateOperation } from './protocol/task-dependencies.create';
 import type { TaskDependenciesDeleteOperation } from './protocol/task-dependencies.delete';
@@ -285,6 +287,8 @@ export type DaemonOperations = [
   TaskTemplateDeliverablesDeleteOperation,
   TaskDeliverablesListOperation,
   TaskDeliverablesCreateOperation,
+  TaskDeliverablesUpdateOperation,
+  TaskDeliverablesDeleteOperation,
   TaskDeliverableSubmissionsListOperation,
   TaskDeliverableSubmissionsSubmitOperation,
   TrackedPrsListOperation,
@@ -337,6 +341,7 @@ export type DaemonEvents = [
   TaskTemplateDeliverableUpdatedEvent,
   TaskTemplateDeliverableDeletedEvent,
   TaskDeliverableUpdatedEvent,
+  TaskDeliverableDeletedEvent,
   TaskDeliverableSubmissionRecordedEvent,
   TrackedPrRecordedEvent,
   AutomationUpdatedEvent,

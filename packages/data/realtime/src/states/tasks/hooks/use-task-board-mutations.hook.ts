@@ -9,6 +9,7 @@ import type {
   CreateTaskPoolInput,
   DelegateTaskInput,
   DeleteTaskBoardInput,
+  DeleteTaskDeliverableInput,
   DeleteTaskDependencyInput,
   DeleteTaskInput,
   DeleteTaskPoolInput,
@@ -17,6 +18,7 @@ import type {
   SetTaskStatusInput,
   UndelegateTaskInput,
   UpdateTaskBoardInput,
+  UpdateTaskDeliverableInput,
   UpdateTaskDescriptionInput,
 } from '../types';
 
@@ -44,5 +46,7 @@ export function useTaskBoardMutations() {
     createDependency: (input: CreateTaskDependencyInput) => datastore.taskDependencies.create(input),
     deleteDependency: (input: DeleteTaskDependencyInput) => datastore.taskDependencies.delete(input),
     createTaskDeliverable: (input: CreateTaskDeliverableInput) => datastore.taskDeliverables.create(input),
+    updateTaskDeliverable: (input: UpdateTaskDeliverableInput) => datastore.taskDeliverables.update(input),
+    deleteTaskDeliverable: (input: DeleteTaskDeliverableInput) => datastore.taskDeliverables.delete(input),
   };
 }

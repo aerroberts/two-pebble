@@ -334,6 +334,20 @@ export function useTaskBoardPageState() {
       handle(async () => {
         await mutations.createTaskDeliverable(input);
       }),
+    updateTaskDeliverable: (input: {
+      id: string;
+      name?: string;
+      description?: string;
+      type?: 'text' | 'pr_url';
+      orderIndex?: number;
+    }) =>
+      handle(async () => {
+        await mutations.updateTaskDeliverable(input);
+      }),
+    deleteTaskDeliverable: (id: string) =>
+      handle(async () => {
+        await mutations.deleteTaskDeliverable({ id });
+      }),
   };
 }
 

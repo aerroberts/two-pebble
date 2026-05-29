@@ -79,7 +79,9 @@ import { listTaskBoardsOperation } from './operations/task-boards.list.operation
 import { updateTaskBoardOperation } from './operations/task-boards.update.operation';
 import { listTaskDeliverableSubmissionsOperation } from './operations/task-deliverable-submissions.list.operation';
 import { createTaskDeliverableOperation } from './operations/task-deliverables.create.operation';
+import { deleteTaskDeliverableOperation } from './operations/task-deliverables.delete.operation';
 import { listTaskDeliverablesOperation } from './operations/task-deliverables.list.operation';
+import { updateTaskDeliverableOperation } from './operations/task-deliverables.update.operation';
 import { createTaskDependencyOperation } from './operations/task-dependencies.create.operation';
 import { deleteTaskDependencyOperation } from './operations/task-dependencies.delete.operation';
 import { listTaskDependenciesOperation } from './operations/task-dependencies.list.operation';
@@ -417,7 +419,9 @@ export class RealtimeDatastore {
   public get taskDeliverables() {
     return {
       create: createTaskDeliverableOperation({ datastore: this }),
+      delete: deleteTaskDeliverableOperation({ datastore: this }),
       list: listTaskDeliverablesOperation({ datastore: this }),
+      update: updateTaskDeliverableOperation({ datastore: this }),
     };
   }
 

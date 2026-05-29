@@ -1,7 +1,9 @@
 import {
   AppBox,
   Button,
+  Icon,
   IconButton,
+  Input,
   type JSONContent,
   type RichComposerSubmitPayload,
   type RichComposerTask,
@@ -53,8 +55,15 @@ export interface TaskDetailSidebarProps {
   onOpenAgent: (agentId: string) => void;
   onCreateTemplateFromTask: () => void;
   onAddDeliverable: () => void;
+  onUpdateDeliverable: (input: { id: string; name?: string; description?: string; type?: 'text' | 'pr_url' }) => void;
+  onDeleteDeliverable: (id: string) => void;
   onDeleteTask: () => void;
 }
+
+const DELIVERABLE_TYPE_OPTIONS: SelectOption[] = [
+  { value: 'text', label: 'Text', icon: <Icon name="file-text" color="text-current" /> },
+  { value: 'pr_url', label: 'PR URL', icon: <Icon name="git-pull-request" color="text-current" /> },
+];
 
 /**
  * Detail view rendered into the right-hand task panel. The task name is
@@ -100,7 +109,15 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
         </div>
         {deliverablesOpen ? (
           <>
-            {props.deliverables.map((deliverable) => renderDeliverableRow(deliverable, props.submissions))}
+            {props.deliverables.map((deliverable) => (
+              <DeliverableEditorRow
+                key={deliverable.id}
+                deliverable={deliverable}
+                submission={props.submissions.find((entry) => entry.deliverableId === deliverable.id) ?? null}
+                onUpdate={props.onUpdateDeliverable}
+                onDelete={props.onDeleteDeliverable}
+              />
+            ))}
             <Button leftIcon="plus" onClick={props.onAddDeliverable} type="button" variant="secondary">
               Add deliverable
             </Button>
@@ -137,34 +154,63 @@ function parseDescriptionContent(content: string | null, markdown: string): JSON
   return markdownToTipTap(markdown);
 }
 
-function renderDeliverableRow(
-  deliverable: TaskDetailSidebarDeliverable,
-  submissions: TaskDetailSidebarDeliverableSubmission[],
-): ReactNode {
-  const submission = submissions.find((entry) => entry.deliverableId === deliverable.id) ?? null;
+interface DeliverableEditorRowProps {
+  deliverable: TaskDetailSidebarDeliverable;
+  submission: TaskDetailSidebarDeliverableSubmission | null;
+  onUpdate: (input: { id: string; name?: string; description?: string; type?: 'text' | 'pr_url' }) => void;
+  onDelete: (id: string) => void;
+}
+
+function DeliverableEditorRow(props: DeliverableEditorRowProps): ReactNode {
+  const { deliverable, submission } = props;
+  const [name, setName] = useState(deliverable.name);
+  const [description, setDescription] = useState(deliverable.description);
   return (
-    <div key={deliverable.id} className="flex items-start gap-2 rounded-md border border-border bg-surface-neutral p-2">
-      <TaskStatusIcon status={submission === null ? 'waiting' : 'success'} size="sm" />
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-medium text-content">{deliverable.name}</div>
-        {deliverable.description.length > 0 ? (
-          <div className="truncate text-xs text-content-muted">{deliverable.description}</div>
-        ) : null}
-        {submission === null ? (
-          <div className="text-xs text-content-muted">Pending</div>
-        ) : submission.payload.type === 'pr_url' ? (
-          <a
-            className="block truncate text-xs text-accent underline-offset-2 hover:underline"
-            href={submission.payload.url}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {submission.payload.url}
-          </a>
-        ) : (
-          <div className="truncate text-xs text-content-muted">{submission.payload.content}</div>
-        )}
+    <div className="flex flex-col gap-2 rounded-md border border-border bg-surface p-2">
+      <div className="grid grid-cols-[auto_1fr_8rem_auto] items-end gap-2">
+        <div className="pb-1.5">
+          <TaskStatusIcon status={submission === null ? 'waiting' : 'success'} size="sm" />
+        </div>
+        <Input
+          aria-label="Deliverable name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          onBlur={() => props.onUpdate({ id: deliverable.id, name: name.trim() || deliverable.name })}
+        />
+        <Select
+          options={DELIVERABLE_TYPE_OPTIONS}
+          value={deliverable.type}
+          onChange={(value) => props.onUpdate({ id: deliverable.id, type: value as 'text' | 'pr_url' })}
+        />
+        <IconButton
+          aria-label="Delete deliverable"
+          icon="trash"
+          onClick={() => props.onDelete(deliverable.id)}
+          type="button"
+          variant="secondary"
+        />
       </div>
+      <Input
+        aria-label="Deliverable description"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        onBlur={() => props.onUpdate({ id: deliverable.id, description })}
+        placeholder="Description"
+      />
+      {submission === null ? (
+        <div className="text-xs text-content-muted">Pending</div>
+      ) : submission.payload.type === 'pr_url' ? (
+        <a
+          className="block truncate text-xs text-accent underline-offset-2 hover:underline"
+          href={submission.payload.url}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {submission.payload.url}
+        </a>
+      ) : (
+        <div className="truncate text-xs text-content-muted">{submission.payload.content}</div>
+      )}
     </div>
   );
 }
