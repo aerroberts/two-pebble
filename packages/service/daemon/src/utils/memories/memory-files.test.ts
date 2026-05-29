@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { listMemoryFiles, readMemoryFile, seedIndex, writeMemoryFile } from './memory-files';
+import { listMemoryFileEntries, listMemoryFiles, readMemoryFile, seedIndex, writeMemoryFile } from './memory-files';
 import { normalizeMemoryPath, resolveMemoryFilePath } from './memory-paths';
 
 async function makeRoot(): Promise<string> {
@@ -55,6 +55,17 @@ describe('memory file operations', () => {
     const files = await listMemoryFiles(root);
     expect(files).toEqual(['sub/dir/note.md', 'top.md']);
     expect(await readMemoryFile(root, 'sub/dir/note.md')).toBe('hello');
+    await fs.rm(root, { force: true, recursive: true });
+  });
+
+  test('happy: listMemoryFileEntries returns recursive file metadata', async () => {
+    const root = await makeRoot();
+    await writeMemoryFile(root, 'notes/a.md', 'hello');
+    await writeMemoryFile(root, 'b.md', 'top');
+    const entries = await listMemoryFileEntries(root);
+    expect(entries.map((entry) => entry.path)).toEqual(['b.md', 'notes/a.md']);
+    expect(entries[0]?.sizeBytes).toBe(3);
+    expect(entries[0]?.updatedAt).toBeGreaterThan(0);
     await fs.rm(root, { force: true, recursive: true });
   });
 
