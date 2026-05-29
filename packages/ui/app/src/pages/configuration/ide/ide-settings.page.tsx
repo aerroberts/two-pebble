@@ -1,30 +1,14 @@
+import { Header, Icon, PageLayout, Section, Surface, useToast } from '@two-pebble/components';
 import {
-  Button,
-  Header,
-  IconButton,
-  PageLayout,
-  Section,
-  Select,
-  type SelectOption,
-  Surface,
-  Tooltip,
-  useToast,
-} from '@two-pebble/components';
-import {
-  type KnownIdeCandidate,
-  type KnownIdeKind,
   type KnownIdeRecord,
   useAppSettings,
   useCreateKnownIde,
-  useDeleteKnownIde,
   useDetectIdes,
   useKnownIdes,
   useUpdateAppSettings,
 } from '@two-pebble/realtime';
-import { type ReactNode, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IdeLogo } from './ide-logo';
-
-const NO_DEFAULT_IDE_VALUE = 'none';
 
 export function IdeSettingsPage() {
   const appSettings = useAppSettings();
@@ -32,57 +16,52 @@ export function IdeSettingsPage() {
   const updateAppSettings = useUpdateAppSettings();
   const detectIdes = useDetectIdes();
   const createKnownIde = useCreateKnownIde();
-  const deleteKnownIde = useDeleteKnownIde();
   const { toast } = useToast();
-  const [candidates, setCandidates] = useState<KnownIdeCandidate[]>([]);
-  const [detecting, setDetecting] = useState(false);
-  const [creatingKey, setCreatingKey] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [detecting, setDetecting] = useState(true);
+  const syncedRef = useRef(false);
 
   const settings = appSettings.value;
-  const savedIdes = knownIdes.values().sort((left, right) => left.displayName.localeCompare(right.displayName));
+  const ides = knownIdes.values().sort((left, right) => left.displayName.localeCompare(right.displayName));
   const defaultKnownIdeId = settings?.defaultKnownIdeId ?? null;
-  const defaultIdeOptions: SelectOption[] = [
-    { label: 'None', value: NO_DEFAULT_IDE_VALUE },
-    ...savedIdes.map((ide) => ({
-      icon: <IdeLogo kind={ide.kind} className="h-3.5 w-3.5" />,
-      label: ide.displayName,
-      value: ide.id,
-    })),
-  ];
+  const idesReady = knownIdes.status !== 'idle' && knownIdes.status !== 'loading';
 
-  const runDetection = async () => {
-    setDetecting(true);
-    try {
-      const result = await detectIdes();
-      setCandidates(result.candidates);
-    } catch (failure) {
-      toast(errorMessage(failure, 'Could not detect IDEs.'), 'error');
-    } finally {
-      setDetecting(false);
+  // Auto-detect installed editors once the saved list has loaded and persist
+  // any that aren't recorded yet, so the list always reflects what's on the
+  // machine without an explicit detect/add step. Matching on executablePath
+  // keeps repeated visits from creating duplicates.
+  useEffect(() => {
+    if (syncedRef.current || !idesReady) {
+      return;
     }
-  };
+    syncedRef.current = true;
+    void (async () => {
+      setDetecting(true);
+      try {
+        const result = await detectIdes();
+        const existing = new Set(knownIdes.values().map((ide) => ide.executablePath));
+        const seen = new Set<string>();
+        for (const candidate of result.candidates) {
+          if (existing.has(candidate.executablePath) || seen.has(candidate.executablePath)) {
+            continue;
+          }
+          seen.add(candidate.executablePath);
+          await createKnownIde(candidate);
+        }
+      } catch (failure) {
+        toast(errorMessage(failure, 'Could not detect IDEs.'), 'error');
+      } finally {
+        setDetecting(false);
+      }
+    })();
+  }, [idesReady, knownIdes, detectIdes, createKnownIde, toast]);
 
-  const addCandidate = async (candidate: KnownIdeCandidate) => {
-    const key = candidate.executablePath;
-    setCreatingKey(key);
-    try {
-      await createKnownIde(candidate);
-      setCandidates((current) => current.filter((item) => item.executablePath !== candidate.executablePath));
-      toast(`Added ${candidate.displayName}.`, 'success');
-    } catch (failure) {
-      toast(errorMessage(failure, `Could not add ${candidate.displayName}.`), 'error');
-    } finally {
-      setCreatingKey(null);
-    }
-  };
-
-  const setDefault = (id: string | null) => {
+  const selectIde = (id: string) => {
     if (settings === null) {
       return;
     }
+    const nextDefault = defaultKnownIdeId === id ? null : id;
     void updateAppSettings({
-      defaultKnownIdeId: id,
+      defaultKnownIdeId: nextDefault,
       defaultTranscriptionProfileId: settings.defaultTranscriptionProfileId,
       defaultSpeechProfileId: settings.defaultSpeechProfileId,
       assistantAgentRegistryId: settings.assistantAgentRegistryId,
@@ -96,108 +75,22 @@ export function IdeSettingsPage() {
     });
   };
 
-  const removeIde = async (ide: KnownIdeRecord) => {
-    setDeletingId(ide.id);
-    const wasDefault = defaultKnownIdeId === ide.id;
-    try {
-      await deleteKnownIde({ id: ide.id });
-      toast(`Deleted ${ide.displayName}.`, 'success');
-      if (wasDefault) {
-        toast(`Default IDE cleared because ${ide.displayName} was removed.`, 'info');
-      }
-    } catch (failure) {
-      toast(errorMessage(failure, `Could not delete ${ide.displayName}.`), 'error');
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  const emptyText = detecting ? 'Detecting installed editors.' : 'No editors detected on this machine.';
 
   return (
     <PageLayout width="fixed">
-      <Header
-        actionItems={
-          <Tooltip content="Detect IDEs">
-            <IconButton
-              aria-label="Detect IDEs"
-              disabled={detecting}
-              icon="search"
-              onClick={() => void runDetection()}
-              type="button"
-            />
-          </Tooltip>
-        }
-        subtitle="Choose the editor used to open agent workspaces."
-      >
-        IDE
-      </Header>
+      <Header subtitle="Editors detected on this machine. Select the one used to open agent workspaces.">IDE</Header>
 
-      <Section
-        actionItems={
-          <Button disabled={detecting} leftIcon="search" onClick={() => void runDetection()} type="button">
-            {detecting ? 'Detecting' : 'Detect'}
-          </Button>
-        }
-        subtitle="Detected editors that are not saved yet."
-        title="Detected"
-      >
+      <Section subtitle="Detected editors. Select one to use it by default." title="Editors">
         <Surface>
-          <IdeListEmpty visible={candidates.length === 0} text={detecting ? 'Detecting IDEs.' : 'No IDEs detected.'} />
           <div className="flex flex-col gap-2">
-            {candidates.map((candidate) => (
-              <IdeRow
-                key={candidate.executablePath}
-                action={
-                  <Button
-                    disabled={creatingKey === candidate.executablePath}
-                    leftIcon="plus"
-                    onClick={() => void addCandidate(candidate)}
-                    type="button"
-                  >
-                    Add
-                  </Button>
-                }
-                displayName={candidate.displayName}
-                executablePath={candidate.executablePath}
-                kind={candidate.kind}
-              />
-            ))}
-          </div>
-        </Surface>
-      </Section>
-
-      <Section subtitle="Saved editors and the default used by the chat button." title="Saved IDEs">
-        <Surface>
-          <div className="flex flex-col gap-3">
-            <Select
-              disabled={settings === null}
-              fullWidth
-              label="Default IDE"
-              onChange={(value) => setDefault(value === NO_DEFAULT_IDE_VALUE ? null : value)}
-              options={defaultIdeOptions}
-              value={defaultKnownIdeId ?? NO_DEFAULT_IDE_VALUE}
-            />
-            <IdeListEmpty
-              visible={savedIdes.length === 0}
-              text={knownIdes.status === 'loading' ? 'Loading saved IDEs.' : 'No saved IDEs.'}
-            />
-            {savedIdes.map((ide) => (
-              <IdeRow
+            {ides.length === 0 ? <p className="text-[12px] leading-4 text-content-muted">{emptyText}</p> : null}
+            {ides.map((ide) => (
+              <IdeSelectRow
                 key={ide.id}
-                action={
-                  <Tooltip content={`Delete ${ide.displayName}`}>
-                    <IconButton
-                      aria-label={`Delete ${ide.displayName}`}
-                      disabled={deletingId === ide.id}
-                      icon="trash-2"
-                      onClick={() => void removeIde(ide)}
-                      type="button"
-                      variant="secondary"
-                    />
-                  </Tooltip>
-                }
-                displayName={ide.displayName}
-                executablePath={ide.executablePath}
-                kind={ide.kind}
+                ide={ide}
+                selected={defaultKnownIdeId === ide.id}
+                onSelect={() => selectIde(ide.id)}
               />
             ))}
           </div>
@@ -207,27 +100,26 @@ export function IdeSettingsPage() {
   );
 }
 
-function IdeListEmpty(props: { visible: boolean; text: string }) {
-  if (!props.visible) {
-    return null;
-  }
-  return <p className="text-[12px] leading-4 text-content-muted">{props.text}</p>;
-}
-
-function IdeRow(props: { action: ReactNode; displayName: string; executablePath: string; kind: KnownIdeKind }) {
+function IdeSelectRow(props: { ide: KnownIdeRecord; selected: boolean; onSelect: () => void }) {
+  const stateClasses = props.selected ? 'border-accent bg-accent/[0.08]' : 'border-border hover:bg-surface-hover';
   return (
-    <div className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
-      <div className="flex min-w-0 items-center gap-2">
+    <button
+      aria-pressed={props.selected}
+      className={`flex w-full min-w-0 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition-colors ${stateClasses}`}
+      onClick={props.onSelect}
+      type="button"
+    >
+      <span className="flex min-w-0 items-center gap-2">
         <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-content-muted">
-          <IdeLogo kind={props.kind} className="h-4 w-4" />
+          <IdeLogo kind={props.ide.kind} className="h-4 w-4" />
         </span>
-        <div className="min-w-0">
-          <div className="truncate text-[13px] font-medium leading-5 text-content">{props.displayName}</div>
-          <div className="truncate text-[12px] leading-4 text-content-muted">{props.executablePath}</div>
-        </div>
-      </div>
-      {props.action}
-    </div>
+        <span className="min-w-0">
+          <span className="block truncate text-[13px] font-medium leading-5 text-content">{props.ide.displayName}</span>
+          <span className="block truncate text-[12px] leading-4 text-content-muted">{props.ide.executablePath}</span>
+        </span>
+      </span>
+      {props.selected ? <Icon name="check" color="text-accent" /> : null}
+    </button>
   );
 }
 
