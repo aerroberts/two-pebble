@@ -170,6 +170,28 @@ describe('feature: operation task-templates', () => {
   });
 });
 
+describe('feature: operation task-deliverables.create', () => {
+  test('happy: omitted order index appends after existing deliverables', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { taskId } = await seedBoardWithOneTask(datastore);
+    const first = await datastore.taskBoards.deliverables.create({
+      taskId,
+      name: 'First',
+      type: 'text',
+    });
+    const second = await datastore.taskBoards.deliverables.create({
+      taskId,
+      name: 'Second',
+      type: 'text',
+    });
+    const deliverables = await datastore.taskBoards.deliverables.list({ taskId });
+    await datastore.close();
+    expect(first.orderIndex).toBe(0);
+    expect(second.orderIndex).toBe(1);
+    expect(deliverables.items.map((item) => item.name)).toEqual(['First', 'Second']);
+  });
+});
+
 describe('feature: operation task-deliverable-submissions.upsert', () => {
   test('happy: upsert replaces payload for one task deliverable', async () => {
     const datastore = await useDatastoreForTesting();
