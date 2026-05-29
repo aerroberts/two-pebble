@@ -2,7 +2,7 @@ import { IconButton, PageLayout, Section, Surface, TwoPebbleLogo } from '@two-pe
 import { useProjectMutations, useProjects } from '@two-pebble/realtime';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { projectPath, readLastViewedProjectId } from '../../project-context';
+import { projectPath } from '../../project-context';
 
 export function ProjectPickerPage() {
   const projects = useProjects();
@@ -21,8 +21,6 @@ export function ProjectPickerPage() {
       setCreating(false);
     }
   };
-
-  const lastViewedProjectId = readLastViewedProjectId();
 
   return (
     <div className="flex h-dvh min-h-0 max-h-dvh flex-col overflow-hidden bg-surface">
@@ -57,9 +55,7 @@ export function ProjectPickerPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <div className="truncate text-[13px] font-semibold text-content">{project.name}</div>
-                      <div className="text-[12px] text-content-muted">
-                        {project.id === lastViewedProjectId ? 'Last viewed' : project.id}
-                      </div>
+                      <div className="text-[12px] text-content-muted">{project.id}</div>
                     </div>
                   </div>
                 </Surface>

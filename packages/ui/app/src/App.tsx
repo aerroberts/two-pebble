@@ -29,7 +29,6 @@ import { MetricsExplorerPage } from './pages/metrics/metrics-explorer.page';
 import { PricingExplorerPage } from './pages/metrics/pricing-explorer.page';
 import { PricingOverviewPage } from './pages/metrics/pricing-overview.page';
 import { ProjectPickerPage } from './pages/projects/project-picker.page';
-import { projectPath, readLastViewedProjectId } from './project-context';
 import { ProjectRoutes } from './project-routes';
 
 export function App() {
@@ -230,8 +229,7 @@ export function App() {
 }
 
 function RootRedirect() {
-  const lastViewedProjectId = readLastViewedProjectId();
-  return <Navigate to={lastViewedProjectId === null ? '/projects' : projectPath(lastViewedProjectId, '/')} replace />;
+  return <Navigate to="/projects" replace />;
 }
 
 /**

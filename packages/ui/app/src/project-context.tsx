@@ -1,9 +1,7 @@
 import { LoadingPage, NotFoundPage } from '@two-pebble/components';
 import { type ProjectRecord, useProjects } from '@two-pebble/realtime';
-import { createContext, type ReactNode, useContext, useEffect, useMemo } from 'react';
+import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-
-const LAST_VIEWED_PROJECT_ID_KEY = 'twoPebble.lastViewedProjectId';
 
 interface ProjectContextValue {
   project: ProjectRecord;
@@ -16,12 +14,6 @@ export function ProjectProvider(props: { children: ReactNode }) {
   const { projectId } = useParams();
   const projects = useProjects();
   const project = projects.values().find((item) => item.id === projectId) ?? null;
-
-  useEffect(() => {
-    if (projectId !== undefined) {
-      localStorage.setItem(LAST_VIEWED_PROJECT_ID_KEY, projectId);
-    }
-  }, [projectId]);
 
   const value = useMemo(() => (project === null ? null : { project, projectId: project.id }), [project]);
 
@@ -55,8 +47,4 @@ export function useProjectId(): string {
 export function projectPath(projectId: string, path: string): string {
   const suffix = path.startsWith('/') ? path : `/${path}`;
   return `/project/${projectId}${suffix === '/' ? '' : suffix}`;
-}
-
-export function readLastViewedProjectId(): string | null {
-  return localStorage.getItem(LAST_VIEWED_PROJECT_ID_KEY);
 }

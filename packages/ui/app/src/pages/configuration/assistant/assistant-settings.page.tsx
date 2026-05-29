@@ -12,7 +12,6 @@ import {
   useThirdPartyAgentInstalls,
   useUpdateAppSettings,
 } from '@two-pebble/realtime';
-import { readLastViewedProjectId } from '../../../project-context';
 import { agentRegistryIcon } from '../../../shared/agents/agent-registry-icon';
 
 const NONE_VALUE = '__none__';
@@ -20,7 +19,7 @@ const NONE_VALUE = '__none__';
 export function AssistantSettingsPage() {
   const appSettings = useAppSettings();
   const projects = useProjects();
-  const projectId = readLastViewedProjectId() ?? projects.values()[0]?.id ?? '';
+  const projectId = projects.values()[0]?.id ?? '';
   const project = projects.getItem(projectId)?.value ?? null;
   const projectMutations = useProjectMutations();
   const agentRegistries = useAgentRegistries(projectId.length === 0 ? undefined : { projectId });

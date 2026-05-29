@@ -14,7 +14,6 @@ import {
 } from '@two-pebble/realtime';
 import { createElement, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { readLastViewedProjectId } from '../../../project-context';
 import { mergeCapabilities, parseCapabilitiesJson, splitCapabilities } from './capabilities/parse-capabilities';
 import type { CapabilityConfigValue, CapabilitySpec, SubAgentReferenceInput } from './capabilities/types';
 import { parseWorkspaceConfigString, serializeWorkspaceConfig } from './workspace-config-utils';
@@ -23,7 +22,7 @@ const DEFAULT_WORKSPACE_CONFIG: WorkspaceConfig = { kind: 'absolute', path: '' }
 
 export function useAgentRegistrySettingsPageState() {
   const projects = useProjects();
-  const projectId = readLastViewedProjectId() ?? projects.values()[0]?.id ?? '';
+  const projectId = projects.values()[0]?.id ?? '';
   const agentRegistries = useAgentRegistries(projectId.length === 0 ? undefined : { projectId });
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
