@@ -3,6 +3,7 @@ import type { DatastoreContext, MemoryRecord } from '../types';
 
 type OperationHandlerInput = {
   id: string;
+  description?: string;
   name?: string;
   path?: string;
 };
@@ -25,6 +26,7 @@ export function memoriesUpdateOperation(ctx: DatastoreContext) {
     const row = await ctx.database
       .update(ctx.schema.memoriesTable)
       .set({
+        description: input.description ?? existing.description,
         name: input.name ?? existing.name,
         path: input.path ?? existing.path,
       })

@@ -1,6 +1,7 @@
 import type { DatastoreContext, MemoryRecord } from '../types';
 
 type OperationHandlerInput = {
+  description?: string;
   id?: string;
   name: string;
   path: string;
@@ -17,6 +18,7 @@ export function memoriesCreateOperation(ctx: DatastoreContext) {
     const row = await ctx.database
       .insert(ctx.schema.memoriesTable)
       .values({
+        description: input.description ?? '',
         name: input.name,
         path: input.path,
         projectId: input.projectId ?? 'proj_default',

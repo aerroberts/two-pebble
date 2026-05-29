@@ -8,6 +8,7 @@ export interface UpdateMemoryOperation {
   name: 'updateMemory';
   request: {
     id: string;
+    description?: string;
     name?: string;
     path?: string;
   };
