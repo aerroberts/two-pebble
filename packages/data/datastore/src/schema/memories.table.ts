@@ -12,6 +12,7 @@ import { customTable } from '../table/custom-table';
 export const memoriesTable = customTable(
   'memories',
   {
+    description: text('description').notNull().default(''),
     projectId: text('project_id').notNull(),
     name: text('name').notNull(),
     path: text('path').notNull(),

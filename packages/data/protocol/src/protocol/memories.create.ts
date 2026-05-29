@@ -6,6 +6,7 @@ export interface MemoryRecord {
   id: string;
   createdAt: number;
   updatedAt: number;
+  description: string;
   name: string;
   projectId: string;
   /**
@@ -23,6 +24,7 @@ export interface MemoryRecord {
 export interface CreateMemoryOperation {
   name: 'createMemory';
   request: {
+    description?: string;
     name: string;
     path?: string;
     projectId?: string;

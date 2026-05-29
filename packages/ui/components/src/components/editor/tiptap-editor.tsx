@@ -113,6 +113,15 @@ export function TipTapEditor(props: TipTapEditorProps) {
     if (editor === null) {
       return;
     }
+    // While the user is actively editing, never reapply incoming content.
+    // Autosave round-trips the document back through `initialContent`, so a
+    // new object reference arrives mid-edit even though nothing external
+    // changed. Calling setContent here would discard in-flight keystrokes and
+    // jump the cursor to the end of the document. External updates are picked
+    // up once the editor loses focus (or on remount via the document key).
+    if (editor.isFocused) {
+      return;
+    }
     if (JSON.stringify(editor.getJSON()) === JSON.stringify(props.initialContent)) {
       return;
     }

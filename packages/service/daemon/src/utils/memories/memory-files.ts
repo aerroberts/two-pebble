@@ -4,6 +4,12 @@ import { resolveMemoryFilePath } from './memory-paths';
 
 const INDEX_FILE = 'index.md';
 
+export interface MemoryFileEntry {
+  path: string;
+  sizeBytes: number;
+  updatedAt: number;
+}
+
 /**
  * Recursively lists every file inside a memory folder, returning paths
  * relative to the folder root using POSIX separators so the wire shape is
@@ -12,7 +18,16 @@ const INDEX_FILE = 'index.md';
  * mirror to reconcile.
  */
 export async function listMemoryFiles(root: string): Promise<string[]> {
-  const out: string[] = [];
+  const entries = await listMemoryFileEntries(root);
+  return entries.map((entry) => entry.path);
+}
+
+/**
+ * Recursively lists every file inside a memory folder with metadata needed
+ * by the UI file table.
+ */
+export async function listMemoryFileEntries(root: string): Promise<MemoryFileEntry[]> {
+  const out: MemoryFileEntry[] = [];
 
   async function walk(dir: string): Promise<void> {
     const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -23,13 +38,18 @@ export async function listMemoryFiles(root: string): Promise<string[]> {
         continue;
       }
       if (entry.isFile()) {
-        out.push(path.relative(root, absolute).split(path.sep).join('/'));
+        const stat = await fs.stat(absolute);
+        out.push({
+          path: path.relative(root, absolute).split(path.sep).join('/'),
+          sizeBytes: stat.size,
+          updatedAt: stat.mtimeMs,
+        });
       }
     }
   }
 
   await walk(root);
-  out.sort((left, right) => left.localeCompare(right));
+  out.sort((left, right) => left.path.localeCompare(right.path));
   return out;
 }
 

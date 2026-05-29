@@ -5,6 +5,7 @@ describe('feature: operation memories.create', () => {
   test('happy: creates a memory row with the supplied id and path', async () => {
     const datastore = await useDatastoreForTesting();
     const memory = await datastore.memories.create({
+      description: 'Operational notes',
       id: 'memories:abc123',
       name: 'Runbook',
       path: '/tmp/memories/memories:abc123',
@@ -12,6 +13,7 @@ describe('feature: operation memories.create', () => {
     });
     await datastore.close();
     expect(memory.id).toBe('memories:abc123');
+    expect(memory.description).toBe('Operational notes');
     expect(memory.name).toBe('Runbook');
     expect(memory.path).toBe('/tmp/memories/memories:abc123');
     expect(memory.projectId).toBe('proj_1');
@@ -71,6 +73,14 @@ describe('feature: operation memories.update', () => {
     await datastore.close();
     expect(updated.name).toBe('Notes');
     expect(updated.path).toBe('/tmp/new');
+  });
+
+  test('happy: updates a memory description', async () => {
+    const datastore = await useDatastoreForTesting();
+    const memory = await datastore.memories.create({ name: 'Notes', path: '/tmp/described' });
+    const updated = await datastore.memories.update({ description: 'Reference material', id: memory.id });
+    await datastore.close();
+    expect(updated.description).toBe('Reference material');
   });
 });
 
