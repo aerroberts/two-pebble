@@ -59,6 +59,7 @@ export interface TaskDetailSidebarProps {
   onAddDeliverable: () => void;
   onUpdateDeliverable: (input: { id: string; name?: string; description?: string; type?: 'text' | 'pr_url' }) => void;
   onDeleteDeliverable: (id: string) => void;
+  onAddComment: (body: string) => void;
   onDeleteTask: () => void;
 }
 
@@ -83,6 +84,7 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
     props.onDescriptionSave(payload.markdown, JSON.stringify(payload.doc));
   };
   const [deliverablesOpen, setDeliverablesOpen] = useState(false);
+  const [commentDraft, setCommentDraft] = useState('');
 
   return (
     <>
@@ -128,6 +130,28 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
       </div>
       <div className="flex flex-col gap-2 pt-3">
         <AppBox variant="muted-xs">Activity</AppBox>
+        <div className="flex items-end gap-2">
+          <div className="min-w-0 flex-1">
+            <Input
+              aria-label="Add a comment"
+              placeholder="Add a comment..."
+              value={commentDraft}
+              onChange={(event) => setCommentDraft(event.target.value)}
+            />
+          </div>
+          <Button
+            disabled={commentDraft.trim().length === 0}
+            leftIcon="send"
+            onClick={() => {
+              props.onAddComment(commentDraft);
+              setCommentDraft('');
+            }}
+            type="button"
+            variant="secondary"
+          >
+            Comment
+          </Button>
+        </div>
         {props.events.length === 0 ? (
           <p className="text-xs text-content-muted">No activity yet.</p>
         ) : (
@@ -172,6 +196,8 @@ function describeEvent(event: TaskEventRecord): string {
       return `Delegated to ${event.agentName}`;
     case 'undelegated':
       return 'Undelegated';
+    case 'comment':
+      return 'Comment';
     default:
       return 'Updated';
   }

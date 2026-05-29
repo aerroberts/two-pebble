@@ -130,6 +130,21 @@ export class TaskBoardService extends DaemonService {
   }
 
   /**
+   * Records a free-form 'comment' event on a task. Comments share the task
+   * event stream so they render inline in the activity log.
+   */
+  public async recordCommentEvent(input: { taskId: string; body: string }): Promise<RecordedTaskEvent> {
+    const row = await this.datastore.taskBoards.events.record({
+      taskId: input.taskId,
+      kind: 'comment',
+      status: '',
+      reason: input.body,
+      data: '{}',
+    });
+    return rowToProtocolEvent(row);
+  }
+
+  /**
    * Updates a task's free-form description and persists the change.
    * Like rename, the engine ignores prose fields, so this is a pure DB write.
    */

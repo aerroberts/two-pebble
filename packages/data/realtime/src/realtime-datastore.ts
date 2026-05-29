@@ -98,6 +98,7 @@ import { createTaskTemplateOperation } from './operations/task-templates.create.
 import { deleteTaskTemplateOperation } from './operations/task-templates.delete.operation';
 import { listTaskTemplatesOperation } from './operations/task-templates.list.operation';
 import { updateTaskTemplateOperation } from './operations/task-templates.update.operation';
+import { addTaskCommentOperation } from './operations/tasks.add-comment.operation';
 import { createTaskOperation } from './operations/tasks.create.operation';
 import { delegateTaskOperation } from './operations/tasks.delegate.operation';
 import { deleteTaskOperation } from './operations/tasks.delete.operation';
@@ -359,6 +360,7 @@ export class RealtimeDatastore {
       delete: deleteTaskOperation({ datastore: this }),
       list: listTasksOperation({ datastore: this }),
       delegate: delegateTaskOperation({ datastore: this }),
+      addComment: addTaskCommentOperation({ datastore: this }),
       rename: renameTaskOperation({ datastore: this }),
       setStatus: setTaskStatusOperation({ datastore: this }),
       undelegate: undelegateTaskOperation({ datastore: this }),

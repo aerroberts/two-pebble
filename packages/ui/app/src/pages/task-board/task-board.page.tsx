@@ -124,6 +124,12 @@ export function TaskBoardPage() {
       }}
       onUpdateDeliverable={(input) => void state.updateTaskDeliverable(input)}
       onDeleteDeliverable={(id) => void state.deleteTaskDeliverable(id)}
+      onAddComment={(body) => {
+        if (state.selectedTask === null) {
+          return;
+        }
+        void state.addTaskComment(state.selectedTask.id, body);
+      }}
       onDeleteTask={() => {
         if (state.selectedTask === null) {
           return;
