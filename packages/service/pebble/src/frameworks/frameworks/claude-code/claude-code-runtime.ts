@@ -24,6 +24,9 @@ export type QueryOptions = Pick<
   | 'pathToClaudeCodeExecutable'
   | 'permissionMode'
   | 'resume'
+  | 'settingSources'
+  | 'skills'
+  | 'managedSettings'
   | 'systemPrompt'
 >;
 

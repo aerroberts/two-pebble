@@ -1,3 +1,6 @@
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type { Thread, ThreadEvent } from '@openai/codex-sdk';
 import { Codex } from '@openai/codex-sdk';
 import type { DataCells } from '../../../thread/types';
@@ -6,6 +9,7 @@ import type { AgentFrameworkSubmitMessageInput } from '../../types';
 import { CodexEventConverter } from './codex-event-converter';
 import type {
   CodexAgentOptions,
+  CodexClientOptions,
   CodexThreadOptions,
   InputStreamResolver,
   ThreadEventDispatchResult,
@@ -41,7 +45,7 @@ export class CodexAgent extends ThirdPartyAgentFramework {
     super();
     this.defaultCwd = options.cwd;
     this.threadId = readResumeThreadId(options.resumeMetadata);
-    this.codex = new Codex({ codexPathOverride: options.pathToCodexExecutable });
+    this.codex = new Codex(this.buildClientOptions(options.pathToCodexExecutable));
     this.modelId = undefined;
   }
 
@@ -208,6 +212,29 @@ export class CodexAgent extends ThirdPartyAgentFramework {
     return options;
   }
 
+  private buildClientOptions(pathToCodexExecutable: string): CodexClientOptions {
+    return {
+      codexPathOverride: pathToCodexExecutable,
+      config: {
+        features: {
+          plugins: false,
+          skill_mcp_dependency_install: false,
+        },
+        skills: {},
+      },
+      env: this.buildCodexEnv(),
+    };
+  }
+
+  private buildCodexEnv(): Record<string, string> {
+    const env = Object.fromEntries(
+      Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
+    );
+    const codexHome = mkdtempSync(join(tmpdir(), 'two-pebble-codex-'));
+    copyCodexAuth(codexHome);
+    return { ...env, CODEX_HOME: codexHome };
+  }
+
   private cellsToPrompt(cells: DataCells, systemPrompt: string, hasWarmThread: boolean): string {
     const userText = cells.map((cell) => cellToString(cell)).join('\n');
     // The Codex SDK has no separate system prompt channel — the CLI reads
@@ -239,5 +266,13 @@ export class CodexAgent extends ThirdPartyAgentFramework {
       }
       yield next;
     }
+  }
+}
+
+function copyCodexAuth(codexHome: string) {
+  mkdirSync(codexHome, { recursive: true });
+  const source = join(process.env.CODEX_HOME ?? join(homedir(), '.codex'), 'auth.json');
+  if (existsSync(source)) {
+    copyFileSync(source, join(codexHome, 'auth.json'));
   }
 }
