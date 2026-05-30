@@ -74,6 +74,7 @@ export interface EnqueueAgentMessageInput {
 }
 
 export type CancelAgentQueuedMessageInput = RealtimeEmitPayload<'cancelAgentQueuedMessage'>;
+export type SendAgentQueuedMessageNowInput = RealtimeEmitPayload<'sendAgentQueuedMessageNow'>;
 
 export interface ListAgentQueuedMessagesInput {
   agentId: string;

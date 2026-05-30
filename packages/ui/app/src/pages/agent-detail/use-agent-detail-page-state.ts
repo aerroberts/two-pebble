@@ -14,6 +14,7 @@ import {
   useFreshStartAgent,
   useOpenWorktree,
   useRealtimeDatastore,
+  useSendAgentQueuedMessageNow,
   useStopAgent,
   useWorkspaces,
 } from '@two-pebble/realtime';
@@ -43,6 +44,7 @@ export function useAgentDetailPageState() {
   const [chatSending, setChatSending] = useState(false);
   const enqueueAgentMessage = useEnqueueAgentMessage();
   const cancelAgentQueuedMessage = useCancelAgentQueuedMessage();
+  const sendAgentQueuedMessageNow = useSendAgentQueuedMessageNow();
   const stopAgent = useStopAgent();
   const freshStartAgent = useFreshStartAgent();
   const liveness = useAgentLiveness(agentId);
@@ -226,6 +228,15 @@ export function useAgentDetailPageState() {
     }
   };
 
+  const sendQueuedMessageNow = async (messageId: string) => {
+    setChatError('');
+    try {
+      await sendAgentQueuedMessageNow({ id: messageId });
+    } catch (failure) {
+      setChatError(failure instanceof Error ? failure.message : String(failure));
+    }
+  };
+
   const stopAgentRun = async () => {
     if (agentId.length === 0) {
       return;
@@ -276,6 +287,7 @@ export function useAgentDetailPageState() {
     traceTimeRange,
     redirectToAgents: agentId.length === 0,
     sendChatMessage,
+    sendQueuedMessageNow,
     stopAgentRun,
     stopping,
     freshStartAgentRun,

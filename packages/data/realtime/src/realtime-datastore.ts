@@ -15,6 +15,7 @@ import { listAgentPriceLineItemsOperation } from './operations/agent.price-line-
 import { recordAgentPriceLineItemOperation } from './operations/agent.price-line-items.record.operation';
 import { cancelAgentQueuedMessageOperation } from './operations/agent.queued-message.cancel.operation';
 import { enqueueAgentMessageOperation } from './operations/agent.queued-message.enqueue.operation';
+import { sendAgentQueuedMessageNowOperation } from './operations/agent.queued-message.send-now.operation';
 import { listAgentQueuedMessagesOperation } from './operations/agent.queued-messages.list.operation';
 import { readAgentOperation } from './operations/agent.read.operation';
 import { renameAgentOperation } from './operations/agent.rename.operation';
@@ -567,6 +568,7 @@ export class RealtimeDatastore {
         cancel: cancelAgentQueuedMessageOperation({ datastore: this }),
         enqueue: enqueueAgentMessageOperation({ datastore: this }),
         list: listAgentQueuedMessagesOperation({ datastore: this }),
+        sendNow: sendAgentQueuedMessageNowOperation({ datastore: this }),
       },
       read: readAgentOperation({ datastore: this }),
       rename: renameAgentOperation({ datastore: this }),

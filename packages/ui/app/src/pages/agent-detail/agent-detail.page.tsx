@@ -67,6 +67,7 @@ export function AgentDetailPage() {
               chatSending={state.chatSending}
               onCancelQueuedMessage={(messageId) => void state.cancelQueuedMessage(messageId)}
               onChatSubmit={(payload) => void state.sendChatMessage(payload)}
+              onSendQueuedMessageNow={(messageId) => void state.sendQueuedMessageNow(messageId)}
               queuedMessages={state.queuedMessages}
               workspacePath={state.workspacePath}
             />

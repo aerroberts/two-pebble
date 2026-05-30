@@ -77,6 +77,7 @@ export { useReadAgent } from './states/agents/hooks/use-read-agent.hook';
 export { useRenameAgent } from './states/agents/hooks/use-rename-agent.hook';
 export { useResumeAgent } from './states/agents/hooks/use-resume-agent.hook';
 export { useSendAgentMessage } from './states/agents/hooks/use-send-agent-message.hook';
+export { useSendAgentQueuedMessageNow } from './states/agents/hooks/use-send-agent-queued-message-now.hook';
 export { useStopAgent } from './states/agents/hooks/use-stop-agent.hook';
 export type {
   AgentQueuedMessageRecord,
@@ -92,6 +93,7 @@ export type {
   ReadAgentInput,
   ResumeAgentInput,
   SendAgentMessageInput,
+  SendAgentQueuedMessageNowInput,
 } from './states/agents/types';
 export { useAppSettings } from './states/app-settings/hooks/use-app-settings.hook';
 export { useGenerateSpeech } from './states/app-settings/hooks/use-generate-speech.hook';

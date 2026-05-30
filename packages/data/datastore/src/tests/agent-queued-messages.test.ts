@@ -34,6 +34,18 @@ describe('feature: operation agent.queued-messages.peek-next', () => {
   });
 });
 
+describe('feature: operation agent.queued-messages.read', () => {
+  test('happy: reads a queued message by id', async () => {
+    const datastore = await useDatastoreForTesting();
+    const { message } = await seedQueuedAgentMessage(datastore);
+    const read = await datastore.agent.queuedMessages.read({ id: message.id });
+    await datastore.close();
+
+    expect(read.id).toBe(message.id);
+    expect(read.status).toBe('queued');
+  });
+});
+
 describe('feature: operation agent.queued-messages.mark-sent', () => {
   test('happy: marks a queued message sent', async () => {
     const datastore = await useDatastoreForTesting();
