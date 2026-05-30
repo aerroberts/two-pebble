@@ -9,6 +9,7 @@ interface AgentRegistryRecord {
   inferenceProfileId: string | null;
   thirdPartyAgentInstallId: string | null;
   systemPrompt: TipTapDocument;
+  quickActionEnabled: boolean;
   capabilities: string;
   workspaceConfig: string;
 }

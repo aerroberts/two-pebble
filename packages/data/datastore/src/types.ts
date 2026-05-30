@@ -300,6 +300,7 @@ export interface AgentRegistryRecord {
    * datastore; pebble validates and resolves it through `buildCapability`.
    */
   capabilities: string;
+  quickActionEnabled: boolean;
   /**
    * Serialized JSON workspace config. Discriminated union with kind
    * 'cwd' | 'fixed' | 'worktree'. The daemon parses this and resolves the

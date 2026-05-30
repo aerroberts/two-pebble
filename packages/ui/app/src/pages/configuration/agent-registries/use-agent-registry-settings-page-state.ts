@@ -1,5 +1,4 @@
 import type { JSONContent } from '@tiptap/core';
-import { ClaudeCodeLogo, CodexLogo, ProviderLogo } from '@two-pebble/components';
 import { emptyAgentSystemPrompt, type TipTapDocument } from '@two-pebble/datatypes';
 import {
   useAgentRegistries,
@@ -11,11 +10,12 @@ import {
   type WorkspaceConfig,
   type WorkspaceConfigKind,
 } from '@two-pebble/realtime';
-import { createElement, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { buildInferenceProfileOptions, buildInstallOptions } from './agent-registry-option-builders';
 import { mergeCapabilities, parseCapabilitiesJson, splitCapabilities } from './capabilities/parse-capabilities';
 import type { CapabilityConfigValue, CapabilitySpec, SubAgentReferenceInput } from './capabilities/types';
-import { parseWorkspaceConfigString, serializeWorkspaceConfig } from './workspace-config-utils';
+import { parseWorkspaceConfigString, serializeWorkspaceConfig, workspaceConfigForKind } from './workspace-config-utils';
 
 const DEFAULT_WORKSPACE_CONFIG: WorkspaceConfig = { kind: 'absolute', path: '' };
 
@@ -24,9 +24,8 @@ export function useAgentRegistrySettingsPageState() {
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const repositories = useRepositories();
-  const params = useParams();
   const navigate = useNavigate();
-  const registryId = params.registryId ?? '';
+  const { registryId = '' } = useParams();
   const registry = agentRegistries.getItem(registryId);
   const registryKind = registry?.value?.kind ?? 'pebble';
 
@@ -38,6 +37,7 @@ export function useAgentRegistrySettingsPageState() {
   const [inferenceProfileId, setInferenceProfileId] = useState('');
   const [thirdPartyAgentInstallId, setThirdPartyAgentInstallId] = useState('');
   const [capabilitiesJson, setCapabilitiesJson] = useState('[]');
+  const [quickActionEnabled, setQuickActionEnabled] = useState(false);
   const [workspaceConfig, setWorkspaceConfig] = useState<WorkspaceConfig>(DEFAULT_WORKSPACE_CONFIG);
 
   useEffect(() => {
@@ -47,28 +47,13 @@ export function useAgentRegistrySettingsPageState() {
       setInferenceProfileId(registry.value.inferenceProfileId ?? '');
       setThirdPartyAgentInstallId(registry.value.thirdPartyAgentInstallId ?? '');
       setCapabilitiesJson(registry.value.capabilities);
+      setQuickActionEnabled(registry.value.quickActionEnabled);
       setWorkspaceConfig(parseWorkspaceConfigString(registry.value.workspaceConfig));
     }
   }, [registry?.value]);
 
-  const inferenceProfileOptions = inferenceProfiles
-    .values()
-    .filter((profile) => profile.kind === 'intelligence')
-    .sort((left, right) => left.name.localeCompare(right.name))
-    .map((profile) => ({
-      icon: createElement(ProviderLogo, { provider: profile.provider, size: 'xs' }),
-      label: profile.name.length > 0 ? profile.name : profile.provider,
-      value: profile.id,
-    }));
-
-  const installOptions = installs
-    .values()
-    .sort((left, right) => left.name.localeCompare(right.name))
-    .map((install) => ({
-      icon: createElement(install.frameworkId === 'codex' ? CodexLogo : ClaudeCodeLogo, { size: 'xs' }),
-      label: install.name.length > 0 ? install.name : install.frameworkId,
-      value: install.id,
-    }));
+  const inferenceProfileOptions = buildInferenceProfileOptions(inferenceProfiles);
+  const installOptions = buildInstallOptions(installs);
 
   const capabilitySpecs = useMemo(() => parseCapabilitiesJson(capabilitiesJson), [capabilitiesJson]);
   const splitView = useMemo(() => splitCapabilities(capabilitySpecs), [capabilitySpecs]);
@@ -107,10 +92,9 @@ export function useAgentRegistrySettingsPageState() {
   };
 
   const updateName = () => {
-    if (registry?.value === null || registry?.value === undefined || name === registry.value.name) {
-      return;
+    if (registry?.value !== null && registry?.value !== undefined && name !== registry.value.name) {
+      void updateAgentRegistry({ id: registryId, name });
     }
-    void updateAgentRegistry({ id: registryId, name });
   };
 
   const updateSystemPrompt = (nextSystemPrompt: JSONContent) => {
@@ -154,19 +138,15 @@ export function useAgentRegistrySettingsPageState() {
     void updateAgentRegistry({ id: registryId, workspaceConfig: serializeWorkspaceConfig(next) });
   };
 
+  const updateQuickActionEnabled = (enabled: boolean) => {
+    setQuickActionEnabled(enabled);
+    if (registry?.value !== null && registry?.value !== undefined && enabled !== registry.value.quickActionEnabled) {
+      void updateAgentRegistry({ id: registryId, quickActionEnabled: enabled });
+    }
+  };
+
   const updateWorkspaceConfigKind = (kind: WorkspaceConfigKind) => {
-    if (kind === 'none') {
-      persistWorkspaceConfig({ kind: 'none' });
-      return;
-    }
-    if (kind === 'absolute') {
-      const currentPath = workspaceConfig.kind === 'absolute' ? workspaceConfig.path : '';
-      persistWorkspaceConfig({ kind: 'absolute', path: currentPath });
-      return;
-    }
-    const currentRepositoryId =
-      workspaceConfig.kind === 'worktree' ? workspaceConfig.repositoryId : (repositories.values()[0]?.id ?? '');
-    persistWorkspaceConfig({ kind: 'worktree', repositoryId: currentRepositoryId });
+    persistWorkspaceConfig(workspaceConfigForKind(kind, workspaceConfig, repositories.values()[0]?.id ?? ''));
   };
 
   const updateWorkspaceFixedPath = (path: string) => {
@@ -192,6 +172,7 @@ export function useAgentRegistrySettingsPageState() {
     installs,
     name,
     otherRegistryOptions,
+    quickActionEnabled,
     redirectToRegistries: registryId.length === 0,
     registry,
     registryId,
@@ -207,6 +188,7 @@ export function useAgentRegistrySettingsPageState() {
     thirdPartyAgentInstallId,
     updateInferenceProfileId,
     updateName,
+    updateQuickActionEnabled,
     updateSystemPrompt,
     updateThirdPartyAgentInstallId,
     updateWorkspaceConfigKind,

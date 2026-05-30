@@ -120,6 +120,13 @@
       "when": 1780100000000,
       "tag": "0016_global_agent_registries",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1780101000000,
+      "tag": "0017_agent_registry_quick_actions",
+      "breakpoints": true
     }
   ]
 }
