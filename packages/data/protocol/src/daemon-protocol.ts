@@ -18,6 +18,7 @@ import type { AgentQueuedMessageCancelOperation } from './protocol/agent.queued-
 import type { AgentQueuedMessageChangedEvent } from './protocol/agent.queued-message.changed';
 import type { AgentQueuedMessageDeletedEvent } from './protocol/agent.queued-message.deleted';
 import type { AgentQueuedMessageEnqueueOperation } from './protocol/agent.queued-message.enqueue';
+import type { AgentQueuedMessageSendNowOperation } from './protocol/agent.queued-message.send-now';
 import type { AgentQueuedMessagesListOperation } from './protocol/agent.queued-messages.list';
 import type { AgentReadOperation } from './protocol/agent.read';
 import type { AgentRecordedEvent } from './protocol/agent.recorded';
@@ -206,6 +207,7 @@ export type DaemonOperations = [
   AgentMessageOperation,
   AgentQueuedMessageEnqueueOperation,
   AgentQueuedMessageCancelOperation,
+  AgentQueuedMessageSendNowOperation,
   AgentQueuedMessagesListOperation,
   AgentSignalsListOperation,
   AgentSignalsResolveOperation,

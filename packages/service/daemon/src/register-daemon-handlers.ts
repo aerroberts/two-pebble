@@ -12,6 +12,7 @@ import { handler as sendAgentMessageHandler } from './handlers/agent.message.han
 import { handler as listAgentPriceLineItemsHandler } from './handlers/agent.price-line-items.list.handler';
 import { handler as recordAgentPriceLineItemHandler } from './handlers/agent.price-line-items.record.handler';
 import { handler as cancelAgentQueuedMessageHandler } from './handlers/agent.queued-message.cancel.handler';
+import { handler as sendAgentQueuedMessageNowHandler } from './handlers/agent.queued-message.send-now.handler';
 import { handler as listAgentQueuedMessagesHandler } from './handlers/agent.queued-messages.list.handler';
 import { handler as readAgentHandler } from './handlers/agent.read.handler';
 import { handler as renameAgentHandler } from './handlers/agent.rename.handler';
@@ -165,6 +166,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('sendAgentMessage', sendAgentMessageHandler(context));
   register('enqueueAgentMessage', enqueueAgentMessageHandler(context));
   register('cancelAgentQueuedMessage', cancelAgentQueuedMessageHandler(context));
+  register('sendAgentQueuedMessageNow', sendAgentQueuedMessageNowHandler(context));
   register('listAgentQueuedMessages', listAgentQueuedMessagesHandler(context));
   register('sendAgentSignal', sendAgentSignalHandler(context));
   register('resolveAgentSignal', resolveAgentSignalHandler(context));

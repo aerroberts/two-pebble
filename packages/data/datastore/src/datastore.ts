@@ -23,6 +23,7 @@ import { agentQueuedMessagesListIdleAgentsWithWorkOperation } from './operations
 import { agentQueuedMessagesMarkFailedOperation } from './operations/agent.queued-messages.mark-failed';
 import { agentQueuedMessagesMarkSentOperation } from './operations/agent.queued-messages.mark-sent';
 import { agentQueuedMessagesPeekNextOperation } from './operations/agent.queued-messages.peek-next';
+import { agentQueuedMessagesReadOperation } from './operations/agent.queued-messages.read';
 import { agentReadOperation } from './operations/agent.read';
 import { agentRenameOperation } from './operations/agent.rename';
 import { agentSetMetadataOperation } from './operations/agent.set-metadata';
@@ -237,6 +238,7 @@ export class Datastore {
         markFailed: bind(agentQueuedMessagesMarkFailedOperation, 'agent.queued-messages.mark-failed'),
         markSent: bind(agentQueuedMessagesMarkSentOperation, 'agent.queued-messages.mark-sent'),
         peekNext: bind(agentQueuedMessagesPeekNextOperation, 'agent.queued-messages.peek-next'),
+        read: bind(agentQueuedMessagesReadOperation, 'agent.queued-messages.read'),
       },
       read: bind(agentReadOperation, 'agent.read'),
       rename: bind(agentRenameOperation, 'agent.rename'),
