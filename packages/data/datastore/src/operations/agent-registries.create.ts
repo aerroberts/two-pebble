@@ -5,6 +5,7 @@ type OperationHandlerInput = {
   capabilities?: string;
   inferenceProfileId?: string | null;
   name: string;
+  quickActionEnabled?: boolean;
   systemPrompt: TipTapDocument;
   thirdPartyAgentInstallId?: string | null;
   workspaceConfig?: string;
@@ -21,6 +22,7 @@ export function agentRegistriesCreateOperation(ctx: DatastoreContext) {
         capabilities: input.capabilities ?? '[]',
         inferenceProfileId: input.inferenceProfileId ?? null,
         name: input.name,
+        quickActionEnabled: input.quickActionEnabled ?? false,
         systemPrompt: serializeAgentSystemPrompt(input.systemPrompt),
         thirdPartyAgentInstallId: input.thirdPartyAgentInstallId ?? null,
         workspaceConfig: input.workspaceConfig ?? '{"kind":"cwd"}',

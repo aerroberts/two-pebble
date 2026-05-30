@@ -12,9 +12,11 @@ export function AgentsPage() {
         agentRegistriesLoading={state.agentRegistries.status === 'loading'}
         agentRegistryId={state.agentRegistryId}
         agentRegistryOptions={state.agentRegistryOptions}
+        quickActionAgents={state.quickActionAgents}
         launching={state.launching}
         onAgentRegistryIdChange={state.setAgentRegistryId}
         onLaunchAgent={(payload) => void state.launchSelectedAgent(payload)}
+        onLaunchQuickAction={(registryId) => void state.launchQuickActionAgent(registryId)}
       />
     </PageLayout>
   );

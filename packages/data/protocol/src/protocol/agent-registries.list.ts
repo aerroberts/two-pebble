@@ -17,6 +17,7 @@ export interface AgentRegistryRecord {
   inferenceProfileId: string | null;
   thirdPartyAgentInstallId: string | null;
   systemPrompt: TipTapDocument;
+  quickActionEnabled: boolean;
   /**
    * Serialized JSON list of `{ id, config }` capability specs the
    * launch flow attaches to each agent run. UI surfaces this as the

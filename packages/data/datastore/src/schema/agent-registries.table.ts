@@ -1,4 +1,4 @@
-import { text } from 'drizzle-orm/sqlite-core';
+import { integer, text } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
@@ -32,6 +32,10 @@ export const agentRegistriesTable = customTable('agent_registries', {
   // capability registry. Empty array means the agent runs with no
   // capabilities (the default for new registries).
   capabilities: text('capabilities').notNull().default('[]'),
+
+  // When enabled, the main Agents page shows this registry as a one-click
+  // launch option that starts a session without an initial user message.
+  quickActionEnabled: integer('quick_action_enabled', { mode: 'boolean' }).notNull().default(false),
 
   // JSON workspace config: { kind: 'absolute', path } | { kind: 'worktree', repositoryId }.
   // Legacy rows persisted as { kind: 'cwd' } or { kind: 'fixed', path } are

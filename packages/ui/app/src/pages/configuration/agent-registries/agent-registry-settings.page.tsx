@@ -1,4 +1,4 @@
-import { Header, IconButton, Input, PageLayout, Section, Select, Surface } from '@two-pebble/components';
+import { Checkbox, Header, IconButton, Input, PageLayout, Section, Select, Surface } from '@two-pebble/components';
 import { Navigate } from 'react-router-dom';
 import { CapabilitiesSection } from './capabilities/capabilities-section';
 import { SubAgentsSection } from './sub-agents/sub-agents-section';
@@ -66,6 +66,11 @@ export function AgentRegistrySettingsPage() {
             key={state.registry.value.id}
             onChange={state.updateSystemPrompt}
             value={state.registry.value.systemPrompt}
+          />
+          <Checkbox
+            checked={state.quickActionEnabled}
+            label="Quick action"
+            onChange={(event) => state.updateQuickActionEnabled(event.target.checked)}
           />
         </Surface>
       </Section>
