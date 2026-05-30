@@ -33,10 +33,7 @@ function howTheBoardWorks(taskId: string, boardId: string): string {
  * complete. Order follows the board's own ordering (orderIndex, then created).
  */
 function describeRequirements(deliverables: TaskDeliverableRecord[]): string {
-  const lines = [
-    'This task has requirements that must be completed before you mark it successful:',
-    '',
-  ];
+  const lines = ['This task has requirements that must be completed before you mark it successful:', ''];
   deliverables.forEach((deliverable, index) => {
     lines.push(`${index + 1}. ${deliverable.name} (type: ${deliverable.type}, requirement id: ${deliverable.id})`);
     if (deliverable.description.length > 0) {
