@@ -12,7 +12,9 @@ interface ReferenceItem {
 export type DocumentInsertSelection =
   | { kind: 'task' }
   | { kind: 'document'; item: ReferenceItem }
-  | { kind: 'board'; item: ReferenceItem };
+  | { kind: 'board'; item: ReferenceItem }
+  | { kind: 'memory'; item: ReferenceItem }
+  | { kind: 'skill'; item: ReferenceItem };
 
 export interface DocumentInsertPopoverProps {
   open: boolean;
@@ -25,6 +27,8 @@ export interface DocumentInsertPopoverProps {
   query: string;
   documents: ReadonlyArray<ReferenceItem>;
   boards: ReadonlyArray<ReferenceItem>;
+  memories: ReadonlyArray<ReferenceItem>;
+  skills: ReadonlyArray<ReferenceItem>;
   onSelect: (selection: DocumentInsertSelection) => void;
   onCancel: () => void;
 }
@@ -68,13 +72,27 @@ export function DocumentInsertPopover(props: DocumentInsertPopoverProps) {
         detail: 'board',
         selection: { kind: 'board', item },
       })),
+      ...props.memories.map<DisplayRow>((item) => ({
+        key: `memory:${item.id}`,
+        icon: 'brain',
+        label: item.name.length > 0 ? item.name : 'Untitled memory',
+        detail: 'memory',
+        selection: { kind: 'memory', item },
+      })),
+      ...props.skills.map<DisplayRow>((item) => ({
+        key: `skill:${item.id}`,
+        icon: 'sparkles',
+        label: item.name.length > 0 ? item.name : 'Untitled skill',
+        detail: 'skill',
+        selection: { kind: 'skill', item },
+      })),
     ];
     const query = props.query.trim().toLowerCase();
     if (query.length === 0) {
       return all;
     }
     return all.filter((row) => row.label.toLowerCase().includes(query) || row.detail.includes(query));
-  }, [props.documents, props.boards, props.query]);
+  }, [props.documents, props.boards, props.memories, props.skills, props.query]);
 
   const activeIndex = clamp(rawActiveIndex, 0, Math.max(rows.length - 1, 0));
 
@@ -120,8 +138,6 @@ export function DocumentInsertPopover(props: DocumentInsertPopoverProps) {
     <div
       className="z-[1100] fixed flex w-[280px] flex-col overflow-hidden rounded-md border border-border bg-surface-raised shadow-modal"
       style={{ left: props.anchorLeft, top: props.anchorTop + 4 }}
-      role="listbox"
-      aria-label="Insert into document"
     >
       <div className="flex items-center gap-2 border-b border-border px-3 py-1.5">
         <Icon color="text-content-muted" name="slash" />

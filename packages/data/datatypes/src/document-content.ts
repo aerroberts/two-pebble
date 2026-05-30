@@ -177,6 +177,10 @@ function prosemirrorJsonToTipTap(node: TipTapNode): TipTapNode {
 }
 
 function tipTapJsonToProsemirror(node: TipTapNode): TipTapNode {
+  const mentionText = renderMentionNodeText(node);
+  if (mentionText !== undefined) {
+    return { type: 'text', text: mentionText };
+  }
   const type = TIPTAP_TO_PROSEMIRROR_NODE_NAMES[node.type] ?? node.type;
   const attrs = convertAttrsToProsemirror(type, node.attrs);
 
@@ -187,6 +191,30 @@ function tipTapJsonToProsemirror(node: TipTapNode): TipTapNode {
     ...(node.content === undefined ? {} : { content: node.content.map(tipTapJsonToProsemirror) }),
     ...(node.marks === undefined ? {} : { marks: node.marks.map(tipTapMarkToProsemirror) }),
   };
+}
+
+function renderMentionNodeText(node: TipTapNode): string | undefined {
+  if (node.type === 'documentMention') {
+    return `@${readStringAttr(node, 'name', 'document')}`;
+  }
+  if (node.type === 'boardMention') {
+    return `#${readStringAttr(node, 'name', 'board')}`;
+  }
+  if (node.type === 'memoryMention') {
+    return `@${readStringAttr(node, 'name', 'memory')}`;
+  }
+  if (node.type === 'skillMention') {
+    return `*${readStringAttr(node, 'name', 'skill')}`;
+  }
+  if (node.type === 'taskMention') {
+    return `!${readStringAttr(node, 'name', 'task')}`;
+  }
+  return undefined;
+}
+
+function readStringAttr(node: TipTapNode, key: string, fallback: string): string {
+  const value = node.attrs?.[key];
+  return typeof value === 'string' && value.length > 0 ? value : fallback;
 }
 
 function prosemirrorMarkToTipTap(mark: TipTapMark): TipTapMark {
