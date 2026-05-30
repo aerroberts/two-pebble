@@ -30,3 +30,13 @@ export const Full: Story = {
     </div>
   ),
 };
+
+export const Thin: Story = {
+  render: () => (
+    <div className="flex h-screen min-h-0 flex-col">
+      <PageLayout width="thin">
+        <Placeholder label="Thin Page Content (880px)" tone="violet" minHeight="100%" />
+      </PageLayout>
+    </div>
+  ),
+};

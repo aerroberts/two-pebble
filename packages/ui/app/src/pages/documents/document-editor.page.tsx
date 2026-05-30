@@ -284,7 +284,7 @@ export function DocumentEditorPage() {
   }
 
   return (
-    <PageLayout width="fixed">
+    <PageLayout width="thin">
       <Header
         compact
         actionItems={

@@ -677,6 +677,64 @@ body {
   display: none;
 }
 
+.document-editor .ProseMirror {
+  line-height: 1.75;
+}
+
+.document-editor .ProseMirror p {
+  margin: 0.7rem 0;
+}
+
+.document-editor .ProseMirror h1 {
+  margin-top: 3rem;
+  margin-bottom: 0.9rem;
+}
+
+.document-editor .ProseMirror h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.document-editor .ProseMirror h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+}
+
+.document-editor .ProseMirror > :first-child {
+  margin-top: 0;
+}
+
+.document-editor .ProseMirror :not(pre) > code {
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface-hover);
+  padding: 1px 5px;
+}
+
+.document-editor .ProseMirror table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+}
+
+.document-editor .ProseMirror th,
+.document-editor .ProseMirror td {
+  border: 1px solid var(--color-border);
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.document-editor .ProseMirror th {
+  background: var(--color-surface-alt);
+  font-weight: 600;
+}
+
+.document-editor .ProseMirror th p,
+.document-editor .ProseMirror td p {
+  margin: 0.2rem 0;
+}
+
 .composer-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;

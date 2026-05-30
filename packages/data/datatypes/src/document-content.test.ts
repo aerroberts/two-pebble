@@ -87,4 +87,23 @@ describe('feature: document content markdown conversion', () => {
     const types = doc.content?.map((node) => node.type);
     expect(types).toEqual(['paragraph', 'table', 'paragraph', 'commentSection']);
   });
+
+  test('happy: preserves fenced code block languages', () => {
+    const markdown = [
+      '```mermaid',
+      'flowchart LR',
+      '  A --> B',
+      '```',
+      '',
+      '```tsx',
+      'export const A = <B />;',
+      '```',
+    ].join('\n');
+    const doc = markdownToTipTap(markdown);
+    const codeBlocks = doc.content?.filter((node) => node.type === 'codeBlock') ?? [];
+
+    expect(codeBlocks.map((node) => node.attrs?.language)).toEqual(['mermaid', 'tsx']);
+    expect(tipTapToMarkdown(doc)).toContain('```mermaid');
+    expect(tipTapToMarkdown(doc)).toContain('```tsx');
+  });
 });

@@ -207,6 +207,11 @@ function convertAttrsToTipTap(type: string, attrs: TipTapAttrs | undefined): Tip
   if (attrs === undefined) {
     return undefined;
   }
+  if (type === 'codeBlock' && typeof attrs.params === 'string') {
+    const { params: _params, ...rest } = attrs;
+    const language = attrs.params.trim().split(/\s+/)[0] ?? '';
+    return language.length === 0 ? rest : { ...rest, language };
+  }
   if (type === 'orderedList' && typeof attrs.order === 'number') {
     const { order: _order, ...rest } = attrs;
     return { ...rest, start: attrs.order };
@@ -217,6 +222,10 @@ function convertAttrsToTipTap(type: string, attrs: TipTapAttrs | undefined): Tip
 function convertAttrsToProsemirror(type: string, attrs: TipTapAttrs | undefined): TipTapAttrs | undefined {
   if (attrs === undefined) {
     return undefined;
+  }
+  if (type === 'code_block' && typeof attrs.language === 'string') {
+    const { language: _language, ...rest } = attrs;
+    return attrs.language.length === 0 ? rest : { ...rest, params: attrs.language };
   }
   if (type === 'ordered_list' && typeof attrs.start === 'number') {
     const { start: _start, ...rest } = attrs;
