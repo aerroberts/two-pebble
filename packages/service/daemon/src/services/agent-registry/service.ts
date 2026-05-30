@@ -32,6 +32,7 @@ import { buildLaunchAgent } from './build-launch-agent';
 import { emitWorktreeInitializedTrace, resolveLaunchWorkspace } from './launch-workspace';
 import { buildAgentListenerContext } from './listener-context';
 import { installAgentPersistenceListeners, installSubAgentListeners } from './listeners';
+import { buildReferenceSystemTraceContent } from './reference-system-trace';
 import { parseCapabilitySpecs } from './register-pebble-capabilities';
 import { renderAgentRegistrySystemPrompt } from './registry-system-prompt';
 import { rehydrateAgent } from './rehydrate';
@@ -449,6 +450,13 @@ export class AgentRegistryService extends DaemonService {
       return;
     }
     const cells = input.cells !== undefined && input.cells.length > 0 ? input.cells : [Cell.text(input.message)];
+    const referenceSystemTraceContent = buildReferenceSystemTraceContent(cells);
+    if (referenceSystemTraceContent !== undefined) {
+      input.agent.emit('trace', {
+        type: 'system-message',
+        data: { content: referenceSystemTraceContent },
+      });
+    }
     input.agent.sendMessage(cells);
   }
 

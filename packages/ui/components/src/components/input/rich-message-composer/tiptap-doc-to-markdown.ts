@@ -58,6 +58,11 @@ export function tipTapDocToMarkdown(doc: JSONContent): string {
       out += `*${name}`;
       return;
     }
+    if (node.type === 'memoryMention') {
+      const name = typeof node.attrs?.name === 'string' ? node.attrs.name : 'memory';
+      out += `@${name}`;
+      return;
+    }
     for (const child of node.content ?? []) {
       visit(child);
     }

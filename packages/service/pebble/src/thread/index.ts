@@ -1,5 +1,5 @@
 export type { CellContent } from './cells/index';
-export { Cell } from './cells/index';
+export { Cell, renderMemoryReferenceText, renderSkillReferenceText } from './cells/index';
 export { ConversationThread } from './conversation-thread';
 export { renderAgentNamingInstruction } from './events/events/agent-naming-instruction';
 export { renderPebbleAgentNamingInstruction } from './events/events/pebble-agent-naming-instruction';
