@@ -172,8 +172,11 @@ export class ClaudeCodeAgent extends ThirdPartyAgentFramework {
     options.allowDangerouslySkipPermissions = true;
     options.forwardSubagentText = true;
     options.hooks = this.buildQueryHooks();
+    options.managedSettings = { strictPluginOnlyCustomization: ['skills'] };
     options.pathToClaudeCodeExecutable = this.pathToClaudeCodeExecutable;
     options.permissionMode = 'bypassPermissions';
+    options.settingSources = [];
+    options.skills = [];
     if (this.sessionId !== undefined) {
       options.resume = this.sessionId;
     }

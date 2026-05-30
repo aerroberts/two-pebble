@@ -1,5 +1,6 @@
 import { asc } from 'drizzle-orm';
-import type { DatastoreContext, ProjectRecord } from '../types';
+import type { DatastoreContext } from '../types';
+import { toProjectRecord } from '../utils/project-record';
 
 type OperationHandlerInput = Record<string, never>;
 
@@ -11,6 +12,6 @@ export function projectsListOperation(ctx: DatastoreContext) {
       .from(ctx.schema.projectsTable)
       .orderBy(asc(ctx.schema.projectsTable.name))
       .all();
-    return { items: rows as ProjectRecord[] };
+    return { items: rows.map(toProjectRecord) };
   };
 }

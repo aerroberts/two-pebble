@@ -1,8 +1,8 @@
 import type { RichComposerSubmitPayload } from '@two-pebble/components';
 import {
-  useAgentRegistries,
   useInferenceProfiles,
   useLaunchAgent,
+  useProjectAgentRegistries,
   useThirdPartyAgentInstalls,
 } from '@two-pebble/realtime';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,7 @@ export function useAgentsPageState() {
   const [agentRegistryId, setAgentRegistryId] = useState('');
   const projectId = useProjectId();
   const [launching, setLaunching] = useState(false);
-  const agentRegistries = useAgentRegistries({ projectId });
+  const agentRegistries = useProjectAgentRegistries(projectId);
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
   const agentRegistryList = agentRegistries.values().sort((left, right) => left.name.localeCompare(right.name));
@@ -23,17 +23,24 @@ export function useAgentsPageState() {
     label: registry.name.length > 0 ? registry.name : 'Untitled agent',
     value: registry.id,
   }));
+  const quickActionAgents = agentRegistryList
+    .filter((registry) => registry.quickActionEnabled)
+    .map((registry) => ({
+      icon: agentRegistryIcon(registry, inferenceProfiles, installs),
+      id: registry.id,
+      label: registry.name.length > 0 ? registry.name : 'Untitled agent',
+    }));
   const launchAgent = useLaunchAgent();
   const navigate = useNavigate();
 
-  const launchSelectedAgent = async (payload: RichComposerSubmitPayload) => {
-    if (agentRegistryId.length === 0) {
+  const launchRegistry = async (registryId: string, payload: Pick<RichComposerSubmitPayload, 'cells' | 'markdown'>) => {
+    if (registryId.length === 0 || launching) {
       return;
     }
     setLaunching(true);
     try {
       const launched = await launchAgent({
-        agentRegistryId,
+        agentRegistryId: registryId,
         projectId,
         message: payload.markdown,
         cells: payload.cells,
@@ -42,6 +49,14 @@ export function useAgentsPageState() {
     } finally {
       setLaunching(false);
     }
+  };
+
+  const launchSelectedAgent = async (payload: RichComposerSubmitPayload) => {
+    await launchRegistry(agentRegistryId, payload);
+  };
+
+  const launchQuickActionAgent = async (quickActionAgentRegistryId: string) => {
+    await launchRegistry(quickActionAgentRegistryId, { cells: [], markdown: '' });
   };
 
   useEffect(() => {
@@ -54,8 +69,10 @@ export function useAgentsPageState() {
     agentRegistries,
     agentRegistryId,
     agentRegistryOptions,
+    launchQuickActionAgent,
     launchSelectedAgent,
     launching,
+    quickActionAgents,
     setAgentRegistryId,
   };
 }

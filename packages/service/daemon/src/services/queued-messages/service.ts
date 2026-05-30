@@ -1,3 +1,4 @@
+import type { AgentQueuedMessageRecord } from '@two-pebble/datastore';
 import { logger } from '@two-pebble/logger';
 import type { AgentRegistryService } from '../agent-registry/service';
 import { DaemonService } from '../daemon-service';
@@ -48,17 +49,46 @@ export class QueuedMessagesDispatcherService extends DaemonService {
       if (row === null) {
         return;
       }
-      try {
-        const runtime = await this.agentRegistry.rehydrate(agentId);
-        runtime.sendMessage(row.cells);
-        this.daemon.events.emit('agentQueuedMessageChanged', await this.qm.markSent({ id: row.id }));
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.warn('queued agent message dispatch failed', { agentId, queuedMessageId: row.id, error: message });
-        this.daemon.events.emit('agentQueuedMessageChanged', await this.qm.markFailed({ id: row.id, error: message }));
-      }
+      await this.dispatchRow(row);
     } finally {
       this.dispatching.delete(agentId);
+    }
+  }
+
+  public async dispatchNow(id: string): Promise<AgentQueuedMessageRecord> {
+    const row = await this.qm.read({ id });
+    if (row.status !== 'queued') {
+      return row;
+    }
+    if (this.dispatching.has(row.agentId)) {
+      return row;
+    }
+
+    this.dispatching.add(row.agentId);
+    try {
+      return await this.dispatchRow(row);
+    } finally {
+      this.dispatching.delete(row.agentId);
+    }
+  }
+
+  private async dispatchRow(row: AgentQueuedMessageRecord): Promise<AgentQueuedMessageRecord> {
+    try {
+      const runtime = await this.agentRegistry.rehydrate(row.agentId);
+      runtime.sendMessage(row.cells);
+      const sent = await this.qm.markSent({ id: row.id });
+      this.daemon.events.emit('agentQueuedMessageChanged', sent);
+      return sent;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn('queued agent message dispatch failed', {
+        agentId: row.agentId,
+        queuedMessageId: row.id,
+        error: message,
+      });
+      const failed = await this.qm.markFailed({ id: row.id, error: message });
+      this.daemon.events.emit('agentQueuedMessageChanged', failed);
+      return failed;
     }
   }
 }

@@ -51,10 +51,7 @@ export function projectsDeleteOperation(ctx: DatastoreContext) {
     }
 
     await ctx.database.delete(ctx.schema.agentsTable).where(eq(ctx.schema.agentsTable.projectId, input.id)).run();
-    await ctx.database
-      .delete(ctx.schema.agentRegistriesTable)
-      .where(eq(ctx.schema.agentRegistriesTable.projectId, input.id))
-      .run();
+    // Agent registries are global and intentionally survive project deletion.
     await ctx.database.delete(ctx.schema.documentsTable).where(eq(ctx.schema.documentsTable.projectId, input.id)).run();
     await ctx.database.delete(ctx.schema.projectsTable).where(eq(ctx.schema.projectsTable.id, input.id)).run();
     return { id: input.id };

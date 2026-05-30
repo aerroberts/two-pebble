@@ -12,6 +12,7 @@ import type { AgentPriceLineItemsListOperation } from './protocol/agent.price-li
 import type { AgentPriceLineItemsRecordOperation } from './protocol/agent.price-line-items.record';
 import type { AgentQueuedMessageCancelOperation } from './protocol/agent.queued-message.cancel';
 import type { AgentQueuedMessageEnqueueOperation } from './protocol/agent.queued-message.enqueue';
+import type { AgentQueuedMessageSendNowOperation } from './protocol/agent.queued-message.send-now';
 import type { AgentQueuedMessagesListOperation } from './protocol/agent.queued-messages.list';
 import type { AgentReadOperation } from './protocol/agent.read';
 import type { AgentRenameOperation } from './protocol/agent.rename';
@@ -162,6 +163,7 @@ export type DaemonOperations = [
   AgentMessageOperation,
   AgentQueuedMessageEnqueueOperation,
   AgentQueuedMessageCancelOperation,
+  AgentQueuedMessageSendNowOperation,
   AgentQueuedMessagesListOperation,
   AgentSignalsListOperation,
   AgentSignalsResolveOperation,

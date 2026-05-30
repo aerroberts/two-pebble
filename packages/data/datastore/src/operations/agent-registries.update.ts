@@ -7,6 +7,7 @@ type OperationHandlerInput = {
   id: string;
   inferenceProfileId?: string | null;
   name?: string;
+  quickActionEnabled?: boolean;
   systemPrompt?: TipTapDocument;
   thirdPartyAgentInstallId?: string | null;
   workspaceConfig?: string;
@@ -34,6 +35,7 @@ export function agentRegistriesUpdateOperation(ctx: DatastoreContext) {
         inferenceProfileId:
           input.inferenceProfileId === undefined ? existing.inferenceProfileId : input.inferenceProfileId,
         name: input.name ?? existing.name,
+        quickActionEnabled: input.quickActionEnabled ?? existing.quickActionEnabled,
         systemPrompt:
           input.systemPrompt === undefined ? existing.systemPrompt : serializeAgentSystemPrompt(input.systemPrompt),
         thirdPartyAgentInstallId:

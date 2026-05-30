@@ -1,4 +1,4 @@
-import type { WorkspaceConfig } from '@two-pebble/realtime';
+import type { WorkspaceConfig, WorkspaceConfigKind } from '@two-pebble/realtime';
 
 const DEFAULT_CONFIG: WorkspaceConfig = { kind: 'absolute', path: '' };
 
@@ -51,4 +51,18 @@ export function parseWorkspaceConfigString(raw: string): WorkspaceConfig {
  */
 export function serializeWorkspaceConfig(config: WorkspaceConfig): string {
   return JSON.stringify(config);
+}
+
+export function workspaceConfigForKind(
+  kind: WorkspaceConfigKind,
+  current: WorkspaceConfig,
+  defaultRepositoryId: string,
+): WorkspaceConfig {
+  if (kind === 'none') {
+    return { kind: 'none' };
+  }
+  if (kind === 'absolute') {
+    return { kind: 'absolute', path: current.kind === 'absolute' ? current.path : '' };
+  }
+  return { kind: 'worktree', repositoryId: current.kind === 'worktree' ? current.repositoryId : defaultRepositoryId };
 }

@@ -40,7 +40,6 @@ async function seedSource(datastore: Datastore): Promise<void> {
   const repository = await datastore.repositories.create({ name: 'app', path: '/code/app', baseBranch: 'main' });
   const agent = await datastore.agentRegistries.create({
     name: 'Coder',
-    projectId: project.id,
     systemPrompt: createEmptyTipTapDocument(),
     capabilities: '[]',
     workspaceConfig: JSON.stringify({ kind: 'worktree', repositoryId: repository.id }),
@@ -97,7 +96,7 @@ describe('feature: data-sync export then import round trip', () => {
     const repo = repositories.items.find((row) => row.name === 'app');
     expect(repo?.path).toBe('/code/app');
 
-    const agents = await target.agentRegistries.list({ limit: 100, offset: 0, projectId: alpha?.id });
+    const agents = await target.agentRegistries.list({ limit: 100, offset: 0 });
     const coder = agents.items.find((row) => row.name === 'Coder');
     expect(coder).toBeDefined();
     // The workspace repository FK was rewritten to the target instance's id.

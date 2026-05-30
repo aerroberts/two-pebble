@@ -1,13 +1,22 @@
-import { MinimalSelect, Section, type SelectOption, Surface } from '@two-pebble/components';
+import { ListLayout, MinimalSelect, Section, type SelectOption, Surface } from '@two-pebble/components';
+import type { ReactNode } from 'react';
 import { AgentInput, type RichComposerSubmitPayload } from '../../shared/agent-input/agent-input';
+
+interface QuickActionAgent {
+  icon: ReactNode;
+  id: string;
+  label: string;
+}
 
 interface AgentsLaunchSectionProps {
   agentRegistriesLoading: boolean;
   agentRegistryId: string;
   agentRegistryOptions: SelectOption[];
+  quickActionAgents: QuickActionAgent[];
   launching: boolean;
   onAgentRegistryIdChange: (agentRegistryId: string) => void;
   onLaunchAgent: (payload: RichComposerSubmitPayload) => void;
+  onLaunchQuickAction: (agentRegistryId: string) => void;
 }
 
 /**
@@ -22,26 +31,40 @@ interface AgentsLaunchSectionProps {
  */
 export function AgentsLaunchSection(props: AgentsLaunchSectionProps) {
   return (
-    <Section title="Launch">
-      <Surface>
-        <AgentInput
-          ariaLabel="Launch message"
-          disabled={props.launching}
-          draftStorageKey={`composer:agents:launch:${props.agentRegistryId}`}
-          onSubmit={props.onLaunchAgent}
-          placeholder="Enter to launch — / to reference a document"
-          submitDisabled={props.agentRegistryId.length === 0}
-        />
-        <div className="flex pt-1">
-          <MinimalSelect
-            ariaLabel="Agent"
-            onChange={props.onAgentRegistryIdChange}
-            options={props.agentRegistryOptions}
-            placeholder={props.agentRegistriesLoading ? 'Loading agents' : 'Select agent'}
-            value={props.agentRegistryId}
+    <>
+      <Section title="Launch">
+        <Surface>
+          <AgentInput
+            ariaLabel="Launch message"
+            disabled={props.launching}
+            draftStorageKey={`composer:agents:launch:${props.agentRegistryId}`}
+            onSubmit={props.onLaunchAgent}
+            placeholder="Enter to launch — / to reference a document"
+            submitDisabled={props.agentRegistryId.length === 0}
           />
-        </div>
-      </Surface>
-    </Section>
+          <div className="flex pt-1">
+            <MinimalSelect
+              ariaLabel="Agent"
+              onChange={props.onAgentRegistryIdChange}
+              options={props.agentRegistryOptions}
+              placeholder={props.agentRegistriesLoading ? 'Loading agents' : 'Select agent'}
+              value={props.agentRegistryId}
+            />
+          </div>
+        </Surface>
+      </Section>
+      <Section title="Quick Actions">
+        <ListLayout
+          emptyState={props.agentRegistriesLoading ? 'Loading agents.' : 'No quick action agents configured.'}
+          items={props.quickActionAgents.map((agent) => ({
+            icon: agent.icon,
+            key: agent.id,
+            onClick: props.launching ? undefined : () => props.onLaunchQuickAction(agent.id),
+            title: agent.label,
+            value: props.launching ? 'Launching' : undefined,
+          }))}
+        />
+      </Section>
+    </>
   );
 }

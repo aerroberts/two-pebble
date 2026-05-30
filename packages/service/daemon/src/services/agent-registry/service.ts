@@ -373,7 +373,7 @@ export class AgentRegistryService extends DaemonService {
       description,
       name: registry.name,
       ...(input.parentAgentId === undefined ? {} : { parentAgentId: input.parentAgentId }),
-      projectId: input.projectId ?? registry.projectId,
+      projectId: input.projectId ?? 'proj_default',
       workspaceId: launchWorkspace.workspace.id,
     });
     this.daemon.events.emit('agentRecorded', agent);

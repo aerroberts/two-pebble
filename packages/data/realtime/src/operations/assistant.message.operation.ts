@@ -56,7 +56,6 @@ export function sendAssistantMessageOperation(ctx: RealtimeOperationContext) {
         assistantAgentId: launched.id,
         assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
         chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
-        documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
       });
       return { agentId: launched.id, launched: true };
     }

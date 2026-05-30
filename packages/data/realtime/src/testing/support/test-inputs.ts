@@ -81,7 +81,6 @@ export function helloWorldAgentRegistryInput(inferenceProfileId: string) {
   return {
     inferenceProfileId,
     name: 'Hello World Agent',
-    projectId: 'proj_default',
     systemPrompt: emptyAgentSystemPrompt(),
   };
 }

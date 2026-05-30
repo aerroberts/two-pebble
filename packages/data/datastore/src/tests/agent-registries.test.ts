@@ -8,6 +8,7 @@ describe('feature: operation agent-registries.create', () => {
     const registry = await datastore.agentRegistries.create(sampleAgentRegistryInput);
     await datastore.close();
     expect(registry.name).toBe('Sample Agent');
+    expect(registry.quickActionEnabled).toBe(false);
   });
 });
 
@@ -38,6 +39,14 @@ describe('feature: operation agent-registries.update', () => {
     const updated = await datastore.agentRegistries.update({ id: registry.id, name: 'Renamed Agent' });
     await datastore.close();
     expect(updated.name).toBe('Renamed Agent');
+  });
+
+  test('happy: updates the quick action flag', async () => {
+    const datastore = await useDatastoreForTesting();
+    const registry = await datastore.agentRegistries.create(sampleAgentRegistryInput);
+    const updated = await datastore.agentRegistries.update({ id: registry.id, quickActionEnabled: true });
+    await datastore.close();
+    expect(updated.quickActionEnabled).toBe(true);
   });
 });
 

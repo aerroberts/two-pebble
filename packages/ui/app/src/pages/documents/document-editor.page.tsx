@@ -16,7 +16,7 @@ import {
   useToast,
 } from '@two-pebble/components';
 import { Cell } from '@two-pebble/pebble';
-import { useAppSettings, useDocuments, useLaunchAgent, useTaskBoards } from '@two-pebble/realtime';
+import { useDocuments, useLaunchAgent, useProjects, useTaskBoards } from '@two-pebble/realtime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -47,11 +47,11 @@ export function DocumentEditorPage() {
   const saveContentRef = useRef(state.saveContent);
   const documents = useDocuments({ projectId });
   const boards = useTaskBoards({ projectId });
-  const appSettings = useAppSettings();
+  const projects = useProjects();
   const launchAgent = useLaunchAgent();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const documentRunnerRegistryId = appSettings.value?.documentRunnerAgentRegistryId ?? null;
+  const documentRunnerRegistryId = projects.getItem(projectId)?.value?.documentRunnerAgentRegistryId ?? null;
 
   useEffect(() => {
     saveContentRef.current = state.saveContent;
@@ -284,7 +284,7 @@ export function DocumentEditorPage() {
   }
 
   return (
-    <PageLayout width="fixed">
+    <PageLayout width="thin">
       <Header
         compact
         actionItems={

@@ -8,6 +8,7 @@ interface AgentDetailChatViewFooterProps {
   chatSending: boolean;
   onCancelQueuedMessage: (messageId: string) => void;
   onChatSubmit: (payload: RichComposerSubmitPayload) => void;
+  onSendQueuedMessageNow: (messageId: string) => void;
   queuedMessages?: AgentQueuedMessageRecord[];
   workspacePath: string | null;
 }
@@ -36,13 +37,22 @@ export function AgentDetailChatViewFooter(props: AgentDetailChatViewFooterProps)
                   label={message.status}
                 />
                 {message.status === 'queued' ? (
-                  <IconButton
-                    aria-label="Cancel queued message"
-                    icon="x"
-                    onClick={() => props.onCancelQueuedMessage(message.id)}
-                    size={22}
-                    variant="secondary"
-                  />
+                  <>
+                    <IconButton
+                      aria-label="Send queued message now"
+                      icon="send"
+                      onClick={() => props.onSendQueuedMessageNow(message.id)}
+                      size={22}
+                      variant="secondary"
+                    />
+                    <IconButton
+                      aria-label="Cancel queued message"
+                      icon="x"
+                      onClick={() => props.onCancelQueuedMessage(message.id)}
+                      size={22}
+                      variant="secondary"
+                    />
+                  </>
                 ) : null}
               </div>
             </div>

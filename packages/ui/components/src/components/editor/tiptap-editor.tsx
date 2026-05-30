@@ -9,7 +9,8 @@ import { useEffect, useRef } from 'react';
 import { BoardMentionNode } from '../input/rich-message-composer/board-mention-node';
 import { DocumentMentionNode } from '../input/rich-message-composer/document-mention-node';
 import { CodeBlockLanguageNode } from './code-block-language-node';
-import { CommentExtension, CommentSectionNode } from './comment-extension';
+import { CommentExtension } from './comment-extension';
+import { createDocumentNodeExtensions } from './document-node-extensions';
 import { readActiveSlashTrigger, type SlashTrigger } from './slash/slash-trigger';
 import { TodoItemNode } from './todo-item-node';
 
@@ -56,8 +57,8 @@ export function TipTapEditor(props: TipTapEditorProps) {
       Link.configure({ openOnClick: false }),
       Image,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing...' }),
+      ...createDocumentNodeExtensions(),
       TodoItemNode,
-      CommentSectionNode,
       CommentExtension,
       BoardMentionNode,
       DocumentMentionNode,
@@ -65,6 +66,9 @@ export function TipTapEditor(props: TipTapEditorProps) {
     content: props.initialContent,
     editable: props.editable ?? true,
     editorProps: {
+      attributes: {
+        spellcheck: 'false',
+      },
       handleKeyDown: (_view, event) => {
         const current = editorRef.current;
         const handler = propsRef.current.onKeyDown;
@@ -113,6 +117,15 @@ export function TipTapEditor(props: TipTapEditorProps) {
     if (editor === null) {
       return;
     }
+    // While the user is actively editing, never reapply incoming content.
+    // Autosave round-trips the document back through `initialContent`, so a
+    // new object reference arrives mid-edit even though nothing external
+    // changed. Calling setContent here would discard in-flight keystrokes and
+    // jump the cursor to the end of the document. External updates are picked
+    // up once the editor loses focus (or on remount via the document key).
+    if (editor.isFocused) {
+      return;
+    }
     if (JSON.stringify(editor.getJSON()) === JSON.stringify(props.initialContent)) {
       return;
     }
@@ -122,7 +135,8 @@ export function TipTapEditor(props: TipTapEditorProps) {
   return (
     <EditorContent
       editor={editor}
-      className="min-h-[360px] text-sm leading-6 text-content [&_.ProseMirror-focused]:outline-none [&_.ProseMirror]:relative [&_.ProseMirror]:min-h-[360px] [&_.ProseMirror_a]:text-accent [&_.ProseMirror_blockquote]:border-l-2 [&_.ProseMirror_blockquote]:border-border-strong [&_.ProseMirror_blockquote]:pl-3 [&_.ProseMirror_code]:rounded [&_.ProseMirror_code]:bg-surface-alt [&_.ProseMirror_code]:px-1 [&_.ProseMirror_h1]:text-xl [&_.ProseMirror_h1]:font-semibold [&_.ProseMirror_h2]:text-lg [&_.ProseMirror_h2]:font-semibold [&_.ProseMirror_h3]:text-base [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-content-muted [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p]:my-2 [&_.ProseMirror_pre]:overflow-auto [&_.ProseMirror_pre]:rounded-md [&_.ProseMirror_pre]:bg-surface [&_.ProseMirror_pre]:p-3 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.comment-thread-widget]:pointer-events-none [&_.comment-thread-widget]:absolute [&_.comment-thread-widget]:-right-7 [&_.comment-thread-widget]:inline-flex [&_.comment-thread-widget]:h-5 [&_.comment-thread-widget]:w-5 [&_.comment-thread-widget]:items-center [&_.comment-thread-widget]:justify-center [&_.comment-thread-widget]:text-accent [&_.comment-thread-widget_svg]:h-3.5 [&_.comment-thread-widget_svg]:w-3.5 [&_.has-comment-thread]:rounded-sm [&_.has-comment-thread]:bg-surface"
+      spellCheck={false}
+      className="document-editor min-h-[360px] text-sm text-content [&_.ProseMirror-focused]:outline-none [&_.ProseMirror]:relative [&_.ProseMirror]:min-h-[360px] [&_.ProseMirror_a]:text-accent [&_.ProseMirror_blockquote]:border-l-2 [&_.ProseMirror_blockquote]:border-border-strong [&_.ProseMirror_blockquote]:pl-3 [&_.ProseMirror_h1]:text-xl [&_.ProseMirror_h1]:font-semibold [&_.ProseMirror_h2]:text-lg [&_.ProseMirror_h2]:font-semibold [&_.ProseMirror_h3]:text-base [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-content-muted [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.comment-thread-widget]:pointer-events-none [&_.comment-thread-widget]:absolute [&_.comment-thread-widget]:-right-7 [&_.comment-thread-widget]:inline-flex [&_.comment-thread-widget]:h-5 [&_.comment-thread-widget]:w-5 [&_.comment-thread-widget]:items-center [&_.comment-thread-widget]:justify-center [&_.comment-thread-widget]:text-accent [&_.comment-thread-widget_svg]:h-3.5 [&_.comment-thread-widget_svg]:w-3.5 [&_.has-comment-thread]:rounded-sm [&_.has-comment-thread]:bg-surface [&_.two-pebble-comment-section]:hidden"
     />
   );
 }

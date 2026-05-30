@@ -5,11 +5,11 @@ interface AgentRegistryRecord {
   createdAt: number;
   updatedAt: number;
   name: string;
-  projectId: string;
   kind: AgentRegistryKind;
   inferenceProfileId: string | null;
   thirdPartyAgentInstallId: string | null;
   systemPrompt: TipTapDocument;
+  quickActionEnabled: boolean;
   capabilities: string;
   workspaceConfig: string;
 }

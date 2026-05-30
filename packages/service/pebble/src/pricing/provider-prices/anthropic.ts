@@ -10,6 +10,14 @@ export function registerAnthropicPricing(calculator: PriceCalculator) {
 }
 
 function registerAnthropicPricingPart1(calculator: PriceCalculator) {
+  // Claude Opus 4.8
+  calculator.registerPricing('anthropic/claude-opus-4-8', {
+    inputTokensReadUncachedPPM: 5.0,
+    inputTokensReadCachedPPM: 0.5,
+    inputTokensWriteCachedPPM: 6.25,
+    outputTokensGeneratedPPM: 25.0,
+  });
+
   // Claude Sonnet 4.5
   calculator.registerPricing('anthropic/claude-sonnet-4-5-20250929', {
     inputTokensReadUncachedPPM: 3.0,

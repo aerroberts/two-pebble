@@ -52,7 +52,6 @@ export function useDataSyncPageState() {
         assistantAgentId: settings.assistantAgentId,
         assistantCommandKVoiceModeEnabled: settings.assistantCommandKVoiceModeEnabled,
         chatConversationFoldingEnabled: settings.chatConversationFoldingEnabled,
-        documentRunnerAgentRegistryId: settings.documentRunnerAgentRegistryId,
         syncDirectory: directory.trim().length === 0 ? null : directory.trim(),
       });
     } catch (failure) {

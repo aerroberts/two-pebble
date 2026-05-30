@@ -46,6 +46,7 @@ export type {
 export { useAgentRegistries } from './states/agent-registries/hooks/use-agent-registries.hook';
 export { useCreateAgentRegistry } from './states/agent-registries/hooks/use-create-agent-registry.hook';
 export { useDeleteAgentRegistry } from './states/agent-registries/hooks/use-delete-agent-registry.hook';
+export { useProjectAgentRegistries } from './states/agent-registries/hooks/use-project-agent-registries.hook';
 export { useUpdateAgentRegistry } from './states/agent-registries/hooks/use-update-agent-registry.hook';
 export type {
   AgentRegistriesState,
@@ -76,6 +77,7 @@ export { useReadAgent } from './states/agents/hooks/use-read-agent.hook';
 export { useRenameAgent } from './states/agents/hooks/use-rename-agent.hook';
 export { useResumeAgent } from './states/agents/hooks/use-resume-agent.hook';
 export { useSendAgentMessage } from './states/agents/hooks/use-send-agent-message.hook';
+export { useSendAgentQueuedMessageNow } from './states/agents/hooks/use-send-agent-queued-message-now.hook';
 export { useStopAgent } from './states/agents/hooks/use-stop-agent.hook';
 export type {
   AgentQueuedMessageRecord,
@@ -91,6 +93,7 @@ export type {
   ReadAgentInput,
   ResumeAgentInput,
   SendAgentMessageInput,
+  SendAgentQueuedMessageNowInput,
 } from './states/agents/types';
 export { useAppSettings } from './states/app-settings/hooks/use-app-settings.hook';
 export { useGenerateSpeech } from './states/app-settings/hooks/use-generate-speech.hook';
