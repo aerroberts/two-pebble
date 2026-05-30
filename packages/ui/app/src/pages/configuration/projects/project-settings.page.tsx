@@ -148,14 +148,17 @@ export function ProjectSettingsPage() {
           {allRegistries.length === 0 ? (
             <span className="text-content-subtle text-[12px]">Create an agent in the global agent registry first.</span>
           ) : (
-            allRegistries.map((registry) => (
-              <Checkbox
-                checked={enabledSet.has(registry.id)}
-                key={registry.id}
-                label={registry.name.length > 0 ? registry.name : 'Untitled agent'}
-                onChange={(event) => onToggleEnabled(registry.id, event.target.checked)}
-              />
-            ))
+            <div className="flex flex-col gap-2">
+              {allRegistries.map((registry) => (
+                <Checkbox
+                  checked={enabledSet.has(registry.id)}
+                  className="w-full"
+                  key={registry.id}
+                  label={registry.name.length > 0 ? registry.name : 'Untitled agent'}
+                  onChange={(event) => onToggleEnabled(registry.id, event.target.checked)}
+                />
+              ))}
+            </div>
           )}
         </Surface>
       </Section>
