@@ -8,6 +8,11 @@ import { buildFailureTool } from './tools/failure/handler';
 import { objectData, stringField } from './utils/parent-linked-task-signal-data';
 import type { ParentLinkedTaskCapabilityConfig } from './utils/parent-linked-task-types';
 
+/**
+ * Agent capability for a task child: exposes complete/fail tools so the child
+ * can report the outcome of work its parent assigned, then settles into a
+ * terminal state once it has reported.
+ */
 export class ParentLinkedTaskCapability extends AgentCapability<ParentLinkedTaskCapabilityConfig> {
   public readonly id = 'parent-linked-task';
   public readonly description = 'Lets a task child complete or fail work assigned by its parent.';

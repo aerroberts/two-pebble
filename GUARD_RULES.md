@@ -5,15 +5,21 @@ guard DSL (`aerroberts/guard`) can do the same. Use it to decide what to build.
 
 ## two-pebble DSL, in one place
 
-Structure: `find <glob> { … }`, `findAst <ts|json|markdown> <selector> { … }`,
-`assert { … }`, `capture { $x as $set; }`, `use "…"`.
+Structure: `find <glob> { … }`, `find <glob> where <lang> <ast-selector> { … }`,
+`findAst <ts|tsx|js|json|markdown|rust> <selector> { … }`, `assert { … }`,
+`capture { $x as $set; }`, `use "…"`.
+
+Selector set logic (both `find` globs and `findAst` selectors): chain many `or`s
+**or** many `and`s (not both in one chain), then any number of `except` clauses —
+e.g. `find src/**/*.ts except src/**/*.test.ts`.
 
 Built-in functions (from the `guard` binary): `count`, `length`, `matches`,
 `startsWith`, `endsWith`, `contains`, `covers`, `consumes`, `equalSets`,
-`exists`, `fileExists`.
+`exists`, `fileExists`, `precedingBlockComment`.
 
-Per-node operands: `$name`, `$value`, `$content`, `$lines`, `$ext`, `$kind`,
-`path`, `fileName`. Operators: `== != < > <= >= && || =~`.
+Per-node operands — files: `$path`, `$relPath`, `$name`, `$fileName`, `$ext`,
+`$fileLines`, `$content`, `$bytes`. AST nodes: `$name`, `$kind`, `$lines`,
+`$text`, `$params`, `$file`, `$relPath`. Operators: `== != < > <= >= && || =~`.
 
 ## The assertions
 
@@ -70,26 +76,36 @@ Coverage between two captured sets, both directions. CASCO:
 Name a value extracted from matches for `map` to consume. → `capture { $name as
 $ops; }`.
 
+### leading comment / doc comment ✅
+Assert a class/method/export has a doc comment immediately above it. → **Native
+via `precedingBlockComment()`** (per-node, inside `findAst typescript|tsx|js`).
+`precedingBlockComment(N)` additionally requires the comment be ≥ N chars
+(delimiters included). It steps out through `export` / `export default`, so the
+comment is written above `export class`; `//` line comments do NOT satisfy it.
+Used in `rules/typescript-classes.guard` (`exported_classes_documented`). Was the
+biggest gap — now closed.
+
 ### moduleShape 🟡
 Module-level shape: allowed top-level kinds, max functions/exports, "if a file
 exports a class then no local interfaces", classes must be exported. The most-used
 CASCO assert (`typescript.guard`, `nextjs.guard`, …). Split it:
 - Count limits (max functions/exports) → ✅ `findAst … + count()`.
 - Ban a kind → ✅ `count() == 0` per selector (`index_files_are_pure`).
-- **Conditional "if exports class, then …"** → ❌ the DSL has no implication
-  between two `findAst` results. Steering-only today.
+- **Conditional "if exports class, then …"** → 🟡 `find … where <lang> <selector>`
+  filters the file set to those whose AST query matches, so the common case
+  ("apply this rule only to files that export a class") is now expressible —
+  see `rules/typescript-classes.guard`. A general implication between two
+  arbitrary `findAst` results within one file is still not a primitive.
 
 ## Gaps to build (priority order)
 
-1. **`hasPrecedingComment` / leading-comment** — assert a class, method, or export
-   has a doc comment (or JSDoc) immediately above it. No comment or
-   node-position/trivia primitive exists today; `$content` regex can't reliably tie
-   a comment to a specific node. This is the "is there a comment before this class"
-   check and the biggest missing capability.
-2. **AST positional walking generally** — preceding/leading trivia, sibling-before,
-   parent-of. Enables (1) and similar adjacency rules.
-3. **Conditional / implication asserts** — "if A matched, then B must hold" — the
-   only way to express `moduleShape`'s class-purity rules.
-4. **`fileType file|directory` predicate** — make flat-folder rules first-class
+1. **AST positional walking generally** — sibling-before, parent-of, trailing
+   trivia. `precedingBlockComment()` covers the leading-doc-comment case (the one
+   that mattered most), but there is still no general node-adjacency primitive.
+2. **Conditional / implication asserts within a file** — "if A matched, then B must
+   hold" for two arbitrary `findAst` results. `find … where` now handles the
+   file-set-filtering form of this (only check files where some node exists), but
+   not a true per-file implication between two node sets.
+3. **`fileType file|directory` predicate** — make flat-folder rules first-class
    instead of the trailing-slash idiom. Minor.
-5. **`kebab` helper** — sugar over `matches($name, /…/)`. Nice-to-have.
+4. **`kebab` helper** — sugar over `matches($name, /…/)`. Nice-to-have.

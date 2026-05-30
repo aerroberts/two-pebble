@@ -1,0 +1,31 @@
+# Class-shaped rules for the public surface of a package. Both use a `where`
+# filter so they only touch files that actually export a class — pure helper
+# and type modules are skipped before the body runs, so they never count or
+# report. Test files are exempt: a test may stub out several throwaway classes.
+
+# A file that exports a class should export exactly one. Multiple exported
+# classes in a file means the abstraction was split across the wrong boundary —
+# give each its own module so it can be found, tested, and imported by name.
+guard one_exported_class_per_file {
+  find src/**/*.ts except src/**/*.test.ts where typescript export/class {
+    findAst typescript export/class {
+      assert {
+        count() <= 1;
+      }
+    }
+  }
+}
+
+# Every exported class is public surface, so it must carry a `/** … */` doc
+# comment explaining what it is for. `precedingBlockComment` steps out through
+# the `export` keyword, so the comment is written above `export class`. A `//`
+# line comment does not satisfy it — exported contracts deserve a real doc block.
+guard exported_classes_documented {
+  find src/**/*.ts except src/**/*.test.ts where typescript export/class {
+    findAst typescript export/class {
+      assert {
+        precedingBlockComment();
+      }
+    }
+  }
+}

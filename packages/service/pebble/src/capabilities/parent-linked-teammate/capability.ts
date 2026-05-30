@@ -7,6 +7,11 @@ import { buildRespondParentTool } from './tools/respond-parent/handler';
 import { objectData, stringField } from './utils/parent-linked-teammate-signal-data';
 import type { ParentLinkedTeammateCapabilityConfig } from './utils/parent-linked-teammate-types';
 
+/**
+ * Agent capability for a teammate child: exposes a respond tool so the child
+ * can answer its parent and then wait for follow-up work rather than
+ * terminating after a single reply.
+ */
 export class ParentLinkedTeammateCapability extends AgentCapability<ParentLinkedTeammateCapabilityConfig> {
   public readonly id = 'parent-linked-teammate';
   public readonly description = 'Lets a teammate child respond to its parent and wait for follow-up work.';

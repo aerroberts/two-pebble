@@ -19,6 +19,11 @@ import type {
   PollOutcome,
 } from './types';
 
+/**
+ * Daemon service that polls tracked GitHub pull requests on each heartbeat,
+ * advances their stored state, and applies per-repo backoff when the GitHub
+ * API errors or rate-limits.
+ */
 export class GithubService extends DaemonService {
   public readonly id = 'github';
   private readonly backoff = new Map<string, BackoffEntry>();

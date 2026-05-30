@@ -4,6 +4,10 @@ import { AgentCapability } from '../agent-capability';
 import systemPrompt from './prompts/system.md?raw';
 import { buildSubmitPrTool } from './tools/submit-pr/handler';
 
+/**
+ * Agent capability that submits pull requests for task deliverables and
+ * reconciles their state from `pr-changed` signals delivered by the daemon.
+ */
 export class GithubCapability extends AgentCapability<Record<string, never>> {
   public readonly id = 'github';
   public readonly description = 'Tracks GitHub pull requests submitted for task deliverables.';
