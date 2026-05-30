@@ -4,13 +4,6 @@ import type { DiskRecord, SyncEntityType } from '@two-pebble/protocol';
 import { diskRecordKey } from '@two-pebble/protocol';
 import type { DiskReadResult } from './types';
 
-/**
- * Owns the on-disk representation: folder layout, canonical-JSON read/write,
- * atomic per-record writes, and orphan cleanup. It never sees database ids —
- * records arrive already serialized with FK names. It is the only data-sync
- * module besides the handlers that touches the filesystem.
- */
-
 const PROJECTS_DIR = 'projects';
 const REPOSITORIES_DIR = 'repositories';
 
@@ -29,6 +22,12 @@ function slugify(name: string): string {
   return slug.length > 0 ? slug : 'unnamed';
 }
 
+/**
+ * Owns the on-disk representation: folder layout, canonical-JSON read/write,
+ * atomic per-record writes, and orphan cleanup. It never sees database ids —
+ * records arrive already serialized with FK names. It is the only data-sync
+ * module besides the handlers that touches the filesystem.
+ */
 export class DiskRepository {
   /** Resolves the absolute file path for a record from its identity. */
   public filePathFor(directory: string, record: DiskRecord): string {

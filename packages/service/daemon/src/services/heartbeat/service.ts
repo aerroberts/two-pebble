@@ -5,6 +5,11 @@ import { DaemonService } from '../daemon-service';
 import { HEARTBEAT_LISTENER_TIMEOUT_MS, HEARTBEAT_RETENTION, HEARTBEAT_TICK_MS } from './constants';
 import type { HeartbeatTimer } from './types';
 
+/**
+ * Daemon service that drives the periodic heartbeat. It owns the interval
+ * timer, ticks every `HEARTBEAT_TICK_MS`, and records each report while
+ * pruning entries past the retention window.
+ */
 export class HeartbeatService extends DaemonService {
   public readonly id = 'heartbeat';
   private timer: HeartbeatTimer | undefined;

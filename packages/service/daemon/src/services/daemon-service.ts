@@ -1,6 +1,11 @@
 import type { Datastore } from '@two-pebble/datastore';
 import type { DaemonEventSink, DaemonHeartbeatInput, DaemonHeartbeatReport } from '../types';
 
+/**
+ * Registry that owns the daemon's services. It holds the shared datastore and
+ * event sink, registers each service exactly once by id, and resolves services
+ * for cross-service lookups.
+ */
 export class DaemonServiceHost {
   private readonly serviceList: DaemonService[] = [];
   public readonly datastore: Datastore;

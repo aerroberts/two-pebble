@@ -4,6 +4,11 @@ import type { DaemonHeartbeatInput, DaemonHeartbeatReport } from '../../types';
 import type { AgentRegistryService } from '../agent-registry/service';
 import { DaemonService } from '../daemon-service';
 
+/**
+ * Daemon service that owns scheduled automations: it loads them at startup,
+ * evaluates every automation on each heartbeat, and fires the ones whose
+ * schedule is due — or on demand via `runNow`.
+ */
 export class AutomationService extends DaemonService {
   public readonly id = 'automation';
 
