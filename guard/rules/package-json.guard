@@ -1,0 +1,44 @@
+# Every package exposes the standard script surface so the monorepo tooling can
+# drive any package uniformly. Script presence and values are checked by
+# navigating package.json's key paths directly (findAst json) rather than
+# substring-matching the raw file, so reformatting can't dodge the check and a
+# failure points at the exact pair.
+guard package_scripts {
+  find package.json {
+
+    # The package.json must exist at the package root.
+    assert {
+      exists;
+    }
+
+    # Every package builds through its own `build` script.
+    findAst json /scripts/build {
+      assert {
+        exists;
+      }
+    }
+
+    # Linting always goes through biome with the shared flags.
+    findAst json /scripts/lint {
+      assert {
+        exists;
+        $value == "biome check --write .";
+      }
+    }
+
+    # Structural checks run through the guard CLI.
+    findAst json /scripts/guard {
+      assert {
+        exists;
+        $value == "guard";
+      }
+    }
+
+    # Every package owns a test script.
+    findAst json /scripts/test {
+      assert {
+        exists;
+      }
+    }
+  }
+}

@@ -1,8 +1,3 @@
-# Shared TypeScript guards.
-#
-# Pulled in via `use` by every package that ships TypeScript source. These
-# encode the cross-package conventions about how TypeScript files are shaped.
-
 # Index files are layout, not logic. They exist only to group and re-export the
 # modules around them, so they must not own runtime declarations or contracts.
 guard index_files_are_pure {
@@ -32,9 +27,3 @@ guard index_files_are_pure {
     }
   }
 }
-
-# Steering only (not expressible as an assertion in this DSL): a source file that
-# declares a runtime class should own runtime declarations only. Put interfaces
-# and type aliases in a sibling types.ts and import them as types from the class
-# file. The guard AST query language cannot express "files that contain a class
-# must contain no interface", so this convention is enforced by review.

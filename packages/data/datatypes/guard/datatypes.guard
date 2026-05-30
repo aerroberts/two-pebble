@@ -1,26 +1,12 @@
 # datatypes package guards.
-
-# Integration domain types expose one simple union from the folder-level types
-# file.
-guard datatypes_integration_types {
-  find src/integrations/types.ts {
-    assert {
-      exists;
-      contains($content, "export type Integration =");
-    }
-  }
-}
-
-# Inference profile domain types expose one simple union from the folder-level
-# types file.
-guard datatypes_inference_profile_types {
-  find src/inference-profiles/types.ts {
-    assert {
-      exists;
-      contains($content, "export type InferenceProfile =");
-    }
-  }
-}
+#
+# The presence and naming of each domain's union (`Integration`,
+# `InferenceProfile`, …) is owned by the TypeScript compiler: src/index.ts does
+# `export * from './<domain>/types'`, so a missing file or renamed union breaks
+# the build. Pinning the literal `export type X =` line in one named file is not
+# a structural invariant — it's a point assertion the type system already makes —
+# so those guards were removed. The structural rules below enforce what review
+# can't: that every provider protocol file stays a pure interface definition.
 
 # Each integration provider protocol definition stays a pure type file: it
 # exposes its contract through an exported interface and declares no runtime

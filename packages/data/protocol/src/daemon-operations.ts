@@ -1,0 +1,300 @@
+import type { AgentCallsListOperation } from './protocol/agent.calls.list';
+import type { AgentCallsReadOperation } from './protocol/agent.calls.read';
+import type { AgentCallsRecordOperation } from './protocol/agent.calls.record';
+import type { AgentCompleteOperation } from './protocol/agent.complete';
+import type { AgentCreateOperation } from './protocol/agent.create';
+import type { AgentFailOperation } from './protocol/agent.fail';
+import type { AgentFreshStartOperation } from './protocol/agent.fresh-start';
+import type { AgentLaunchOperation } from './protocol/agent.launch';
+import type { AgentListOperation } from './protocol/agent.list';
+import type { AgentMessageOperation } from './protocol/agent.message';
+import type { AgentPriceLineItemsListOperation } from './protocol/agent.price-line-items.list';
+import type { AgentPriceLineItemsRecordOperation } from './protocol/agent.price-line-items.record';
+import type { AgentQueuedMessageCancelOperation } from './protocol/agent.queued-message.cancel';
+import type { AgentQueuedMessageEnqueueOperation } from './protocol/agent.queued-message.enqueue';
+import type { AgentQueuedMessageSendNowOperation } from './protocol/agent.queued-message.send-now';
+import type { AgentQueuedMessagesListOperation } from './protocol/agent.queued-messages.list';
+import type { AgentReadOperation } from './protocol/agent.read';
+import type { AgentRenameOperation } from './protocol/agent.rename';
+import type { AgentResumeOperation } from './protocol/agent.resume';
+import type { AgentSignalsListOperation } from './protocol/agent.signals.list';
+import type { AgentSignalsResolveOperation } from './protocol/agent.signals.resolve';
+import type { AgentSignalsSendOperation } from './protocol/agent.signals.send';
+import type { AgentStopOperation } from './protocol/agent.stop';
+import type { AgentToolCallOperation } from './protocol/agent.tool.call';
+import type { AgentTracesListOperation } from './protocol/agent.traces.list';
+import type { AgentTracesRecordOperation } from './protocol/agent.traces.record';
+import type { AgentRegistriesCreateOperation } from './protocol/agent-registries.create';
+import type { AgentRegistriesDeleteOperation } from './protocol/agent-registries.delete';
+import type { AgentRegistriesListOperation } from './protocol/agent-registries.list';
+import type { AgentRegistriesUpdateOperation } from './protocol/agent-registries.update';
+import type { AppSettingsReadOperation } from './protocol/app-settings.read';
+import type { AppSettingsUpdateOperation } from './protocol/app-settings.update';
+import type { AutomationsCreateOperation } from './protocol/automations.create';
+import type { AutomationsDeleteOperation } from './protocol/automations.delete';
+import type { AutomationsListOperation } from './protocol/automations.list';
+import type { AutomationsRunNowOperation } from './protocol/automations.run-now';
+import type { AutomationsUpdateOperation } from './protocol/automations.update';
+import type { DaemonStatusOperation } from './protocol/daemon.status';
+import type { DataSyncApplyOperation } from './protocol/data-sync.apply';
+import type { DataSyncBuildPlanOperation } from './protocol/data-sync.build-plan';
+import type { DatabaseDescribeOperation } from './protocol/database.describe';
+import type { DatabaseMigrateOperation } from './protocol/database.migrate';
+import type { DatabaseOpenOperation } from './protocol/database.open';
+import type { DatabaseRunQueryOperation } from './protocol/database.query';
+import type { DebugLogsListOperation } from './protocol/debug.logs.list';
+import type { DebugLogsOpenOperation } from './protocol/debug.logs.open';
+import type { DebugLogsOpenDirectoryOperation } from './protocol/debug.logs.open-directory';
+import type { DebugLogsReadOperation } from './protocol/debug.logs.read';
+import type { CreateDocumentOperation } from './protocol/documents.create';
+import type { DeleteDocumentOperation } from './protocol/documents.delete';
+import type { DocumentsListOperation } from './protocol/documents.list';
+import type { ReadDocumentOperation } from './protocol/documents.read';
+import type { UpdateDocumentOperation } from './protocol/documents.update';
+import type { GenerateSpeechOperation } from './protocol/generate-speech';
+import type { HeartbeatsListOperation } from './protocol/heartbeats.list';
+import type { InferenceProfilesCreateOperation } from './protocol/inference-profiles.create';
+import type { InferenceProfilesDeleteOperation } from './protocol/inference-profiles.delete';
+import type { InferenceProfilesListOperation } from './protocol/inference-profiles.list';
+import type { InferenceProfilesUpdateOperation } from './protocol/inference-profiles.update';
+import type { IntegrationsCreateOperation } from './protocol/integrations.create';
+import type { IntegrationsDeleteOperation } from './protocol/integrations.delete';
+import type { IntegrationsListOperation } from './protocol/integrations.list';
+import type { IntegrationsUpdateOperation } from './protocol/integrations.update';
+import type { CreateKnownIdeOperation } from './protocol/known-ides.create';
+import type { DeleteKnownIdeOperation } from './protocol/known-ides.delete';
+import type { DetectIdesOperation } from './protocol/known-ides.detect';
+import type { ListKnownIdesOperation } from './protocol/known-ides.list';
+import type { OpenWorkspaceInIdeOperation } from './protocol/known-ides.open-workspace';
+import type { CreateMemoryOperation } from './protocol/memories.create';
+import type { DeleteMemoryOperation } from './protocol/memories.delete';
+import type { MemoryFilesListOperation } from './protocol/memories.files.list';
+import type { MemoryFolderOpenOperation } from './protocol/memories.files.open-folder';
+import type { MemoryFilesReadOperation } from './protocol/memories.files.read';
+import type { MemoryFilesWriteOperation } from './protocol/memories.files.write';
+import type { MemoriesListOperation } from './protocol/memories.list';
+import type { ReadMemoryOperation } from './protocol/memories.read';
+import type { UpdateMemoryOperation } from './protocol/memories.update';
+import type { MetricsListNamesOperation } from './protocol/metrics.list-names';
+import type { MetricsListVariantsOperation } from './protocol/metrics.list-variants';
+import type { MetricsQueryAggregatedOperation } from './protocol/metrics.query-aggregated';
+import type { ProjectsCreateOperation } from './protocol/projects.create';
+import type { ProjectsDeleteOperation } from './protocol/projects.delete';
+import type { ProjectsListOperation } from './protocol/projects.list';
+import type { ProjectsUpdateOperation } from './protocol/projects.update';
+import type { RepositoriesCreateOperation } from './protocol/repositories.create';
+import type { RepositoriesDeleteOperation } from './protocol/repositories.delete';
+import type { RepositoriesListOperation } from './protocol/repositories.list';
+import type { RepositoriesUpdateOperation } from './protocol/repositories.update';
+import type { CreateSkillOperation } from './protocol/skills.create';
+import type { DeleteSkillOperation } from './protocol/skills.delete';
+import type { SkillFilesListOperation } from './protocol/skills.files.list';
+import type { SkillFolderOpenOperation } from './protocol/skills.files.open-folder';
+import type { SkillFilesReadOperation } from './protocol/skills.files.read';
+import type { SkillsListOperation } from './protocol/skills.list';
+import type { ReadSkillOperation } from './protocol/skills.read';
+import type { UpdateSkillOperation } from './protocol/skills.update';
+import type { TaskBoardsCreateOperation } from './protocol/task-boards.create';
+import type { TaskBoardsDeleteOperation } from './protocol/task-boards.delete';
+import type { TaskBoardsListOperation } from './protocol/task-boards.list';
+import type { TaskBoardsUpdateOperation } from './protocol/task-boards.update';
+import type { TaskDeliverableSubmissionsListOperation } from './protocol/task-deliverable-submissions.list';
+import type { TaskDeliverableSubmissionsSubmitOperation } from './protocol/task-deliverable-submissions.submit';
+import type { TaskDeliverablesCreateOperation } from './protocol/task-deliverables.create';
+import type { TaskDeliverablesDeleteOperation } from './protocol/task-deliverables.delete';
+import type { TaskDeliverablesListOperation } from './protocol/task-deliverables.list';
+import type { TaskDeliverablesUpdateOperation } from './protocol/task-deliverables.update';
+import type { TaskDependenciesCreateOperation } from './protocol/task-dependencies.create';
+import type { TaskDependenciesDeleteOperation } from './protocol/task-dependencies.delete';
+import type { TaskDependenciesListOperation } from './protocol/task-dependencies.list';
+import type { TaskEventsListOperation } from './protocol/task-events.list';
+import type { TaskPoolsCreateOperation } from './protocol/task-pools.create';
+import type { TaskPoolsDeleteOperation } from './protocol/task-pools.delete';
+import type { TaskPoolsListOperation } from './protocol/task-pools.list';
+import type { TaskPoolsSetTemplateOperation } from './protocol/task-pools.set-template';
+import type { TaskTemplateDeliverablesCreateOperation } from './protocol/task-template-deliverables.create';
+import type { TaskTemplateDeliverablesDeleteOperation } from './protocol/task-template-deliverables.delete';
+import type { TaskTemplateDeliverablesListOperation } from './protocol/task-template-deliverables.list';
+import type { TaskTemplateDeliverablesUpdateOperation } from './protocol/task-template-deliverables.update';
+import type { TaskTemplatesCreateOperation } from './protocol/task-templates.create';
+import type { TaskTemplatesDeleteOperation } from './protocol/task-templates.delete';
+import type { TaskTemplatesListOperation } from './protocol/task-templates.list';
+import type { TaskTemplatesReadOperation } from './protocol/task-templates.read';
+import type { TaskTemplatesUpdateOperation } from './protocol/task-templates.update';
+import type { TasksAddCommentOperation } from './protocol/tasks.add-comment';
+import type { TasksCreateOperation } from './protocol/tasks.create';
+import type { TasksDelegateOperation, TasksUndelegateOperation } from './protocol/tasks.delegate';
+import type { TasksDeleteOperation } from './protocol/tasks.delete';
+import type { TasksListOperation } from './protocol/tasks.list';
+import type { TasksRenameOperation } from './protocol/tasks.rename';
+import type { TasksUpdateStatusOperation } from './protocol/tasks.update';
+import type { TasksUpdateDescriptionOperation } from './protocol/tasks.update-description';
+import type { ThirdPartyAgentInstallsCreateOperation } from './protocol/third-party-agent-installs.create';
+import type { ThirdPartyAgentInstallsDeleteOperation } from './protocol/third-party-agent-installs.delete';
+import type { ThirdPartyAgentInstallsDetectClaudeCodeOperation } from './protocol/third-party-agent-installs.detect-claude-code';
+import type { ThirdPartyAgentInstallsDetectCodexOperation } from './protocol/third-party-agent-installs.detect-codex';
+import type { ThirdPartyAgentInstallsListOperation } from './protocol/third-party-agent-installs.list';
+import type { ThirdPartyAgentInstallsUpdateOperation } from './protocol/third-party-agent-installs.update';
+import type { ThreadSnapshotReadOperation } from './protocol/thread.snapshot.read';
+import type { ThreadsListOperation } from './protocol/threads.list';
+import type { TrackedPrsListOperation } from './protocol/tracked-prs.list';
+import type { TranscribeAudioOperation } from './protocol/transcribe-audio';
+import type { WorkspacesListOperation } from './protocol/workspaces.list';
+import type { WorktreesCreateOperation } from './protocol/worktrees.create';
+import type { WorktreesDeleteOperation } from './protocol/worktrees.delete';
+import type { WorktreesListOperation } from './protocol/worktrees.list';
+import type { WorktreesOpenOperation } from './protocol/worktrees.open';
+
+/**
+ * Lists every operation the daemon accepts from connected clients.
+ * Keep this tuple explicit so the bridge protocol remains easy to audit.
+ */
+export type DaemonOperations = [
+  AgentListOperation,
+  AgentReadOperation,
+  AgentCreateOperation,
+  AgentRenameOperation,
+  AgentStopOperation,
+  AgentResumeOperation,
+  AgentFreshStartOperation,
+  AgentCompleteOperation,
+  AgentFailOperation,
+  AgentLaunchOperation,
+  AgentMessageOperation,
+  AgentQueuedMessageEnqueueOperation,
+  AgentQueuedMessageCancelOperation,
+  AgentQueuedMessageSendNowOperation,
+  AgentQueuedMessagesListOperation,
+  AgentSignalsListOperation,
+  AgentSignalsResolveOperation,
+  AgentSignalsSendOperation,
+  AgentCallsListOperation,
+  AgentCallsReadOperation,
+  AgentCallsRecordOperation,
+  AgentPriceLineItemsListOperation,
+  AgentPriceLineItemsRecordOperation,
+  AgentTracesListOperation,
+  AgentTracesRecordOperation,
+  AgentToolCallOperation,
+  DatabaseDescribeOperation,
+  DatabaseOpenOperation,
+  DatabaseMigrateOperation,
+  DatabaseRunQueryOperation,
+  DataSyncBuildPlanOperation,
+  DataSyncApplyOperation,
+  ProjectsListOperation,
+  ProjectsCreateOperation,
+  ProjectsUpdateOperation,
+  ProjectsDeleteOperation,
+  InferenceProfilesListOperation,
+  InferenceProfilesCreateOperation,
+  InferenceProfilesUpdateOperation,
+  InferenceProfilesDeleteOperation,
+  IntegrationsListOperation,
+  IntegrationsCreateOperation,
+  IntegrationsUpdateOperation,
+  IntegrationsDeleteOperation,
+  DetectIdesOperation,
+  ListKnownIdesOperation,
+  CreateKnownIdeOperation,
+  DeleteKnownIdeOperation,
+  OpenWorkspaceInIdeOperation,
+  ThirdPartyAgentInstallsListOperation,
+  ThirdPartyAgentInstallsCreateOperation,
+  ThirdPartyAgentInstallsUpdateOperation,
+  ThirdPartyAgentInstallsDeleteOperation,
+  ThirdPartyAgentInstallsDetectClaudeCodeOperation,
+  ThirdPartyAgentInstallsDetectCodexOperation,
+  AgentRegistriesListOperation,
+  AgentRegistriesCreateOperation,
+  AgentRegistriesUpdateOperation,
+  AgentRegistriesDeleteOperation,
+  AppSettingsReadOperation,
+  AppSettingsUpdateOperation,
+  AutomationsListOperation,
+  AutomationsCreateOperation,
+  AutomationsUpdateOperation,
+  AutomationsDeleteOperation,
+  AutomationsRunNowOperation,
+  HeartbeatsListOperation,
+  TranscribeAudioOperation,
+  GenerateSpeechOperation,
+  DebugLogsListOperation,
+  DebugLogsReadOperation,
+  DebugLogsOpenDirectoryOperation,
+  DebugLogsOpenOperation,
+  RepositoriesListOperation,
+  RepositoriesCreateOperation,
+  RepositoriesUpdateOperation,
+  RepositoriesDeleteOperation,
+  DocumentsListOperation,
+  CreateDocumentOperation,
+  ReadDocumentOperation,
+  UpdateDocumentOperation,
+  DeleteDocumentOperation,
+  MemoriesListOperation,
+  CreateMemoryOperation,
+  ReadMemoryOperation,
+  UpdateMemoryOperation,
+  DeleteMemoryOperation,
+  MemoryFolderOpenOperation,
+  MemoryFilesListOperation,
+  MemoryFilesReadOperation,
+  MemoryFilesWriteOperation,
+  SkillsListOperation,
+  CreateSkillOperation,
+  ReadSkillOperation,
+  UpdateSkillOperation,
+  DeleteSkillOperation,
+  SkillFilesListOperation,
+  SkillFilesReadOperation,
+  SkillFolderOpenOperation,
+  WorktreesListOperation,
+  WorktreesCreateOperation,
+  WorktreesDeleteOperation,
+  WorktreesOpenOperation,
+  WorkspacesListOperation,
+  ThreadSnapshotReadOperation,
+  ThreadsListOperation,
+  DaemonStatusOperation,
+  TaskBoardsListOperation,
+  TaskBoardsCreateOperation,
+  TaskBoardsUpdateOperation,
+  TaskBoardsDeleteOperation,
+  TaskPoolsListOperation,
+  TaskPoolsCreateOperation,
+  TaskPoolsDeleteOperation,
+  TaskPoolsSetTemplateOperation,
+  TasksListOperation,
+  TasksCreateOperation,
+  TasksRenameOperation,
+  TasksUpdateDescriptionOperation,
+  TasksUpdateStatusOperation,
+  TasksDelegateOperation,
+  TasksUndelegateOperation,
+  TasksAddCommentOperation,
+  TasksDeleteOperation,
+  TaskDependenciesListOperation,
+  TaskDependenciesCreateOperation,
+  TaskDependenciesDeleteOperation,
+  TaskEventsListOperation,
+  TaskTemplatesListOperation,
+  TaskTemplatesCreateOperation,
+  TaskTemplatesReadOperation,
+  TaskTemplatesUpdateOperation,
+  TaskTemplatesDeleteOperation,
+  TaskTemplateDeliverablesListOperation,
+  TaskTemplateDeliverablesCreateOperation,
+  TaskTemplateDeliverablesUpdateOperation,
+  TaskTemplateDeliverablesDeleteOperation,
+  TaskDeliverablesListOperation,
+  TaskDeliverablesCreateOperation,
+  TaskDeliverablesUpdateOperation,
+  TaskDeliverablesDeleteOperation,
+  TaskDeliverableSubmissionsListOperation,
+  TaskDeliverableSubmissionsSubmitOperation,
+  TrackedPrsListOperation,
+  MetricsListNamesOperation,
+  MetricsListVariantsOperation,
+  MetricsQueryAggregatedOperation,
+];

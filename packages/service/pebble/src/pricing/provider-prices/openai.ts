@@ -10,6 +10,11 @@ import type { PriceCalculator } from '../price-calculator';
 //
 // Pro models (gpt-5-pro, gpt-5.2-pro) do NOT support prompt caching.
 export function registerOpenAIPricing(calculator: PriceCalculator) {
+  registerOpenAIPricingPart1(calculator);
+  registerOpenAIPricingPart2(calculator);
+}
+
+function registerOpenAIPricingPart1(calculator: PriceCalculator) {
   // GPT-5
   calculator.registerPricing('openai/gpt-5', {
     inputTokensReadUncachedPPM: 1.25,
@@ -80,6 +85,9 @@ export function registerOpenAIPricing(calculator: PriceCalculator) {
   });
 
   // GPT-5.2 Codex
+}
+
+function registerOpenAIPricingPart2(calculator: PriceCalculator) {
   calculator.registerPricing('openai/gpt-5.2-codex', {
     inputTokensReadUncachedPPM: 1.75,
     inputTokensReadCachedPPM: 0.175,

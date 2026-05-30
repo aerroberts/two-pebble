@@ -1,4 +1,2 @@
-# components uses the shared package guards only. It intentionally does NOT use
-# the shared TypeScript guards: the previous guard configuration did not opt this
-# package into the TypeScript checks, so that baseline is preserved here.
-use "../../../guard/package.guard";
+# Uses the shared repo-wide guards (guard/standard.guard) and nothing else.
+use "../../../guard/standard.guard";

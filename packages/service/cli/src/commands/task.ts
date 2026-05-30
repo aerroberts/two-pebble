@@ -66,6 +66,16 @@ const REQUIREMENT_TYPES: TaskDeliverableType[] = ['text', 'pr_url'];
 export function registerTaskCommand(program: Command) {
   const task = program.command('task').description('Manage task boards, pools, tasks, and dependencies.');
 
+  registerBoardCommands(task);
+  registerPoolCommands(task);
+  registerTaskCrudCommands(task);
+  registerStatusCommands(task);
+  registerRequirementCommands(task);
+  registerDelegationCommands(task);
+  registerDependencyCommands(task);
+}
+
+function registerBoardCommands(task: Command): void {
   task
     .command('board-create')
     .requiredOption('--name <name>', 'board name')
@@ -77,6 +87,28 @@ export function registerTaskCommand(program: Command) {
       }),
     );
 
+  task
+    .command('board-list')
+    .description('List every task board')
+    .action(async () =>
+      runAction(async (client) => {
+        const result = await client.do('listTaskBoards', {});
+        writeJson(result);
+      }),
+    );
+
+  task
+    .command('board-delete')
+    .requiredOption('--board <boardId>', 'board id')
+    .action(async (options: { board: string }) =>
+      runAction(async (client) => {
+        const result = await client.do('deleteTaskBoard', { id: options.board });
+        writeJson(result);
+      }),
+    );
+}
+
+function registerPoolCommands(task: Command): void {
   task
     .command('pool-create')
     .requiredOption('--name <name>', 'pool name')
@@ -96,6 +128,18 @@ export function registerTaskCommand(program: Command) {
     );
 
   task
+    .command('pool-delete')
+    .requiredOption('--pool <poolId>', 'pool id')
+    .action(async (options: { pool: string }) =>
+      runAction(async (client) => {
+        const result = await client.do('deleteTaskPool', { id: options.pool });
+        writeJson(result);
+      }),
+    );
+}
+
+function registerTaskCrudCommands(task: Command): void {
+  task
     .command('create')
     .requiredOption('--name <name>', 'task name')
     .requiredOption('--board <boardId>', 'board id')
@@ -113,6 +157,44 @@ export function registerTaskCommand(program: Command) {
       }),
     );
 
+  task
+    .command('delete')
+    .description('Delete a task')
+    .requiredOption('--task <taskId>', 'task id')
+    .action(async (options: { task: string }) =>
+      runAction(async (client) => {
+        const result = await client.do('deleteTask', { id: options.task });
+        writeJson(result);
+      }),
+    );
+
+  task
+    .command('rename')
+    .requiredOption('--task <taskId>', 'task id')
+    .requiredOption('--name <name>', 'new task name')
+    .action(async (options: { task: string; name: string }) =>
+      runAction(async (client) => {
+        const result = await client.do('renameTask', { id: options.task, name: options.name });
+        writeJson(result);
+      }),
+    );
+
+  task
+    .command('set-description')
+    .requiredOption('--task <taskId>', 'task id')
+    .requiredOption('--description <text>', 'new task description (natural language)')
+    .action(async (options: { task: string; description: string }) =>
+      runAction(async (client) => {
+        const result = await client.do('updateTaskDescription', {
+          id: options.task,
+          description: options.description,
+        });
+        writeJson(result);
+      }),
+    );
+}
+
+function registerStatusCommands(task: Command): void {
   task
     .command('set-status')
     .requiredOption('--task <taskId>', 'task id')
@@ -160,7 +242,9 @@ export function registerTaskCommand(program: Command) {
         writeJson(result);
       }),
     );
+}
 
+function registerRequirementCommands(task: Command): void {
   task
     .command('requirement-add')
     .description('Add a requirement to a task')
@@ -194,73 +278,9 @@ export function registerTaskCommand(program: Command) {
         writeJson(result);
       }),
     );
+}
 
-  task
-    .command('board-list')
-    .description('List every task board')
-    .action(async () =>
-      runAction(async (client) => {
-        const result = await client.do('listTaskBoards', {});
-        writeJson(result);
-      }),
-    );
-
-  task
-    .command('board-delete')
-    .requiredOption('--board <boardId>', 'board id')
-    .action(async (options: { board: string }) =>
-      runAction(async (client) => {
-        const result = await client.do('deleteTaskBoard', { id: options.board });
-        writeJson(result);
-      }),
-    );
-
-  task
-    .command('pool-delete')
-    .requiredOption('--pool <poolId>', 'pool id')
-    .action(async (options: { pool: string }) =>
-      runAction(async (client) => {
-        const result = await client.do('deleteTaskPool', { id: options.pool });
-        writeJson(result);
-      }),
-    );
-
-  task
-    .command('delete')
-    .description('Delete a task')
-    .requiredOption('--task <taskId>', 'task id')
-    .action(async (options: { task: string }) =>
-      runAction(async (client) => {
-        const result = await client.do('deleteTask', { id: options.task });
-        writeJson(result);
-      }),
-    );
-
-  task
-    .command('rename')
-    .requiredOption('--task <taskId>', 'task id')
-    .requiredOption('--name <name>', 'new task name')
-    .action(async (options: { task: string; name: string }) =>
-      runAction(async (client) => {
-        const result = await client.do('renameTask', { id: options.task, name: options.name });
-        writeJson(result);
-      }),
-    );
-
-  task
-    .command('set-description')
-    .requiredOption('--task <taskId>', 'task id')
-    .requiredOption('--description <text>', 'new task description (natural language)')
-    .action(async (options: { task: string; description: string }) =>
-      runAction(async (client) => {
-        const result = await client.do('updateTaskDescription', {
-          id: options.task,
-          description: options.description,
-        });
-        writeJson(result);
-      }),
-    );
-
+function registerDelegationCommands(task: Command): void {
   task
     .command('delegate')
     .description('Delegate a task to a runtime agent built from the named registry')
@@ -285,7 +305,9 @@ export function registerTaskCommand(program: Command) {
         writeJson(result);
       }),
     );
+}
 
+function registerDependencyCommands(task: Command): void {
   task
     .command('dep-create')
     .description('Create a dependency edge between two tasks/pools on the same board')

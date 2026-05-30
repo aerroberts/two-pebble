@@ -4,6 +4,12 @@ import type { PriceCalculator } from '../price-calculator';
 // Source: https://platform.claude.com/docs/en/about-claude/models/overview
 
 export function registerAnthropicPricing(calculator: PriceCalculator) {
+  registerAnthropicPricingPart1(calculator);
+  registerAnthropicPricingPart2(calculator);
+  registerAnthropicPricingPart3(calculator);
+}
+
+function registerAnthropicPricingPart1(calculator: PriceCalculator) {
   // Claude Opus 4.8
   calculator.registerPricing('anthropic/claude-opus-4-8', {
     inputTokensReadUncachedPPM: 5.0,
@@ -86,6 +92,9 @@ export function registerAnthropicPricing(calculator: PriceCalculator) {
   });
 
   // Claude Haiku 4.5
+}
+
+function registerAnthropicPricingPart2(calculator: PriceCalculator) {
   calculator.registerPricing('anthropic/claude-haiku-4-5-20251001', {
     inputTokensReadUncachedPPM: 1.0,
     inputTokensReadCachedPPM: 0.1,
@@ -160,6 +169,9 @@ export function registerAnthropicPricing(calculator: PriceCalculator) {
   });
 
   // Claude Opus 4.1
+}
+
+function registerAnthropicPricingPart3(calculator: PriceCalculator) {
   calculator.registerPricing('anthropic/claude-opus-4-1-20250805', {
     inputTokensReadUncachedPPM: 15.0,
     inputTokensReadCachedPPM: 1.5,

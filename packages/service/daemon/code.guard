@@ -1,4 +1,4 @@
-# daemon uses the shared package and TypeScript guards plus its package-local guards.
-use "../../../guard/package.guard";
-use "../../../guard/typescript.guard";
+# Uses the shared repo-wide guards (guard/standard.guard) plus this package's
+# own structural guards.
+use "../../../guard/standard.guard";
 use "./guard/daemon.guard";

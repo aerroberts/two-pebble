@@ -15,3 +15,8 @@ const traversal = new CodeTraversal('/absolute/path/to/package');
 // The first call expands the tree. Follow-up calls reuse memory and disk cache.
 const exportedFunctions = await traversal.find('src/**/*.ts#export/function');
 ```
+
+## API
+
+- `new CodeTraversal(root)` — build a traversal rooted at an absolute file or directory path.
+- `find(query)` — resolve a path-like query (e.g. `src/**/*.ts#export/function`) to file or AST records, expanding and caching the tree on first use.

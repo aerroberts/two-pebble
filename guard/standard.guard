@@ -1,0 +1,16 @@
+# The single entry point for the repo-wide guards. Every package's code.guard
+# does `use ".../guard/standard.guard";` and nothing else, besides any guards
+# that are genuinely specific to that package.
+#
+# Add or retire a shared rule by editing the includes below — every package
+# picks up the change automatically, with no per-package code.guard edits.
+use "./rules/readme.guard";
+use "./rules/package-json.guard";
+use "./rules/typescript-index.guard";
+
+# Size limits (file <=400, function/method <=100) are written and ready in
+# rules/typescript-size.guard but NOT yet enabled repo-wide: ~45 existing files
+# still exceed them. Enable by uncommenting the line below once the refactor
+# backlog in that file's header is cleared (or switch it on per-package by
+# `use`-ing it from individual code.guard files as each package is refactored).
+# use "./rules/typescript-size.guard";

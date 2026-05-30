@@ -22,11 +22,16 @@ guard protocol_operations_are_interfaces {
 }
 
 # Each task event kind lives in its own flat file with a self-contained exported
-# interface so wire shapes are easy to scan. The barrel and union files round out
-# the folder. (Per-file "no export type" is kept as steering: this DSL has no
-# type-alias kind. Shared unions belong in task-events/types.ts.)
+# interface so wire shapes are easy to scan. The barrel (index.ts) and shared
+# union (types.ts) round out the folder. (Per-file "no export type" is kept as
+# steering: this DSL has no type-alias kind. Shared unions belong in
+# task-events/types.ts.)
 guard protocol_task_events {
-  find src/task-events/status.ts or src/task-events/delegated.ts or src/task-events/undelegated.ts {
+
+  # Every kind file in the folder — except the barrel and the union module —
+  # must expose its wire shape as an interface. Globbing the folder (rather than
+  # listing files) means any new event kind is covered automatically.
+  find src/task-events/* except src/task-events/index.ts except src/task-events/types.ts {
     findAst typescript export/interface {
       assert {
         count() >= 1;

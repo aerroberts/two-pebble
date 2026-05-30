@@ -1,0 +1,33 @@
+# Every package ships a README that actually documents its API: a single H1
+# title, at least two H2 sections, and at least one runnable TypeScript example.
+guard package_readme {
+  find README.md {
+
+    # Every package must have a README so it is discoverable and documented.
+    assert {
+      exists;
+    }
+
+    # The README needs a top-level title.
+    findAst markdown h1 {
+      assert {
+        count() >= 1;
+      }
+    }
+
+    # Break the README into at least two ## sections (e.g. usage + API/notes)
+    # so it is more than a single blob of prose.
+    findAst markdown h2 {
+      assert {
+        count() >= 2;
+      }
+    }
+
+    # At least one fenced TypeScript example (```ts, ```tsx, or ```typescript).
+    # The markdown grammar does not expose a code block's info string to the AST,
+    # so the fence language is matched against the file content instead.
+    assert {
+      matches($content, /```(typescript|tsx|ts)\b/);
+    }
+  }
+}
