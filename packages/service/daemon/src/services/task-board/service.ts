@@ -1,7 +1,8 @@
 import { logger } from '@two-pebble/logger';
-import type { ProtocolTaskRecord } from '@two-pebble/protocol';
+import type { ProtocolTaskRecord, TaskDeliverablePayload } from '@two-pebble/protocol';
 import { TaskBoard, TaskOwnershipError } from '@two-pebble/tasks';
 import { DaemonService } from '../daemon-service';
+import type { GithubService } from '../github';
 import { rowToProtocolEvent } from './event-mapping';
 import { hydrateTaskBoard } from './hydration';
 import { toProtocolTask } from './protocol-task';
@@ -23,6 +24,7 @@ import type {
   SetTaskStatusAsAgentInput,
   SetTaskStatusInput,
   SubmitDeliverableAsAgentInput,
+  SubmitDeliverableInput,
   SyncTasksFromAgentInput,
   SyncTasksFromAgentResult,
   TaskMutationOutcome,
@@ -40,6 +42,10 @@ export class TaskBoardService extends DaemonService {
 
   private get datastore() {
     return this.daemon.datastore;
+  }
+
+  private get github(): GithubService {
+    return this.daemon.requireService<GithubService>('github');
   }
 
   /**
@@ -290,25 +296,54 @@ export class TaskBoardService extends DaemonService {
     return { items: items.map((row) => ({ ...row, payload: JSON.parse(row.payload) })) };
   }
 
+  /**
+   * Submits a deliverable for a task without an ownership check.
+   * Used by operator-driven paths (CLI/UI). When the deliverable is a `pr_url`
+   * the referenced pull request is validated through the GitHub service first,
+   * so a submission is only recorded once the PR is open, conflict-free, up to
+   * date, and passing CI.
+   */
+  public async submitDeliverable(input: SubmitDeliverableInput) {
+    await this.findTask(input.taskId);
+    return this.recordDeliverableSubmission(input.taskId, input.deliverableId, input.payload);
+  }
+
+  /**
+   * Owner-aware deliverable submission used by agent-initiated paths.
+   * Asserts `task.ownerId === agentId`, then records the submission through the
+   * same validated path as `submitDeliverable`.
+   */
   public async submitDeliverableAsAgent(input: SubmitDeliverableAsAgentInput) {
     const task = await this.findTask(input.taskId);
     if (task.ownerId !== input.agentId) {
       throw new TaskOwnershipError(input.taskId, input.agentId, task.ownerId);
     }
-    const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId: input.taskId });
-    const deliverable = deliverables.find((entry) => entry.id === input.deliverableId);
+    return this.recordDeliverableSubmission(input.taskId, input.deliverableId, input.payload);
+  }
+
+  /**
+   * Validates and upserts a deliverable submission.
+   * Confirms the deliverable exists, the payload type matches, and (for
+   * `pr_url` deliverables) the pull request is ready to merge before persisting.
+   */
+  private async recordDeliverableSubmission(taskId: string, deliverableId: string, payload: TaskDeliverablePayload) {
+    const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId });
+    const deliverable = deliverables.find((entry) => entry.id === deliverableId);
     if (deliverable === undefined) {
-      throw new Error(`task deliverable "${input.deliverableId}" not found on task "${input.taskId}"`);
+      throw new Error(`task deliverable "${deliverableId}" not found on task "${taskId}"`);
     }
-    if (deliverable.type !== input.payload.type) {
-      throw new Error(`deliverable "${input.deliverableId}" expects payload type "${deliverable.type}"`);
+    if (deliverable.type !== payload.type) {
+      throw new Error(`deliverable "${deliverableId}" expects payload type "${deliverable.type}"`);
+    }
+    if (payload.type === 'pr_url') {
+      await this.github.validatePullRequest(payload.url);
     }
     const row = await this.datastore.taskBoards.deliverableSubmissions.upsert({
-      taskId: input.taskId,
-      deliverableId: input.deliverableId,
-      payload: JSON.stringify(input.payload),
+      taskId,
+      deliverableId,
+      payload: JSON.stringify(payload),
     });
-    return { ...row, payload: input.payload };
+    return { ...row, payload };
   }
 
   /**
@@ -335,6 +370,9 @@ export class TaskBoardService extends DaemonService {
    * The engine rejects illegal transitions (start-from-blocked, leave-terminal).
    */
   public async setTaskStatus(boardId: string, input: SetTaskStatusInput): Promise<TaskMutationOutcome> {
+    if (input.status === 'success') {
+      await this.assertDeliverablesSubmitted(input.id);
+    }
     const { events } = await this.runMutation(
       {
         boardId,
@@ -512,6 +550,25 @@ export class TaskBoardService extends DaemonService {
       throw new Error(`task board "${boardId}" not loaded`);
     }
     return engine;
+  }
+
+  /**
+   * Throws unless every deliverable on the task has at least one submission.
+   * Guards the transition to `success` so a task cannot be completed while a
+   * deliverable is still outstanding. Tasks with no deliverables pass freely.
+   */
+  private async assertDeliverablesSubmitted(taskId: string): Promise<void> {
+    const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId });
+    if (deliverables.length === 0) {
+      return;
+    }
+    const { items: submissions } = await this.datastore.taskBoards.deliverableSubmissions.list({ taskId });
+    const submitted = new Set(submissions.map((submission) => submission.deliverableId));
+    const missing = deliverables.filter((deliverable) => !submitted.has(deliverable.id));
+    if (missing.length > 0) {
+      const names = missing.map((deliverable) => deliverable.name).join(', ');
+      throw new Error(`cannot mark task "${taskId}" as success: deliverable(s) not yet submitted: ${names}`);
+    }
   }
 
   private async findTask(taskId: string) {

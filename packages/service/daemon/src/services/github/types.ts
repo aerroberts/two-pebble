@@ -20,6 +20,7 @@ export type GithubHeartbeatDetail = {
 export type GithubPullResponse = {
   head: { sha: string };
   mergeable: boolean | null;
+  mergeable_state: string;
   merged: boolean;
   state: 'open' | 'closed';
 };

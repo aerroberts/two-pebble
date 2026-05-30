@@ -6,6 +6,6 @@ import type { TaskDeliverablePayload, TaskDeliverableSubmissionRecord } from './
  */
 export interface TaskDeliverableSubmissionsSubmitOperation {
   name: 'submitTaskDeliverable';
-  request: { agentId: string; taskId: string; deliverableId: string; payload: TaskDeliverablePayload };
+  request: { taskId: string; deliverableId: string; payload: TaskDeliverablePayload };
   response: { submission: TaskDeliverableSubmissionRecord };
 }

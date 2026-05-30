@@ -6,7 +6,7 @@ type Operation = ProtocolOpByName<ProtocolInboundOps<DaemonProtocol>, 'submitTas
 
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Operation['request']) {
-    const submission = await ctx.taskBoards.submitDeliverableAsAgent(payload);
+    const submission = await ctx.taskBoards.submitDeliverable(payload);
     ctx.events.emit('taskDeliverableSubmissionRecorded', submission);
     return { submission };
   };
