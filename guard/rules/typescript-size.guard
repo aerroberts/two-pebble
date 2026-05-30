@@ -1,0 +1,68 @@
+# Size ceilings keep units reviewable in isolation. Test files are exempt: their
+# describe/it callbacks are intentionally long and are not production logic.
+#
+# NOT YET ENABLED repo-wide (see guard/standard.guard): the files below still
+# exceed these limits and must be refactored before the `use` is uncommented.
+# Already cleared: cli/commands/task.ts, pebble pricing tables, protocol manifest.
+#
+# file_size (>400 lines), still to split:
+#   service/daemon  src/services/agent-registry/service.ts        (1014)
+#   data/realtime   src/realtime-datastore.ts                      (791)
+#   service/pebble  src/agent/agents/pebble-agent.ts               (742)
+#   data/datastore  src/datastore.ts                               (711)
+#   ui/components   src/components/tasks/task-list/task-list.tsx   (482)
+#   ui/app          src/pages/documents/document-editor.page.tsx   (437)
+# method_size (>100 lines), still to extract:
+#   service/daemon  src/services/agent-registry/service.ts         (361 + 122)
+# function_size (>100 lines), still to extract:
+#   ui/app          27 files (page components + page-state hooks)
+#   ui/components    9 files (charts, inputs, editor, task-list)
+#   service/daemon  src/register-daemon-handlers.ts                (148)
+
+# A source file over 400 lines is almost always several responsibilities wearing
+# one filename. Split it.
+guard file_size {
+  find src/**/*.ts or src/**/*.tsx except src/**/*.test.ts except src/**/*.test.tsx {
+    assert {
+      $fileLines <= 400;
+    }
+  }
+}
+
+# A function over 100 lines mixes concerns. Extract helpers or collaborators.
+guard function_size {
+  find src/**/*.ts except src/**/*.test.ts {
+    findAst typescript function {
+      assert {
+        $lines <= 100;
+      }
+    }
+  }
+
+  find src/**/*.tsx except src/**/*.test.tsx {
+    findAst tsx function {
+      assert {
+        $lines <= 100;
+      }
+    }
+  }
+}
+
+# A method over 100 lines mixes concerns. Extract private helpers.
+guard method_size {
+  find src/**/*.ts except src/**/*.test.ts {
+    findAst typescript method {
+      assert {
+        $lines <= 100;
+      }
+    }
+  }
+
+  find src/**/*.tsx except src/**/*.test.tsx {
+    findAst tsx method {
+      assert {
+        $lines <= 100;
+      }
+    }
+  }
+}

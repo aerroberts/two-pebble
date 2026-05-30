@@ -1,3 +1,2 @@
-# ws-bridge uses the shared package and TypeScript guards; no package-local rules.
-use "../../../guard/package.guard";
-use "../../../guard/typescript.guard";
+# Uses the shared repo-wide guards (guard/standard.guard) and nothing else.
+use "../../../guard/standard.guard";
