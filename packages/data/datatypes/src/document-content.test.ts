@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { TipTapDocument } from './document-content';
-import { markdownToTipTap, tipTapToMarkdown } from './document-content';
+import { extractTipTapReferences, markdownToTipTap, tipTapToMarkdown } from './document-content';
 import { expectStarterKitMarkdown, expectStarterKitNodes, STARTER_KIT_MARKDOWN } from './document-content.test-env';
 
 describe('feature: document content markdown conversion', () => {
@@ -128,5 +128,46 @@ describe('feature: document content markdown conversion', () => {
     };
 
     expect(tipTapToMarkdown(doc)).toContain('Use @Spec with @Runbook and \\*Log Reader.');
+  });
+});
+
+describe('feature: extract tiptap references', () => {
+  test('happy: collects every mention kind with its id and name', () => {
+    const doc: TipTapDocument = {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'documentMention', attrs: { documentId: 'documents:1', name: 'Spec' } },
+            { type: 'boardMention', attrs: { boardId: 'boards:1', name: 'Launch' } },
+            { type: 'memoryMention', attrs: { memoryId: 'memories:1', name: 'Runbook' } },
+            { type: 'skillMention', attrs: { skillId: 'skills:1', name: 'Log Reader' } },
+            { type: 'taskMention', attrs: { taskId: 'tasks:1', name: 'QA' } },
+          ],
+        },
+      ],
+    };
+
+    expect(extractTipTapReferences(doc)).toEqual([
+      { kind: 'document', id: 'documents:1', name: 'Spec' },
+      { kind: 'board', id: 'boards:1', name: 'Launch' },
+      { kind: 'memory', id: 'memories:1', name: 'Runbook' },
+      { kind: 'skill', id: 'skills:1', name: 'Log Reader' },
+      { kind: 'task', id: 'tasks:1', name: 'QA' },
+    ]);
+  });
+
+  test('edge: dedupes on kind+id and skips empty ids', () => {
+    const doc: TipTapDocument = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'skillMention', attrs: { skillId: 'skills:1', name: 'A' } }] },
+        { type: 'paragraph', content: [{ type: 'skillMention', attrs: { skillId: 'skills:1', name: 'A again' } }] },
+        { type: 'paragraph', content: [{ type: 'memoryMention', attrs: { memoryId: '', name: 'ghost' } }] },
+      ],
+    };
+
+    expect(extractTipTapReferences(doc)).toEqual([{ kind: 'skill', id: 'skills:1', name: 'A' }]);
   });
 });

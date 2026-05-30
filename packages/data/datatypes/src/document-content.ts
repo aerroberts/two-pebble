@@ -163,6 +163,61 @@ export function validateDocumentContent(content: string): TipTapDocument {
   return doc;
 }
 
+/** Kind of inline reference a TipTap mention node can carry. */
+export type TipTapReferenceKind = 'document' | 'board' | 'memory' | 'skill' | 'task';
+
+/**
+ * A reference mention extracted from TipTap content. `id` is the durable
+ * id of the referenced resource (documentId/boardId/memoryId/skillId/taskId)
+ * and `name` is the human label the mention was inserted with.
+ */
+export interface TipTapReference {
+  kind: TipTapReferenceKind;
+  id: string;
+  name: string;
+}
+
+const MENTION_NODE_REFERENCES: Record<string, { kind: TipTapReferenceKind; idAttr: string }> = {
+  documentMention: { kind: 'document', idAttr: 'documentId' },
+  boardMention: { kind: 'board', idAttr: 'boardId' },
+  memoryMention: { kind: 'memory', idAttr: 'memoryId' },
+  skillMention: { kind: 'skill', idAttr: 'skillId' },
+  taskMention: { kind: 'task', idAttr: 'taskId' },
+};
+
+/**
+ * Walks TipTap content and collects every reference mention
+ * (document/board/memory/skill/task) into a flat, de-duplicated list.
+ * Document order is preserved; duplicates collapse on `kind`+`id` so a body
+ * that mentions the same resource twice yields one entry. Mentions with an
+ * empty id are skipped — they can only land here from corrupt state.
+ */
+export function extractTipTapReferences(node: TipTapNode | TipTapDocument | undefined): TipTapReference[] {
+  const out: TipTapReference[] = [];
+  const seen = new Set<string>();
+  const visit = (current: TipTapNode | undefined): void => {
+    if (current === undefined) {
+      return;
+    }
+    const mapping = MENTION_NODE_REFERENCES[current.type];
+    if (mapping !== undefined) {
+      const id = readStringAttr(current, mapping.idAttr, '');
+      const name = readStringAttr(current, 'name', '');
+      const key = `${mapping.kind}:${id}`;
+      if (id.length > 0 && !seen.has(key)) {
+        seen.add(key);
+        out.push({ kind: mapping.kind, id, name });
+      }
+      return;
+    }
+    for (const child of current.content ?? []) {
+      visit(child);
+    }
+  };
+  visit(node as TipTapNode);
+  return out;
+}
+
 function prosemirrorJsonToTipTap(node: TipTapNode): TipTapNode {
   const type = PROSEMIRROR_TO_TIPTAP_NODE_NAMES[node.type] ?? node.type;
   const attrs = convertAttrsToTipTap(type, node.attrs);
