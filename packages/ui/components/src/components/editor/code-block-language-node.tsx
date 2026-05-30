@@ -9,36 +9,96 @@ import { useMemo } from 'react';
 import { MermaidDiagram } from '../code/mermaid/mermaid-diagram';
 import { Select, type SelectOption } from '../input/select/select';
 
-export type CodeBlockLanguage = 'json' | 'typescript' | 'markdown' | 'mermaid';
+export type CodeBlockLanguage =
+  | 'bash'
+  | 'css'
+  | 'html'
+  | 'javascript'
+  | 'json'
+  | 'markdown'
+  | 'mermaid'
+  | 'python'
+  | 'sql'
+  | 'text'
+  | 'tsx'
+  | 'typescript'
+  | 'yaml';
 
 const LANGUAGE_OPTIONS: SelectOption[] = [
   { value: 'typescript', label: 'TypeScript' },
+  { value: 'tsx', label: 'TSX' },
+  { value: 'javascript', label: 'JavaScript' },
   { value: 'json', label: 'JSON' },
   { value: 'markdown', label: 'Markdown' },
   { value: 'mermaid', label: 'Mermaid' },
+  { value: 'bash', label: 'Bash' },
+  { value: 'python', label: 'Python' },
+  { value: 'css', label: 'CSS' },
+  { value: 'html', label: 'HTML' },
+  { value: 'sql', label: 'SQL' },
+  { value: 'yaml', label: 'YAML' },
+  { value: 'text', label: 'Text' },
 ];
 
-const VALID_LANGUAGES = new Set<CodeBlockLanguage>(['json', 'typescript', 'markdown', 'mermaid']);
+const LANGUAGE_ALIASES: Record<string, CodeBlockLanguage> = {
+  html: 'html',
+  js: 'javascript',
+  md: 'markdown',
+  plaintext: 'text',
+  shell: 'bash',
+  sh: 'bash',
+  ts: 'typescript',
+  yml: 'yaml',
+  zsh: 'bash',
+};
+
+const VALID_LANGUAGES = new Set<CodeBlockLanguage>([
+  'bash',
+  'css',
+  'html',
+  'javascript',
+  'json',
+  'markdown',
+  'mermaid',
+  'python',
+  'sql',
+  'text',
+  'tsx',
+  'typescript',
+  'yaml',
+]);
 
 /**
- * Map the user-facing language to a Prism grammar. `prism-react-renderer`
- * ships json + markdown + javascript by default but not typescript, so we
- * use the javascript grammar as a close-enough fallback for TS. Mermaid
- * has no Prism grammar of its own, so we fall back to markdown which keeps
- * the source readable without misleading colours.
+ * Map the persisted language to a Prism grammar. Mermaid has no Prism grammar
+ * of its own, so we fall back to markdown which keeps the source readable
+ * without misleading colours.
  */
 const PRISM_GRAMMAR_NAME: Record<CodeBlockLanguage, string> = {
+  bash: 'bash',
+  css: 'css',
+  html: 'markup',
+  javascript: 'javascript',
   json: 'json',
-  typescript: 'javascript',
   markdown: 'markdown',
   mermaid: 'markdown',
+  python: 'python',
+  sql: 'sql',
+  text: 'text',
+  tsx: 'tsx',
+  typescript: 'javascript',
+  yaml: 'yaml',
 };
 
 function normalizeLanguage(value: unknown): CodeBlockLanguage {
-  if (typeof value === 'string' && VALID_LANGUAGES.has(value as CodeBlockLanguage)) {
-    return value as CodeBlockLanguage;
+  if (typeof value !== 'string') {
+    return 'text';
   }
-  return 'typescript';
+  const normalized = value.trim().toLowerCase();
+  const aliased = LANGUAGE_ALIASES[normalized] ?? normalized;
+  if (VALID_LANGUAGES.has(aliased as CodeBlockLanguage)) {
+    return aliased as CodeBlockLanguage;
+  }
+  return 'text';
 }
 
 /**
@@ -51,7 +111,7 @@ export const CodeBlockLanguageNode = CodeBlock.extend({
   addOptions() {
     return {
       ...this.parent?.(),
-      defaultLanguage: 'typescript',
+      defaultLanguage: 'text',
       languageClassPrefix: 'language-',
     };
   },
@@ -59,7 +119,7 @@ export const CodeBlockLanguageNode = CodeBlock.extend({
   addAttributes() {
     return {
       language: {
-        default: 'typescript' as CodeBlockLanguage,
+        default: 'text' as CodeBlockLanguage,
         parseHTML: (element) => {
           const codeEl = element.firstElementChild;
           const classList = codeEl ? Array.from(codeEl.classList) : [];
@@ -196,11 +256,11 @@ function CodeBlockNodeView(props: NodeViewProps) {
   return (
     <NodeViewWrapper
       as="div"
-      className="my-2 overflow-hidden rounded-md border border-border bg-surface"
+      className="document-code-block my-4 overflow-hidden rounded-md border border-border-strong bg-surface-alt"
       data-language={language}
     >
       <div
-        className="flex items-center justify-between border-b border-border bg-surface px-2 py-1"
+        className="flex items-center justify-between border-b border-border bg-surface px-2 py-1.5"
         contentEditable={false}
       >
         <Select
@@ -210,7 +270,7 @@ function CodeBlockNodeView(props: NodeViewProps) {
           onChange={(next) => props.updateAttributes({ language: normalizeLanguage(next) })}
         />
       </div>
-      <pre className="m-0 overflow-auto bg-transparent px-3 py-2 text-xs leading-relaxed" spellCheck={false}>
+      <pre className="m-0 overflow-auto bg-transparent px-4 py-3 text-xs leading-[1.7]" spellCheck={false}>
         <NodeViewContent
           as="code"
           className={`language-${language} block min-w-0 rounded-none !bg-transparent p-0 !px-0 font-mono`}
