@@ -5,6 +5,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createDocumentNodeExtensions } from '../../editor/document-node-extensions';
 import { BoardMentionNode } from './board-mention-node';
 import { emptyComposerDoc } from './composer-doc';
 import type {
@@ -84,6 +85,7 @@ export function RichTextField(props: RichTextFieldProps) {
     extensions: [
       StarterKit,
       Placeholder.configure({ placeholder: props.placeholder ?? 'Start writing — / to insert a document' }),
+      ...createDocumentNodeExtensions(),
       BoardMentionNode,
       DocumentMentionNode,
       MemoryMentionNode,

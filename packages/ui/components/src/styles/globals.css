@@ -654,6 +654,29 @@ body {
   overflow-x: auto;
 }
 
+.composer-editor .ProseMirror table {
+  width: 100%;
+  margin: 8px 0;
+  border-collapse: collapse;
+}
+
+.composer-editor .ProseMirror th,
+.composer-editor .ProseMirror td {
+  border: 1px solid var(--color-border);
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.composer-editor .ProseMirror th {
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.composer-editor .ProseMirror .two-pebble-comment-section {
+  display: none;
+}
+
 .composer-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
