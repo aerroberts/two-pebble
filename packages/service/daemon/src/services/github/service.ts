@@ -11,6 +11,7 @@ import type { DaemonHeartbeatInput, DaemonHeartbeatReport } from '../../types';
 import type { AgentRegistryService } from '../agent-registry/service';
 import { DaemonService } from '../daemon-service';
 import type { TaskBoardService } from '../task-board/service';
+import { evaluatePullRequest, fetchPullRequest } from './gh-cli';
 import type {
   BackoffEntry,
   GithubChecksResponse,
@@ -116,22 +117,15 @@ export class GithubService extends DaemonService {
    * Asserts that a pull request URL is in a mergeable, passing state.
    * A PR is acceptable as a deliverable only when it is open, has no merge
    * conflicts, its branch is up to date with the base, and every CI check has
-   * completed successfully. Throws an Error describing every failing condition
-   * so callers can reject the submission with an actionable message.
+   * completed successfully. Reads the PR through the locally authenticated `gh`
+   * CLI so no integration or token needs to be configured. Throws an Error
+   * describing every failing condition so callers can reject the submission
+   * with an actionable message.
    */
   public async validatePullRequest(url: string): Promise<void> {
     const parsed = parseGithubPullRequestUrl(url);
-    const integration = await this.matchIntegration(parsed.repo);
-    const apiKey = githubApiKey(integration);
-    const pull = await this.fetchJson<GithubPullResponse>(
-      `https://api.github.com/repos/${parsed.repo}/pulls/${parsed.number}`,
-      apiKey,
-    );
-    if (pull.body === undefined) {
-      throw new Error(`GitHub PR ${parsed.repo}#${parsed.number} could not be read: ${pull.message}`);
-    }
-    const checks = await this.fetchChecks(parsed.repo, pull.body.head.sha, apiKey);
-    const reasons = evaluatePullRequest(pull.body, checks);
+    const pull = await fetchPullRequest(parsed.url);
+    const reasons = evaluatePullRequest(pull);
     if (reasons.length > 0) {
       throw new Error(`PR ${parsed.repo}#${parsed.number} is not ready to merge: ${reasons.join('; ')}`);
     }
@@ -438,34 +432,6 @@ export function parseGithubPullRequestUrl(value: string): { repo: string; number
 
 function signalIdForPr(id: string): string {
   return `pr:${id}`;
-}
-
-/**
- * Returns the list of reasons a pull request is not ready to merge.
- * An empty array means the PR is good: open, conflict-free, up to date with
- * its base branch, and passing every CI check. Pure helper so it can be unit
- * tested without touching the GitHub API.
- */
-export function evaluatePullRequest(pull: GithubPullResponse, checks: TrackedPrCheckRun[]): string[] {
-  const reasons: string[] = [];
-  if (pull.merged === true) {
-    reasons.push('the pull request is already merged');
-  } else if (pull.state !== 'open') {
-    reasons.push('the pull request is not open');
-  }
-  if (pull.mergeable === false || pull.mergeable_state === 'dirty') {
-    reasons.push('the pull request has merge conflicts');
-  } else if (pull.mergeable === null) {
-    reasons.push('GitHub has not finished computing mergeability yet; try again shortly');
-  }
-  if (pull.mergeable_state === 'behind') {
-    reasons.push('the branch is out of date with its base branch');
-  }
-  const failing = checks.filter((check) => check.status !== 'completed' || check.conclusion !== 'success');
-  if (failing.length > 0) {
-    reasons.push(`CI is not green (${failing.map((check) => check.name).join(', ')})`);
-  }
-  return reasons;
 }
 
 function stateFromPull(pull: GithubPullResponse): TrackedPrState {
