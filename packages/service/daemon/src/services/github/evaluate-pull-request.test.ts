@@ -1,75 +1,84 @@
 import { describe, expect, test } from 'bun:test';
-import type { TrackedPrCheckRun } from '@two-pebble/datastore';
-import { evaluatePullRequest } from './service';
-import type { GithubPullResponse } from './types';
+import { evaluatePullRequest, type GhCheck, type GhPullRequest } from './gh-cli';
 
-function pull(overrides: Partial<GithubPullResponse> = {}): GithubPullResponse {
+function pull(overrides: Partial<GhPullRequest> = {}): GhPullRequest {
   return {
-    head: { sha: 'abc' },
-    mergeable: true,
-    mergeable_state: 'clean',
-    merged: false,
-    state: 'open',
+    state: 'OPEN',
+    mergeable: 'MERGEABLE',
+    mergeStateStatus: 'CLEAN',
+    statusCheckRollup: [],
     ...overrides,
   };
 }
 
-function check(overrides: Partial<TrackedPrCheckRun> = {}): TrackedPrCheckRun {
-  return { conclusion: 'success', name: 'ci', status: 'completed', url: 'https://example.com', ...overrides };
+function checkRun(overrides: Partial<GhCheck> = {}): GhCheck {
+  return { __typename: 'CheckRun', name: 'ci', status: 'COMPLETED', conclusion: 'SUCCESS', ...overrides };
 }
 
 describe('feature: evaluatePullRequest', () => {
   test('good: open, mergeable, up to date, green CI returns no reasons', () => {
-    expect(evaluatePullRequest(pull(), [check()])).toEqual([]);
+    expect(evaluatePullRequest(pull({ statusCheckRollup: [checkRun()] }))).toEqual([]);
   });
 
   test('good: no checks counts as green', () => {
-    expect(evaluatePullRequest(pull(), [])).toEqual([]);
+    expect(evaluatePullRequest(pull())).toEqual([]);
+  });
+
+  test('good: neutral and skipped runs do not block', () => {
+    const checks = [checkRun({ conclusion: 'NEUTRAL' }), checkRun({ conclusion: 'SKIPPED' })];
+    expect(evaluatePullRequest(pull({ statusCheckRollup: checks }))).toEqual([]);
   });
 
   test('merged: a merged pull request is rejected', () => {
-    expect(evaluatePullRequest(pull({ merged: true }), [])).toContain('the pull request is already merged');
+    expect(evaluatePullRequest(pull({ state: 'MERGED' }))).toContain('the pull request is already merged');
   });
 
   test('closed: a closed pull request is rejected', () => {
-    expect(evaluatePullRequest(pull({ state: 'closed' }), [])).toContain('the pull request is not open');
+    expect(evaluatePullRequest(pull({ state: 'CLOSED' }))).toContain('the pull request is not open');
   });
 
-  test('conflicts: mergeable false is rejected', () => {
-    expect(evaluatePullRequest(pull({ mergeable: false }), [])).toContain('the pull request has merge conflicts');
+  test('conflicts: CONFLICTING mergeable is rejected', () => {
+    expect(evaluatePullRequest(pull({ mergeable: 'CONFLICTING' }))).toContain('the pull request has merge conflicts');
   });
 
-  test('conflicts: dirty mergeable_state is rejected', () => {
-    expect(evaluatePullRequest(pull({ mergeable_state: 'dirty' }), [])).toContain(
-      'the pull request has merge conflicts',
-    );
+  test('conflicts: DIRTY merge state is rejected', () => {
+    expect(evaluatePullRequest(pull({ mergeStateStatus: 'DIRTY' }))).toContain('the pull request has merge conflicts');
   });
 
-  test('pending: null mergeable asks the caller to retry', () => {
-    const reasons = evaluatePullRequest(pull({ mergeable: null }), []);
+  test('pending: UNKNOWN mergeability asks the caller to retry', () => {
+    const reasons = evaluatePullRequest(pull({ mergeable: 'UNKNOWN' }));
     expect(reasons.some((reason) => reason.includes('has not finished computing mergeability'))).toBe(true);
   });
 
   test('behind: a branch behind its base is rejected', () => {
-    expect(evaluatePullRequest(pull({ mergeable_state: 'behind' }), [])).toContain(
+    expect(evaluatePullRequest(pull({ mergeStateStatus: 'BEHIND' }))).toContain(
       'the branch is out of date with its base branch',
     );
   });
 
-  test('ci: a failing check is rejected and named', () => {
-    const reasons = evaluatePullRequest(pull(), [check({ conclusion: 'failure', name: 'unit' })]);
+  test('ci: a failing check run is rejected and named', () => {
+    const reasons = evaluatePullRequest(
+      pull({ statusCheckRollup: [checkRun({ conclusion: 'FAILURE', name: 'unit' })] }),
+    );
     expect(reasons.some((reason) => reason.includes('CI is not green') && reason.includes('unit'))).toBe(true);
   });
 
   test('ci: an in-progress check is not green', () => {
-    const reasons = evaluatePullRequest(pull(), [check({ conclusion: null, status: 'in_progress', name: 'build' })]);
+    const check = checkRun({ status: 'IN_PROGRESS', conclusion: undefined, name: 'build' });
+    const reasons = evaluatePullRequest(pull({ statusCheckRollup: [check] }));
     expect(reasons.some((reason) => reason.includes('CI is not green') && reason.includes('build'))).toBe(true);
   });
 
+  test('ci: a failing legacy status context is rejected', () => {
+    const status: GhCheck = { __typename: 'StatusContext', context: 'legacy', state: 'FAILURE' };
+    const reasons = evaluatePullRequest(pull({ statusCheckRollup: [status] }));
+    expect(reasons.some((reason) => reason.includes('CI is not green') && reason.includes('legacy'))).toBe(true);
+  });
+
   test('multiple: every failing condition is reported', () => {
-    const reasons = evaluatePullRequest(pull({ state: 'closed', mergeable: false }), [
-      check({ conclusion: 'failure', name: 'unit' }),
-    ]);
+    const reasons = evaluatePullRequest(
+      pull({ state: 'CLOSED', mergeable: 'CONFLICTING', statusCheckRollup: [checkRun({ conclusion: 'FAILURE' })] }),
+    );
     expect(reasons.length).toBeGreaterThanOrEqual(3);
   });
 });
