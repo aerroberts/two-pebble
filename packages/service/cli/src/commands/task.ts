@@ -1,4 +1,4 @@
-import type { ClientProtocol, TaskDeliverableType } from '@two-pebble/protocol';
+import type { ClientProtocol, TaskDeliverablePayload, TaskDeliverableType } from '@two-pebble/protocol';
 import { WsBridgeClient } from '@two-pebble/ws-bridge';
 import type { Command } from 'commander';
 import { DAEMON_URL } from '../consts';
@@ -51,6 +51,13 @@ interface RequirementAddOptions {
 
 interface RequirementListOptions {
   task: string;
+}
+
+interface RequirementSubmitOptions {
+  task: string;
+  deliverable: string;
+  content?: string;
+  url?: string;
 }
 
 type SettableStatus = 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
@@ -278,6 +285,24 @@ function registerRequirementCommands(task: Command): void {
         writeJson(result);
       }),
     );
+
+  task
+    .command('requirement-submit')
+    .description('Submit a deliverable for a task (pr_url submissions are validated against GitHub first)')
+    .requiredOption('--task <taskId>', 'task id')
+    .requiredOption('--deliverable <deliverableId>', 'deliverable id')
+    .option('--content <text>', 'text content (for text deliverables)')
+    .option('--url <url>', 'pull request URL (for pr_url deliverables)')
+    .action(async (options: RequirementSubmitOptions) =>
+      runAction(async (client) => {
+        const result = await client.do('submitTaskDeliverable', {
+          taskId: options.task,
+          deliverableId: options.deliverable,
+          payload: buildDeliverablePayload(options),
+        });
+        writeJson(result);
+      }),
+    );
 }
 
 function registerDelegationCommands(task: Command): void {
@@ -365,6 +390,17 @@ function parseRequirementType(raw: string): TaskDeliverableType {
     throw new Error(`peb task: invalid requirement type "${raw}"; expected one of ${REQUIREMENT_TYPES.join(', ')}`);
   }
   return found;
+}
+
+function buildDeliverablePayload(options: { content?: string; url?: string }): TaskDeliverablePayload {
+  const hasContent = options.content !== undefined;
+  const hasUrl = options.url !== undefined;
+  if (hasContent === hasUrl) {
+    throw new Error('peb task: provide exactly one of --content or --url');
+  }
+  return options.url !== undefined
+    ? { type: 'pr_url', url: options.url }
+    : { type: 'text', content: options.content as string };
 }
 
 function parseRequirementOrderIndex(raw: string): number {

@@ -57,6 +57,12 @@ export interface SubmitDeliverableAsAgentInput {
   payload: TaskDeliverablePayload;
 }
 
+export interface SubmitDeliverableInput {
+  taskId: string;
+  deliverableId: string;
+  payload: TaskDeliverablePayload;
+}
+
 export type EffectiveTaskStatus = 'blocked' | 'open' | 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 export type OwnerId = string | null;
 
