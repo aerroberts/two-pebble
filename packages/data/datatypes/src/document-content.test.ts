@@ -106,4 +106,27 @@ describe('feature: document content markdown conversion', () => {
     expect(tipTapToMarkdown(doc)).toContain('```mermaid');
     expect(tipTapToMarkdown(doc)).toContain('```tsx');
   });
+
+  test('happy: renders reference mention nodes to markdown text', () => {
+    const doc: TipTapDocument = {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          attrs: { cellId: 'cell-mentions' },
+          content: [
+            { type: 'text', text: 'Use ' },
+            { type: 'documentMention', attrs: { documentId: 'documents:1', name: 'Spec' } },
+            { type: 'text', text: ' with ' },
+            { type: 'memoryMention', attrs: { memoryId: 'memories:1', name: 'Runbook' } },
+            { type: 'text', text: ' and ' },
+            { type: 'skillMention', attrs: { skillId: 'skills:1', name: 'Log Reader' } },
+            { type: 'text', text: '.' },
+          ],
+        },
+      ],
+    };
+
+    expect(tipTapToMarkdown(doc)).toContain('Use @Spec with @Runbook and \\*Log Reader.');
+  });
 });

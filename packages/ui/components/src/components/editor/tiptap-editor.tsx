@@ -8,6 +8,8 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useRef } from 'react';
 import { BoardMentionNode } from '../input/rich-message-composer/board-mention-node';
 import { DocumentMentionNode } from '../input/rich-message-composer/document-mention-node';
+import { MemoryMentionNode } from '../input/rich-message-composer/memory-mention-node';
+import { SkillMentionNode } from '../input/rich-message-composer/skill-mention-node';
 import { CodeBlockLanguageNode } from './code-block-language-node';
 import { CommentExtension } from './comment-extension';
 import { createDocumentNodeExtensions } from './document-node-extensions';
@@ -62,6 +64,8 @@ export function TipTapEditor(props: TipTapEditorProps) {
       CommentExtension,
       BoardMentionNode,
       DocumentMentionNode,
+      MemoryMentionNode,
+      SkillMentionNode,
     ],
     content: props.initialContent,
     editable: props.editable ?? true,

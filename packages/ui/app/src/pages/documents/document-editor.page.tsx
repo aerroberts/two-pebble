@@ -16,7 +16,7 @@ import {
   useToast,
 } from '@two-pebble/components';
 import { Cell } from '@two-pebble/pebble';
-import { useDocuments, useLaunchAgent, useProjects, useTaskBoards } from '@two-pebble/realtime';
+import { useDocuments, useLaunchAgent, useMemories, useProjects, useSkills, useTaskBoards } from '@two-pebble/realtime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -47,6 +47,8 @@ export function DocumentEditorPage() {
   const saveContentRef = useRef(state.saveContent);
   const documents = useDocuments({ projectId });
   const boards = useTaskBoards({ projectId });
+  const memories = useMemories({ projectId });
+  const skills = useSkills({ projectId });
   const projects = useProjects();
   const launchAgent = useLaunchAgent();
   const navigate = useNavigate();
@@ -191,6 +193,36 @@ export function DocumentEditorPage() {
     return rows;
   }, [boards.value]);
 
+  const memoryItems = useMemo<ReferenceItem[]>(() => {
+    const value = memories.value;
+    if (value === null) {
+      return [];
+    }
+    const rows: ReferenceItem[] = [];
+    for (const entry of value.values()) {
+      if (entry.value !== null) {
+        rows.push({ id: entry.value.id, name: entry.value.name });
+      }
+    }
+    rows.sort((left, right) => left.name.localeCompare(right.name));
+    return rows;
+  }, [memories.value]);
+
+  const skillItems = useMemo<ReferenceItem[]>(() => {
+    const value = skills.value;
+    if (value === null) {
+      return [];
+    }
+    const rows: ReferenceItem[] = [];
+    for (const entry of value.values()) {
+      if (entry.value !== null) {
+        rows.push({ id: entry.value.id, name: entry.value.name });
+      }
+    }
+    rows.sort((left, right) => left.name.localeCompare(right.name));
+    return rows;
+  }, [skills.value]);
+
   const handleInsertSelect = useCallback(
     (selection: DocumentInsertSelection) => {
       if (editor === null || slashTrigger === null) {
@@ -209,12 +241,30 @@ export function DocumentEditorPage() {
             { type: 'text', text: ' ' },
           ])
           .run();
-      } else {
+      } else if (selection.kind === 'board') {
         editor
           .chain()
           .focus()
           .insertContent([
             { type: 'boardMention', attrs: { boardId: selection.item.id, name: selection.item.name } },
+            { type: 'text', text: ' ' },
+          ])
+          .run();
+      } else if (selection.kind === 'memory') {
+        editor
+          .chain()
+          .focus()
+          .insertContent([
+            { type: 'memoryMention', attrs: { memoryId: selection.item.id, name: selection.item.name } },
+            { type: 'text', text: ' ' },
+          ])
+          .run();
+      } else {
+        editor
+          .chain()
+          .focus()
+          .insertContent([
+            { type: 'skillMention', attrs: { skillId: selection.item.id, name: selection.item.name } },
             { type: 'text', text: ' ' },
           ])
           .run();
@@ -425,10 +475,12 @@ export function DocumentEditorPage() {
             anchorTop={slashTrigger?.anchorTop ?? 0}
             boards={boardItems}
             documents={documentItems}
+            memories={memoryItems}
             onCancel={() => setSlashTrigger(null)}
             onSelect={handleInsertSelect}
             open={slashTrigger !== null}
             query={slashTrigger?.command ?? ''}
+            skills={skillItems}
           />
         </>
       )}
