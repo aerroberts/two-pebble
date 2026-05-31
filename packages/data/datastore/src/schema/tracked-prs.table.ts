@@ -17,6 +17,9 @@ export const trackedPrsTable = customTable(
     taskId: text('task_id').notNull(),
     deliverableId: text('deliverable_id').notNull(),
     agentId: text('agent_id').notNull(),
+    // Vestigial: GitHub access now goes through the local `gh` CLI, so no
+    // integration token is read. Retained (written as '') to avoid a schema
+    // migration; safe to drop in a dedicated migration later.
     integrationId: text('integration_id').notNull(),
     repo: text('repo').notNull(),
     number: integer('number').notNull(),
@@ -27,6 +30,8 @@ export const trackedPrsTable = customTable(
     checks: text('checks', { mode: 'json' }).notNull().default('[]').$type<TrackedPrCheckRun[]>(),
     lastCheckedAt: integer('last_checked_at', { mode: 'number' }).notNull(),
     lastEventAt: integer('last_event_at', { mode: 'number' }),
+    // Vestigial: ETag conditional requests were a REST-API optimization; the
+    // `gh` CLI does not use them. Never written now.
     etag: text('etag'),
   },
   (table) => [

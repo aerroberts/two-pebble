@@ -29,6 +29,21 @@ describe('feature: evaluatePullRequest', () => {
     expect(evaluatePullRequest(pull({ statusCheckRollup: checks }))).toEqual([]);
   });
 
+  test('good: a draft PR with green CI is accepted', () => {
+    const draft = pull({ state: 'OPEN', mergeStateStatus: 'DRAFT', statusCheckRollup: [checkRun()] });
+    expect(evaluatePullRequest(draft)).toEqual([]);
+  });
+
+  test('draft: a draft with failing CI is still rejected for CI', () => {
+    const draft = pull({
+      state: 'OPEN',
+      mergeStateStatus: 'DRAFT',
+      statusCheckRollup: [checkRun({ conclusion: 'FAILURE', name: 'unit' })],
+    });
+    const reasons = evaluatePullRequest(draft);
+    expect(reasons.some((reason) => reason.includes('CI is not green'))).toBe(true);
+  });
+
   test('merged: a merged pull request is rejected', () => {
     expect(evaluatePullRequest(pull({ state: 'MERGED' }))).toContain('the pull request is already merged');
   });

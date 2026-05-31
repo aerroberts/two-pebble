@@ -6,12 +6,13 @@ type OperationHandlerInput = {
   taskId: string;
   deliverableId: string;
   agentId: string;
-  integrationId: string;
   repo: string;
   number: number;
   url: string;
   state?: TrackedPrState;
   lastCheckedAt?: number;
+  /** Vestigial; defaults to '' since GitHub access no longer uses a token. */
+  integrationId?: string;
 };
 
 export function trackedPrsUpsertOperation(ctx: DatastoreContext) {
@@ -32,7 +33,7 @@ export function trackedPrsUpsertOperation(ctx: DatastoreContext) {
     const values = {
       agentId: input.agentId,
       deliverableId: input.deliverableId,
-      integrationId: input.integrationId,
+      integrationId: input.integrationId ?? '',
       lastCheckedAt: input.lastCheckedAt ?? createUtcNow(),
       repo: input.repo,
       number: input.number,
