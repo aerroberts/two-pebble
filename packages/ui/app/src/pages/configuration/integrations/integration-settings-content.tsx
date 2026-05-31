@@ -40,7 +40,6 @@ export function IntegrationSettingsContent(props: IntegrationSettingsContentProp
           />
         ) : null}
         {props.integration.provider === 'anthropic' ||
-        props.integration.provider === 'github' ||
         props.integration.provider === 'openai' ||
         props.integration.provider === 'openrouter' ? (
           <Input

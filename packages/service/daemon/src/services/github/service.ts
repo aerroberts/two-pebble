@@ -1,24 +1,12 @@
-import type {
-  IntegrationRecord,
-  TaskRecord,
-  TrackedPrCheckRun,
-  TrackedPrRecord,
-  TrackedPrState,
-} from '@two-pebble/datastore';
+import type { TaskRecord, TrackedPrCheckRun, TrackedPrRecord, TrackedPrState } from '@two-pebble/datastore';
 import { logger } from '@two-pebble/logger';
 import type { PebbleJsonValue } from '@two-pebble/pebble';
 import type { DaemonHeartbeatInput, DaemonHeartbeatReport } from '../../types';
 import type { AgentRegistryService } from '../agent-registry/service';
 import { DaemonService } from '../daemon-service';
 import type { TaskBoardService } from '../task-board/service';
-import { evaluatePullRequest, fetchPullRequest } from './gh-cli';
-import type {
-  BackoffEntry,
-  GithubChecksResponse,
-  GithubHeartbeatDetail,
-  GithubPullResponse,
-  PollOutcome,
-} from './types';
+import { checksFromGh, evaluatePullRequest, fetchPullRequest, trackedStateFromGh } from './gh-cli';
+import type { BackoffEntry, GithubHeartbeatDetail, PollOutcome } from './types';
 
 /**
  * Daemon service that polls tracked GitHub pull requests on each heartbeat,
@@ -48,9 +36,6 @@ export class GithubService extends DaemonService {
         }
         detail.polled += 1;
         const outcome = await this.pollOne(row, input.now);
-        if (outcome.kind === 'not-modified') {
-          continue;
-        }
         if (outcome.kind === 'error') {
           detail.errors.push({ message: outcome.message, prId: outcome.prId, status: outcome.status });
           continue;
@@ -58,12 +43,11 @@ export class GithubService extends DaemonService {
         if (outcome.next === outcome.row.state && checksEqual(outcome.row.checks, outcome.checks)) {
           await this.daemon.datastore.trackedPrs.update({
             id: outcome.row.id,
-            etag: outcome.etag,
             lastCheckedAt: input.now,
           });
           continue;
         }
-        await this.applyTransition(outcome.row, outcome.next, outcome.checks, outcome.etag, input.now);
+        await this.applyTransition(outcome.row, outcome.next, outcome.checks, input.now);
         detail.transitioned += 1;
         detail.prUpdates.push({
           checks: outcome.checks,
@@ -84,11 +68,9 @@ export class GithubService extends DaemonService {
   public async submitPr(input: { agentId: string; deliverableId: string; url: string }): Promise<TrackedPrRecord> {
     const parsed = parseGithubPullRequestUrl(input.url);
     const { task, deliverable } = await this.findOwnedPrDeliverable(input.agentId, input.deliverableId);
-    const integration = await this.matchIntegration(parsed.repo);
     const row = await this.daemon.datastore.trackedPrs.upsert({
       agentId: input.agentId,
       deliverableId: deliverable.id,
-      integrationId: integration.id,
       number: parsed.number,
       repo: parsed.repo,
       state: 'mergeable',
@@ -209,30 +191,12 @@ export class GithubService extends DaemonService {
 
   private async pollOne(row: TrackedPrRecord, now: number): Promise<PollOutcome> {
     try {
-      const integration = await this.daemon.datastore.integrations.read({ id: row.integrationId });
-      const apiKey = githubApiKey(integration);
-      const pull = await this.fetchJson<GithubPullResponse>(
-        `https://api.github.com/repos/${row.repo}/pulls/${row.number}`,
-        apiKey,
-        row.etag,
-      );
-      if (pull.status === 304) {
-        return { kind: 'not-modified', prId: row.id };
-      }
-      if (pull.status === 403 || pull.status === 429 || pull.status >= 500) {
-        this.applyBackoff(row.repo, now);
-        return { kind: 'error', message: pull.message, prId: row.id, status: pull.status };
-      }
-      if (pull.body === undefined) {
-        return { kind: 'error', message: pull.message, prId: row.id, status: pull.status };
-      }
+      const pull = await fetchPullRequest(row.url);
       this.backoff.delete(row.repo);
-      const checks = await this.fetchChecks(row.repo, pull.body.head.sha, apiKey);
       return {
-        checks,
-        etag: pull.etag,
+        checks: checksFromGh(pull),
         kind: 'transition',
-        next: stateFromPull(pull.body),
+        next: trackedStateFromGh(pull),
         row,
       };
     } catch (error) {
@@ -242,67 +206,14 @@ export class GithubService extends DaemonService {
     }
   }
 
-  private async fetchChecks(repo: string, sha: string, apiKey: string): Promise<TrackedPrCheckRun[]> {
-    const result = await this.fetchJson<GithubChecksResponse>(
-      `https://api.github.com/repos/${repo}/commits/${sha}/check-runs`,
-      apiKey,
-    );
-    if (result.body === undefined || result.status < 200 || result.status >= 300) {
-      return [];
-    }
-    return result.body.check_runs.map((run) => ({
-      conclusion: checkConclusion(run.conclusion),
-      name: run.name,
-      status: checkStatus(run.status),
-      url: run.html_url,
-    }));
-  }
-
-  private async fetchJson<T>(
-    url: string,
-    apiKey: string,
-    etag?: string | null,
-  ): Promise<{ body?: T; etag: string | null; message: string; status: number }> {
-    const headers: Record<string, string> = {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${apiKey}`,
-      'User-Agent': 'two-pebble',
-      'X-GitHub-Api-Version': '2022-11-28',
-    };
-    if (etag !== undefined && etag !== null) {
-      headers['If-None-Match'] = etag;
-    }
-    const response = await fetch(url, { headers });
-    if (response.status === 304) {
-      return { etag: response.headers.get('etag'), message: 'not modified', status: 304 };
-    }
-    const body = (await response.json().catch(() => undefined)) as T | { message?: string } | undefined;
-    const message =
-      body !== undefined &&
-      body !== null &&
-      typeof body === 'object' &&
-      'message' in body &&
-      typeof body.message === 'string'
-        ? body.message
-        : response.statusText;
-    return {
-      body: response.ok ? (body as T) : undefined,
-      etag: response.headers.get('etag'),
-      message,
-      status: response.status,
-    };
-  }
-
   private async applyTransition(
     row: TrackedPrRecord,
     next: TrackedPrState,
     checks: TrackedPrCheckRun[],
-    etag: string | null,
     now: number,
   ): Promise<void> {
     const updated = await this.daemon.datastore.trackedPrs.update({
       checks,
-      etag,
       id: row.id,
       lastCheckedAt: now,
       lastEventAt: now,
@@ -351,22 +262,6 @@ export class GithubService extends DaemonService {
   private isBackedOff(repo: string, now: number): boolean {
     const entry = this.backoff.get(repo);
     return entry !== undefined && entry.until > now;
-  }
-
-  private async matchIntegration(repo: string): Promise<IntegrationRecord> {
-    const { items } = await this.daemon.datastore.integrations.list({ limit: 1000, offset: 0 });
-    const github = items.filter((item) => item.provider === 'github');
-    const matching = github.filter((item) => {
-      const repositories = githubRepositories(item);
-      return repositories.length === 0 || repositories.includes(repo);
-    });
-    if (matching.length === 1) {
-      return matching[0];
-    }
-    if (matching.length === 0) {
-      throw new Error(`No GitHub integration configured for ${repo}`);
-    }
-    throw new Error(`Multiple GitHub integrations match ${repo}; set repositories on the integration data.`);
   }
 
   private async findOwnedPrDeliverable(agentId: string, deliverableId: string) {
@@ -434,46 +329,6 @@ function signalIdForPr(id: string): string {
   return `pr:${id}`;
 }
 
-function stateFromPull(pull: GithubPullResponse): TrackedPrState {
-  if (pull.merged === true) {
-    return 'merged';
-  }
-  if (pull.state === 'closed') {
-    return 'closed';
-  }
-  return pull.mergeable === false ? 'unmergeable' : 'mergeable';
-}
-
-function checkStatus(value: string): TrackedPrCheckRun['status'] {
-  if (value === 'queued' || value === 'in_progress' || value === 'completed') {
-    return value;
-  }
-  return 'queued';
-}
-
-function checkConclusion(value: string | null): TrackedPrCheckRun['conclusion'] {
-  if (value === 'success' || value === 'failure' || value === 'cancelled') {
-    return value;
-  }
-  return null;
-}
-
 function checksEqual(a: TrackedPrCheckRun[], b: TrackedPrCheckRun[]): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
-}
-
-function githubApiKey(integration: IntegrationRecord): string {
-  const data = integration.data;
-  if (data !== null && typeof data === 'object' && 'apiKey' in data && typeof data.apiKey === 'string') {
-    return data.apiKey;
-  }
-  throw new Error(`GitHub integration "${integration.id}" is missing data.apiKey`);
-}
-
-function githubRepositories(integration: IntegrationRecord): string[] {
-  const data = integration.data;
-  if (data === null || typeof data !== 'object' || !('repositories' in data) || !Array.isArray(data.repositories)) {
-    return [];
-  }
-  return data.repositories.filter((item): item is string => typeof item === 'string');
 }

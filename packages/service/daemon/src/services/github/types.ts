@@ -6,8 +6,7 @@ export type BackoffEntry = {
 };
 
 export type PollOutcome =
-  | { kind: 'not-modified'; prId: string }
-  | { kind: 'transition'; row: TrackedPrRecord; next: TrackedPrState; checks: TrackedPrCheckRun[]; etag: string | null }
+  | { kind: 'transition'; row: TrackedPrRecord; next: TrackedPrState; checks: TrackedPrCheckRun[] }
   | { kind: 'error'; prId: string; status: number; message: string };
 
 export type GithubHeartbeatDetail = {
@@ -15,20 +14,4 @@ export type GithubHeartbeatDetail = {
   transitioned: number;
   prUpdates: { prId: string; from: TrackedPrState; to: TrackedPrState; checks: TrackedPrCheckRun[] }[];
   errors: { prId: string; status: number; message: string }[];
-};
-
-export type GithubPullResponse = {
-  head: { sha: string };
-  mergeable: boolean | null;
-  merged: boolean;
-  state: 'open' | 'closed';
-};
-
-export type GithubChecksResponse = {
-  check_runs: Array<{
-    conclusion: string | null;
-    html_url: string;
-    name: string;
-    status: string;
-  }>;
 };
