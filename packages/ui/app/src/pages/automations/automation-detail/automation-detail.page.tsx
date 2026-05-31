@@ -24,7 +24,7 @@ import {
   useRunAutomationNow,
   useUpdateAutomation,
 } from '@two-pebble/realtime';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { projectPath, useProjectId } from '../../../project-context';
 import { formatAutomationInterval, formatTimestamp, nextDueAt } from '../automation-format';
@@ -69,14 +69,46 @@ export function AutomationDetailPage() {
   const runNow = useRunAutomationNow();
   const automation = automationId === undefined ? null : (automations.getItem(automationId)?.value ?? null);
   const [draft, setDraft] = useState<AutomationDraft | null>(null);
-  const [saving, setSaving] = useState(false);
   const [running, setRunning] = useState(false);
 
+  // Initialize (or reset) the draft only when switching automations, not on
+  // every record update — otherwise an auto-save round-trip would clobber
+  // in-flight edits.
+  const syncedAutomationId = useRef<string | null>(null);
   useEffect(() => {
-    if (automation !== null) {
+    if (automation === null) {
+      syncedAutomationId.current = null;
+      setDraft(null);
+      return;
+    }
+    if (syncedAutomationId.current !== automation.id) {
+      syncedAutomationId.current = automation.id;
       setDraft(toDraft(automation));
     }
   }, [automation]);
+
+  // Auto-save: persist the draft shortly after edits settle. The diff guard
+  // keeps the save from re-firing once the updated record echoes back.
+  useEffect(() => {
+    if (automation === null || draft === null) {
+      return;
+    }
+    if (draft.name.trim().length === 0 || !draftDiffersFrom(draft, automation)) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      void updateAutomation({
+        agentRegistryId: draft.agentRegistryId,
+        enabled: draft.enabled,
+        id: automation.id,
+        intervalUnit: draft.intervalUnit,
+        intervalValue: draft.intervalValue,
+        message: draft.message,
+        name: draft.name.trim(),
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [draft, automation, updateAutomation]);
 
   if (automationId === undefined) {
     return <Navigate replace to={projectPath(projectId, '/automations')} />;
@@ -107,23 +139,6 @@ export function AutomationDetailPage() {
     )
     .sort((left, right) => right.tickAt - left.tickAt)
     .slice(0, 20);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await updateAutomation({
-        agentRegistryId: draft.agentRegistryId,
-        enabled: draft.enabled,
-        id: automation.id,
-        intervalUnit: draft.intervalUnit,
-        intervalValue: draft.intervalValue,
-        message: draft.message,
-        name: draft.name.trim(),
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleRunNow = async () => {
     setRunning(true);
@@ -194,9 +209,6 @@ export function AutomationDetailPage() {
             label="Enabled"
             onChange={(event) => setDraft({ ...draft, enabled: event.target.checked })}
           />
-          <Button disabled={saving || draft.name.trim().length === 0} leftIcon="save" onClick={() => void handleSave()}>
-            {saving ? 'Saving' : 'Save changes'}
-          </Button>
         </Surface>
       </Section>
       <Section title="Last firings">
@@ -229,4 +241,15 @@ function toDraft(automation: AutomationRecord): AutomationDraft {
     message: automation.message,
     name: automation.name,
   };
+}
+
+function draftDiffersFrom(draft: AutomationDraft, automation: AutomationRecord): boolean {
+  return (
+    draft.agentRegistryId !== automation.agentRegistryId ||
+    draft.enabled !== automation.enabled ||
+    draft.intervalUnit !== automation.intervalUnit ||
+    draft.intervalValue !== automation.intervalValue ||
+    draft.message !== automation.message ||
+    draft.name.trim() !== automation.name
+  );
 }

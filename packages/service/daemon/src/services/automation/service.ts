@@ -30,22 +30,46 @@ export class AutomationService extends DaemonService {
   public unregister(_automationId: string): void {}
 
   public async runNow(automationId: string): Promise<{ agentId: string }> {
-    return this.fireAutomation(automationId, Date.now());
+    const now = Date.now();
+    const result = await this.fireAutomation(automationId, now);
+    await this.recordManualFiring(automationId, result.agentId, now);
+    return result;
   }
 
-  public override async onHeartbeat(input: DaemonHeartbeatInput): Promise<DaemonHeartbeatReport> {
+  public override async onHeartbeat(input: DaemonHeartbeatInput): Promise<DaemonHeartbeatReport[]> {
     const { items } = await this.datastore.automations.list({ limit: 1000, offset: 0 });
-    let fired = 0;
-    let skipped = 0;
+    const reports: DaemonHeartbeatReport[] = [];
     for (const automation of items) {
       const result = await this.maybeFireAutomation(automation, input.now);
-      if (result.outcome === 'fired') {
-        fired += 1;
-      } else {
-        skipped += 1;
-      }
+      reports.push({
+        listenerId: `automation:${automation.id}`,
+        kind: 'automation',
+        outcome: result.outcome,
+        detail: result.detail,
+      });
     }
-    return { outcome: fired > 0 ? 'fired' : 'skipped', detail: { fired, skipped, count: items.length } };
+    return reports;
+  }
+
+  /**
+   * Records a one-off heartbeat entry for a manual "Run now" so the firing
+   * shows up in the automation's firing history alongside scheduled ticks.
+   */
+  private async recordManualFiring(automationId: string, agentId: string, now: number): Promise<void> {
+    const record = await this.datastore.heartbeats.insert({
+      durationMs: 0,
+      listenerCount: 1,
+      reports: [
+        {
+          listenerId: `automation:${automationId}`,
+          kind: 'automation',
+          outcome: 'fired',
+          detail: { agentId, trigger: 'manual' },
+        },
+      ],
+      tickAt: now,
+    });
+    this.daemon.events.emit('heartbeatRecorded', record);
   }
 
   private async maybeFireAutomation(automation: AutomationRecord, now: number): Promise<DaemonHeartbeatReport> {
