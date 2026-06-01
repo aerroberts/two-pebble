@@ -37,7 +37,13 @@ export interface GhPullRequest {
  */
 export async function fetchPullRequest(url: string): Promise<GhPullRequest> {
   const stdout = await runGh(['pr', 'view', url, '--json', 'state,mergeable,mergeStateStatus,statusCheckRollup']);
-  return JSON.parse(stdout) as GhPullRequest;
+  try {
+    return JSON.parse(stdout) as GhPullRequest;
+  } catch (error) {
+    // Surface an actionable message rather than letting a raw SyntaxError from
+    // unexpected gh output (e.g. a banner or an empty response) bubble up.
+    throw new Error(`Could not parse gh output for ${url}: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 /**
