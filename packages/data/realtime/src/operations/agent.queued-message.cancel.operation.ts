@@ -19,9 +19,13 @@ export function cancelAgentQueuedMessageOperation(ctx: RealtimeOperationContext)
       }
       return result;
     } catch (error) {
-      if (existing !== undefined && existing !== null) {
+      // Revert against the CURRENT value, not the pre-await snapshot, so a
+      // push for this row that arrived during the await is not clobbered.
+      const current = ctx.datastore.state.agentQueuedMessages.getItem(input.id)?.value;
+      const restore = current ?? existing;
+      if (restore !== undefined && restore !== null) {
         ctx.datastore.patch({
-          agentQueuedMessages: ctx.datastore.state.agentQueuedMessages.withItem(input.id, existing, 'ready'),
+          agentQueuedMessages: ctx.datastore.state.agentQueuedMessages.withItem(input.id, restore, 'ready'),
         });
       }
       throw error;
