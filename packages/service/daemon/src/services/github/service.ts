@@ -97,6 +97,13 @@ export class GithubService extends DaemonService {
       }
       throw error;
     }
+    // Re-assert ownership after the fetch network call (the widest window for a
+    // concurrent undelegate to clear it) so an undelegated agent's in-flight
+    // submission cannot still bind a tracked PR and park the task in `waiting`.
+    const owner = await this.findTask(task.id);
+    if (owner.ownerId !== input.agentId) {
+      throw new Error(`task "${task.id}" is no longer owned by "${input.agentId}"`);
+    }
     const row = await this.daemon.datastore.trackedPrs.upsert({
       agentId: input.agentId,
       deliverableId: deliverable.id,
