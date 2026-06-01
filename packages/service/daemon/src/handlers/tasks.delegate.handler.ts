@@ -46,6 +46,16 @@ function describeRequirements(deliverables: TaskDeliverableRecord[]): string {
 export function handler(ctx: DaemonHandlerContext) {
   return async function wrappedHandler(payload: Payload) {
     const task = await findTask(ctx, payload.taskId);
+    // Reject a blocked or already-finished task BEFORE launching an agent. The
+    // working transition near the end of this handler throws for those states,
+    // and previously that rejection landed only after a real agent had already
+    // been launched and taken ownership — leaving a live agent orphaned on a
+    // task it could never start. Checking effective status up front means no
+    // agent is launched for a task that cannot run.
+    const current = (await ctx.taskBoards.listTasks(task.boardId)).find((entry) => entry.id === task.id);
+    if (current !== undefined && NON_DELEGATABLE_STATUSES.has(current.effectiveStatus)) {
+      throw new Error(`Cannot delegate task "${task.name}": it is ${current.effectiveStatus}.`);
+    }
     const registry = await ctx.datastore.agentRegistries.read({ id: payload.agentRegistryId });
     const taskDescription = task.description ?? '';
     const descriptionCells = taskDescriptionToCells({
@@ -110,33 +120,64 @@ export function handler(ctx: DaemonHandlerContext) {
       type: 'task-assigned',
     });
     ctx.events.emit('agentTraceRecorded', taskAssignedTrace);
-    const updated = await ctx.taskBoards.setTaskOwner(payload.taskId, launched.id);
-    const delegationEvent = await ctx.taskBoards.recordDelegationEvent({
-      taskId: payload.taskId,
-      agentId: launched.id,
-      agentRegistryId: payload.agentRegistryId,
-      agentName: registry.name,
-      reason: `manual: delegated to ${registry.name}`,
-    });
-    ctx.events.emit('taskEventRecorded', delegationEvent);
-    const refreshed = await ctx.taskBoards.listTasks(updated.boardId);
-    for (const entry of refreshed) {
-      ctx.events.emit('taskUpdated', entry);
+    try {
+      const updated = await ctx.taskBoards.setTaskOwner(payload.taskId, launched.id);
+      const delegationEvent = await ctx.taskBoards.recordDelegationEvent({
+        taskId: payload.taskId,
+        agentId: launched.id,
+        agentRegistryId: payload.agentRegistryId,
+        agentName: registry.name,
+        reason: `manual: delegated to ${registry.name}`,
+      });
+      ctx.events.emit('taskEventRecorded', delegationEvent);
+      const refreshed = await ctx.taskBoards.listTasks(updated.boardId);
+      for (const entry of refreshed) {
+        ctx.events.emit('taskUpdated', entry);
+      }
+      const { events: statusEvents } = await ctx.taskBoards.setTaskStatus(updated.boardId, {
+        id: payload.taskId,
+        status: 'working',
+        reason: `manual: delegated to ${registry.name}`,
+      });
+      for (const event of statusEvents) {
+        ctx.events.emit('taskEventRecorded', event);
+      }
+      const afterStatus = await ctx.taskBoards.listTasks(updated.boardId);
+      for (const entry of afterStatus) {
+        ctx.events.emit('taskUpdated', entry);
+      }
+      return { agentId: launched.id };
+    } catch (error) {
+      // The task became non-startable between the pre-check and the working
+      // transition (a concurrent change). Unwind the half-applied delegation so
+      // the just-launched agent is not left owning a task it cannot run. Each
+      // step is independently guarded so cleanup never masks the original error.
+      await unwindDelegation(ctx, payload.taskId, launched.id);
+      throw error;
     }
-    const { events: statusEvents } = await ctx.taskBoards.setTaskStatus(updated.boardId, {
-      id: payload.taskId,
-      status: 'working',
-      reason: `manual: delegated to ${registry.name}`,
-    });
-    for (const event of statusEvents) {
-      ctx.events.emit('taskEventRecorded', event);
-    }
-    const afterStatus = await ctx.taskBoards.listTasks(updated.boardId);
-    for (const entry of afterStatus) {
-      ctx.events.emit('taskUpdated', entry);
-    }
-    return { agentId: launched.id };
   };
+}
+
+const NON_DELEGATABLE_STATUSES = new Set(['blocked', 'success', 'failure', 'canceled']);
+
+async function unwindDelegation(ctx: DaemonHandlerContext, taskId: string, agentId: string): Promise<void> {
+  try {
+    const cleared = await ctx.taskBoards.setTaskOwner(taskId, null);
+    ctx.events.emit('taskUpdated', cleared as never);
+  } catch (cleanupError) {
+    logger.warn('failed to clear ownership while unwinding delegation', {
+      error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+      taskId,
+    });
+  }
+  try {
+    await ctx.agentRegistry.terminate({ agentId, reason: 'auto: delegation could not be completed' });
+  } catch (cleanupError) {
+    logger.warn('failed to terminate agent while unwinding delegation', {
+      agentId,
+      error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+    });
+  }
 }
 
 interface MinimalTaskRow {
