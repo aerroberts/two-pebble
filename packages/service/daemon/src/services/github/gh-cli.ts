@@ -91,9 +91,14 @@ export function evaluatePullRequest(pull: GhPullRequest): string[] {
 }
 
 /**
- * Maps a `gh`-reported pull request to the daemon's tracked PR state.
- * Mirrors the previous REST mapping: merged/closed win, an unmergeable PR
- * (conflicts) becomes `unmergeable`, everything else is `mergeable`.
+ * Maps a `gh`-reported pull request to the daemon's tracked PR state, using the
+ * same readiness judgement as `evaluatePullRequest` so the stored state never
+ * disagrees with it. Merged/closed win; a real conflict is `unmergeable`; an
+ * open PR that is simply not ready yet (behind base, mergeability still
+ * computing, or CI not green) is `pending` — distinct from `mergeable` so the
+ * UI does not show a false-green badge, and distinct from `unmergeable` so the
+ * owning task is not flapped back to `working` while CI is still running. Only a
+ * PR that passes every readiness check is `mergeable`.
  */
 export function trackedStateFromGh(pull: GhPullRequest): TrackedPrState {
   if (pull.state === 'MERGED') {
@@ -104,6 +109,9 @@ export function trackedStateFromGh(pull: GhPullRequest): TrackedPrState {
   }
   if (pull.mergeable === 'CONFLICTING' || pull.mergeStateStatus === 'DIRTY') {
     return 'unmergeable';
+  }
+  if (evaluatePullRequest(pull).length > 0) {
+    return 'pending';
   }
   return 'mergeable';
 }

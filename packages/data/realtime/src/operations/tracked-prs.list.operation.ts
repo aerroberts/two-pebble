@@ -4,7 +4,7 @@ export function listTrackedPrsOperation(ctx: RealtimeOperationContext) {
   return async function listTrackedPrs(input: {
     agentId?: string;
     taskId?: string;
-    state?: Array<'mergeable' | 'unmergeable' | 'merged' | 'closed'>;
+    state?: Array<'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed'>;
     limit?: number;
     offset?: number;
   }) {

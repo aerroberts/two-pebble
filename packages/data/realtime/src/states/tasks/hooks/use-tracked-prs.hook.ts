@@ -42,7 +42,9 @@ export function useMyOpenPrs(agentId?: string) {
   const all = useRealtimeStore((state) => state.trackedPrs);
 
   useEffect(() => {
-    void datastore.trackedPrs.list({ agentId, state: ['mergeable', 'unmergeable'], limit: 200 }).catch(() => undefined);
+    void datastore.trackedPrs
+      .list({ agentId, state: ['mergeable', 'pending', 'unmergeable'], limit: 200 })
+      .catch(() => undefined);
   }, [agentId, datastore]);
 
   return useMemo(
@@ -56,5 +58,5 @@ export function useMyOpenPrs(agentId?: string) {
 }
 
 function isOpenState(state: string): boolean {
-  return state === 'mergeable' || state === 'unmergeable';
+  return state === 'mergeable' || state === 'pending' || state === 'unmergeable';
 }

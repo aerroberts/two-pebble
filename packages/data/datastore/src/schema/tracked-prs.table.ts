@@ -2,7 +2,7 @@ import { index, integer, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 import { customTable } from '../table/custom-table';
 
-type TrackedPrState = 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+type TrackedPrState = 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed';
 
 type TrackedPrCheckRun = {
   name: string;
@@ -24,7 +24,7 @@ export const trackedPrsTable = customTable(
     repo: text('repo').notNull(),
     number: integer('number').notNull(),
     url: text('url').notNull(),
-    state: text('state', { enum: ['mergeable', 'unmergeable', 'merged', 'closed'] })
+    state: text('state', { enum: ['mergeable', 'pending', 'unmergeable', 'merged', 'closed'] })
       .notNull()
       .$type<TrackedPrState>(),
     checks: text('checks', { mode: 'json' }).notNull().default('[]').$type<TrackedPrCheckRun[]>(),
