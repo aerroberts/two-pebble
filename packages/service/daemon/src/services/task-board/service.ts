@@ -318,15 +318,26 @@ export class TaskBoardService extends DaemonService {
     if (task.ownerId !== input.agentId) {
       throw new TaskOwnershipError(input.taskId, input.agentId, task.ownerId);
     }
-    return this.recordDeliverableSubmission(input.taskId, input.deliverableId, input.payload);
+    return this.recordDeliverableSubmission(input.taskId, input.deliverableId, input.payload, input.agentId);
   }
 
   /**
    * Validates and upserts a deliverable submission.
    * Confirms the deliverable exists, the payload type matches, and (for
    * `pr_url` deliverables) the pull request is ready to merge before persisting.
+   *
+   * When `expectedOwnerId` is supplied (agent-initiated paths) the task's owner
+   * is re-asserted immediately before the write — after the `pr_url` validation
+   * network call, which is the widest window in which a concurrent `undelegate`
+   * could clear ownership. Without this, an undelegated agent's in-flight
+   * submission would still land, contradicting the operator.
    */
-  private async recordDeliverableSubmission(taskId: string, deliverableId: string, payload: TaskDeliverablePayload) {
+  private async recordDeliverableSubmission(
+    taskId: string,
+    deliverableId: string,
+    payload: TaskDeliverablePayload,
+    expectedOwnerId?: string,
+  ) {
     const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId });
     const deliverable = deliverables.find((entry) => entry.id === deliverableId);
     if (deliverable === undefined) {
@@ -337,6 +348,12 @@ export class TaskBoardService extends DaemonService {
     }
     if (payload.type === 'pr_url') {
       await this.github.validatePullRequest(payload.url);
+    }
+    if (expectedOwnerId !== undefined) {
+      const current = await this.findTask(taskId);
+      if (current.ownerId !== expectedOwnerId) {
+        throw new TaskOwnershipError(taskId, expectedOwnerId, current.ownerId);
+      }
     }
     const row = await this.datastore.taskBoards.deliverableSubmissions.upsert({
       taskId,
