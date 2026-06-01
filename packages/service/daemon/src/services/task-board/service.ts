@@ -1,3 +1,4 @@
+import type { TaskRecord } from '@two-pebble/datastore';
 import { logger } from '@two-pebble/logger';
 import type { ProtocolTaskRecord, TaskDeliverablePayload } from '@two-pebble/protocol';
 import { TaskBoard, TaskOwnershipError } from '@two-pebble/tasks';
@@ -401,7 +402,15 @@ export class TaskBoardService extends DaemonService {
         engine.setTaskStatus(input.id, input.status);
       },
     );
-    const updated = await this.datastore.taskBoards.tasks.update({ id: input.id, status: input.status });
+    let updated: TaskRecord;
+    try {
+      updated = await this.datastore.taskBoards.tasks.update({ id: input.id, status: input.status });
+    } catch (error) {
+      // runMutation already advanced the in-memory engine; if persisting the
+      // task row fails the engine would be ahead of the database, so re-sync it.
+      await this.restoreBoardFromDatabase(boardId);
+      throw error;
+    }
     const engine = this.requireEngine(boardId);
     return { result: toProtocolTask(updated, engine), events };
   }
@@ -563,18 +572,42 @@ export class TaskBoardService extends DaemonService {
     } finally {
       unsubscribe();
     }
-    const events: RecordedTaskEvent[] = [];
-    for (const captureEvent of captured) {
-      const row = await this.datastore.taskBoards.events.record({
-        taskId: captureEvent.taskId,
-        kind: 'status',
-        status: captureEvent.status,
-        reason: captureEvent.reason,
-        data: JSON.stringify({ status: captureEvent.status }),
-      });
-      events.push(rowToProtocolEvent(row));
+    try {
+      const events: RecordedTaskEvent[] = [];
+      for (const captureEvent of captured) {
+        const row = await this.datastore.taskBoards.events.record({
+          taskId: captureEvent.taskId,
+          kind: 'status',
+          status: captureEvent.status,
+          reason: captureEvent.reason,
+          data: JSON.stringify({ status: captureEvent.status }),
+        });
+        events.push(rowToProtocolEvent(row));
+      }
+      return { result, events };
+    } catch (error) {
+      // The in-memory engine has already applied the mutation, but persisting
+      // its events failed. Re-hydrate the board from the database so the engine
+      // cannot drift ahead of durable state; the caller still sees the error.
+      await this.restoreBoardFromDatabase(context.boardId);
+      throw error;
     }
-    return { result, events };
+  }
+
+  /**
+   * Rebuilds a board's engine from the database, discarding any in-memory
+   * mutation whose persistence failed. Best-effort: if re-hydration itself
+   * fails the original error is surfaced unchanged.
+   */
+  private async restoreBoardFromDatabase(boardId: string): Promise<void> {
+    try {
+      await this.hydrateBoard(boardId);
+    } catch (restoreError) {
+      logger.warn('failed to restore task board engine from database after a mutation failure', {
+        boardId,
+        error: restoreError instanceof Error ? restoreError.message : String(restoreError),
+      });
+    }
   }
 
   private async hydrateBoard(boardId: string): Promise<void> {
