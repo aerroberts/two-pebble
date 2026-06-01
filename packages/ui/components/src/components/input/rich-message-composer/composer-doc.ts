@@ -26,7 +26,15 @@ export function isComposerDocEmpty(doc: JSONContent): boolean {
 }
 
 function isNodeEmpty(node: JSONContent): boolean {
-  if (node.type === 'documentMention' || node.type === 'boardMention' || node.type === 'skillMention') {
+  // Any mention pill is real content — a message that is only a memory or task
+  // pill must not count as empty (which previously blocked submit).
+  if (
+    node.type === 'documentMention' ||
+    node.type === 'boardMention' ||
+    node.type === 'skillMention' ||
+    node.type === 'memoryMention' ||
+    node.type === 'taskMention'
+  ) {
     return false;
   }
   if (node.type === 'text') {

@@ -10,6 +10,7 @@ import { BoardMentionNode } from '../input/rich-message-composer/board-mention-n
 import { DocumentMentionNode } from '../input/rich-message-composer/document-mention-node';
 import { MemoryMentionNode } from '../input/rich-message-composer/memory-mention-node';
 import { SkillMentionNode } from '../input/rich-message-composer/skill-mention-node';
+import { TaskMentionNode } from '../input/rich-message-composer/task-mention-node';
 import { CodeBlockLanguageNode } from './code-block-language-node';
 import { CommentExtension } from './comment-extension';
 import { createDocumentNodeExtensions } from './document-node-extensions';
@@ -66,6 +67,7 @@ export function TipTapEditor(props: TipTapEditorProps) {
       DocumentMentionNode,
       MemoryMentionNode,
       SkillMentionNode,
+      TaskMentionNode,
     ],
     content: props.initialContent,
     editable: props.editable ?? true,
