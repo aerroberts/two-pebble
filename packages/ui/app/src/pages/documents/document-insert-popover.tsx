@@ -1,7 +1,7 @@
 'use client';
 
 import { Icon } from '@two-pebble/components';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ReferenceItem {
@@ -96,6 +96,17 @@ export function DocumentInsertPopover(props: DocumentInsertPopoverProps) {
 
   const activeIndex = clamp(rawActiveIndex, 0, Math.max(rows.length - 1, 0));
 
+  // Re-home the highlight to the top whenever the query (and thus the filtered
+  // set) changes, so a row index left over from a wider result set cannot make
+  // Enter insert the wrong item after the query narrows. Adjusting state during
+  // render via a previous-value ref is React's documented pattern for deriving
+  // from a changed prop without an effect.
+  const lastQueryRef = useRef(props.query);
+  if (lastQueryRef.current !== props.query) {
+    lastQueryRef.current = props.query;
+    setActiveIndex(0);
+  }
+
   useEffect(() => {
     if (!props.open) {
       return undefined;
@@ -106,9 +117,15 @@ export function DocumentInsertPopover(props: DocumentInsertPopoverProps) {
         props.onCancel();
         return;
       }
+      // With no matches there is nothing to navigate or select, so let arrow
+      // and Enter keys fall through to the editor (cursor movement / newline)
+      // instead of being swallowed by an empty popover.
+      if (rows.length === 0) {
+        return;
+      }
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        setActiveIndex((index) => Math.min(index + 1, Math.max(rows.length - 1, 0)));
+        setActiveIndex((index) => Math.min(index + 1, rows.length - 1));
         return;
       }
       if (event.key === 'ArrowUp') {
