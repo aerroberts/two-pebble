@@ -10,6 +10,7 @@ type OperationHandlerInput = {
   intervalValue?: number;
   message?: string;
   name?: string;
+  projectId?: string;
 };
 
 /**
@@ -34,6 +35,7 @@ export function automationsUpdateOperation(ctx: DatastoreContext) {
         intervalValue: input.intervalValue ?? existing.intervalValue,
         message: input.message ?? existing.message,
         name: input.name ?? existing.name,
+        projectId: input.projectId ?? existing.projectId,
       })
       .where(eq(ctx.schema.automationsTable.id, input.id))
       .returning()

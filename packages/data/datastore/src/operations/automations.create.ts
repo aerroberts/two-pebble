@@ -7,6 +7,7 @@ type OperationHandlerInput = {
   intervalValue: number;
   message: string;
   name: string;
+  projectId?: string;
 };
 
 /**
@@ -23,6 +24,7 @@ export function automationsCreateOperation(ctx: DatastoreContext) {
         intervalValue: input.intervalValue,
         message: input.message,
         name: input.name,
+        projectId: input.projectId ?? null,
       })
       .returning()
       .get();

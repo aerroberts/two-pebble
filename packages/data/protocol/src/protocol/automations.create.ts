@@ -13,6 +13,7 @@ export interface AutomationsCreateOperation {
     intervalValue: number;
     message: string;
     name: string;
+    projectId?: string;
   };
   response: {
     id: string;

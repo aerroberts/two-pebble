@@ -21,6 +21,7 @@ import {
   useDeleteAutomation,
   useHeartbeats,
   useProjectAgentRegistries,
+  useProjects,
   useRunAutomationNow,
   useUpdateAutomation,
 } from '@two-pebble/realtime';
@@ -64,6 +65,7 @@ export function AutomationDetailPage() {
   const automations = useAutomations({ projectId });
   const heartbeats = useHeartbeats();
   const agentRegistries = useProjectAgentRegistries(projectId);
+  const projects = useProjects();
   const updateAutomation = useUpdateAutomation();
   const deleteAutomation = useDeleteAutomation();
   const runNow = useRunAutomationNow();
@@ -105,6 +107,7 @@ export function AutomationDetailPage() {
         intervalValue: draft.intervalValue,
         message: draft.message,
         name: draft.name.trim(),
+        ...(draft.projectId === null ? {} : { projectId: draft.projectId }),
       });
     }, 500);
     return () => clearTimeout(timer);
@@ -130,6 +133,7 @@ export function AutomationDetailPage() {
   }
 
   const registryOptions = agentRegistries.values().map((registry) => ({ label: registry.name, value: registry.id }));
+  const projectOptions = projects.values().map((project) => ({ label: project.name, value: project.id }));
   const reports = heartbeats
     .values()
     .flatMap((heartbeat) =>
@@ -188,6 +192,14 @@ export function AutomationDetailPage() {
             options={registryOptions}
             value={draft.agentRegistryId}
           />
+          <Select
+            fullWidth
+            label="Project"
+            onChange={(value) => setDraft({ ...draft, projectId: value })}
+            options={projectOptions}
+            placeholder={draft.projectId === null ? 'Unassigned — runs in default project' : 'Select project'}
+            value={draft.projectId ?? ''}
+          />
           <InputArea
             label="Message"
             onChange={(event) => setDraft({ ...draft, message: event.target.value })}
@@ -230,6 +242,7 @@ interface AutomationDraft {
   intervalValue: number;
   message: string;
   name: string;
+  projectId: string | null;
 }
 
 function toDraft(automation: AutomationRecord): AutomationDraft {
@@ -240,6 +253,7 @@ function toDraft(automation: AutomationRecord): AutomationDraft {
     intervalValue: automation.intervalValue,
     message: automation.message,
     name: automation.name,
+    projectId: automation.projectId,
   };
 }
 
@@ -250,6 +264,7 @@ function draftDiffersFrom(draft: AutomationDraft, automation: AutomationRecord):
     draft.intervalUnit !== automation.intervalUnit ||
     draft.intervalValue !== automation.intervalValue ||
     draft.message !== automation.message ||
-    draft.name.trim() !== automation.name
+    draft.name.trim() !== automation.name ||
+    draft.projectId !== automation.projectId
   );
 }

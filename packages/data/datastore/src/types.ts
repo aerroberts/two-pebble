@@ -445,6 +445,7 @@ export interface AutomationRecord {
   updatedAt: number;
   name: string;
   agentRegistryId: string;
+  projectId: string | null;
   message: string;
   intervalUnit: AutomationIntervalUnit;
   intervalValue: number;
