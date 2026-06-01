@@ -24,6 +24,32 @@ describe('feature: operation tracked-prs.upsert', () => {
     expect(updated.id).toBe(created.id);
     expect(updated.state).toBe('unmergeable');
   });
+
+  test('conflict: rejects tracking the same PR for a different deliverable instead of rebinding', async () => {
+    const datastore = await useDatastoreForTesting();
+    const created = await datastore.trackedPrs.upsert(trackedPrInput);
+    await expect(
+      datastore.trackedPrs.upsert({ ...trackedPrInput, deliverableId: 'deliverable-2', taskId: 'task-2' }),
+    ).rejects.toThrow(/already tracked/);
+    // The original tracking is intact, not hijacked.
+    const read = await datastore.trackedPrs.read({ id: created.id });
+    await datastore.close();
+    expect(read).toMatchObject({ deliverableId: 'deliverable-1', taskId: 'task-1' });
+  });
+
+  test('happy: re-points a deliverable from one PR to another', async () => {
+    const datastore = await useDatastoreForTesting();
+    const created = await datastore.trackedPrs.upsert(trackedPrInput);
+    const repointed = await datastore.trackedPrs.upsert({
+      ...trackedPrInput,
+      number: 999,
+      url: 'https://github.com/aerroberts/two-pebble/pull/999',
+    });
+    await datastore.close();
+    // Same logical row (same task+deliverable), now pointing at the new PR.
+    expect(repointed.id).toBe(created.id);
+    expect(repointed.number).toBe(999);
+  });
 });
 
 describe('feature: operation tracked-prs.read', () => {
