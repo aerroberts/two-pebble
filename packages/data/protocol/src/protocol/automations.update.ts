@@ -14,6 +14,7 @@ export interface AutomationsUpdateOperation {
     intervalValue?: number;
     message?: string;
     name?: string;
+    projectId?: string;
   };
   response: {
     id: string;

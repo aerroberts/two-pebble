@@ -115,6 +115,7 @@ export class AutomationService extends DaemonService {
     const launched = await this.agentRegistry.launch({
       agentRegistryId: row.agentRegistryId,
       message: row.message,
+      ...(row.projectId === null ? {} : { projectId: row.projectId }),
     });
     const updated = await this.datastore.automations.recordRun({ id: automationId, ranAt: now });
     this.daemon.events.emit('automationUpdated', updated);

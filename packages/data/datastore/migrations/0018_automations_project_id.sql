@@ -1,0 +1,1 @@
+ALTER TABLE `automations` ADD `project_id` text;

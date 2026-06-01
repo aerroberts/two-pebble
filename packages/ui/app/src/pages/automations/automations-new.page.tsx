@@ -73,6 +73,7 @@ export function AutomationsNewPage() {
         intervalValue,
         message,
         name: name.trim(),
+        projectId,
       });
       navigate(projectPath(projectId, `/automations/${result.id}`));
     } finally {

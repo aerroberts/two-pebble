@@ -42,6 +42,7 @@ export function AutomationsAppShell(props: AppShellProps) {
   const projectId = useProjectId();
   const automations = useAutomations({ projectId });
   const list = automations.values().sort((left, right) => left.name.localeCompare(right.name));
+  const activeCount = list.filter((automation) => automation.enabled).length;
 
   return (
     <MainAppShell>
@@ -57,7 +58,7 @@ export function AutomationsAppShell(props: AppShellProps) {
               />
             }
           >
-            <SidebarSection title="Automations">
+            <SidebarSection title={activeCount > 0 ? `Automations · ${activeCount} active` : 'Automations'}>
               {list.length === 0 ? (
                 <AppBox variant="sidebar-empty">No automations.</AppBox>
               ) : (
