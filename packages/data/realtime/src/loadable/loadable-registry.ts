@@ -89,6 +89,22 @@ export class LoadableRegistry<TValue> {
   }
 
   /**
+   * Returns this registry with ready values merged in by id.
+   * Existing entries are preserved; only the supplied ids are added or replaced.
+   * Use this for scoped list refreshes that share one registry, so a fetch for
+   * one scope cannot drop entries owned by another scope or push events that
+   * arrived in flight. Prefer withReadyItems only when the list is the sole,
+   * authoritative source for the entire collection.
+   */
+  public withMergedReadyItems(items: LoadableRegistryReadyItem<TValue>[]): LoadableRegistry<TValue> {
+    const nextValue = new Map(this.value ?? []);
+    for (const item of items) {
+      nextValue.set(item.id, new Loadable({ status: 'ready', value: item }));
+    }
+    return this.fromLoadable(this.loadable.withValue(nextValue));
+  }
+
+  /**
    * Returns the entry for one key.
    * Missing entries are represented as null instead of undefined.
    * This keeps hook selectors stable and explicit.
