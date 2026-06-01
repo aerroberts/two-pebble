@@ -56,6 +56,7 @@ export class GithubService extends DaemonService {
           to: outcome.next,
         });
       }
+      await this.reconcileMergedWaitingTasks();
       return { outcome: detail.polled === 0 ? 'skipped' : 'fired', detail };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -122,54 +123,139 @@ export class GithubService extends DaemonService {
     return items.length > 0;
   }
 
+  /**
+   * Applies a tracked PR signal forwarded by the agent runtime. The task
+   * effects are identical to (and idempotent with) the daemon poller's, so the
+   * agent path stays consistent whether or not the poller already reconciled.
+   */
   public async applyPrSignal(input: { agentId: string; prId: string; next: TrackedPrState }): Promise<void> {
     const row = await this.daemon.datastore.trackedPrs.read({ id: input.prId });
     if (row.agentId !== input.agentId) {
       throw new Error(`tracked PR "${row.id}" is owned by "${row.agentId}", not "${input.agentId}"`);
     }
-    if (input.next === 'merged') {
-      const submission = await this.daemon.datastore.taskBoards.deliverableSubmissions.upsert({
-        deliverableId: row.deliverableId,
-        payload: JSON.stringify({ type: 'pr_url', url: row.url }),
-        taskId: row.taskId,
-      });
-      this.daemon.events.emit('taskDeliverableSubmissionRecorded', {
-        ...submission,
-        payload: { type: 'pr_url', url: row.url },
-      });
+    await this.applyTerminalPrEffects(row, input.next);
+  }
+
+  /**
+   * Drives the task-level consequences of a terminal PR state. This is the
+   * single, daemon-authoritative place the effects live so they fire from the
+   * poller regardless of whether the owning agent is alive to consume the
+   * signal — previously a merged PR with a failed/offline agent left its task
+   * stuck forever. Idempotent: safe to run from both the poller and the agent
+   * signal path, and a no-op once the task has settled.
+   */
+  private async applyTerminalPrEffects(row: TrackedPrRecord, next: TrackedPrState): Promise<void> {
+    if (next === 'merged') {
+      await this.recordPrSubmission(row);
       const openForTask = await this.daemon.datastore.trackedPrs.list({
         taskId: row.taskId,
         state: ['mergeable', 'unmergeable'],
       });
-      if (openForTask.items.length === 0) {
-        const task = await this.findTask(row.taskId);
+      if (openForTask.items.length > 0) {
+        return;
+      }
+      const task = await this.findTask(row.taskId);
+      if (isTerminalTaskStatus(task.status)) {
+        return;
+      }
+      try {
+        const outcome = await this.taskBoards.setTaskStatus(task.boardId, {
+          id: row.taskId,
+          reason: `auto: all tracked PRs merged`,
+          status: 'success',
+        });
+        this.broadcastTaskOutcome(outcome);
+      } catch (error) {
+        // The task still has unsubmitted deliverables; leave it where it is
+        // rather than crashing. It succeeds once the rest are submitted, or on
+        // a later reconciliation pass.
+        logger.warn('auto success blocked by outstanding deliverables', {
+          error: error instanceof Error ? error.message : String(error),
+          taskId: row.taskId,
+        });
+      }
+      return;
+    }
+    if (next === 'unmergeable' || next === 'closed') {
+      const task = await this.findTask(row.taskId);
+      // Never try to leave a terminal task (the engine rejects it and the old
+      // code crashed the signal handler), and skip the redundant no-op when the
+      // task is already back in `working`.
+      if (isTerminalTaskStatus(task.status) || task.status === 'working') {
+        return;
+      }
+      try {
+        const outcome = await this.taskBoards.setTaskStatus(task.boardId, {
+          id: row.taskId,
+          reason: `auto: PR ${row.repo}#${row.number} ${next}`,
+          status: 'working',
+        });
+        this.broadcastTaskOutcome(outcome);
+      } catch (error) {
+        logger.warn('auto reopen on PR change failed', {
+          error: error instanceof Error ? error.message : String(error),
+          taskId: row.taskId,
+        });
+      }
+    }
+  }
+
+  private async recordPrSubmission(row: TrackedPrRecord): Promise<void> {
+    const submission = await this.daemon.datastore.taskBoards.deliverableSubmissions.upsert({
+      deliverableId: row.deliverableId,
+      payload: JSON.stringify({ type: 'pr_url', url: row.url }),
+      taskId: row.taskId,
+    });
+    this.daemon.events.emit('taskDeliverableSubmissionRecorded', {
+      ...submission,
+      payload: { type: 'pr_url', url: row.url },
+    });
+  }
+
+  /**
+   * Belt-and-suspenders pass over tasks parked in `waiting`: if every tracked
+   * PR for the task has merged (none still open) it drives the task to success.
+   * Covers transitions whose task effect was missed — for example because the
+   * daemon restarted between the merge poll and the status write, or an earlier
+   * attempt failed transiently. Bounded to `waiting` tasks so it stays a no-op
+   * in steady state.
+   */
+  private async reconcileMergedWaitingTasks(): Promise<void> {
+    const { items: boards } = await this.daemon.datastore.taskBoards.list({});
+    for (const board of boards) {
+      const { items: tasks } = await this.daemon.datastore.taskBoards.tasks.list({ boardId: board.id });
+      for (const task of tasks) {
+        if (task.status !== 'waiting') {
+          continue;
+        }
+        const open = await this.daemon.datastore.trackedPrs.list({
+          taskId: task.id,
+          state: ['mergeable', 'unmergeable'],
+        });
+        if (open.items.length > 0) {
+          continue;
+        }
+        const merged = await this.daemon.datastore.trackedPrs.list({ taskId: task.id, state: ['merged'] });
+        if (merged.items.length === 0) {
+          continue;
+        }
+        for (const row of merged.items) {
+          await this.recordPrSubmission(row);
+        }
         try {
-          const outcome = await this.taskBoards.setTaskStatus(task.boardId, {
-            id: row.taskId,
-            reason: `auto: all tracked PRs merged`,
+          const outcome = await this.taskBoards.setTaskStatus(board.id, {
+            id: task.id,
+            reason: 'auto: reconciled merged PRs',
             status: 'success',
           });
           this.broadcastTaskOutcome(outcome);
         } catch (error) {
-          // The task still has unsubmitted deliverables; leave it where it is
-          // rather than crashing the signal handler. It will succeed once the
-          // remaining deliverables are submitted.
-          logger.warn('auto success blocked by outstanding deliverables', {
+          logger.warn('reconcile to success blocked by outstanding deliverables', {
             error: error instanceof Error ? error.message : String(error),
-            taskId: row.taskId,
+            taskId: task.id,
           });
         }
       }
-      return;
-    }
-    if (input.next === 'unmergeable' || input.next === 'closed') {
-      const task = await this.findTask(row.taskId);
-      const outcome = await this.taskBoards.setTaskStatus(task.boardId, {
-        id: row.taskId,
-        reason: `auto: PR ${row.repo}#${row.number} ${input.next}`,
-        status: 'working',
-      });
-      this.broadcastTaskOutcome(outcome);
     }
   }
 
@@ -220,6 +306,11 @@ export class GithubService extends DaemonService {
       state: next,
     });
     this.daemon.events.emit('trackedPrRecorded', updated);
+    // Drive the task effects from the poller, not just the agent signal path,
+    // so a terminal PR reconciles the task even when the owning agent is dead.
+    if (next === 'merged' || next === 'unmergeable' || next === 'closed') {
+      await this.applyTerminalPrEffects(updated, next);
+    }
     const data: PebbleJsonValue = {
       checks: checks.map((check) => ({
         conclusion: check.conclusion,
@@ -327,6 +418,10 @@ export function parseGithubPullRequestUrl(value: string): { repo: string; number
 
 function signalIdForPr(id: string): string {
   return `pr:${id}`;
+}
+
+function isTerminalTaskStatus(status: string): boolean {
+  return status === 'success' || status === 'failure' || status === 'canceled';
 }
 
 function checksEqual(a: TrackedPrCheckRun[], b: TrackedPrCheckRun[]): boolean {
