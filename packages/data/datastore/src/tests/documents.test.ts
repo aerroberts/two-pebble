@@ -54,6 +54,37 @@ describe('feature: operation documents.update', () => {
     expect(updated.content).toBe(document.content);
   });
 
+  test('happy: write lands when expectedUpdatedAt matches the stored revision', async () => {
+    const datastore = await useDatastoreForTesting();
+    const document = await datastore.documents.create({ name: 'Runbook', projectId: 'proj_default' });
+    const updated = await datastore.documents.update({
+      id: document.id,
+      name: 'Renamed',
+      expectedUpdatedAt: document.updatedAt,
+    });
+    await datastore.close();
+    expect(updated.name).toBe('Renamed');
+  });
+
+  test('conflict: rejects a write whose expectedUpdatedAt is stale', async () => {
+    const datastore = await useDatastoreForTesting();
+    const document = await datastore.documents.create({ name: 'Runbook', projectId: 'proj_default' });
+    const staleRevision = document.updatedAt;
+    // A concurrent writer moves the row forward. The delay guarantees a
+    // distinct millisecond timestamp so the revision actually advances.
+    await new Promise((resolve) => setTimeout(resolve, 2));
+    const moved = await datastore.documents.update({ id: document.id, name: 'First' });
+    expect(moved.updatedAt).not.toBe(staleRevision);
+    // The original editor still thinks it is on the old revision.
+    await expect(
+      datastore.documents.update({ id: document.id, name: 'Second', expectedUpdatedAt: staleRevision }),
+    ).rejects.toThrow(/DOCUMENT_UPDATE_CONFLICT/);
+    const current = await datastore.documents.read({ id: document.id });
+    await datastore.close();
+    // The newer edit is preserved; the stale write did not clobber it.
+    expect(current.name).toBe('First');
+  });
+
   test('sad: rejects malformed comment content', async () => {
     const datastore = await useDatastoreForTesting();
     const document = await datastore.documents.create({ name: 'Runbook', projectId: 'proj_default' });
