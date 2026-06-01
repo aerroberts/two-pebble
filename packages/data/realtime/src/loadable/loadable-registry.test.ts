@@ -28,4 +28,36 @@ describe('feature: loadable registry state', () => {
     expect(current.keys()).toEqual(['one']);
     expect(next.keys()).toEqual([]);
   });
+
+  test('happy: merges ready items by id while preserving untouched entries', () => {
+    const emptyRegistry = new LoadableRegistry<{ id: string; label: string }>();
+    const current = emptyRegistry.withReadyItems([
+      { id: 'one', label: 'alpha' },
+      { id: 'two', label: 'beta' },
+    ]);
+    const next = current.withMergedReadyItems([
+      { id: 'two', label: 'beta-updated' },
+      { id: 'three', label: 'gamma' },
+    ]);
+    expect(next.values()).toEqual([
+      { id: 'one', label: 'alpha' },
+      { id: 'two', label: 'beta-updated' },
+      { id: 'three', label: 'gamma' },
+    ]);
+  });
+
+  test('happy: merge does not drop entries owned by another scope', () => {
+    const emptyRegistry = new LoadableRegistry<{ id: string; scope: string }>();
+    const scopeA = emptyRegistry.withMergedReadyItems([{ id: 'a1', scope: 'a' }]);
+    const scopeB = scopeA.withMergedReadyItems([{ id: 'b1', scope: 'b' }]);
+    expect(scopeB.keys()).toEqual(['a1', 'b1']);
+  });
+
+  test('happy: merge does not mutate the prior registry', () => {
+    const emptyRegistry = new LoadableRegistry<{ id: string }>();
+    const current = emptyRegistry.withReadyItems([{ id: 'one' }]);
+    const next = current.withMergedReadyItems([{ id: 'two' }]);
+    expect(current.keys()).toEqual(['one']);
+    expect(next.keys()).toEqual(['one', 'two']);
+  });
 });
