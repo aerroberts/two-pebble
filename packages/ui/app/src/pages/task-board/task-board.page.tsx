@@ -259,7 +259,13 @@ function sortTasksForList(tasks: ProtocolTaskRecord[]): ProtocolTaskRecord[] {
   return [...tasks].sort((left, right) => {
     const leftWeight = STATUS_SORT_ORDER[left.effectiveStatus] ?? 5;
     const rightWeight = STATUS_SORT_ORDER[right.effectiveStatus] ?? 5;
-    return leftWeight - rightWeight;
+    // Status is the primary key, but it is mutable and low-cardinality, so
+    // same-status tasks need deterministic tiebreakers. Without them the order
+    // falls back to Map iteration order, which differs between the list refresh
+    // (rebuilt in server order) and event upserts (appended to the tail), so
+    // same-status rows visibly shuffle on every sync. createdAt and id are
+    // stable across both ingestion paths.
+    return leftWeight - rightWeight || left.createdAt - right.createdAt || left.id.localeCompare(right.id);
   });
 }
 
