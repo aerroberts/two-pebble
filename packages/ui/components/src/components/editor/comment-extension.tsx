@@ -12,6 +12,7 @@ import {
   generateCellId,
   type TipTapDocument,
 } from '@two-pebble/datatypes';
+import { generateTodoId } from './todo-item-node';
 
 export interface AddCommentCommandInput {
   cellId: string;
@@ -193,18 +194,38 @@ function createCommentThreadWidget() {
 export function normalizeEditorDocument(state: EditorState, dispatch?: (tr: Transaction) => void): Transaction | null {
   const tr = state.tr;
   const seenCellIds = new Set<string>();
+  const seenTodoIds = new Set<string>();
 
   state.doc.descendants((node, pos) => {
     if (!COMMENT_CELL_NODE_TYPES.has(node.type.name)) {
       return true;
     }
+    let nextAttrs = node.attrs;
     const rawCellId = typeof node.attrs.cellId === 'string' ? node.attrs.cellId : '';
     let cellId = rawCellId;
     if (cellId.length === 0 || seenCellIds.has(cellId)) {
       cellId = generateCellId();
-      tr.setNodeMarkup(pos, undefined, { ...node.attrs, cellId });
+      nextAttrs = { ...nextAttrs, cellId };
     }
     seenCellIds.add(cellId);
+
+    // Todo items also carry a stable `id` that the task-list capability keys
+    // on; a duplicate (from pasting or duplicating a todo) makes toggling one
+    // toggle the other, so re-id collisions here as well. Folded into the same
+    // attribute-only step so positions — and the user's selection — never move.
+    if (node.type.name === 'todoItem') {
+      const rawTodoId = typeof node.attrs.id === 'string' ? node.attrs.id : '';
+      let todoId = rawTodoId;
+      if (todoId.length === 0 || seenTodoIds.has(todoId)) {
+        todoId = generateTodoId();
+        nextAttrs = { ...nextAttrs, id: todoId };
+      }
+      seenTodoIds.add(todoId);
+    }
+
+    if (nextAttrs !== node.attrs) {
+      tr.setNodeMarkup(pos, undefined, nextAttrs);
+    }
     return true;
   });
 
