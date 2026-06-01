@@ -41,18 +41,20 @@ export class HeartbeatService extends DaemonService {
       const startedAt = Date.now();
       const snapshot = this.daemon.services.filter((service) => service !== this);
       const settled = await Promise.allSettled(snapshot.map((service) => this.runOne(service, now)));
-      const reports = settled.map((result, index): HeartbeatReport => {
+      const reports = settled.flatMap((result, index): HeartbeatReport[] => {
         if (result.status === 'fulfilled') {
           return result.value;
         }
         const service = snapshot[index];
         const message = result.reason instanceof Error ? result.reason.message : String(result.reason);
-        return {
-          listenerId: service.id,
-          kind: service.id,
-          outcome: 'error',
-          detail: { error: message },
-        };
+        return [
+          {
+            listenerId: service.id,
+            kind: service.id,
+            outcome: 'error',
+            detail: { error: message },
+          },
+        ];
       });
       const record = await this.daemon.datastore.heartbeats.insert({
         durationMs: Date.now() - startedAt,
@@ -72,28 +74,30 @@ export class HeartbeatService extends DaemonService {
     }
   }
 
-  private async runOne(service: DaemonService, now: number): Promise<HeartbeatReport> {
+  private async runOne(service: DaemonService, now: number): Promise<HeartbeatReport[]> {
     try {
       const report = await this.withTimeout(
         Promise.resolve(service.onHeartbeat({ now })).then(
-          (value): DaemonHeartbeatReport | undefined => value ?? undefined,
+          (value): DaemonHeartbeatReport | DaemonHeartbeatReport[] | undefined => value ?? undefined,
         ),
       );
-      return this.toReport(service, report);
+      return this.toReports(service, report);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      return {
-        listenerId: service.id,
-        kind: service.id,
-        outcome: 'error',
-        detail: { error: message },
-      };
+      return [
+        {
+          listenerId: service.id,
+          kind: service.id,
+          outcome: 'error',
+          detail: { error: message },
+        },
+      ];
     }
   }
 
   private async withTimeout(
-    promise: Promise<DaemonHeartbeatReport | undefined>,
-  ): Promise<DaemonHeartbeatReport | undefined> {
+    promise: Promise<DaemonHeartbeatReport | DaemonHeartbeatReport[] | undefined>,
+  ): Promise<DaemonHeartbeatReport | DaemonHeartbeatReport[] | undefined> {
     return Promise.race([
       promise,
       new Promise<DaemonHeartbeatReport>((_, reject) => {
@@ -102,12 +106,24 @@ export class HeartbeatService extends DaemonService {
     ]);
   }
 
-  private toReport(service: DaemonService, report: DaemonHeartbeatReport | undefined): HeartbeatReport {
-    return {
-      listenerId: service.id,
-      kind: service.id,
-      outcome: report?.outcome ?? 'skipped',
-      detail: report?.detail ?? {},
-    };
+  /**
+   * Normalizes a service's heartbeat output into recorded reports. A service
+   * may return nothing, a single report, or one report per logical entity;
+   * each report can override its listenerId/kind, defaulting to the service id.
+   */
+  private toReports(
+    service: DaemonService,
+    report: DaemonHeartbeatReport | DaemonHeartbeatReport[] | undefined,
+  ): HeartbeatReport[] {
+    if (report === undefined) {
+      return [{ listenerId: service.id, kind: service.id, outcome: 'skipped', detail: {} }];
+    }
+    const entries = Array.isArray(report) ? report : [report];
+    return entries.map((entry) => ({
+      listenerId: entry.listenerId ?? service.id,
+      kind: entry.kind ?? service.id,
+      outcome: entry.outcome,
+      detail: entry.detail ?? {},
+    }));
   }
 }

@@ -49,7 +49,9 @@ export abstract class DaemonService {
 
   public shutdown(): void | Promise<void> {}
 
-  public onHeartbeat(_input: DaemonHeartbeatInput): undefined | Promise<DaemonHeartbeatReport | undefined> {
+  public onHeartbeat(
+    _input: DaemonHeartbeatInput,
+  ): undefined | Promise<DaemonHeartbeatReport | DaemonHeartbeatReport[] | undefined> {
     return undefined;
   }
 }

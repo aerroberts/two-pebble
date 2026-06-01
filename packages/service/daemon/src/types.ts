@@ -40,6 +40,13 @@ export interface DaemonHeartbeatInput {
 export interface DaemonHeartbeatReport {
   outcome: 'fired' | 'skipped' | 'error';
   detail?: Record<string, unknown>;
+  /**
+   * Overrides the recorded listenerId. Lets a single service emit one report
+   * per logical entity (e.g. `automation:<id>`) instead of one per service.
+   */
+  listenerId?: string;
+  /** Overrides the recorded report kind; defaults to the service id. */
+  kind?: string;
 }
 
 export type DaemonFetchResponse = Response | undefined;
