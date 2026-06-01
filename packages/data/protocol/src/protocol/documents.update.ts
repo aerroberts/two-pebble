@@ -10,6 +10,14 @@ export interface UpdateDocumentOperation {
     name?: string;
     /** Pass `undefined` to leave the section alone; `null` clears it; any string moves the doc into that section. */
     section?: string | null;
+    /**
+     * Base revision (`updatedAt`) the edit was made from. When present, the
+     * write only lands if the stored document still has this revision;
+     * otherwise it is rejected as a conflict so a stale client cannot
+     * overwrite a newer edit. Content saves from the editor pass it; rename
+     * and section moves omit it.
+     */
+    expectedUpdatedAt?: number;
   };
   response: DocumentRecord;
 }

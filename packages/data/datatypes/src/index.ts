@@ -2,6 +2,7 @@ export * from './agent-registries/types';
 export * from './agent-system-prompt';
 export * from './app-settings';
 export * from './document-comments';
+export * from './document-conflict';
 export * from './document-content';
 export * from './document-references';
 export * from './document-todos';
