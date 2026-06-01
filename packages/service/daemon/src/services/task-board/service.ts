@@ -522,7 +522,7 @@ export class TaskBoardService extends DaemonService {
   private async hasOpenTrackedPr(taskId: string): Promise<boolean> {
     const { items } = await this.datastore.trackedPrs.list({
       taskId,
-      state: ['mergeable', 'unmergeable'],
+      state: ['mergeable', 'pending', 'unmergeable'],
     });
     return items.length > 0;
   }

@@ -1,4 +1,4 @@
-export type TrackedPrState = 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+export type TrackedPrState = 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed';
 
 export interface TrackedPrCheckRun {
   name: string;

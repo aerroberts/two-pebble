@@ -12,7 +12,10 @@ export function trackedPrsListOpenOperation(ctx: DatastoreContext) {
       limit: input.limit,
       offset: input.offset,
       pollableBefore: input.pollableBefore,
-      state: ['mergeable', 'unmergeable'],
+      // `pending` PRs are still open and must keep being polled until they
+      // reach a terminal state, so they belong in the open set alongside
+      // mergeable/unmergeable.
+      state: ['mergeable', 'pending', 'unmergeable'],
     });
   };
 }

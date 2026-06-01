@@ -129,12 +129,12 @@ export interface GithubTrackedPr {
   repo: string;
   number: number;
   url: string;
-  state: 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+  state: 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed';
 }
 
 export interface GithubPrSignalInput {
   prId: string;
-  next: 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+  next: 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed';
 }
 
 export type SubAgentMode = 'task' | 'teammate';

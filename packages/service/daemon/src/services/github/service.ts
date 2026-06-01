@@ -146,7 +146,7 @@ export class GithubService extends DaemonService {
     const { items } = await this.daemon.datastore.trackedPrs.list({
       agentId,
       limit: 1,
-      state: ['mergeable', 'unmergeable'],
+      state: ['mergeable', 'pending', 'unmergeable'],
     });
     return items.length > 0;
   }
@@ -177,7 +177,7 @@ export class GithubService extends DaemonService {
       await this.recordPrSubmission(row);
       const openForTask = await this.daemon.datastore.trackedPrs.list({
         taskId: row.taskId,
-        state: ['mergeable', 'unmergeable'],
+        state: ['mergeable', 'pending', 'unmergeable'],
       });
       if (openForTask.items.length > 0) {
         return;
@@ -258,7 +258,7 @@ export class GithubService extends DaemonService {
         }
         const open = await this.daemon.datastore.trackedPrs.list({
           taskId: task.id,
-          state: ['mergeable', 'unmergeable'],
+          state: ['mergeable', 'pending', 'unmergeable'],
         });
         if (open.items.length > 0) {
           continue;
@@ -290,7 +290,7 @@ export class GithubService extends DaemonService {
   public async repairSignalsForAgent(agentId: string): Promise<void> {
     const { items } = await this.daemon.datastore.trackedPrs.list({
       agentId,
-      state: ['mergeable', 'unmergeable'],
+      state: ['mergeable', 'pending', 'unmergeable'],
     });
     for (const row of items) {
       await this.daemon.datastore.agent.signals.register({

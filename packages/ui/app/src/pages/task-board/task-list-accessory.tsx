@@ -57,6 +57,11 @@ function summarizePrState(prs: TrackedPrRecord[]): 'checking' | 'closed' | 'merg
   if (prs.some((pr) => pr.state === 'unmergeable')) {
     return 'unmergeable';
   }
+  // A `pending` PR is open but not yet ready to merge (behind base, mergeability
+  // still computing, or CI not green) — surface it as in-progress, not green.
+  if (prs.some((pr) => pr.state === 'pending')) {
+    return 'checking';
+  }
   if (prs.some((pr) => pr.state === 'mergeable' && pr.checks.some((check) => check.status !== 'completed'))) {
     return 'checking';
   }

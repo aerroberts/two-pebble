@@ -390,7 +390,7 @@ export interface TaskDeliverableSubmissionRecord {
 
 export type TaskDeliverablePayload = { type: 'text'; content: string } | { type: 'pr_url'; url: string };
 
-export type TrackedPrState = 'mergeable' | 'unmergeable' | 'merged' | 'closed';
+export type TrackedPrState = 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed';
 
 export interface TrackedPrCheckRun {
   name: string;

@@ -43,6 +43,8 @@ export class GithubCapability extends AgentCapability<Record<string, never>> {
   }
 }
 
-function isPrState(value: unknown): value is 'mergeable' | 'unmergeable' | 'merged' | 'closed' {
-  return value === 'mergeable' || value === 'unmergeable' || value === 'merged' || value === 'closed';
+function isPrState(value: unknown): value is 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed' {
+  return (
+    value === 'mergeable' || value === 'pending' || value === 'unmergeable' || value === 'merged' || value === 'closed'
+  );
 }
