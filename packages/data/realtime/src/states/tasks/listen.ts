@@ -1,4 +1,20 @@
+import type { LoadableRegistry } from '../../loadable';
 import type { RealtimeOperationContext } from '../../types';
+
+/**
+ * Removes every entry in a registry whose row belongs to the given task. Used
+ * to cascade-purge a deleted task's children, which the daemon reconciles only
+ * with a coarse `taskDeleted` event (no per-child delete events).
+ */
+function withoutTask<T extends { taskId: string }>(registry: LoadableRegistry<T>, taskId: string): LoadableRegistry<T> {
+  let next = registry;
+  for (const entry of registry.entries()) {
+    if (entry.value.taskId === taskId) {
+      next = next.withoutItem(entry.id);
+    }
+  }
+  return next;
+}
 
 /**
  * Wires the realtime client to every task event the daemon emits.
@@ -27,7 +43,17 @@ export function listenToTasks(ctx: RealtimeOperationContext): void {
     ctx.datastore.patch({ tasks: ctx.datastore.state.tasks.withItem(record.id, record, 'ready') });
   });
   client.listen('taskDeleted', (deleted) => {
-    ctx.datastore.patch({ tasks: ctx.datastore.state.tasks.withoutItem(deleted.id) });
+    // The daemon emits only a coarse `taskDeleted`; cascade-purge the deleted
+    // task's children here so the UI does not retain orphaned deliverables,
+    // submissions, events, or tracked PRs (e.g. the overview "My Open PRs"
+    // ghost) until a full reload.
+    ctx.datastore.patch({
+      tasks: ctx.datastore.state.tasks.withoutItem(deleted.id),
+      taskEvents: withoutTask(ctx.datastore.state.taskEvents, deleted.id),
+      taskDeliverables: withoutTask(ctx.datastore.state.taskDeliverables, deleted.id),
+      taskDeliverableSubmissions: withoutTask(ctx.datastore.state.taskDeliverableSubmissions, deleted.id),
+      trackedPrs: withoutTask(ctx.datastore.state.trackedPrs, deleted.id),
+    });
   });
   client.listen('taskDependencyUpdated', (record) => {
     ctx.datastore.patch({

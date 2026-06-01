@@ -13,15 +13,16 @@ export function listenToAgentLiveness(ctx: RealtimeOperationContext) {
     return;
   }
   client.listen('agentLiveness', (payload) => {
+    // On a daemon restart (boot id changed) every previous broadcast is stale,
+    // so start from an empty registry. Compute the base and patch exactly once
+    // — the previous two-patch sequence relied on `patch` being synchronous to
+    // read back the just-reset registry, and would have re-inserted stale rows
+    // if it ever batched.
     const previousBootId = ctx.datastore.state.daemonBootId;
-    if (previousBootId !== null && previousBootId !== payload.daemonBootId) {
-      ctx.datastore.patch({
-        agentLiveness: new LoadableRegistry<AgentLivenessRecord>(),
-        daemonBootId: payload.daemonBootId,
-      });
-    }
+    const bootChanged = previousBootId !== null && previousBootId !== payload.daemonBootId;
+    const base = bootChanged ? new LoadableRegistry<AgentLivenessRecord>() : ctx.datastore.state.agentLiveness;
     ctx.datastore.patch({
-      agentLiveness: ctx.datastore.state.agentLiveness.withItem(payload.agentId, payload, 'ready'),
+      agentLiveness: base.withItem(payload.agentId, payload, 'ready'),
       daemonBootId: payload.daemonBootId,
     });
   });
