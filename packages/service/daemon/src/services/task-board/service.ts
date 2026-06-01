@@ -476,6 +476,13 @@ export class TaskBoardService extends DaemonService {
    * overrides are not overwritten by the after-the-fact sync.
    */
   public async syncOwnedTasksFromAgentStatus(input: SyncTasksFromAgentInput): Promise<SyncTasksFromAgentResult> {
+    // Only a genuine failure should force the agent's in-progress tasks to
+    // failure. A gracefully stopped or finished agent settles to `idle`, and
+    // force-failing its owned tasks then destroyed healthy work (e.g. stopping
+    // an already-done agent flipped a working/waiting task to failure).
+    if (input.agentStatus !== 'failed') {
+      return { tasks: [], events: [] };
+    }
     const targetStatus = 'failure';
     const reason = input.reason ?? `auto: agent ${input.agentStatus}`;
     const { items: boards } = await this.datastore.taskBoards.list({});
@@ -486,6 +493,12 @@ export class TaskBoardService extends DaemonService {
       const owned = tasks.filter((task) => task.ownerId === input.agentId);
       for (const task of owned) {
         if (task.status === 'success' || task.status === 'failure' || task.status === 'canceled') {
+          continue;
+        }
+        // A task parked in `waiting` on a still-open tracked PR outlives the
+        // agent: the PR can still merge and drive the task to success. Failing
+        // it here is terminal and would abandon a healthy PR, so skip it.
+        if (task.status === 'waiting' && (await this.hasOpenTrackedPr(task.id))) {
           continue;
         }
         try {
@@ -504,6 +517,14 @@ export class TaskBoardService extends DaemonService {
       }
     }
     return { tasks: tasksOut, events };
+  }
+
+  private async hasOpenTrackedPr(taskId: string): Promise<boolean> {
+    const { items } = await this.datastore.trackedPrs.list({
+      taskId,
+      state: ['mergeable', 'unmergeable'],
+    });
+    return items.length > 0;
   }
 
   private async runMutation<T>(
