@@ -78,12 +78,31 @@ export class GithubService extends DaemonService {
   public async submitPr(input: { agentId: string; deliverableId: string; url: string }): Promise<TrackedPrRecord> {
     const parsed = parseGithubPullRequestUrl(input.url);
     const { task, deliverable } = await this.findOwnedPrDeliverable(input.agentId, input.deliverableId);
+    // Verify the PR actually exists and capture its real state rather than
+    // blindly trusting the agent's URL and recording it as `mergeable`. A
+    // non-existent or already-closed PR can never merge, so reject it instead
+    // of parking the task in `waiting` on a dead reference forever. (An already
+    // `merged` PR is tracked normally; the reconciliation sweep then drives the
+    // task to success on the next heartbeat.)
+    let initialState: TrackedPrState;
+    try {
+      const pull = await fetchPullRequest(parsed.url);
+      if (pull.state === 'CLOSED') {
+        throw new Error(`PR ${parsed.repo}#${parsed.number} is closed and cannot be tracked.`);
+      }
+      initialState = trackedStateFromGh(pull);
+    } catch (error) {
+      if (isPullRequestGoneError(error)) {
+        throw new Error(`PR ${parsed.repo}#${parsed.number} does not exist or is not accessible.`);
+      }
+      throw error;
+    }
     const row = await this.daemon.datastore.trackedPrs.upsert({
       agentId: input.agentId,
       deliverableId: deliverable.id,
       number: parsed.number,
       repo: parsed.repo,
-      state: 'mergeable',
+      state: initialState,
       taskId: task.id,
       url: parsed.url,
     });
