@@ -5,13 +5,19 @@ import type { DaemonHeartbeatInput, DaemonHeartbeatReport } from '../../types';
 import type { AgentRegistryService } from '../agent-registry/service';
 import { DaemonService } from '../daemon-service';
 import type { TaskBoardService } from '../task-board/service';
-import { checksFromGh, evaluatePullRequest, fetchPullRequest, trackedStateFromGh } from './gh-cli';
+import {
+  checksFromGh,
+  evaluatePullRequest,
+  fetchPullRequest,
+  isPullRequestGoneError,
+  trackedStateFromGh,
+} from './gh-cli';
 import type { BackoffEntry, GithubHeartbeatDetail, PollOutcome } from './types';
 
 /**
  * Daemon service that polls tracked GitHub pull requests on each heartbeat,
- * advances their stored state, and applies per-repo backoff when the GitHub
- * API errors or rate-limits.
+ * advances their stored state, and applies per-PR backoff when the GitHub
+ * API errors or rate-limits, so one failing PR cannot throttle the rest.
  */
 export class GithubService extends DaemonService {
   public readonly id = 'github';
@@ -31,13 +37,16 @@ export class GithubService extends DaemonService {
       const threshold = input.now - 20_000;
       const { items } = await this.daemon.datastore.trackedPrs.listOpen({ limit: 50, pollableBefore: threshold });
       for (const row of items) {
-        if (this.isBackedOff(row.repo, input.now)) {
+        if (this.isBackedOff(row.id, input.now)) {
           continue;
         }
         detail.polled += 1;
         const outcome = await this.pollOne(row, input.now);
         if (outcome.kind === 'error') {
           detail.errors.push({ message: outcome.message, prId: outcome.prId, status: outcome.status });
+          // Advance the poll cursor even on a transient failure so this row does
+          // not dominate every subsequent heartbeat ahead of healthy PRs.
+          await this.daemon.datastore.trackedPrs.update({ id: outcome.prId, lastCheckedAt: input.now });
           continue;
         }
         if (outcome.next === outcome.row.state && checksEqual(outcome.row.checks, outcome.checks)) {
@@ -278,7 +287,7 @@ export class GithubService extends DaemonService {
   private async pollOne(row: TrackedPrRecord, now: number): Promise<PollOutcome> {
     try {
       const pull = await fetchPullRequest(row.url);
-      this.backoff.delete(row.repo);
+      this.backoff.delete(row.id);
       return {
         checks: checksFromGh(pull),
         kind: 'transition',
@@ -286,8 +295,17 @@ export class GithubService extends DaemonService {
         row,
       };
     } catch (error) {
+      if (isPullRequestGoneError(error)) {
+        // The PR (or its repo) no longer exists. Terminalize it as closed so the
+        // task stops waiting on a PR that can never resolve, rather than backing
+        // off on it indefinitely.
+        this.backoff.delete(row.id);
+        return { checks: row.checks, kind: 'transition', next: 'closed', row };
+      }
       const message = error instanceof Error ? error.message : String(error);
-      this.applyBackoff(row.repo, now);
+      // Transient failure: back off this specific PR, not the whole repo, so one
+      // bad PR cannot throttle every other tracked PR sharing its repo.
+      this.applyBackoff(row.id, now);
       return { kind: 'error', message, prId: row.id, status: 0 };
     }
   }
@@ -343,15 +361,15 @@ export class GithubService extends DaemonService {
     await this.agentRegistry.wakeIfSignalsReady(row.agentId);
   }
 
-  private applyBackoff(repo: string, now: number): void {
-    const previous = this.backoff.get(repo);
+  private applyBackoff(key: string, now: number): void {
+    const previous = this.backoff.get(key);
     const attempt = (previous?.attempt ?? 0) + 1;
     const delayMs = Math.min(2 ** (attempt - 1) * 60_000, 30 * 60_000);
-    this.backoff.set(repo, { attempt, until: now + delayMs });
+    this.backoff.set(key, { attempt, until: now + delayMs });
   }
 
-  private isBackedOff(repo: string, now: number): boolean {
-    const entry = this.backoff.get(repo);
+  private isBackedOff(key: string, now: number): boolean {
+    const entry = this.backoff.get(key);
     return entry !== undefined && entry.until > now;
   }
 

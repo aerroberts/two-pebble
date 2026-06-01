@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { evaluatePullRequest, type GhCheck, type GhPullRequest } from './gh-cli';
+import { evaluatePullRequest, type GhCheck, type GhPullRequest, isPullRequestGoneError } from './gh-cli';
 
 function pull(overrides: Partial<GhPullRequest> = {}): GhPullRequest {
   return {
@@ -95,5 +95,28 @@ describe('feature: evaluatePullRequest', () => {
       pull({ state: 'CLOSED', mergeable: 'CONFLICTING', statusCheckRollup: [checkRun({ conclusion: 'FAILURE' })] }),
     );
     expect(reasons.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe('isPullRequestGoneError', () => {
+  test('classifies gh not-found stderr as gone', () => {
+    expect(
+      isPullRequestGoneError(
+        new Error(
+          'gh pr view ... failed: GraphQL: Could not resolve to a PullRequest with the number of 5 (repository.pullRequest)',
+        ),
+      ),
+    ).toBe(true);
+    expect(isPullRequestGoneError(new Error('gh pr view ... failed: no pull requests found for branch'))).toBe(true);
+    expect(
+      isPullRequestGoneError(new Error('gh pr view ... failed: Could not resolve to a Repository with the name')),
+    ).toBe(true);
+    expect(isPullRequestGoneError(new Error('gh pr view ... failed: 404 Not Found'))).toBe(true);
+  });
+
+  test('treats transient failures as not gone', () => {
+    expect(isPullRequestGoneError(new Error('gh pr view ... failed: API rate limit exceeded'))).toBe(false);
+    expect(isPullRequestGoneError(new Error('gh pr view ... failed: dial tcp: connection refused'))).toBe(false);
+    expect(isPullRequestGoneError('not an error')).toBe(false);
   });
 });

@@ -41,6 +41,27 @@ export async function fetchPullRequest(url: string): Promise<GhPullRequest> {
 }
 
 /**
+ * True when a `gh` failure means the pull request no longer exists or is no
+ * longer reachable (deleted PR, deleted/renamed repo, lost access) — as opposed
+ * to a transient failure (network, rate limit, auth hiccup). Callers terminalize
+ * a gone PR instead of backing off on it forever, so an agent does not wait on a
+ * PR that can never resolve. Matches against the CLI's stderr, which `runGh`
+ * folds into the rejection message.
+ */
+export function isPullRequestGoneError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  const message = error.message.toLowerCase();
+  return (
+    message.includes('could not resolve to a pullrequest') ||
+    message.includes('no pull requests found') ||
+    message.includes('could not resolve to a repository') ||
+    /\bnot found\b/.test(message)
+  );
+}
+
+/**
  * Returns the reasons a pull request is not ready to merge.
  * An empty array means the PR is good: open, conflict-free, up to date with its
  * base branch, and passing every CI check. Draft PRs are accepted — GitHub
