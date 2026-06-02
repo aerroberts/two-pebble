@@ -347,8 +347,6 @@ function buildTestBridge(input: { signals: SignalOperations; subAgents: SubAgent
       update: async () => ({ id: '', name: '' }),
     },
     github: {
-      applySignal: async () => undefined,
-      hasOpenPrs: async () => false,
       submitPr: async () => {
         throw new Error('not used');
       },
@@ -372,11 +370,7 @@ function buildTestBridge(input: { signals: SignalOperations; subAgents: SubAgent
       listTaskDeliverables: async () => [],
       listTaskEvents: async () => [],
       renameTask: async () => undefined,
-      setOwnedTaskStatus: async () => undefined,
       setTaskStatus: async () => undefined,
-      submitDeliverable: async () => {
-        throw new Error('not used');
-      },
       updateTaskDescription: async () => undefined,
     },
   };

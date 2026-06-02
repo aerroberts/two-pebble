@@ -36,27 +36,3 @@ export function useTrackedPrsForTasks(taskIds: string[]) {
     return all.values().filter((row) => ids.has(row.taskId));
   }, [all, taskIdKey]);
 }
-
-export function useMyOpenPrs(agentId?: string) {
-  const datastore = useRealtimeDatastore();
-  const all = useRealtimeStore((state) => state.trackedPrs);
-
-  useEffect(() => {
-    void datastore.trackedPrs
-      .list({ agentId, state: ['mergeable', 'pending', 'unmergeable'], limit: 200 })
-      .catch(() => undefined);
-  }, [agentId, datastore]);
-
-  return useMemo(
-    () =>
-      all
-        .values()
-        .filter((row) => (agentId === undefined || row.agentId === agentId) && isOpenState(row.state))
-        .sort((left, right) => right.updatedAt - left.updatedAt),
-    [agentId, all],
-  );
-}
-
-function isOpenState(state: string): boolean {
-  return state === 'mergeable' || state === 'pending' || state === 'unmergeable';
-}

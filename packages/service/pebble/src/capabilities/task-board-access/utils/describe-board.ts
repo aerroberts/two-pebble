@@ -60,8 +60,7 @@ function renderPool(input: RenderPoolInput): void {
 function formatTask(task: TaskBoardTaskNode, depsByFrom: DependenciesBySource): string {
   const deps = depsByFrom.get(task.id);
   const depsLabel = deps !== undefined && deps.length > 0 ? `, deps: ${deps.join(',')}` : '';
-  const ownerLabel = task.ownerId !== null ? `, owner: ${task.ownerId}` : '';
-  return `${task.name} [${task.id}, ${task.effectiveStatus}${depsLabel}${ownerLabel}]`;
+  return `${task.name} [${task.id}, ${task.effectiveStatus}${depsLabel}]`;
 }
 
 function indexDependencies(edges: TaskBoardDependencyEdge[]): DependenciesBySource {

@@ -47,35 +47,13 @@ export async function persistAgentStatus(input: PersistStatusInput): Promise<voi
   if (input.status !== 'running') {
     input.activeAgents.delete(input.agentId);
   }
-  let updatedName: string | undefined;
   try {
     const updated = await input.datastore.agent.setStatus({ id: input.agentId, status: input.status });
-    updatedName = updated.name;
     input.events.emit('agentRecorded', updated);
     input.onStatusPersisted?.(input.agentId, input.status);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.warn('agent status write failed', { agentId: input.agentId, error: message });
-    return;
-  }
-  if (input.status !== 'failed') {
-    return;
-  }
-  try {
-    const sync = await input.taskBoards.syncOwnedTasksFromAgentStatus({
-      agentId: input.agentId,
-      agentStatus: input.status,
-      reason: `auto: agent ${updatedName ?? input.agentId} ${input.status}`,
-    });
-    for (const event of sync.events) {
-      input.events.emit('taskEventRecorded', event);
-    }
-    for (const task of sync.tasks) {
-      input.events.emit('taskUpdated', task);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    logger.warn('task status sync from agent failed', { agentId: input.agentId, error: message });
   }
 }
 

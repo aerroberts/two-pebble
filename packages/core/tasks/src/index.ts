@@ -5,7 +5,6 @@ export { NonEmptyPoolError } from './errors/non-empty-pool-error';
 export { NotFoundError } from './errors/not-found-error';
 export { SelfDependencyError } from './errors/self-dependency-error';
 export { SiblingViolationError } from './errors/sibling-violation-error';
-export { TaskOwnershipError } from './errors/task-ownership-error';
 export { TaskBoard } from './task-board';
 export type {
   AddDependencyInput,

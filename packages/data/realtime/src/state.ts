@@ -26,6 +26,8 @@ import { createKnownIdesState } from './states/known-ides/state';
 import type { KnownIdesState } from './states/known-ides/types';
 import { createMemoriesState } from './states/memories/state';
 import type { MemoriesState } from './states/memories/types';
+import { createPrOverviewState } from './states/pr-overview/state';
+import type { PrOverviewState } from './states/pr-overview/types';
 import { createProjectsState } from './states/projects/state';
 import type { ProjectsState } from './states/projects/types';
 import { createRepositoriesState } from './states/repositories/state';
@@ -55,6 +57,7 @@ export interface RealtimeState
     IntegrationsState,
     KnownIdesState,
     MemoriesState,
+    PrOverviewState,
     ProjectsState,
     RepositoriesState,
     SkillsState,
@@ -80,6 +83,7 @@ export function createRealtimeState(): RealtimeState {
     ...createIntegrationsState(),
     ...createKnownIdesState(),
     ...createMemoriesState(),
+    ...createPrOverviewState(),
     ...createProjectsState(),
     ...createRepositoriesState(),
     ...createSkillsState(),

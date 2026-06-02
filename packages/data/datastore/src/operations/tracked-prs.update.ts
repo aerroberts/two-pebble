@@ -5,6 +5,7 @@ import type { DatastoreContext, TrackedPrCheckRun, TrackedPrRecord, TrackedPrSta
 type OperationHandlerInput = {
   id: string;
   state?: TrackedPrState;
+  title?: string;
   checks?: TrackedPrCheckRun[];
   lastCheckedAt?: number;
   lastEventAt?: number | null;
@@ -29,6 +30,7 @@ export function trackedPrsUpdateOperation(ctx: DatastoreContext) {
         lastCheckedAt: input.lastCheckedAt ?? createUtcNow(),
         lastEventAt: input.lastEventAt === undefined ? existing.lastEventAt : input.lastEventAt,
         state: input.state ?? existing.state,
+        title: input.title ?? existing.title,
       })
       .where(eq(ctx.schema.trackedPrsTable.id, input.id))
       .returning()

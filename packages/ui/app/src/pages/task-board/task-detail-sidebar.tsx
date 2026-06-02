@@ -23,11 +23,6 @@ export interface TaskDetailSidebarTask {
   status: TaskStatusIconStatus;
 }
 
-export interface TaskDetailSidebarOwnerAgent {
-  id: string;
-  name: string;
-}
-
 export interface TaskDetailSidebarDeliverable {
   id: string;
   name: string;
@@ -42,7 +37,6 @@ export interface TaskDetailSidebarDeliverableSubmission {
 
 export interface TaskDetailSidebarProps {
   task: TaskDetailSidebarTask;
-  ownerAgent: TaskDetailSidebarOwnerAgent | null;
   description: string;
   descriptionContent: string | null;
   taskReferences: ReadonlyArray<RichComposerTask>;
@@ -53,8 +47,6 @@ export interface TaskDetailSidebarProps {
   events: TaskEventRecord[];
   onDescriptionSave: (markdown: string, content: string) => void;
   onDelegate: (agentRegistryId: string) => void;
-  onUndelegate: () => void;
-  onOpenAgent: (agentId: string) => void;
   onCreateTemplateFromTask: () => void;
   onAddDeliverable: () => void;
   onUpdateDeliverable: (input: { id: string; name?: string; description?: string; type?: 'text' | 'pr_url' }) => void;
@@ -91,7 +83,6 @@ export function TaskDetailSidebar(props: TaskDetailSidebarProps): ReactNode {
       <AppBox variant="task-detail-header">
         <AppBox variant="task-detail-actions">{renderDelegateControl(props)}</AppBox>
       </AppBox>
-      {props.ownerAgent !== null ? <AppBox variant="controls-row">{renderOwnerSummary(props)}</AppBox> : null}
       <RichTextFieldHost
         ariaLabel="Task description"
         minHeight={120}
@@ -278,38 +269,12 @@ function DeliverableEditorRow(props: DeliverableEditorRowProps): ReactNode {
   );
 }
 
-function renderOwnerSummary(props: TaskDetailSidebarProps): ReactNode {
-  const owner = props.ownerAgent;
-  if (owner === null) {
-    return null;
-  }
-  return (
-    <AppBox variant="controls-row">
-      <span>Owned by</span>
-      <Button leftIcon="bot" onClick={() => props.onOpenAgent(owner.id)} variant="secondary">
-        {owner.name}
-      </Button>
-    </AppBox>
-  );
-}
-
 function renderDelegateControl(props: TaskDetailSidebarProps): ReactNode {
-  if (props.ownerAgent !== null) {
-    const owner = props.ownerAgent;
-    return (
-      <AppBox variant="controls-row">
-        <Button leftIcon="bot" onClick={() => props.onOpenAgent(owner.id)} variant="secondary">
-          {owner.name}
-        </Button>
-        <Button onClick={props.onUndelegate} variant="secondary">
-          Undelegate
-        </Button>
-      </AppBox>
-    );
-  }
   if (props.delegateAgents.length === 0) {
     return null;
   }
+  // Delegation launches an agent pointed at the task and records nothing on the
+  // board — there is no ownership, so this stays available even after delegating.
   return (
     <Select
       options={props.delegateAgents}

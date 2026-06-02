@@ -1,8 +1,6 @@
 import type { TaskRecord, TrackedPrCheckRun, TrackedPrRecord, TrackedPrState } from '@two-pebble/datastore';
 import { logger } from '@two-pebble/logger';
-import type { PebbleJsonValue } from '@two-pebble/pebble';
 import type { DaemonHeartbeatInput, DaemonHeartbeatReport } from '../../types';
-import type { AgentRegistryService } from '../agent-registry/service';
 import { DaemonService } from '../daemon-service';
 import type { TaskBoardService } from '../task-board/service';
 import {
@@ -22,10 +20,6 @@ import type { BackoffEntry, GithubHeartbeatDetail, PollOutcome } from './types';
 export class GithubService extends DaemonService {
   public readonly id = 'github';
   private readonly backoff = new Map<string, BackoffEntry>();
-
-  private get agentRegistry(): AgentRegistryService {
-    return this.daemon.requireService<AgentRegistryService>('agent-registry');
-  }
 
   private get taskBoards(): TaskBoardService {
     return this.daemon.requireService<TaskBoardService>('task-board');
@@ -53,10 +47,11 @@ export class GithubService extends DaemonService {
           await this.daemon.datastore.trackedPrs.update({
             id: outcome.row.id,
             lastCheckedAt: input.now,
+            title: outcome.title,
           });
           continue;
         }
-        await this.applyTransition(outcome.row, outcome.next, outcome.checks, input.now);
+        await this.applyTransition(outcome.row, outcome.next, outcome.checks, outcome.title, input.now);
         detail.transitioned += 1;
         detail.prUpdates.push({
           checks: outcome.checks,
@@ -75,57 +70,64 @@ export class GithubService extends DaemonService {
     }
   }
 
-  public async submitPr(input: { agentId: string; deliverableId: string; url: string }): Promise<TrackedPrRecord> {
+  /**
+   * Attaches a GitHub PR to a task's `pr_url` deliverable and starts tracking
+   * it (attach-then-watch). There is no ownership concept: CLI, UI, and agents
+   * all reach this the same way. Accepts any real, open PR — only a
+   * closed/nonexistent PR is rejected — then records its true current state and
+   * parks the task in `waiting`; the heartbeat poller advances it from there and
+   * drives the task to success when the PR merges.
+   */
+  public async trackPrForDeliverable(input: {
+    taskId: string;
+    deliverableId: string;
+    url: string;
+  }): Promise<TrackedPrRecord> {
     const parsed = parseGithubPullRequestUrl(input.url);
-    const { task, deliverable } = await this.findOwnedPrDeliverable(input.agentId, input.deliverableId);
-    // Verify the PR actually exists and capture its real state rather than
-    // blindly trusting the agent's URL and recording it as `mergeable`. A
-    // non-existent or already-closed PR can never merge, so reject it instead
-    // of parking the task in `waiting` on a dead reference forever. (An already
-    // `merged` PR is tracked normally; the reconciliation sweep then drives the
-    // task to success on the next heartbeat.)
+    const task = await this.findTask(input.taskId);
+    const { items: deliverables } = await this.daemon.datastore.taskBoards.deliverables.list({ taskId: task.id });
+    const deliverable = deliverables.find((entry) => entry.id === input.deliverableId);
+    if (deliverable === undefined) {
+      throw new Error(`task deliverable "${input.deliverableId}" not found on task "${task.id}"`);
+    }
+    if (deliverable.type !== 'pr_url') {
+      throw new Error(`deliverable "${input.deliverableId}" expects "${deliverable.type}", not "pr_url"`);
+    }
     let initialState: TrackedPrState;
+    let title = '';
     try {
       const pull = await fetchPullRequest(parsed.url);
       if (pull.state === 'CLOSED') {
         throw new Error(`PR ${parsed.repo}#${parsed.number} is closed and cannot be tracked.`);
       }
       initialState = trackedStateFromGh(pull);
+      title = pull.title;
     } catch (error) {
       if (isPullRequestGoneError(error)) {
         throw new Error(`PR ${parsed.repo}#${parsed.number} does not exist or is not accessible.`);
       }
       throw error;
     }
-    // Re-assert ownership after the fetch network call (the widest window for a
-    // concurrent undelegate to clear it) so an undelegated agent's in-flight
-    // submission cannot still bind a tracked PR and park the task in `waiting`.
-    const owner = await this.findTask(task.id);
-    if (owner.ownerId !== input.agentId) {
-      throw new Error(`task "${task.id}" is no longer owned by "${input.agentId}"`);
-    }
     const row = await this.daemon.datastore.trackedPrs.upsert({
-      agentId: input.agentId,
       deliverableId: deliverable.id,
       number: parsed.number,
       repo: parsed.repo,
       state: initialState,
       taskId: task.id,
+      title,
       url: parsed.url,
     });
-    await this.daemon.datastore.agent.signals.register({
-      agentId: input.agentId,
-      capabilityId: 'github',
-      description: `Wait for GitHub PR ${row.repo}#${row.number} to merge or need attention.`,
-      name: 'pr-changed',
-      signalId: signalIdForPr(row.id),
-    });
     this.daemon.events.emit('trackedPrRecorded', row);
-    const outcome = await this.taskBoards.setTaskStatusAsAgent({
-      agentId: input.agentId,
+    // A merged PR attached after the fact still needs to drive the task; route
+    // through the same terminal effects the poller uses so it reconciles now.
+    if (initialState === 'merged') {
+      await this.applyTerminalPrEffects(row, 'merged');
+      return row;
+    }
+    const outcome = await this.taskBoards.setTaskStatus(task.boardId, {
+      id: task.id,
       reason: `auto: waiting for PR ${row.repo}#${row.number}`,
       status: 'waiting',
-      taskId: task.id,
     });
     this.broadcastTaskOutcome(outcome);
     return row;
@@ -149,35 +151,11 @@ export class GithubService extends DaemonService {
     }
   }
 
-  public async hasOpenPrs(agentId: string): Promise<boolean> {
-    const { items } = await this.daemon.datastore.trackedPrs.list({
-      agentId,
-      limit: 1,
-      state: ['mergeable', 'pending', 'unmergeable'],
-    });
-    return items.length > 0;
-  }
-
-  /**
-   * Applies a tracked PR signal forwarded by the agent runtime. The task
-   * effects are identical to (and idempotent with) the daemon poller's, so the
-   * agent path stays consistent whether or not the poller already reconciled.
-   */
-  public async applyPrSignal(input: { agentId: string; prId: string; next: TrackedPrState }): Promise<void> {
-    const row = await this.daemon.datastore.trackedPrs.read({ id: input.prId });
-    if (row.agentId !== input.agentId) {
-      throw new Error(`tracked PR "${row.id}" is owned by "${row.agentId}", not "${input.agentId}"`);
-    }
-    await this.applyTerminalPrEffects(row, input.next);
-  }
-
   /**
    * Drives the task-level consequences of a terminal PR state. This is the
-   * single, daemon-authoritative place the effects live so they fire from the
-   * poller regardless of whether the owning agent is alive to consume the
-   * signal — previously a merged PR with a failed/offline agent left its task
-   * stuck forever. Idempotent: safe to run from both the poller and the agent
-   * signal path, and a no-op once the task has settled.
+   * single, daemon-authoritative place the effects live, fired from the poller
+   * (and from attach when a PR is already merged). Idempotent: a no-op once the
+   * task has settled.
    */
   private async applyTerminalPrEffects(row: TrackedPrRecord, next: TrackedPrState): Promise<void> {
     if (next === 'merged') {
@@ -294,22 +272,6 @@ export class GithubService extends DaemonService {
     }
   }
 
-  public async repairSignalsForAgent(agentId: string): Promise<void> {
-    const { items } = await this.daemon.datastore.trackedPrs.list({
-      agentId,
-      state: ['mergeable', 'pending', 'unmergeable'],
-    });
-    for (const row of items) {
-      await this.daemon.datastore.agent.signals.register({
-        agentId,
-        capabilityId: 'github',
-        description: `Wait for GitHub PR ${row.repo}#${row.number} to merge or need attention.`,
-        name: 'pr-changed',
-        signalId: signalIdForPr(row.id),
-      });
-    }
-  }
-
   private async pollOne(row: TrackedPrRecord, now: number): Promise<PollOutcome> {
     try {
       const pull = await fetchPullRequest(row.url);
@@ -319,6 +281,7 @@ export class GithubService extends DaemonService {
         kind: 'transition',
         next: trackedStateFromGh(pull),
         row,
+        title: pull.title,
       };
     } catch (error) {
       if (isPullRequestGoneError(error)) {
@@ -326,7 +289,7 @@ export class GithubService extends DaemonService {
         // task stops waiting on a PR that can never resolve, rather than backing
         // off on it indefinitely.
         this.backoff.delete(row.id);
-        return { checks: row.checks, kind: 'transition', next: 'closed', row };
+        return { checks: row.checks, kind: 'transition', next: 'closed', row, title: row.title };
       }
       const message = error instanceof Error ? error.message : String(error);
       // Transient failure: back off this specific PR, not the whole repo, so one
@@ -340,6 +303,7 @@ export class GithubService extends DaemonService {
     row: TrackedPrRecord,
     next: TrackedPrState,
     checks: TrackedPrCheckRun[],
+    title: string,
     now: number,
   ): Promise<void> {
     const updated = await this.daemon.datastore.trackedPrs.update({
@@ -348,43 +312,14 @@ export class GithubService extends DaemonService {
       lastCheckedAt: now,
       lastEventAt: now,
       state: next,
+      title,
     });
     this.daemon.events.emit('trackedPrRecorded', updated);
-    // Drive the task effects from the poller, not just the agent signal path,
-    // so a terminal PR reconciles the task even when the owning agent is dead.
+    // The poller is the single, daemon-authoritative driver of task effects for
+    // a terminal PR; agents are fully decoupled from PR status.
     if (next === 'merged' || next === 'unmergeable' || next === 'closed') {
       await this.applyTerminalPrEffects(updated, next);
     }
-    const data: PebbleJsonValue = {
-      checks: checks.map((check) => ({
-        conclusion: check.conclusion,
-        name: check.name,
-        status: check.status,
-        url: check.url,
-      })),
-      next,
-      prev: row.state,
-      prId: row.id,
-      type: 'pr-changed',
-    };
-    try {
-      await this.daemon.datastore.agent.signals.resolve({
-        agentId: row.agentId,
-        capabilityId: 'github',
-        data,
-        signalId: signalIdForPr(row.id),
-      });
-    } catch {
-      await this.daemon.datastore.agent.signals.sendPush({
-        agentId: row.agentId,
-        capabilityId: 'github',
-        data,
-        description: `GitHub PR ${row.repo}#${row.number} changed to ${next}.`,
-        name: 'pr-changed',
-        signalId: crypto.randomUUID(),
-      });
-    }
-    await this.agentRegistry.wakeIfSignalsReady(row.agentId);
   }
 
   private applyBackoff(key: string, now: number): void {
@@ -397,27 +332,6 @@ export class GithubService extends DaemonService {
   private isBackedOff(key: string, now: number): boolean {
     const entry = this.backoff.get(key);
     return entry !== undefined && entry.until > now;
-  }
-
-  private async findOwnedPrDeliverable(agentId: string, deliverableId: string) {
-    const { items: boards } = await this.daemon.datastore.taskBoards.list({});
-    for (const board of boards) {
-      const { items: tasks } = await this.daemon.datastore.taskBoards.tasks.list({ boardId: board.id });
-      for (const task of tasks) {
-        if (task.ownerId !== agentId) {
-          continue;
-        }
-        const { items: deliverables } = await this.daemon.datastore.taskBoards.deliverables.list({ taskId: task.id });
-        const deliverable = deliverables.find((item) => item.id === deliverableId);
-        if (deliverable !== undefined) {
-          if (deliverable.type !== 'pr_url') {
-            throw new Error(`deliverable "${deliverableId}" expects "${deliverable.type}", not "pr_url"`);
-          }
-          return { deliverable, task };
-        }
-      }
-    }
-    throw new Error(`owned PR deliverable "${deliverableId}" not found for agent "${agentId}"`);
   }
 
   private async findTask(taskId: string): Promise<TaskRecord> {
@@ -458,10 +372,6 @@ export function parseGithubPullRequestUrl(value: string): { repo: string; number
     repo: `${owner}/${name}`,
     url: `https://github.com/${owner}/${name}/pull/${parsedNumber}`,
   };
-}
-
-function signalIdForPr(id: string): string {
-  return `pr:${id}`;
 }
 
 function isTerminalTaskStatus(status: string): boolean {

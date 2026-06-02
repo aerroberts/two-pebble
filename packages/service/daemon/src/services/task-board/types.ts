@@ -43,20 +43,6 @@ export interface SetTaskStatusInput {
   reason: string;
 }
 
-export interface SetTaskStatusAsAgentInput {
-  taskId: string;
-  agentId: string;
-  status: SettableTaskStatus;
-  reason: string;
-}
-
-export interface SubmitDeliverableAsAgentInput {
-  agentId: string;
-  taskId: string;
-  deliverableId: string;
-  payload: TaskDeliverablePayload;
-}
-
 export interface SubmitDeliverableInput {
   taskId: string;
   deliverableId: string;
@@ -64,23 +50,8 @@ export interface SubmitDeliverableInput {
 }
 
 export type EffectiveTaskStatus = 'blocked' | 'open' | 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
-export type OwnerId = string | null;
 
 export type RecordedTaskEvent = ProtocolTaskEventRecord;
-
-export interface RecordDelegationInput {
-  taskId: string;
-  agentId: string;
-  agentRegistryId: string;
-  agentName: string;
-  reason: string;
-}
-
-export interface RecordUndelegationInput {
-  taskId: string;
-  agentId: string;
-  reason: string;
-}
 
 export interface CreateDependencyInput {
   boardId: string;
@@ -124,14 +95,3 @@ export type TaskMutationOutcome = MutationOutcome<ProtocolTaskRecord>;
 export type DependencyMutationOutcome = MutationOutcome<TaskDependencyRecord>;
 
 export type { TaskDeliverablePayload, TaskDeliverableRecord, TaskDeliverableSubmissionRecord };
-
-export interface SyncTasksFromAgentInput {
-  agentId: string;
-  agentStatus: 'failed' | 'idle';
-  reason?: string;
-}
-
-export interface SyncTasksFromAgentResult {
-  tasks: ProtocolTaskRecord[];
-  events: RecordedTaskEvent[];
-}

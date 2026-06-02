@@ -175,22 +175,6 @@ export class AgentRegistryService extends DaemonService {
     const updated = await this.datastore.agent.setStatus({ id: agentId, status: 'idle' });
     this.daemon.events.emit('agentRecorded', updated);
     this.notifyStatusPersisted(agentId, 'idle');
-    try {
-      const sync = await this.taskBoards.syncOwnedTasksFromAgentStatus({
-        agentId,
-        agentStatus: 'idle',
-        reason: `auto: agent ${updated.name} stopped (${reason})`,
-      });
-      for (const event of sync.events) {
-        this.daemon.events.emit('taskEventRecorded', event);
-      }
-      for (const task of sync.tasks) {
-        this.daemon.events.emit('taskUpdated', task);
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.warn('task status sync from stopped agent failed', { agentId, error: message });
-    }
     logger.info('agent stopped', { agentId, reason });
   }
 
@@ -228,7 +212,6 @@ export class AgentRegistryService extends DaemonService {
     if (record.status === 'interrupted' || record.status === 'offline' || record.status === 'failed') {
       throw new Error(`Agent "${agentId}" is ${record.status} and cannot be rehydrated.`);
     }
-    await this.github.repairSignalsForAgent(agentId);
     let references: SubAgentReferenceMap = new Map();
     if (record.agentRegistryId !== null && record.agentRegistryId !== undefined) {
       const registry = await this.datastore.agentRegistries.read({ id: record.agentRegistryId });
@@ -637,12 +620,8 @@ export class AgentRegistryService extends DaemonService {
         },
       },
       github: {
-        applySignal: async (input) => {
-          await this.github.applyPrSignal({ agentId, ...input });
-        },
-        hasOpenPrs: async () => this.github.hasOpenPrs(agentId),
         submitPr: async (input) => {
-          const row = await this.github.submitPr({ agentId, ...input });
+          const row = await this.github.trackPrForDeliverable(input);
           return {
             deliverableId: row.deliverableId,
             id: row.id,
@@ -857,15 +836,6 @@ export class AgentRegistryService extends DaemonService {
             this.daemon.events.emit('taskUpdated', task);
           }
         },
-        setOwnedTaskStatus: async (input) => {
-          const { result, events } = await this.taskBoards.setTaskStatusAsAgent(input);
-          this.broadcastTaskEvents(events);
-          this.daemon.events.emit('taskUpdated', result);
-          const refreshed = await this.taskBoards.listTasks(result.boardId);
-          for (const task of refreshed) {
-            this.daemon.events.emit('taskUpdated', task);
-          }
-        },
         setTaskStatus: async (input) => {
           const { result, events } = await this.taskBoards.setTaskStatus(input.boardId, {
             id: input.taskId,
@@ -878,11 +848,6 @@ export class AgentRegistryService extends DaemonService {
           for (const task of refreshed) {
             this.daemon.events.emit('taskUpdated', task);
           }
-        },
-        submitDeliverable: async (input) => {
-          const submission = await this.taskBoards.submitDeliverableAsAgent(input);
-          this.daemon.events.emit('taskDeliverableSubmissionRecorded', submission);
-          return submission;
         },
         updateTaskDescription: async (input) => {
           const record = await this.taskBoards.updateTaskDescription(input.taskId, input.description);
@@ -925,7 +890,6 @@ function toTask(record: {
   effectiveStatus: string;
   id: string;
   name: string;
-  ownerId: string | null;
   poolId: string | null;
   status: string;
 }): TaskBoardTaskNode {
@@ -936,7 +900,6 @@ function toTask(record: {
     poolId: record.poolId,
     status: record.status as TaskStatus,
     effectiveStatus: record.effectiveStatus as TaskStatus | 'blocked',
-    ownerId: record.ownerId,
   };
 }
 

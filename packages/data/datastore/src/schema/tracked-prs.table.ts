@@ -16,13 +16,15 @@ export const trackedPrsTable = customTable(
   {
     taskId: text('task_id').notNull(),
     deliverableId: text('deliverable_id').notNull(),
-    agentId: text('agent_id').notNull(),
     // Vestigial: GitHub access now goes through the local `gh` CLI, so no
     // integration token is read. Retained (written as '') to avoid a schema
     // migration; safe to drop in a dedicated migration later.
     integrationId: text('integration_id').notNull(),
     repo: text('repo').notNull(),
     number: integer('number').notNull(),
+    // PR title from `gh`, refreshed on every poll. Drives the overview's
+    // "copy for review" output.
+    title: text('title').notNull().default(''),
     url: text('url').notNull(),
     state: text('state', { enum: ['mergeable', 'pending', 'unmergeable', 'merged', 'closed'] })
       .notNull()
@@ -38,6 +40,5 @@ export const trackedPrsTable = customTable(
     uniqueIndex('tracked_prs_repo_number_idx').on(table.repo, table.number),
     uniqueIndex('tracked_prs_task_deliverable_idx').on(table.taskId, table.deliverableId),
     index('tracked_prs_state_idx').on(table.state),
-    index('tracked_prs_agent_idx').on(table.agentId),
   ],
 );

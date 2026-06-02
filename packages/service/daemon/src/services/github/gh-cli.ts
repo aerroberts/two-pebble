@@ -23,6 +23,7 @@ export interface GhCheck {
  * Mirrors GitHub's GraphQL enums verbatim so no remapping is required.
  */
 export interface GhPullRequest {
+  title: string;
   state: 'OPEN' | 'CLOSED' | 'MERGED';
   mergeable: 'MERGEABLE' | 'CONFLICTING' | 'UNKNOWN';
   mergeStateStatus: string;
@@ -36,7 +37,7 @@ export interface GhPullRequest {
  * authenticated, or the PR cannot be read.
  */
 export async function fetchPullRequest(url: string): Promise<GhPullRequest> {
-  const stdout = await runGh(['pr', 'view', url, '--json', 'state,mergeable,mergeStateStatus,statusCheckRollup']);
+  const stdout = await runGh(['pr', 'view', url, '--json', 'title,state,mergeable,mergeStateStatus,statusCheckRollup']);
   try {
     return JSON.parse(stdout) as GhPullRequest;
   } catch (error) {

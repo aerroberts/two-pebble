@@ -78,6 +78,7 @@ import { handler as updateMemoryHandler } from './handlers/memories.update.handl
 import { handler as listMetricNamesHandler } from './handlers/metrics.list-names.handler';
 import { handler as listMetricVariantsHandler } from './handlers/metrics.list-variants.handler';
 import { handler as queryMetricsAggregatedHandler } from './handlers/metrics.query-aggregated.handler';
+import { handler as listPrOverviewHandler } from './handlers/pr-overview.list.handler';
 import { handler as createProjectHandler } from './handlers/projects.create.handler';
 import { handler as deleteProjectHandler } from './handlers/projects.delete.handler';
 import { handler as listProjectsHandler } from './handlers/projects.list.handler';
@@ -127,7 +128,6 @@ import { handler as delegateTaskHandler } from './handlers/tasks.delegate.handle
 import { handler as deleteTaskHandler } from './handlers/tasks.delete.handler';
 import { handler as listTasksHandler } from './handlers/tasks.list.handler';
 import { handler as renameTaskHandler } from './handlers/tasks.rename.handler';
-import { handler as undelegateTaskHandler } from './handlers/tasks.undelegate.handler';
 import { handler as setTaskStatusHandler } from './handlers/tasks.update.handler';
 import { handler as updateTaskDescriptionHandler } from './handlers/tasks.update-description.handler';
 import { handler as createThirdPartyAgentInstallHandler } from './handlers/third-party-agent-installs.create.handler';
@@ -277,7 +277,6 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('listTasks', listTasksHandler(context));
   register('createTask', createTaskHandler(context));
   register('delegateTask', delegateTaskHandler(context));
-  register('undelegateTask', undelegateTaskHandler(context));
   register('addTaskComment', addTaskCommentHandler(context));
   register('renameTask', renameTaskHandler(context));
   register('setTaskStatus', setTaskStatusHandler(context));
@@ -303,6 +302,7 @@ export function registerDaemonHandlers(context: DaemonHandlerContext, register: 
   register('listTaskDeliverableSubmissions', listTaskDeliverableSubmissionsHandler(context));
   register('submitTaskDeliverable', submitTaskDeliverableHandler(context));
   register('listTrackedPrs', listTrackedPrsHandler(context));
+  register('listPrOverview', listPrOverviewHandler(context));
   register('listMetricNames', listMetricNamesHandler(context));
   register('listMetricVariants', listMetricVariantsHandler(context));
   register('queryMetricsAggregated', queryMetricsAggregatedHandler(context));

@@ -135,7 +135,6 @@ import { tasksCreateOperation } from './operations/tasks.create';
 import { tasksDeleteOperation } from './operations/tasks.delete';
 import { tasksListOperation } from './operations/tasks.list';
 import { tasksRenameOperation } from './operations/tasks.rename';
-import { tasksSetOwnerOperation } from './operations/tasks.set-owner';
 import { tasksSetPoolOperation } from './operations/tasks.set-pool';
 import { tasksUpdateOperation } from './operations/tasks.update';
 import { tasksUpdateDescriptionOperation } from './operations/tasks.update-description';
@@ -526,7 +525,6 @@ export class Datastore {
         delete: bind(tasksDeleteOperation, 'tasks.delete'),
         list: bind(tasksListOperation, 'tasks.list'),
         rename: bind(tasksRenameOperation, 'tasks.rename'),
-        setOwner: bind(tasksSetOwnerOperation, 'tasks.set-owner'),
         setPool: bind(tasksSetPoolOperation, 'tasks.set-pool'),
         update: bind(tasksUpdateOperation, 'tasks.update'),
         updateDescription: bind(tasksUpdateDescriptionOperation, 'tasks.update-description'),

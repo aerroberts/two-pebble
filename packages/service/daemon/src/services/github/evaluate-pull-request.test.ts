@@ -3,6 +3,7 @@ import { evaluatePullRequest, type GhCheck, type GhPullRequest, isPullRequestGon
 
 function pull(overrides: Partial<GhPullRequest> = {}): GhPullRequest {
   return {
+    title: 'Example PR',
     state: 'OPEN',
     mergeable: 'MERGEABLE',
     mergeStateStatus: 'CLEAN',

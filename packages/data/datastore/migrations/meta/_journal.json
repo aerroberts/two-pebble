@@ -134,6 +134,20 @@
       "when": 1780102000000,
       "tag": "0018_automations_project_id",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1780103000000,
+      "tag": "0019_drop_task_owner",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1780104000000,
+      "tag": "0020_tracked_pr_title_drop_agent",
+      "breakpoints": true
     }
   ]
 }

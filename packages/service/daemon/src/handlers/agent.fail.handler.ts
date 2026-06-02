@@ -22,17 +22,6 @@ export function handler(ctx: DaemonHandlerContext) {
     ctx.agentRegistry.deactivate(payload.id);
     const record = await ctx.datastore.agent.fail(payload);
     ctx.events.emit('agentRecorded', record);
-    const sync = await ctx.taskBoards.syncOwnedTasksFromAgentStatus({
-      agentId: record.id,
-      agentStatus: 'failed',
-      reason: `admin: agent ${record.name || record.id} marked failed while waiting`,
-    });
-    for (const event of sync.events) {
-      ctx.events.emit('taskEventRecorded', event);
-    }
-    for (const task of sync.tasks) {
-      ctx.events.emit('taskUpdated', task);
-    }
     return { id: record.id };
   };
 }

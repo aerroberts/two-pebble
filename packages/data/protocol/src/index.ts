@@ -35,6 +35,12 @@ export type { MemoryRecord } from './protocol/memories.create';
 export type { MetricNameSummary } from './protocol/metrics.list-names';
 export type { MetricVariant } from './protocol/metrics.list-variants';
 export type { MetricAggregateBucket } from './protocol/metrics.query-aggregated';
+export type {
+  PrOverviewBoard,
+  PrOverviewDeliverable,
+  PrOverviewListOperation,
+  PrOverviewTask,
+} from './protocol/pr-overview.list';
 export type { ProjectRecord } from './protocol/projects.list';
 export type { SkillRecord } from './protocol/skills.list';
 export type { TaskBoardRecord } from './protocol/task-boards.list';

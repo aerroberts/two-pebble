@@ -78,6 +78,7 @@ import type { UpdateMemoryOperation } from './protocol/memories.update';
 import type { MetricsListNamesOperation } from './protocol/metrics.list-names';
 import type { MetricsListVariantsOperation } from './protocol/metrics.list-variants';
 import type { MetricsQueryAggregatedOperation } from './protocol/metrics.query-aggregated';
+import type { PrOverviewListOperation } from './protocol/pr-overview.list';
 import type { ProjectsCreateOperation } from './protocol/projects.create';
 import type { ProjectsDeleteOperation } from './protocol/projects.delete';
 import type { ProjectsListOperation } from './protocol/projects.list';
@@ -123,7 +124,7 @@ import type { TaskTemplatesReadOperation } from './protocol/task-templates.read'
 import type { TaskTemplatesUpdateOperation } from './protocol/task-templates.update';
 import type { TasksAddCommentOperation } from './protocol/tasks.add-comment';
 import type { TasksCreateOperation } from './protocol/tasks.create';
-import type { TasksDelegateOperation, TasksUndelegateOperation } from './protocol/tasks.delegate';
+import type { TasksDelegateOperation } from './protocol/tasks.delegate';
 import type { TasksDeleteOperation } from './protocol/tasks.delete';
 import type { TasksListOperation } from './protocol/tasks.list';
 import type { TasksRenameOperation } from './protocol/tasks.rename';
@@ -271,7 +272,6 @@ export type DaemonOperations = [
   TasksUpdateDescriptionOperation,
   TasksUpdateStatusOperation,
   TasksDelegateOperation,
-  TasksUndelegateOperation,
   TasksAddCommentOperation,
   TasksDeleteOperation,
   TaskDependenciesListOperation,
@@ -294,6 +294,7 @@ export type DaemonOperations = [
   TaskDeliverableSubmissionsListOperation,
   TaskDeliverableSubmissionsSubmitOperation,
   TrackedPrsListOperation,
+  PrOverviewListOperation,
   MetricsListNamesOperation,
   MetricsListVariantsOperation,
   MetricsQueryAggregatedOperation,

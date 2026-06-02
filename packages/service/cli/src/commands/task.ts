@@ -288,7 +288,7 @@ function registerRequirementCommands(task: Command): void {
 
   task
     .command('requirement-submit')
-    .description('Submit a deliverable for a task (pr_url submissions are validated against GitHub first)')
+    .description('Submit a deliverable for a task (a pr_url attaches a GitHub PR that is tracked until it merges)')
     .requiredOption('--task <taskId>', 'task id')
     .requiredOption('--deliverable <deliverableId>', 'deliverable id')
     .option('--content <text>', 'text content (for text deliverables)')
@@ -308,7 +308,7 @@ function registerRequirementCommands(task: Command): void {
 function registerDelegationCommands(task: Command): void {
   task
     .command('delegate')
-    .description('Delegate a task to a runtime agent built from the named registry')
+    .description('Launch a runtime agent (built from the named registry) pointed at this task; records no ownership')
     .requiredOption('--task <taskId>', 'task id')
     .requiredOption('--registry <registryId>', 'agent registry id')
     .action(async (options: { task: string; registry: string }) =>
@@ -317,16 +317,6 @@ function registerDelegationCommands(task: Command): void {
           taskId: options.task,
           agentRegistryId: options.registry,
         });
-        writeJson(result);
-      }),
-    );
-
-  task
-    .command('undelegate')
-    .requiredOption('--task <taskId>', 'task id')
-    .action(async (options: { task: string }) =>
-      runAction(async (client) => {
-        const result = await client.do('undelegateTask', { taskId: options.task });
         writeJson(result);
       }),
     );

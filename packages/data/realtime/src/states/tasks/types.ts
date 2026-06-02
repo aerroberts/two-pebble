@@ -23,7 +23,6 @@ export type DelegateTaskInput = RealtimeEmitPayload<'delegateTask'>;
 export type AddTaskCommentInput = RealtimeEmitPayload<'addTaskComment'>;
 export type RenameTaskInput = RealtimeEmitPayload<'renameTask'>;
 export type SetTaskStatusInput = RealtimeEmitPayload<'setTaskStatus'>;
-export type UndelegateTaskInput = RealtimeEmitPayload<'undelegateTask'>;
 export type UpdateTaskDescriptionInput = RealtimeEmitPayload<'updateTaskDescription'>;
 export type DeleteTaskInput = RealtimeEmitPayload<'deleteTask'>;
 export type CreateTaskDependencyInput = RealtimeEmitPayload<'createTaskDependency'>;

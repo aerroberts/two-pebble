@@ -6,7 +6,7 @@ export type BackoffEntry = {
 };
 
 export type PollOutcome =
-  | { kind: 'transition'; row: TrackedPrRecord; next: TrackedPrState; checks: TrackedPrCheckRun[] }
+  | { kind: 'transition'; row: TrackedPrRecord; next: TrackedPrState; checks: TrackedPrCheckRun[]; title: string }
   | { kind: 'error'; prId: string; status: number; message: string };
 
 export type GithubHeartbeatDetail = {

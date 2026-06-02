@@ -15,7 +15,6 @@ export interface TaskUpdatedEvent {
     descriptionContent: string | null;
     templateId: string | null;
     additionalContext: string;
-    ownerId: string | null;
     status: 'pending' | 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
     effectiveStatus: 'blocked' | 'open' | 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
   };

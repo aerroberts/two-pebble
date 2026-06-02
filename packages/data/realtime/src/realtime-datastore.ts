@@ -73,6 +73,7 @@ import { updateMemoryOperation } from './operations/memories.update.operation';
 import { listMetricNamesOperation } from './operations/metrics.list-names.operation';
 import { listMetricVariantsOperation } from './operations/metrics.list-variants.operation';
 import { queryMetricsAggregatedOperation } from './operations/metrics.query-aggregated.operation';
+import { listPrOverviewOperation } from './operations/pr-overview.list.operation';
 import { createProjectOperation } from './operations/projects.create.operation';
 import { deleteProjectOperation } from './operations/projects.delete.operation';
 import { listProjectsOperation } from './operations/projects.list.operation';
@@ -117,7 +118,6 @@ import { delegateTaskOperation } from './operations/tasks.delegate.operation';
 import { deleteTaskOperation } from './operations/tasks.delete.operation';
 import { listTasksOperation } from './operations/tasks.list.operation';
 import { renameTaskOperation } from './operations/tasks.rename.operation';
-import { undelegateTaskOperation } from './operations/tasks.undelegate.operation';
 import { setTaskStatusOperation } from './operations/tasks.update.operation';
 import { updateTaskDescriptionOperation } from './operations/tasks.update-description.operation';
 import { createThirdPartyAgentInstallOperation } from './operations/third-party-agent-installs.create.operation';
@@ -151,6 +151,7 @@ import { listenToInferenceProfiles } from './states/inference-profiles/listen';
 import { listenToIntegrations } from './states/integrations/listen';
 import { listenToKnownIdes } from './states/known-ides/listen';
 import { listenToMemories } from './states/memories/listen';
+import { listenToPrOverview } from './states/pr-overview/listen';
 import { listenToRepositories } from './states/repositories/listen';
 import { listenToSkills } from './states/skills/listen';
 import { listenToTasks } from './states/tasks/listen';
@@ -414,7 +415,6 @@ export class RealtimeDatastore {
       addComment: addTaskCommentOperation({ datastore: this }),
       rename: renameTaskOperation({ datastore: this }),
       setStatus: setTaskStatusOperation({ datastore: this }),
-      undelegate: undelegateTaskOperation({ datastore: this }),
       updateDescription: updateTaskDescriptionOperation({ datastore: this }),
     };
   }
@@ -487,6 +487,12 @@ export class RealtimeDatastore {
   public get trackedPrs() {
     return {
       list: listTrackedPrsOperation({ datastore: this }),
+    };
+  }
+
+  public get prOverview() {
+    return {
+      list: listPrOverviewOperation({ datastore: this }),
     };
   }
 
@@ -779,6 +785,7 @@ export class RealtimeDatastore {
     listenToWorkspaces({ datastore: this });
     listenToAgentRegistries({ datastore: this });
     listenToTasks({ datastore: this });
+    listenToPrOverview({ datastore: this });
   }
 
   private handleConnectionClosed(client: RealtimeClient): void {

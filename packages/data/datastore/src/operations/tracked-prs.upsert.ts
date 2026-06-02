@@ -6,9 +6,9 @@ import type { DatastoreContext, TrackedPrRecord, TrackedPrState } from '../types
 type OperationHandlerInput = {
   taskId: string;
   deliverableId: string;
-  agentId: string;
   repo: string;
   number: number;
+  title?: string;
   url: string;
   state?: TrackedPrState;
   lastCheckedAt?: number;
@@ -49,7 +49,6 @@ export function trackedPrsUpsertOperation(ctx: DatastoreContext) {
     }
 
     const values = {
-      agentId: input.agentId,
       deliverableId: input.deliverableId,
       integrationId: input.integrationId ?? '',
       lastCheckedAt: input.lastCheckedAt ?? createUtcNow(),
@@ -57,6 +56,8 @@ export function trackedPrsUpsertOperation(ctx: DatastoreContext) {
       number: input.number,
       state: input.state ?? 'mergeable',
       taskId: input.taskId,
+      // Preserve a previously captured title when this upsert doesn't carry one.
+      title: input.title ?? byPr?.title ?? byDeliverable?.title ?? '',
       url: input.url,
     };
 

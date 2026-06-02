@@ -341,7 +341,6 @@ export interface TaskRecord {
   descriptionContent: string | null;
   templateId: string | null;
   additionalContext: string;
-  ownerId: string | null;
   status: string;
 }
 
@@ -405,10 +404,10 @@ export interface TrackedPrRecord {
   updatedAt: number;
   taskId: string;
   deliverableId: string;
-  agentId: string;
   integrationId: string;
   repo: string;
   number: number;
+  title: string;
   url: string;
   state: TrackedPrState;
   checks: TrackedPrCheckRun[];

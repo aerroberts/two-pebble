@@ -1,7 +1,6 @@
 import {
   type ProtocolTaskRecord,
   type TrackedPrRecord,
-  useAgents,
   useBoardTaskTemplates,
   useInferenceProfiles,
   useProjectAgentRegistries,
@@ -25,12 +24,6 @@ type PoolId = string | null;
 type SettableTaskStatus = 'working' | 'waiting' | 'success' | 'failure' | 'canceled';
 type CreateTaskAfterInput = { poolId: PoolId; name?: string; templateId?: string | null };
 type SelectedTaskRecord = ProtocolTaskRecord | null;
-type OwnerAgentResult = AgentLike | null;
-
-interface AgentLike {
-  id: string;
-  name: string;
-}
 
 export type { SettableTaskStatus, TaskBoardView };
 
@@ -47,7 +40,6 @@ export function useTaskBoardPageState() {
   const agentRegistries = useProjectAgentRegistries(projectId);
   const inferenceProfiles = useInferenceProfiles();
   const installs = useThirdPartyAgentInstalls();
-  const agents = useAgents({ projectId });
   const board = taskBoards.getItem(boardId)?.value ?? null;
   const [boardNameDraft, setBoardNameDraft] = useState('');
   const [taskNameDraft, setTaskNameDraft] = useState('');
@@ -216,14 +208,6 @@ export function useTaskBoardPageState() {
           setDelegating(false);
         }
       }),
-    undelegateSelectedTask: () =>
-      handle(async () => {
-        if (selectedTask === null) {
-          return;
-        }
-        await mutations.undelegateTask({ taskId: selectedTask.id });
-      }),
-    selectedOwnerAgent: collectOwnerAgent(selectedTask, agents.values()),
     renameTaskFromList: (id: string, name: string) =>
       handle(async () => {
         const trimmed = name.trim();
@@ -269,20 +253,10 @@ export function useTaskBoardPageState() {
           setDelegating(false);
         }
       }),
-    undelegateTaskById: (taskId: string) =>
-      handle(async () => {
-        await mutations.undelegateTask({ taskId });
-      }),
     setTaskStatusById: (taskId: string, status: SettableTaskStatus) =>
       handle(async () => {
         await mutations.setTaskStatus({ id: taskId, status, reason: `manual: set to ${status}` });
       }),
-    findOwnerAgent: (ownerId: string | null) => {
-      if (ownerId === null) {
-        return null;
-      }
-      return agents.values().find((entry) => entry.id === ownerId) ?? null;
-    },
     trackedPrsForTask: (taskId: string): TrackedPrRecord[] => trackedPrs.filter((row) => row.taskId === taskId),
     deletePool: (poolId: string) =>
       handle(async () => {
@@ -357,13 +331,6 @@ export function useTaskBoardPageState() {
         await mutations.deleteTaskDeliverable({ id });
       }),
   };
-}
-
-function collectOwnerAgent(selectedTask: SelectedTaskRecord, agents: AgentLike[]): OwnerAgentResult {
-  if (selectedTask === null || selectedTask.ownerId === null) {
-    return null;
-  }
-  return agents.find((entry) => entry.id === selectedTask.ownerId) ?? null;
 }
 
 function collectCandidateDependencies(

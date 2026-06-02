@@ -72,8 +72,6 @@ export function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
       update: async () => ({ id: '', name: '' }),
     },
     github: {
-      applySignal: async () => undefined,
-      hasOpenPrs: async () => false,
       submitPr: async () => {
         throw new Error('not used');
       },
@@ -105,11 +103,7 @@ export function buildTestBridge(signals: MemorySignalOperations): AgentBridge {
       listTaskDeliverables: async () => [],
       listTaskEvents: async () => [],
       renameTask: async () => undefined,
-      setOwnedTaskStatus: async () => undefined,
       setTaskStatus: async () => undefined,
-      submitDeliverable: async () => {
-        throw new Error('not used');
-      },
       updateTaskDescription: async () => undefined,
     },
   };

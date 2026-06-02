@@ -23,8 +23,6 @@ export const tasksTable = customTable('tasks', {
   templateId: text('template_id'),
   // Prompt context copied from the template at task creation.
   additionalContext: text('additional_context').notNull().default(''),
-  // Agent currently responsible for this task, or null when unassigned.
-  ownerId: text('owner_id'),
   // Persisted stored status from the tasks engine.
   status: text('status').notNull(),
 });

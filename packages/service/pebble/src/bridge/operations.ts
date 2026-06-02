@@ -118,6 +118,7 @@ export interface MarkSignalResolvedInput {
 }
 
 export interface GithubSubmitPrInput {
+  taskId: string;
   deliverableId: string;
   url: string;
 }
@@ -130,11 +131,6 @@ export interface GithubTrackedPr {
   number: number;
   url: string;
   state: 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed';
-}
-
-export interface GithubPrSignalInput {
-  prId: string;
-  next: 'mergeable' | 'pending' | 'unmergeable' | 'merged' | 'closed';
 }
 
 export type SubAgentMode = 'task' | 'teammate';
@@ -182,7 +178,6 @@ export interface TaskBoardTaskNode {
   poolId: string | null;
   status: TaskStatus;
   effectiveStatus: TaskStatus | 'blocked' | 'open';
-  ownerId: string | null;
 }
 
 export interface TaskBoardDependencyEdge {
@@ -219,13 +214,6 @@ export interface TaskBoardUpdateTaskDescriptionInput {
 
 export interface TaskBoardSetTaskStatusInput {
   boardId: string;
-  taskId: string;
-  status: SettableTaskStatus;
-  reason: string;
-}
-
-export interface TaskBoardSetOwnedTaskStatusInput {
-  agentId: string;
   taskId: string;
   status: SettableTaskStatus;
   reason: string;
@@ -284,13 +272,6 @@ export interface TaskBoardDeliverableSubmission {
   submittedAt: number;
 }
 
-export interface TaskBoardSubmitDeliverableInput {
-  agentId: string;
-  taskId: string;
-  deliverableId: string;
-  payload: TaskDeliverablePayload;
-}
-
 export type DocumentTodoList = DocumentTodo[];
 
 export interface AgentOperations {
@@ -336,8 +317,6 @@ export interface SignalOperations {
 }
 
 export interface GithubOperations {
-  applySignal(input: GithubPrSignalInput): Promise<void>;
-  hasOpenPrs(): Promise<boolean>;
   submitPr(input: GithubSubmitPrInput): Promise<GithubTrackedPr>;
 }
 
@@ -359,8 +338,6 @@ export interface TaskBoardOperations {
   listTaskDeliverables(input: { taskId: string }): Promise<TaskBoardDeliverable[]>;
   listTaskEvents(input: { boardId: string; taskId: string }): Promise<TaskBoardEventRecord[]>;
   renameTask(input: TaskBoardRenameTaskInput): Promise<void>;
-  setOwnedTaskStatus(input: TaskBoardSetOwnedTaskStatusInput): Promise<void>;
   setTaskStatus(input: TaskBoardSetTaskStatusInput): Promise<void>;
-  submitDeliverable(input: TaskBoardSubmitDeliverableInput): Promise<TaskBoardDeliverableSubmission>;
   updateTaskDescription(input: TaskBoardUpdateTaskDescriptionInput): Promise<void>;
 }

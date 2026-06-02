@@ -2,7 +2,6 @@ import { and, asc, eq, inArray, lte } from 'drizzle-orm';
 import type { DatastoreContext, TrackedPrRecord, TrackedPrState } from '../types';
 
 type OperationHandlerInput = {
-  agentId?: string;
   taskId?: string;
   state?: TrackedPrState[];
   pollableBefore?: number;
@@ -13,9 +12,6 @@ type OperationHandlerInput = {
 export function trackedPrsListOperation(ctx: DatastoreContext) {
   return async function handler(input: OperationHandlerInput = {}) {
     const filters = [];
-    if (input.agentId !== undefined) {
-      filters.push(eq(ctx.schema.trackedPrsTable.agentId, input.agentId));
-    }
     if (input.taskId !== undefined) {
       filters.push(eq(ctx.schema.trackedPrsTable.taskId, input.taskId));
     }

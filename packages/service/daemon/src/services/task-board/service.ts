@@ -1,7 +1,7 @@
 import type { TaskRecord } from '@two-pebble/datastore';
 import { logger } from '@two-pebble/logger';
-import type { ProtocolTaskRecord, TaskDeliverablePayload } from '@two-pebble/protocol';
-import { TaskBoard, TaskOwnershipError } from '@two-pebble/tasks';
+import type { ProtocolTaskRecord } from '@two-pebble/protocol';
+import { TaskBoard } from '@two-pebble/tasks';
 import { DaemonService } from '../daemon-service';
 import type { GithubService } from '../github';
 import { rowToProtocolEvent } from './event-mapping';
@@ -18,16 +18,9 @@ import type {
   DependencyMutationOutcome,
   MutationContextInput,
   MutationOutcome,
-  OwnerId,
-  RecordDelegationInput,
   RecordedTaskEvent,
-  RecordUndelegationInput,
-  SetTaskStatusAsAgentInput,
   SetTaskStatusInput,
-  SubmitDeliverableAsAgentInput,
   SubmitDeliverableInput,
-  SyncTasksFromAgentInput,
-  SyncTasksFromAgentResult,
   TaskMutationOutcome,
 } from './types';
 
@@ -91,49 +84,6 @@ export class TaskBoardService extends DaemonService {
    */
   public async renameTask(id: string, name: string) {
     return this.datastore.taskBoards.tasks.rename({ id, name });
-  }
-
-  /**
-   * Sets or clears a task's owning agent. Pure DB write; the engine doesn't
-   * track ownership so no engine call is needed.
-   */
-  public async setTaskOwner(id: string, ownerId: OwnerId) {
-    const record = await this.datastore.taskBoards.tasks.setOwner({ id, ownerId });
-    return record;
-  }
-
-  /**
-   * Records a 'delegated' event on a task with the agent + registry references.
-   */
-  public async recordDelegationEvent(input: RecordDelegationInput): Promise<RecordedTaskEvent> {
-    const data = JSON.stringify({
-      agentId: input.agentId,
-      agentRegistryId: input.agentRegistryId,
-      agentName: input.agentName,
-    });
-    const row = await this.datastore.taskBoards.events.record({
-      taskId: input.taskId,
-      kind: 'delegated',
-      status: '',
-      reason: input.reason,
-      data,
-    });
-    return rowToProtocolEvent(row);
-  }
-
-  /**
-   * Records an 'undelegated' event noting the agent that was removed.
-   */
-  public async recordUndelegationEvent(input: RecordUndelegationInput): Promise<RecordedTaskEvent> {
-    const data = JSON.stringify({ agentId: input.agentId });
-    const row = await this.datastore.taskBoards.events.record({
-      taskId: input.taskId,
-      kind: 'undelegated',
-      status: '',
-      reason: input.reason,
-      data,
-    });
-    return rowToProtocolEvent(row);
   }
 
   /**
@@ -298,89 +248,36 @@ export class TaskBoardService extends DaemonService {
   }
 
   /**
-   * Submits a deliverable for a task without an ownership check.
-   * Used by operator-driven paths (CLI/UI). When the deliverable is a `pr_url`
-   * the referenced pull request is validated through the GitHub service first,
-   * so a submission is only recorded once the PR is open, conflict-free, up to
-   * date, and passing CI.
+   * Submits a deliverable for a task. Used identically by CLI, UI, and agents
+   * (there is no ownership concept). Text deliverables record a submission
+   * directly. `pr_url` deliverables are routed to the GitHub service, which
+   * attaches the PR and tracks it until it merges (attach-then-watch); their
+   * submission row is only recorded once the PR merges.
    */
   public async submitDeliverable(input: SubmitDeliverableInput) {
-    await this.findTask(input.taskId);
-    return this.recordDeliverableSubmission(input.taskId, input.deliverableId, input.payload);
-  }
-
-  /**
-   * Owner-aware deliverable submission used by agent-initiated paths.
-   * Asserts `task.ownerId === agentId`, then records the submission through the
-   * same validated path as `submitDeliverable`.
-   */
-  public async submitDeliverableAsAgent(input: SubmitDeliverableAsAgentInput) {
     const task = await this.findTask(input.taskId);
-    if (task.ownerId !== input.agentId) {
-      throw new TaskOwnershipError(input.taskId, input.agentId, task.ownerId);
-    }
-    return this.recordDeliverableSubmission(input.taskId, input.deliverableId, input.payload, input.agentId);
-  }
-
-  /**
-   * Validates and upserts a deliverable submission.
-   * Confirms the deliverable exists, the payload type matches, and (for
-   * `pr_url` deliverables) the pull request is ready to merge before persisting.
-   *
-   * When `expectedOwnerId` is supplied (agent-initiated paths) the task's owner
-   * is re-asserted immediately before the write — after the `pr_url` validation
-   * network call, which is the widest window in which a concurrent `undelegate`
-   * could clear ownership. Without this, an undelegated agent's in-flight
-   * submission would still land, contradicting the operator.
-   */
-  private async recordDeliverableSubmission(
-    taskId: string,
-    deliverableId: string,
-    payload: TaskDeliverablePayload,
-    expectedOwnerId?: string,
-  ) {
-    const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId });
-    const deliverable = deliverables.find((entry) => entry.id === deliverableId);
+    const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId: input.taskId });
+    const deliverable = deliverables.find((entry) => entry.id === input.deliverableId);
     if (deliverable === undefined) {
-      throw new Error(`task deliverable "${deliverableId}" not found on task "${taskId}"`);
+      throw new Error(`task deliverable "${input.deliverableId}" not found on task "${input.taskId}"`);
     }
-    if (deliverable.type !== payload.type) {
-      throw new Error(`deliverable "${deliverableId}" expects payload type "${deliverable.type}"`);
+    if (deliverable.type !== input.payload.type) {
+      throw new Error(`deliverable "${input.deliverableId}" expects payload type "${deliverable.type}"`);
     }
-    if (payload.type === 'pr_url') {
-      await this.github.validatePullRequest(payload.url);
-    }
-    if (expectedOwnerId !== undefined) {
-      const current = await this.findTask(taskId);
-      if (current.ownerId !== expectedOwnerId) {
-        throw new TaskOwnershipError(taskId, expectedOwnerId, current.ownerId);
-      }
+    if (input.payload.type === 'pr_url') {
+      const tracked = await this.github.trackPrForDeliverable({
+        taskId: task.id,
+        deliverableId: deliverable.id,
+        url: input.payload.url,
+      });
+      return { kind: 'tracked_pr' as const, trackedPr: tracked };
     }
     const row = await this.datastore.taskBoards.deliverableSubmissions.upsert({
-      taskId,
-      deliverableId,
-      payload: JSON.stringify(payload),
+      taskId: input.taskId,
+      deliverableId: input.deliverableId,
+      payload: JSON.stringify(input.payload),
     });
-    return { ...row, payload };
-  }
-
-  /**
-   * Owner-aware status mutation used by agent-initiated paths.
-   * Resolves the task across boards, asserts `task.ownerId === agentId`, then
-   * delegates to `setTaskStatus`. Throws `TaskOwnershipError` on mismatch so
-   * the tool layer can surface a precise reason. UI paths continue to call
-   * `setTaskStatus` directly and remain unrestricted by ownership.
-   */
-  public async setTaskStatusAsAgent(input: SetTaskStatusAsAgentInput): Promise<TaskMutationOutcome> {
-    const found = await this.findTask(input.taskId);
-    if (found.ownerId !== input.agentId) {
-      throw new TaskOwnershipError(input.taskId, input.agentId, found.ownerId);
-    }
-    return this.setTaskStatus(found.boardId, {
-      id: input.taskId,
-      status: input.status,
-      reason: input.reason,
-    });
+    return { kind: 'submission' as const, submission: { ...row, payload: input.payload } };
   }
 
   /**
@@ -496,63 +393,6 @@ export class TaskBoardService extends DaemonService {
     return items.map((row) => rowToProtocolEvent(row));
   }
 
-  /**
-   * Propagates a delegate agent's terminal failure to any task it owns.
-   * Tasks already in a terminal state are left untouched so explicit human
-   * overrides are not overwritten by the after-the-fact sync.
-   */
-  public async syncOwnedTasksFromAgentStatus(input: SyncTasksFromAgentInput): Promise<SyncTasksFromAgentResult> {
-    // Only a genuine failure should force the agent's in-progress tasks to
-    // failure. A gracefully stopped or finished agent settles to `idle`, and
-    // force-failing its owned tasks then destroyed healthy work (e.g. stopping
-    // an already-done agent flipped a working/waiting task to failure).
-    if (input.agentStatus !== 'failed') {
-      return { tasks: [], events: [] };
-    }
-    const targetStatus = 'failure';
-    const reason = input.reason ?? `auto: agent ${input.agentStatus}`;
-    const { items: boards } = await this.datastore.taskBoards.list({});
-    const tasksOut: ProtocolTaskRecord[] = [];
-    const events: RecordedTaskEvent[] = [];
-    for (const board of boards) {
-      const { items: tasks } = await this.datastore.taskBoards.tasks.list({ boardId: board.id });
-      const owned = tasks.filter((task) => task.ownerId === input.agentId);
-      for (const task of owned) {
-        if (task.status === 'success' || task.status === 'failure' || task.status === 'canceled') {
-          continue;
-        }
-        // A task parked in `waiting` on a still-open tracked PR outlives the
-        // agent: the PR can still merge and drive the task to success. Failing
-        // it here is terminal and would abandon a healthy PR, so skip it.
-        if (task.status === 'waiting' && (await this.hasOpenTrackedPr(task.id))) {
-          continue;
-        }
-        try {
-          const outcome = await this.setTaskStatus(board.id, { id: task.id, status: targetStatus, reason });
-          tasksOut.push(outcome.result);
-          events.push(...outcome.events);
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          logger.warn('task status sync from agent failed', {
-            agentId: input.agentId,
-            agentStatus: input.agentStatus,
-            error: message,
-            taskId: task.id,
-          });
-        }
-      }
-    }
-    return { tasks: tasksOut, events };
-  }
-
-  private async hasOpenTrackedPr(taskId: string): Promise<boolean> {
-    const { items } = await this.datastore.trackedPrs.list({
-      taskId,
-      state: ['mergeable', 'pending', 'unmergeable'],
-    });
-    return items.length > 0;
-  }
-
   private async runMutation<T>(
     context: MutationContextInput,
     mutation: (engine: TaskBoard) => T,
@@ -624,9 +464,14 @@ export class TaskBoardService extends DaemonService {
   }
 
   /**
-   * Throws unless every deliverable on the task has at least one submission.
-   * Guards the transition to `success` so a task cannot be completed while a
-   * deliverable is still outstanding. Tasks with no deliverables pass freely.
+   * Guards the transition to `success` so a task cannot be completed while any
+   * deliverable is still outstanding. A task with no deliverables passes freely.
+   *
+   * - A `text` deliverable is resolved once it has a submission.
+   * - A `pr_url` deliverable is resolved only when a GitHub PR has been attached
+   *   **and that PR has merged** — encoding the rule that a task requiring a PR
+   *   cannot complete until the PR is merged. "No PR attached" and "PR not yet
+   *   merged" are reported as distinct, actionable reasons.
    */
   private async assertDeliverablesSubmitted(taskId: string): Promise<void> {
     const { items: deliverables } = await this.datastore.taskBoards.deliverables.list({ taskId });
@@ -635,10 +480,26 @@ export class TaskBoardService extends DaemonService {
     }
     const { items: submissions } = await this.datastore.taskBoards.deliverableSubmissions.list({ taskId });
     const submitted = new Set(submissions.map((submission) => submission.deliverableId));
-    const missing = deliverables.filter((deliverable) => !submitted.has(deliverable.id));
-    if (missing.length > 0) {
-      const names = missing.map((deliverable) => deliverable.name).join(', ');
-      throw new Error(`cannot mark task "${taskId}" as success: deliverable(s) not yet submitted: ${names}`);
+    const { items: trackedPrs } = await this.datastore.trackedPrs.list({ taskId });
+    const prByDeliverable = new Map(trackedPrs.map((pr) => [pr.deliverableId, pr]));
+
+    const reasons: string[] = [];
+    for (const deliverable of deliverables) {
+      if (deliverable.type === 'pr_url') {
+        const pr = prByDeliverable.get(deliverable.id);
+        if (pr === undefined) {
+          reasons.push(`"${deliverable.name}" has no PR submitted`);
+        } else if (pr.state !== 'merged') {
+          reasons.push(`"${deliverable.name}" PR ${pr.repo}#${pr.number} is not merged (${pr.state})`);
+        }
+        continue;
+      }
+      if (!submitted.has(deliverable.id)) {
+        reasons.push(`"${deliverable.name}" not yet submitted`);
+      }
+    }
+    if (reasons.length > 0) {
+      throw new Error(`cannot mark task "${taskId}" as success: ${reasons.join('; ')}`);
     }
   }
 

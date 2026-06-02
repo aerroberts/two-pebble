@@ -261,16 +261,6 @@ describe('feature: operation tasks.update-description', () => {
   });
 });
 
-describe('feature: operation tasks.set-owner', () => {
-  test('happy: setOwner sets the ownerId', async () => {
-    const datastore = await useDatastoreForTesting();
-    const { taskId } = await seedBoardWithOneTask(datastore);
-    const owned = await datastore.taskBoards.tasks.setOwner({ id: taskId, ownerId: 'agent-1' });
-    await datastore.close();
-    expect(owned.ownerId).toBe('agent-1');
-  });
-});
-
 describe('feature: operation tasks.set-pool', () => {
   test('happy: setPool moves a task into a pool', async () => {
     const datastore = await useDatastoreForTesting();

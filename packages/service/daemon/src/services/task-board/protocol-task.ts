@@ -14,7 +14,6 @@ export function toProtocolTask(row: DatastoreTaskRow, engine: TaskBoard): Protoc
     descriptionContent: row.descriptionContent ?? null,
     templateId: row.templateId ?? null,
     additionalContext: row.additionalContext ?? '',
-    ownerId: row.ownerId ?? null,
     status: row.status as ProtocolTaskRecord['status'],
     effectiveStatus: engine.getTaskStatus(row.id),
   };

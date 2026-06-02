@@ -90,14 +90,11 @@ export function TaskBoardPage() {
         name: state.selectedTask.name,
         status: state.selectedTask.effectiveStatus,
       }}
-      ownerAgent={state.selectedOwnerAgent}
       description={state.selectedTask.description}
       descriptionContent={state.selectedTask.descriptionContent}
       taskReferences={state.taskReferences}
       onDescriptionSave={(markdown, content) => void state.saveTaskDescription(markdown, content)}
       onDelegate={(agentRegistryId: string) => void state.delegateSelectedTask(agentRegistryId)}
-      onUndelegate={() => void state.undelegateSelectedTask()}
-      onOpenAgent={(agentId: string) => state.navigate(`/agents/${agentId}`)}
       delegateAgents={delegateOptions}
       delegateDisabled={state.delegating}
       deliverables={state.selectedTaskDeliverables}
